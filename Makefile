@@ -13,6 +13,7 @@ all: $(TARGETS)
 clean:
 sparkling: clean
 	rm -f $(TARGETS)
+	if test -d latex.out; then rm -r latex.out; fi
 force: sparkling all
 
 # The sed script here filters out form feed lines. I use these to mark &
