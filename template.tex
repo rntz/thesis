@@ -1,0 +1,19 @@
+\documentclass[12pt]{article}
+
+% NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
+% interaction.
+\usepackage{rntztitle,rntzsection,rntzfootnotes,rntzabstract,rntzref,rntzthm}
+\usepackage[a4]{rntzgeometry}
+\usepackage[charter,euler]{rntzfont}
+\makeatletter\edef\zeu@Scale{1}\makeatother % hack.
+\frenchspacing\usepackage[letterspace=40]{microtype}
+
+\usepackage[utf8]{inputenc}
+\usepackage{natbib}
+\usepackage{notation}
+
+\begin{document}
+
+$body$
+
+\end{document}

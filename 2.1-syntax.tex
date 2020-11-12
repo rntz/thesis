@@ -1,0 +1,117 @@
+\section{Syntax}\label{syntax}
+
+%% TODO: edit/rewrite this section
+%% TODO: this figure
+%\input{fig-syntax}
+
+\todo{TODO: this section needs to be edited and/or rewritten. Also, the fixed
+  point operator should probably be made a genuine binding operator rather than
+  a higher-order function. This should simplify the story about optimization of
+  the phi transformation.}
+
+The idea behind Datafun is to capture the essence of Datalog in a typed,
+higher-order, functional setting.
+%
+Since the key restriction that makes Datalog tractable -- stratification --
+requires tracking \emph{monotonicity,} we locate Datafun's semantics in the
+category \Poset\ of partial orders and monotone maps.
+%category \Poset\ of partial orders and monotone maps.
+%
+Since \Poset\ is cartesian closed, it can interpret the simply typed
+\fn-calculus, giving us a notation for writing monotone and higher-order
+functions.
+%
+This lets us \emph{abstract} over Datalog rules, something not
+possible in Datalog itself!
+%
+In this section we sketch the construction of Datafun hewing closely to this
+semantic intuition.
+
+Datafun begins as the simply-typed \fn-calculus with functions ($\fnof x e$ and
+$e\<f$), sums ($\inj i e$ and $\ecase{e}{\dots}$), and products ($\etuple{e,f}$
+and $\pi_i\<e$).
+%
+To represent relations, we add a type of finite sets $\tset{\eqt
+  A}$,\footnote{To implement set types, their elements must support decidable
+  equality. In our core calculus, we use a subgrammar of ``eqtypes'', and in our
+  implementation (which compiles to Haskell) we use typeclass constraints to
+  pick out such types.} introduced with set literals $\eset{e_0, \ldots e_n}$, and
+eliminated using Moggi's monadic bind syntax, $\efor{x}{e_1}{e_2}$, signifying
+the union over all $\dvar x \in e_1$ of $e_2$.
+%
+Since we are working in \Poset, each type comes with a partial order on it; sets
+are ordered by inclusion, $x \le y : \tseteq{A} \iff x \subseteq y$.
+
+As long as all primitives are monotone, every definable function is also
+monotone. This is necessary for defining fixed points, but may seem too
+restrictive. There are many useful non-monotone operations, such as equality
+tests $\eeq e f$. For example, $\esetraw{} = \esetraw{}$ is true, but if the
+first argument increases to $\esetraw{1}$ it becomes false, a \emph{decrease}
+(as we'll see later, in Datafun, $\efalse < \etrue$).
+
+How can we express non-monotone operations if all functions are monotone?
+%
+We square this circle by introducing the \emph{discreteness} type constructor,
+$\iso A$.
+%
+The elements of $\iso A$ are the same as those of $A$, but the partial order on
+$\iso A$ is discrete, $x \le y : \iso A \iff x = y$.
+%
+Monotonicity of a function $\iso A \to B$ is vacuous: $x = y$ implies $f(x) \le
+f(y)$ by reflexivity!
+%
+In this way we represent ordinary, possibly non-monotone, functions $A \to B$ as
+monotone functions $\iso A \to B$.
+
+Semantically, $\iso$ is a monoidal comonad or necessity modality, and so we base
+our syntax on \citet{jrml}'s syntax for the necessity fragment of constructive
+S4 modal logic.
+%
+This involves distinguishing two kinds of variable: discrete variables $\dvar x$
+are in \emph{\isocolor\isocolorname\ italics}, while monotone variables $x$ are
+in $upright\ black\ script$.
+%
+Discrete variables may be used wherever they're in scope, but crucially,
+monotone variables are hidden within non-monotone expressions.
+%
+For example, in an equality test $\eeq e f$, the terms $e$ and $f$ cannot refer
+to monotone variables bound outside the equality expression.
+%
+We highlight such expressions with a
+\adjustbox{bgcolor=isobg}{\isobgname\ background}.
+%
+Putting this all together, we construct the type $\iso A$ with the non-monotone
+introduction form $\ebox{e}$ and eliminate it by pattern-matching, $\eletbox x e
+f$, giving access to a discrete variable $\dvar{x}$.
+
+%% TODO: should we note that we really definitely mean □(L → L) and
+%% not (□L → L)? Reader may be confused.
+
+\newcommand\isofixLtoL{\iso(\kernfixtL \to \fixtLkern)}
+
+Finally, Datafun includes fixed points, $\efix{f}$. The \prim{fix} combinator takes a function $\isofixLtoL$ and returns its least fixed point.
+%
+Besides monotonicity of the function, we impose two restrictions on the fixed point operator to ensure well-definedness and termination.
+%
+First, we require that recursion occur at \emph{semilattice types with no infinite ascending chains}, $\fixtLkern$.
+%
+A join-semilattice is a partial order with a least element $\bot$ and a least upper bound operation $\vee$ (``join'').
+%
+Finite sets (with the empty set as least element, and union as join) are an example, as are tuples of semilattices.
+%
+As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \cdots$, iteration from the bottom element is guaranteed to find the least fixed point.\footnotemark
+
+\footnotetext{\label{note:finite-eqtypes}As a technical detail, the finite set
+  type $\tseteq{A}$ will possess infinite ascending chains if $\eqt A$ has
+  infinitely many inhabitants. Thus we need to distinguish a class of
+  \emph{finite} eqtypes $\fint A$. Although their grammars in \cref{fig:syntax}
+  are identical, their intent is different. For example, if we extended Datafun
+  with integers, they would form an eqtype, but not a finite one.}
+
+Second, we require that the recursive function be boxed, $\isofixLtoL$. Since boxed expressions can only refer to discrete values, and fixed point
+functions themselves must be monotone, this has the effect of preventing
+semantically nested fixed points. We discuss this in more detail in
+\cref{sec:nested-fixed-points}. Note that this does not prevent mutual
+recursion, which can be expressed by taking a fixed point at product type, nor
+stratified fixed points \`a la Datalog.
+

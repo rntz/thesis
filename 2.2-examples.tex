@@ -1,0 +1,529 @@
+\section{Examples}
+\label{examples}
+
+%\input{fig-sugar}
+
+For brevity and clarity, the examples that follow make use of some syntax sugar:
+
+\begin{enumerate}
+
+\item We mentioned earlier that Datafun's boolean type \tbool\ is ordered
+  $\efalse < \etrue$. This is because we encode booleans as sets of empty
+  tuples, $\tset 1$, with \efalse\ as the empty set $\esetraw{}$ and
+  \etrue\ as the singleton $\esetraw{\etuple{}}$. On these sets \kw{for}
+  degenerates to a ``one-sided'' conditional, $\ewhen b e$, yielding
+  $e$ if $b$ is $\etrue$ and $\bot$ otherwise. Compared with encoding booleans
+  as a sum type \(\tunit + \tunit\) and \kw{when} as \kw{case}, our approach has
+  the advantage that \kw{when} is monotone in the condition $b$.
+
+\item We make use of set comprehensions, which can be desugared into the monadic
+  operators \kw{for} and \kw{when} in the usual
+  way~\cite{wadler-monad-comprehensions}.
+
+\item It is convenient to treat \prim{fix} as a binding form, $\efixis x e$,
+  rather than explicitly supplying a boxed function, $\efix\ebox{\fnof x e}$.
+
+\item Finally, we make free use of curried functions and pattern matching.
+  Desugaring these is relatively standard, and so we will say little about it,
+  with one exception: the box-elimination form $\eletbox x e e'$ is a pattern
+  matching form, and so we allow it to occur inside of patterns. The effect of a
+  box pattern $\pbox{\isocolor p}$ is to ensure that all of the variables bound
+  in the pattern $\isocolor p$ are treated as discrete variables.
+
+\end{enumerate}
+
+\noindent
+We summarize (except for pattern matching) the desugaring rules we use in
+\cref{fig:sugar}.
+
+
+\subsection{Set operations and relational algebra}
+\label{set-operations-and-relational-algebra}
+
+\newcommand\mem{\name{member}}
+
+One of the main features of Datafun is that it permits manipulating
+relations as first class values.
+%
+In this subsection we will show how a variety of standard operations on sets can
+be represented in Datafun.
+%
+The first operation we consider is testing membership:
+
+\begin{code}
+  \mem \isa \iso \eqt A \to \tseteq A \to \tbool\\
+  \mem \<\pboxvar x \<s = \efor{y}{s} \eeq {\dvar x} {\dvar y}
+\end{code}
+
+\noindent
+This checks if $\dvar x$ is equal to any element $\dvar y \in s$. The argument
+$\dvar x$ is discrete because increasing $\dvar x$ might send it from being
+\emph{in} the set to being \emph{outside} the set: although $1 \le 2$ and
+$1 \in \esetraw{1}$, nonetheless $2 \notin \esetraw{1}$. Notice that here we're
+taking advantage of encoding booleans as sets of empty tuples -- unioning these
+sets implements logical \emph{or}.
+
+Next we turn to set union and intersection. Union is baked into Datafun as the
+semilattice join, $x \cup y = x \vee y$, while intersection is definable using
+\mem, by taking the union of every singleton $\esetraw{\dvar x}$ such that
+$\dvar x$ is in both $s$ and $t$:
+
+\newcommand\compose\bullet
+
+\begin{code}
+  \pwild \cap \pwild \isa \tseteq A \to \tseteq A \to \tseteq A\\
+  %% NB. \kern -.5pt to get "member" closer to open paren.
+  s \cap t = \efor x {s} \ewhen{\kern -.5pt \mem \<\eboxvar x \<t} \eset{\dvar x}
+\end{code}
+
+\noindent
+Using comprehensions, this could alternately be written as:
+
+\begin{code}
+  s \cap t = \esetfor{\dvar x}{\dvar x \in s, \mem \<\eboxvar x \<t}
+\end{code}
+
+\noindent From now on, we'll use comprehensions whenever possible. For example, comprehensions make cross product and relational composition look almost exactly like their mathematical definitions:
+
+\newcommand\bone{\dvar b_{\isocolor 1}}
+\newcommand\btwo{\dvar b_{\isocolor 2}}
+\newcommand\yone{\dvar y_{\isocolor 1}}
+\newcommand\ytwo{\dvar y_{\isocolor 2}}
+
+\begin{code}
+  \pwild \x \pwild \isa \tset A \to \tset B \to \tset{A \x B}\\
+  %s \x t = \efor{x}{s} \efor{y}{t} \eset{\etuple{\dvar x, \dvar y}}
+  s \x t = \esetfor{\etuple{\dvar x, \dvar y}}{\dvar x \in s,\, \dvar y \in t}
+  \\[1em] % TODO: right size?
+  \pwild \compose \pwild \isa
+  \tset{\eqt A \x \eqt B}
+  \to \tset{\eqt B \x \eqt C}
+  \to \tset{\eqt A \x \eqt C}\\
+  s \compose t = \esetfor{\etuple{\dvar a, \dvar c}}{
+    \ptuple{\dvar a, \bone} \in s,\,
+    \ptuple{\btwo, \dvar c} \in t,\,
+    \eeq \bone \btwo}
+\end{code}
+
+\noindent
+The definitions of functional programming stalwarts \emph{filter} and \emph{map}
+(or in relational algebra terms, \emph{select} and \emph{project}) are slightly
+complicated by the need to be explicit about
+(non-\nolinebreak[4])\linebreak[0]monotonicity:
+
+\begin{verbatim}
+filter : ([]A -> 2) -> {A} -> {A}
+filter f s = {x | x in s, f [x]}
+
+map : []([]A -> B) -> {A} -> {B}
+map [f] s = {f [x] | x in s}
+\end{verbatim}
+
+\noindent
+Why is \name{filter} monotone in its function argument while \name{map} is not? Recall that functions are ordered pointwise while sets are ordered by inclusion, and observe that increasing the filtering function (making it \emph{true} on more inputs) enlarges the result of \name{filter}, but the same does not hold for \name{map}: 
+
+\[\begin{array}{rcccccl}
+  \name{filter} \<(\le 0) \<\esetraw{0,1}
+  &=& \esetraw{0}
+  &\subseteq&
+  \esetraw{0,1}
+  &=&
+  \name{filter} \<(\le 1) \<\esetraw{0,1}
+  \\
+  \name{map} \<(\le 0) \<\esetraw{0,1}
+  &=&
+  \esetraw{\etrue,\, \efalse}
+  &\not\subseteq&
+  \esetraw{\etrue}
+  &=& \name{map} \<(\le 1) \<\esetraw{0,1}
+\end{array}\]
+
+\noindent
+\todo{explain why neither map nor filter requires function itself to be monotone}
+
+We can also define set difference, although we must first detour into boolean
+negation:
+
+\begin{code}
+  {\neg} \isa \iso\tbool \to \tbool\\
+  \neg \pboxvar t = \ecase{\eisempty{\dvar t}}
+  \inj 1 \ptuple{} \caseto \etrue\:;\;\inj 2 \ptuple{} \caseto \efalse
+  \\[1em] %TODO: right spacing?
+  \pwild\setminus\pwild \isa \tseteq A \to \iso \tseteq A \to \tseteq A\\
+  s \setminus \pboxvar t =
+  \esetfor{\dvar x}{\dvar x \in s,\, \neg \ebox{\mem \<\eboxvar x \<\dvar t}}
+\end{code}
+
+\noindent
+To implement boolean negation, we need the primitive operator $\eisempty e$,
+which produces a tag indicating whether its argument $e$ (a boolean, i.e. a set
+of empty tuples) is the empty set.
+%
+This in turn lets us define set difference, the analogue in Datafun of negation
+in Datalog.
+%
+Note that in both boolean negation and set difference the ``negated'' argument
+$\dvar t$ is boxed, because the operation is not monotone in $\dvar t$.
+%
+This enforces stratification.
+
+Finally, generalizing the \name{ancestor} relation from the Datalog program in
+\cref{sec:datalog}, we can define the transitive closure of a relation:
+
+\nopagebreak[2]
+\begin{code}
+  \name{trans} \isa \iso \tset{\eqt A \x \eqt A} \to \tset{\eqt A \x \eqt A}\\
+  \name{trans} \<\pboxvar{edge} =
+  \efixis{R}{\dvar{edge} \vee (\dvar{edge} \compose R)}
+\end{code}
+
+\noindent
+This definition uses a least fixed point, just like the mathematical definition
+-- a transitive closure is the least relation $R$ including both the original
+relation $\dvar{edge}$ and the composition of $\dvar{edge}$ with $R$.
+%
+However, one feature of this definition peculiar to Datafun is that the argument
+type is $\iso \tset{\eqt A \times \eqt A}$; the transitive closure takes a
+\emph{discrete} relation.
+%
+This is because we must use the relation within the fixed point, and so its
+parameter needs to be discrete to occur within.
+%
+This restriction is artificial -- transitive closure is semantically a monotone
+operation -- but we'll see why it's useful in \cref{sec:transformations}.
+
+
+\subsection{Regular expression combinators}
+\label{regular-expression-combinators}
+
+\newcommand\tre{\typename{regex}}
+\newcommand\tchar{\typename{char}}
+
+Datafun permits tightly integrating the higher-order functional and bottom-up
+logic programming styles. To illustrate the benefits of doing so, in this
+section we implement a regular expression matching library in combinator style.
+Like combinator parsers in functional languages, the code is very concise.
+%
+However, support for the relational style ensures we can write \naive\ code
+\emph{without} the exponential backtracking cliffs typical of parser combinators
+in functional languages.
+
+For these examples we'll assume the existence of eqtypes \tstring, \tchar, and
+\tint, an addition operator $+$, and functions \name{length} and \name{chars}
+satisfying:
+
+\begin{code}
+  \name{length} \isa \iso\tstring \to \tint\\
+  \name{length} \<\pboxvar{s} = \text{the length of }\dvar s
+  \\[1em]
+  \name{chars} \isa \iso\tstring \to \tset{\tint \x \tchar}\\
+  \name{chars} \<\pboxvar{s} =
+  \setfor{(i,c)}{\text{the $i$\textsuperscript{th}
+      character of $\dvar s$ is $c$}}
+\end{code}
+
+\noindent
+Note that by always boxing string arguments, we avoid committing ourselves to
+any particular partial ordering on \tstring.
+
+These assumed, we define the type of regular expression matchers:
+
+\begin{code}
+\kw{type}\ \tre = \iso \tstring \to \tset{\tint \times \tint}
+\end{code}
+
+\noindent
+A regular expression takes a discrete string $\pboxvar s$ and returns the set of
+all pairs $(i,j)$ such that the substring $\dvar s_i,\, \ldots,\, \dvar s_{j-1}$
+matches the regular expression. For example, to find all matches for a single
+character $c$, we return the range $(i,i+1)$ whenever $(i,c) \in
+\name{chars}\<\eboxvar s$:
+
+\begin{code}
+  \name{sym} \isa \iso\tchar \to \tre\\
+  \name{sym} \<\pboxvar c \<\pboxvar s =
+  \esetfor{(\dvar i, \dvar i + 1)}{
+    \ptuple{\dvar i, \dvar c'} \in \name{chars} \<\eboxvar s,\,
+    \eeq{\dvar c}{\dvar{c'}}}
+\end{code}
+
+\noindent
+To find all matches for the empty regex, i.e.\ all empty substrings, including
+the one ``beyond the last character'':
+
+\begin{code}
+  \name{nil} \isa \tre\\
+  \name{nil} \<\pboxvar s =
+  \esetfor{\dvar i}{\ptuple{\dvar i, \pwild} \in \name{chars}\<\eboxvar s}
+  \vee \eset{\name{length}\<\eboxvar s}
+\end{code}
+
+\noindent
+Appending regexes $r_1, r_2$ amounts to relation composition, since we wish to
+find all substrings consisting of adjacent substrings $s_i \ldots s_{j-1}$ and
+$s_j \ldots s_{k-1}$ matching $r_1$ and $r_2$ respectively:
+
+\nopagebreak[2]
+\begin{code}
+  \name{seq} \isa \tre \to \tre \to \tre\\
+  \name{seq} \<r_1 \<r_2 \<s = r_1\<s \compose r_2\<s
+\end{code}
+
+\noindent
+Similarly, regex alternation \texttt{r\textsubscript{1}|r\textsubscript{2}} is
+accomplished by unioning all matches of each:
+
+\nopagebreak[2]
+\begin{code}
+  \name{alt} \isa \tre \to \tre \to \tre\\
+  \name{alt} \<r_1 \<r_2 \<s = r_1\<s \vee r_2\<s
+\end{code}
+
+\noindent
+The most interesting regular expression combinator is Kleene star. Thinking
+relationally, if we consider the set of pairs $(i,j)$ matching some regex
+\texttt{r}, then \texttt{r*} matches its \emph{reflexive, transitive closure}.
+This can be accomplished by combining \emph{nil} and \emph{trans}.
+
+\nopagebreak[2]
+\begin{code}
+  \name{star} \isa \iso\tre \to \tre\\
+  \name{star} \<\pboxvar r \<\pboxvar s =
+  \name{nil}\<\eboxvar s \vee
+  \name{trans} \<\ebox{\dvar r \<\eboxvar s}
+\end{code}
+
+\noindent
+Note that the argument $\dvar r$ must be discrete because \name{trans} uses it
+to compute a fixed point.\footnote{Technically the inclusion order on sets of
+  integer pairs does not satisfy the ascending chain condition, so this use
+  of \name{trans} is not well-typed. However, since the positions in a
+  particular string form a finite set, semantically there is no issue.
+  \todo{We will address this further in section \cref{todo}. TODO: we haven't even discussed typing rules yet!}}
+
+
+
+\subsection{Regular expression combinators, take two}
+\label{regular-expression-combinators-take-two}
+
+\newcommand\kernj{\kern1pt j}
+
+%% TODO: edit/rewrite this section, especially the bit about left recursion, it
+%% needs to be clearer
+
+The combinators in the previous section found \emph{all} matches
+within a given substring, but often we are not interested in all
+matches: we only want to know if a string can match starting at a
+particular location. We can easily refactor the combinators above to
+work in this style, which illustrates the benefits of tightly
+integrating functional and relational styles of programming -- we can
+use functions to manage strict input/output divisions, and relations
+to manage nondeterminism and search.
+
+\begin{code}
+  \kw{type}\ \tre = \iso (\tstring \x \tint) \to \tset{\tint}
+\end{code}
+
+\noindent
+Our new type of combinators takes a string and a starting position, and returns
+a set of ending positions. For example, $\name{sym} \<\eboxvar c$ checks if
+$\dvar c$ occurs at the start position $\dvar i$, yielding $\esetraw{\dvar i+1}$
+if it does and the empty set otherwise, while \name{nil} simply returns the
+start position $\dvar i$.
+
+\nopagebreak[2]
+\begin{code}
+  \name{sym} \isa \iso\tchar \to \tre\\
+  \name{sym} \<\pboxvar{c} \<\pboxtuple{\dvar{s}, \dvar{i}}
+  = \esetfor{\dvar i+1}{
+    \ptuple{\dvar{\kernj}, \dvar d}
+    \in \name{chars} \<\eboxvar{s},\,
+    \eeq {\dvar i} {\dvar j},\,
+    \eeq {\dvar c} {\dvar {d\kern.5pt}}}
+  \\[8pt]
+  \name{nil} \isa \tre \to \tre\\
+  \name{nil} \<\pboxtuple{\dvar{s}, \dvar{i}} = \eset{\dvar{i}}
+\end{code}
+
+\noindent
+Appending regexes $\name{seq}\<r_1\<r_2$ simply applies $r_2$ starting from
+every ending position that $r_1$ can find:
+
+\nopagebreak[2]
+\begin{code}
+  \name{seq} \isa \tre \to \tre \to \tre\\
+  \name{seq} \<r_1 \<r_2 \<\pboxtuple{\dvar{s}, \dvar{i}} =
+  \efor{\kernj}{r_1\<\eboxtuple{\dvar{s}, \dvar{i}}}
+  r_2 \<\eboxtuple{\dvar{s}, \dvar j}
+\end{code}
+
+\noindent
+Regex alternation \name{alt} is effectively unchanged:
+
+\nopagebreak[2]
+\begin{code}
+  \name{alt} \isa \tre \to \tre \to \tre\\
+  \name{alt} \<r_1 \<r_2 \<x = r_1\<x \vee r_2\<x
+\end{code}
+
+\noindent
+Finally, Kleene star is implemented by recursively appending $\dvar r$ to a
+set $x$ of matches found so far:
+
+\nopagebreak[2]
+\begin{code}
+  \name{star} \isa \iso\tre \to \tre\\
+  \name{star} \<\pboxvar r \<\pboxtuple{\dvar{s}, \dvar{i}}
+  = \efixis{x}{\bigl(\eset{\dvar{i}} \vee
+    \efor {\kernj} {x} \dvar r\<\eboxtuple{\dvar{s}, \dvar j}
+    \bigr)}
+\end{code}
+
+\noindent
+It's worth noting that this definition is effectively \emph{left-recursive} --
+it takes the endpoints from the fixed point $x$, and then continues matching
+using the argument $\dvar r$. This should make clear that this is not just plain
+old functional programming -- we are genuinely relying upon the fixed point
+semantics of Datafun.
+
+
+\subsection{CYK parsing}
+\label{cyk-parsing}
+
+%% TODO: edit and rewrite this section
+
+\todo{This section needs several things. It wants non linear pattern matching or perhaps just equality patterns. It also needs explanations of various helper functions, including length, substring, and range. It also needs data type declaration. I need to sign post all these things in the appropriate place for each one. Also, the order of the rules should be swapped.}
+
+Parsing can be understood logically, with a parse tree representing a proof that
+a certain string belongs to a language described by a context-free grammar. As a
+result, it is possible to formulate parsing in terms of proof
+search~\cite{deductive-parsing}. One of the simplest algorithms for parsing
+context free grammars is the Cocke-Younger-Kasami (CYK) algorithm for parsing
+with grammars in Chomsky normal form.\footnote{In Chomsky normal form, each
+  production is of the form $A \to B \cdot C$ or $A \to \vec{a}$, with $A,B,C$
+  ranging over nonterminals, and $\vec{a}$ over strings of terminals.} Given a
+grammar $G$, we begin by introducing a family of predicates (sometimes called
+\emph{facts} or \emph{items}) $A(i,j)$, with one $A$ for each nonterminal, and
+$i$ and $j$ representing indices into a string. Given a word $w$, we write
+$w[i,n]$ for the $n$-element substring of $w$ beginning at position $i$. Then,
+we can specify the CYK algorithm with the following two inference rules:
+
+%% TODO: the before/after spacing on this is off
+\begin{mathpar}
+  \inferrule*{ (A \to \vec{a}) \in G \\ w[i,n] = \vec{a} }
+             {A(i,i+n)}
+  \and
+  \inferrule*{B(i, j) \\ C(j, k) \\ (A \to B\; C) \in G}
+             {A(i, k)}
+\end{mathpar}
+
+\noindent
+\todo{TODO: explain these rules.}
+Then, the predicate $A(i,j)$ means that $A$ is derivable from the
+substring of $w$ running from $i$ to $j$, and so the whole word $w$ is
+derivable from the start symbol $S$ if $S(0, \name{length}\<w)$ is
+derivable.
+
+In Datafun, this rule-based description of the algorithm can be
+transliterated almost directly into code. We begin by introducing a
+few basic types.
+
+%% TODO: figure this out
+\newcommand\ctor[1]{\textsc{\lsstyle\MakeLowercase{#1}}}
+\renewcommand\ctor[1]{\textsf{\scshape\MakeLowercase{#1}}}
+
+\begin{code}
+\kw{type}~\typename{symbol} = \tstring\\
+\kw{data}~\typename{rule}
+= \ctor{String} \<\tstring
+~|~ \ctor{Concat} \<\typename{symbol} \<\typename{symbol}\\
+\kw{type}~\typename{grammar} = \tset{\typename{symbol} \x \typename{rule}}\\
+\kw{type}~\typename{fact} = \typename{symbol} \x \N \x \N\\
+\end{code}
+
+\noindent
+The $\typename{symbol}$ type is a type synonym representing nonterminal names
+with strings. The $\typename{rule}$ type is the type of the right-hand-sides
+of productions in Chomsky normal form -- either a string, or a pair of
+nonterminals. A $\typename{grammar}$ is just a set of productions -- a set
+of pairs of nonterminals paired with their rules. The type $\typename{fact}$
+is the type representing the atomic facts derived by the CYK inference
+system -- they are triples of the rulename, the start position, and
+the end position.
+
+With these types in hand, we can write the CYK algorithm as a fixed
+point computation. In fact, it is convenient to break it into two
+pieces, by first defining the function whose fixed point we take. So
+we can write down the $\name{iter}$ function, which represents one step of
+the fixed point iteration.
+
+\begin{verbatim}
+iter : []string -> grammar -> {fact} -> {fact}
+iter [text] grammar chart =
+   { (a,i,k)
+   | (a, CONCAT b c) in grammar,
+     (b1, i, j) in chart, b = b1,
+     (c1, j1, k) in chart, c = c1, j = j1 }
+ u { (a, i, i + length s)
+   | (a, STRING s) in grammar,
+     i in range 0 (n - length s),
+     s = substring text i (i + length s) }
+\end{verbatim}
+
+\noindent
+The function \name{iter} takes a \name{text} to parse, a \name{grammar} to parse
+it with, and a \name{chart} of ``facts known so far''. From these it derives
+further facts, as the union of two set comprehensions corresponding to our two
+inference rules. The first comprehension derives the fact $(a,i,k)$ if $(b,i,j)$
+and $(c,j,k)$ are in \name{chart} and $(a, \ctor{Concat} \<b \< c)$ is in
+\name{grammar}. The second clause derives $(a, i, i + \name{length}\<s)$
+whenever $s$ is a substring of $\name{text}$ at position $i$.
+
+We can then use $\name{iter}$ to implement the $\name{parse}$ function:
+
+%% TODO: actually I think grammar is going to need to be discrete as well
+\begin{verbatim}
+parse: []string -> grammar -> {symbol}
+parse [text] grammar =
+  let chart = fix c is iter [text] grammar c
+  in {a | (a,0,n) in chart, n = length text}
+\end{verbatim}
+
+\noindent
+This finds all nonterminals in \name{grammar} that generate the entire string
+\name{text}. \todo{maybe this should be explained in more detail?}
+
+%% This function just takes the fixed point of $\name{iter}$ --
+%% almost. Because facts are triples $\typename{symbol} \x \N \x \N$, sets of
+%% facts may in general grow unboundedly.  To ensure termination, we
+%% construct a set $\m{bound}$ to bound the sets of facts we consider in
+%% our fixed point computation, by bounding the symbols to names found in
+%% the grammar \name{grammar}, and the indices to positions of the string. Since
+%% all of these are finite, we know that the computation of $\name{chart}$
+%% as a bounded fixed point will terminate. Then, having computed the
+%% fixed point, we can check chart to see if $(a, 0, \name{length}\;\name{text})$
+%% is derivable.
+
+Observe that this program is not expressible in Datalog, because Datalog
+provides no way to represent a \emph{grammar} as a piece of data (it's compound,
+not an atom); there is simply no way in Datalog to express a \emph{generic}
+parser taking a grammar as an input. This demonstrates one of the key benefits
+of moving to a functional language like Datafun. \todo{TODO: contextualize more}
+
+%% Moreover, Datalog programs must be \emph{constructor-free}, to ensure all
+%% relations are finite. Primitives such as \name{range} and \name{substring} violate
+%% this restriction (as relations, they are infinite); it is not immediately
+%% obvious that Datalog programs extended with these primitives remain terminating.
+%% Our use of bounded fixed-points to guarantee termination is robust under such
+%% extensions; as long as all primitive functions are total, Datafun programs
+%% always terminate.
+
+%% Finally, having computed a set via a fixed point, we can test whether
+%% or not an element is in that set \emph{or not} -- the ability to test
+%% for negative information after the fixed point computation completes
+%% corresponds to a use of stratified negation in Datalog.
+
+
+\subsection{Dataflow analysis}
+\label{dataflow-analysis}
+
