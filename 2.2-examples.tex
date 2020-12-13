@@ -502,28 +502,6 @@ $\name{iter}$ function, which represents one step of the fixed point iteration.
   ~\}
 \end{code}
 
-%% \begin{verbatim}
-%% iter : []string -> []grammar -> {fact} -> {fact}
-%% iter [text] [grammar] chart =
-%%    { (a,i,k)
-%%    | (a, CONCAT b c) in grammar,
-%%      (b1, i, j) in chart, b = b1,
-%%      (c1, j1, k) in chart, c = c1, j = j1 }
-%%  u { (a, i, i + length s)
-%%    | (a, STRING s) in grammar,
-%%      i in range 0 (n - length s),
-%%      s = substring text i (i + length s) }
-%% \end{verbatim}
-
-\noindent
-The function \name{iter} takes a \name{text} to parse, a \name{grammar} to parse
-it with, and a \name{chart} of ``facts known so far''. From these it derives
-further facts, as the union of two set comprehensions corresponding to our two
-inference rules. The first comprehension derives the fact $(a,i,k)$ if $(b,i,j)$
-and $(c,j,k)$ are in \name{chart} and $(a, \ctor{Concat} \<b \< c)$ is in
-\name{grammar}. The second clause derives $(a, i, i + \name{length}\<s)$
-whenever $s$ is a substring of $\name{text}$ at position $i$.
-
 We can then use $\name{iter}$ to implement the $\name{parse}$ function: \todo{de
   verbatim this}
 
