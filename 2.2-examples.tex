@@ -477,6 +477,7 @@ the end position.
   (-) \isa \tint \to \iso\tint \to \tint
 \end{code}
 
+\noindent
 With these types in hand, we can write the CYK algorithm as a fixed point
 computation. In fact, it is convenient to break it into two pieces, by first
 defining the function whose fixed point we take. So we can write down the
@@ -502,16 +503,16 @@ $\name{iter}$ function, which represents one step of the fixed point iteration.
   ~\}
 \end{code}
 
+\noindent
 We can then use $\name{iter}$ to implement the $\name{parse}$ function: \todo{de
   verbatim this}
 
-%% TODO: actually I think grammar is going to need to be discrete as well
-\begin{verbatim}
-parse: []string -> grammar -> {symbol}
-parse [text] grammar =
-  let chart = fix c is iter [text] grammar c
-  in {a | (a,0,n) in chart, n = length text}
-\end{verbatim}
+\begin{code}
+  \name{parse} \isa \iso \tstring \to \iso \tgrammar \to \tset{\tsymbol}\\
+  \name{parse} \>\pboxvar{text} \>\pboxvar{grammar} = \\
+  \quad \elet{s = \efixis{c}{\name{iter} \<\ebox{\dvar{text}} \<\ebox{\dvar{grammar}} \<c}}\\
+  \quad \esetfor{\dvar a}{\etuple{\dvar a, \peq 0, \dvar n} \in s, \eeq{\dvar n}{\name{length}\<\dvar{text}}}
+\end{code}
 
 \noindent
 This finds all nonterminals in \name{grammar} that generate the entire string
