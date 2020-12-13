@@ -1,13 +1,6 @@
-\section{Syntax}\label{syntax}
+\section{Syntax sketch}\label{section syntax sketch}
 
-%% TODO: edit/rewrite this section
-%% TODO: this figure
-%\input{fig-syntax}
-
-\todo{TODO: this section needs to be edited and/or rewritten. Also, the fixed
-  point operator should probably be made a genuine binding operator rather than
-  a higher-order function. This should simplify the story about optimization of
-  the phi transformation.}
+\input{2-figure-syntax}
 
 The idea behind Datafun is to capture the essence of Datalog in a typed,
 higher-order, functional setting.
@@ -15,7 +8,6 @@ higher-order, functional setting.
 Since the key restriction that makes Datalog tractable -- stratification --
 requires tracking \emph{monotonicity,} we locate Datafun's semantics in the
 category \Poset\ of partial orders and monotone maps.
-%category \Poset\ of partial orders and monotone maps.
 %
 Since \Poset\ is cartesian closed, it can interpret the simply typed
 \fn-calculus, giving us a notation for writing monotone and higher-order
@@ -89,29 +81,50 @@ f$, giving access to a discrete variable $\dvar{x}$.
 
 \newcommand\isofixLtoL{\iso(\kernfixtL \to \fixtLkern)}
 
-Finally, Datafun includes fixed points, $\efix{f}$. The \prim{fix} combinator takes a function $\isofixLtoL$ and returns its least fixed point.
+Finally, to express Datalog's recursive queries, Datafun includes bottom-up
+recursion, $\efixis x e$, which finds the least fixed point of the function
+$\fnof x e$. Here we impose three restrictions to ensure well-definedness and
+termination:
+
+\begin{enumerate}
+\item The ``loop body'' $e$ must be monotone in the ``loop variable'' $x$; i.e.\ the function whose fixed point we are finding is monotone.
+
+\item Recursion can only occur at \emph{semilattice types with decidable equality and no infinite ascending chains}, $\fixtLkern$.
 %
-Besides monotonicity of the function, we impose two restrictions on the fixed point operator to ensure well-definedness and termination.
-%
-First, we require that recursion occur at \emph{semilattice types with no infinite ascending chains}, $\fixtLkern$.
-%
-A join-semilattice is a partial order with a least element $\bot$ and a least upper bound operation $\vee$ (``join'').
+For our purposes, a semilattice is a partial order with a least element $\bot$ and a least upper bound operation $\vee$ (``join'').
 %
 Finite sets (with the empty set as least element, and union as join) are an example, as are tuples of semilattices.
 %
-As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \cdots$, iteration from the bottom element is guaranteed to find the least fixed point.\footnotemark
+As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \cdots$, iteration from the bottom element is guaranteed to find the least fixed point; decidable equality ensures we can tell when this fixed point is reached.\footnotemark
 
-\footnotetext{\label{note:finite-eqtypes}As a technical detail, the finite set
+\footnotetext{\label{note-finite-eqtypes}As a technical detail, the finite set
   type $\tseteq{A}$ will possess infinite ascending chains if $\eqt A$ has
   infinitely many inhabitants. Thus we need to distinguish a class of
-  \emph{finite} eqtypes $\fint A$. Although their grammars in \cref{fig:syntax}
-  are identical, their intent is different. For example, if we extended Datafun
-  with integers, they would form an eqtype, but not a finite one.}
+  \emph{finite} eqtypes $\fint A$. Although their grammars in
+  \cref{figure-syntax} are identical, their intent is different. For example, if
+  we extended Datafun with integers, they would form an eqtype, but not a finite
+  one.}
 
-Second, we require that the recursive function be boxed, $\isofixLtoL$. Since boxed expressions can only refer to discrete values, and fixed point
-functions themselves must be monotone, this has the effect of preventing
-semantically nested fixed points. We discuss this in more detail in
-\cref{sec:nested-fixed-points}. Note that this does not prevent mutual
-recursion, which can be expressed by taking a fixed point at product type, nor
-stratified fixed points \`a la Datalog.
+\item \todo{it might be better ignore this point for now and only discuss it
+  when it becomes relevant.} The entire expression $\efixis x e$ is regarded as
+  non-monotone, and cannot refer to externally-bound monotone variables besides
+  the loop variable $x$. This may seem unnecessary, as the least-fixed-point
+  operator is semantically monotone: $\fa{x} f(x) \le g(x)$ implies $f$'s least
+  fixed point is less than or equal to $g$'s. The restriction is motivated by
+  concerns that will not become clear until \cref{chapter-seminaive}, and we
+  introduce it here so that we can discuss one consistent language throughout
+  this thesis. It has the effect of preventing semantically nested fixed points;
+  we discuss the kinds of programs this disallows in more detail in
+  \cref{section-nested-fixed-points}. Note that this does not prevent mutual
+  recursion, which can be expressed by taking a fixed point at product type, nor
+  stratified fixed points \`a la Datalog.
 
+  %% We require that the recursive function be boxed, $\isofixLtoL$. Since
+  %% boxed expressions can only refer to discrete values, and fixed point functions
+  %% themselves must be monotone, this has the effect of preventing semantically
+  %% nested fixed points. We discuss this in more detail in
+  %% \cref{section-nested-fixed-points}. Note that this does not prevent mutual
+  %% recursion, which can be expressed by taking a fixed point at product type, nor
+  %% stratified fixed points \`a la Datalog.
+
+\end{enumerate}

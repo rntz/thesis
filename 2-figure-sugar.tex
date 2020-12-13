@@ -1,0 +1,50 @@
+\begin{figure}
+  \[\begin{array}{rccl}
+    \text{types} & A,B &\bnfeq& ... \bnfor \tbool
+    \\
+    \text{terms} & e,f &\bnfeq& ...
+    \bnfor \ewhen e f \bnfor \etrue \bnfor \efalse
+    \\&&&
+    \eforraw{C} e \bnfor \esetfor{e}{C}
+    \\
+    \text{comprehension clauses} & C,D &\bnfeq&
+         {\isocolor p} \in e \bnfor e \bnfor C,D \bnfor \emptycx
+    \\
+    \text{comprehension patterns} & \isocolor p &\bnfeq& \dvar x \bnfor \pwild \bnfor \peq{e}
+  \end{array}\]
+
+  \begin{align*}
+    \begin{aligned}
+      \tbool &\desugars \tset \tunit
+      \\
+      \efalse &\desugars \eset{}
+      \\
+      \etrue &\desugars \eset{\etuple{}}
+    \end{aligned}
+    &&
+    \begin{aligned}
+      \ewhen e f &\desugars \eforraw{e} f
+      \\
+      \esetfor{e}{C} &\desugars \eforraw{C} \eset{e}
+      \\
+      %% \esetfor{e}{p \in f,\, \dots} &\desugars \eforraw{p \in f} \esetfor{e}{\dots}
+      %% \\
+      %% \esetfor{e}{f,\, \dots} &\desugars \ewhen{f} \esetfor{e}{\dots}
+      %% \\
+      %% \esetfor{e}{\emptycx} &\desugars \eset{e}
+      %% \\
+      \eforraw{e}{f} &\desugars \efor{\pwild}{e} f
+      \\
+      \eforraw{{\isocolor p} \in e} f &\desugars
+      \todo{argh, discrete pattern matching}
+      \\
+      \eforraw{C,D} e &\desugars \eforraw{C} \eforraw{D} e
+      \\
+      \eforraw{\emptycx} e &\desugars e
+    \end{aligned}
+  \end{align*}
+
+  \todo{equality patterns}
+  \caption{Syntactic sugar}
+  \label{fig:sugar}
+\end{figure}

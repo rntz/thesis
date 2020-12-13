@@ -4,26 +4,20 @@
 
 \input{2.2-examples}
 
-\section{Typing and Semantics}
-\label{typing-and-semantics}
+# Typing and Semantics
 
+# Extensions
+## Monotone ``if''
 
-\section{Extensions}
-\subsection{Monotone ``if''}
+<!-- ## Nonlinear and equality patterns
+ !-- \todo{examples: intersection as \{x for x in s, x in t\}} -->
 
+## Discrete functions
+## Bounded fixed points
 
-\subsection{Nonlinear and equality patterns}
+## Nested fixed points
+\label{section:nested-fixed-points}
 
-\todo{examples: intersection as \{x for x in s, x in t\}}
+# Operational Semantics
 
-\subsection{Discrete functions}
-\subsection{Bounded fixed points}
-\label{extensions}
-
-
-\section{Operational Semantics}
-\label{operational-semantics}
-
-
-\section{Metatheory}
-\label{metatheory}
+# Metatheory

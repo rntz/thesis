@@ -1,0 +1,36 @@
+\begin{figure}
+  \[
+  \begin{array}{rccl}
+    \text{types} & A,B &\bnfeq&
+    \tunit \bnfor A \x B \bnfor A + B \bnfor A \to B
+    \bnfor \iso A \bnfor \tset{\eqt A}
+    \\[.5ex]
+    \text{eqtypes} & \eqt A, \eqt B &\bnfeq&
+    \tset{\eqt A} \bnfor
+    \tunit \bnfor \eqt A \x \eqt B \bnfor \eqt A + \eqt B
+    \\[.5ex]
+    \text{semilattices} & L,M &\bnfeq& \tset{\eqt A} \bnfor \tunit \bnfor L \x M
+    \\[.5ex]
+    \text{finite eqtypes\cref{note-finite-eqtypes}} & \fint A, \fint B &\bnfeq&
+    \tset{\fint A} \bnfor \tunit \bnfor \fint A \x \fint B \bnfor \fint A + \fint B
+    \\[.5ex]
+    \text{fixtypes} & \fixtLkern, \fixt M &\bnfeq&
+    \tset{\fint A} \bnfor \tunit \bnfor \fixt L \x \fixt M
+    \\[.5em]
+    \text{terms} & e,f,g &\bnfeq& x \bnfor \dvar x \bnfor \fnof{x} e
+    \bnfor e\<f \bnfor \etuple{} \bnfor \etuple{e,f} \bnfor \pi_i\<e
+    \\&&&
+    \inj i e \bnfor \ecase{e} (\inj i x_i \caseto f_i)_{i\in\{1,2\}}
+    \\&&&
+    \esetsub{e_i}{i} \bnfor \efor x e f
+    \\&&&
+    \ebox e \bnfor \eletbox x e f
+    \\&&&
+    \eeq e f \bnfor \eisempty e \bnfor \esplit e
+    \\&&&
+    \bot \bnfor e \vee f \bnfor \efixis x e
+  \end{array}
+  \]
+  \caption{Datafun syntax}
+  \label{figure-syntax}
+\end{figure}

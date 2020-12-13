@@ -22,14 +22,14 @@ PANDOC := pandoc --from markdown+raw_tex-latex_macros \
   --pdf-engine=pdflatex \
   --template=template.tex
 
-# %.pdf: %.md notation.sty template.tex Makefile
-# 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so $@
-
 %.pdf: %.tex FORCE
 	$(LATEXRUN) $<
 
 %.tex: %.md template.tex Makefile
 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so $@
+
+# %.pdf: %.md notation.sty template.tex Makefile
+# 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so $@
 
 # If you have inotify-tools, `make watch` will automatically recompile your pdfs
 # "live". You can also specify a target to recompile, eg. `make watch:foo.pdf`.

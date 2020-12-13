@@ -51,7 +51,14 @@
 \renewcommand\wedge{\mathrel{\binwedge}}
 \renewcommand\bullet{\mathrel{\binbullet}}
 
-\newcommand\todo[1]{{\color{red}#1}}
+\newcommand\todocolor{\color{OrangeRed}}
+%\newcommand\todowarn[1]{\PackageWarning{notation}{TODO}{\todocolor #1}}
+\newcommand\warntodo[2]{%
+  \PackageWarning{notation}{TODO: #1}%
+  {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
+\newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
+\newcommand\todo[1]{\warntodo{#1}{#1}}
+\newcommand\XXX{\PackageWarning{notation}{XXX}\textbf{\todocolor XXX}}
 
 
 %% ---------- Environments ----------
@@ -76,8 +83,6 @@
 
 %% ---------- Commands ----------
 \newcommand\ensuretext[1]{\ifmmode\text{#1}\else{#1}\fi}
-%\newcommand\todo[1]{\ensuretext{\color{Purple}\textbf{XXX:} #1}}
-%\newcommand\XXX{\textbf{\color{Purple}XXX}}
 \newcommand\naive{na\"ive}
 \newcommand\Naive{Na\"ive}
 \newcommand\rulename\textsc % inference rule names
@@ -148,7 +153,7 @@
 
 \newcommand\quantifierspace{\ }
 %\renewcommand\quantifierspace{\ \,}
-\newcommand\quantify[1]{({\#1})\quantifierspace}
+\newcommand\quantify[1]{({#1})\quantifierspace}
 \newcommand\fa[1]{\quantify{\forall #1}}
 \newcommand\ex[1]{\quantify{\exists #1}}
 \newcommand\faex[2]{\quantify{\forall #1, \exists #2}}
@@ -214,6 +219,7 @@
 \newcommand\prim\name
 \newcommand\caseto\shortrightarrow
 \newcommand\pwild{\underline{\phantom{o}}}
+\newcommand\peq[1]{{}!{\eiso{#1}}}
 
 \newcommand\tset[1]{\{{#1}\}}
 \newcommand\tunit{1}
@@ -236,7 +242,9 @@
 \newcommand\elet[1]{\kw{let}\;{#1}\;\kw{in}\;}
 \newcommand\etuple[1]{({#1})}
 \newcommand\ecase[1]{\kw{case} \;{#1}\; \kw{of}\;}
-\newcommand\efix{\prim{fix}\<}
+% TODO: remove this. make it warn!
+\newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
+\newcommand\efixis[2]{\eiso{\kw{fix}~#1~\kw{is}\fnspace#2}}
 \newcommand\esplit{\prim{split}\<}
 \newcommand\isempty{\prim{empty?}}
 \newcommand\eisempty[1]{\isempty\<{\isocolor #1}}
@@ -257,8 +265,6 @@
 \newcommand\esetsub[2]{\hilite{\esetraw{#1}_{#2}}}
 \newcommand\esetfor[2]{\setfor{\hilite{#1}}{#2}}
 
-\newcommand\eisiso\isocolor
-
 \newcommand\pbox[1]{\ebox{#1}}
 \newcommand\ptuple\etuple
 \newcommand\pboxvar[1]{\pbox{\dvar{#1}}}
@@ -272,8 +278,6 @@
 \vphantom{lp\textsuperscript{+}}% room for ascenders & descenders
 \(\vphantom{}#1\)%
 }}
-% TODO: what the fuck is this doing
-\let\eisiso\relax
 
 \renewcommand\pbox[1]{\eboxraw{#1}}
 
@@ -290,7 +294,6 @@
 \newcommand\bigeboxtuple[1]{\bigebox{\etuple{#1}}}
 
 %% more surface syntax
-\newcommand\efixis[2]{\eiso{\kw{fix}~#1~\kw{is}\fnspace#2}}
 \newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}

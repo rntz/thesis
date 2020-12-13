@@ -1,7 +1,7 @@
 \section{Examples}
 \label{examples}
 
-%\input{fig-sugar}
+\input{2-figure-sugar}
 
 For brevity and clarity, the examples that follow make use of some syntax sugar:
 
@@ -16,29 +16,36 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   as a sum type \(\tunit + \tunit\) and \kw{when} as \kw{case}, our approach has
   the advantage that \kw{when} is monotone in the condition $b$.
 
+  \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
+
 \item We make use of set comprehensions, which can be desugared into the monadic
   operators \kw{for} and \kw{when} in the usual
   way~\cite{wadler-monad-comprehensions}.
 
-\item It is convenient to treat \prim{fix} as a binding form, $\efixis x e$,
-  rather than explicitly supplying a boxed function, $\efix\ebox{\fnof x e}$.
+%% \item It is convenient to treat \prim{fix} as a binding form, $\efixis x e$,
+%%   rather than explicitly supplying a boxed function, $\efix\ebox{\fnof x e}$.
 
-\item Finally, we make free use of curried functions and pattern matching.
-  Desugaring these is relatively standard, and so we will say little about it,
-  with one exception: the box-elimination form $\eletbox x e e'$ is a pattern
-  matching form, and so we allow it to occur inside of patterns. The effect of a
-  box pattern $\pbox{\isocolor p}$ is to ensure that all of the variables bound
-  in the pattern $\isocolor p$ are treated as discrete variables.
+\item We make free use of curried functions and pattern matching. Desugaring
+  these is relatively standard, and so we will say little about it, with one
+  exception: the box-elimination form $\eletbox x e e'$ is a pattern matching
+  form, and so we allow it to occur inside of patterns. The effect of a box
+  pattern $\pbox{\isocolor p}$ is to ensure that all of the variables bound in
+  the pattern $\isocolor p$ are treated as discrete variables.
 
+\item \todo{equality patterns.}
+
+\item \todo{algebraic datatypes}
 \end{enumerate}
 
 \noindent
-We summarize (except for pattern matching) the desugaring rules we use in
-\cref{fig:sugar}.
+We summarize the desugaring rules we use in \cref{figure-sugar} (except for
+pattern matching and algebraic datatypes, which are standard).
 
 
 \subsection{Set operations and relational algebra}
 \label{set-operations-and-relational-algebra}
+
+\todo{reorder this to introduce equality patterns.}
 
 \newcommand\mem{\name{member}}
 
@@ -90,11 +97,13 @@ Using comprehensions, this could alternately be written as:
 \newcommand\yone{\dvar y_{\isocolor 1}}
 \newcommand\ytwo{\dvar y_{\isocolor 2}}
 
+\newlength\functionskip \setlength{\functionskip}{1em}
+
 \begin{code}
-  \pwild \x \pwild \isa \tset A \to \tset B \to \tset{A \x B}\\
+  \pwild \x \pwild \isa \tseteq A \to \tseteq B \to \tset{\eqt A \x \eqt B}\\
   %s \x t = \efor{x}{s} \efor{y}{t} \eset{\etuple{\dvar x, \dvar y}}
   s \x t = \esetfor{\etuple{\dvar x, \dvar y}}{\dvar x \in s,\, \dvar y \in t}
-  \\[1em] % TODO: right size?
+  \\[\functionskip]
   \pwild \compose \pwild \isa
   \tset{\eqt A \x \eqt B}
   \to \tset{\eqt B \x \eqt C}
@@ -111,18 +120,22 @@ The definitions of functional programming stalwarts \emph{filter} and \emph{map}
 complicated by the need to be explicit about
 (non-\nolinebreak[4])\linebreak[0]monotonicity:
 
-\begin{verbatim}
-filter : ([]A -> 2) -> {A} -> {A}
-filter f s = {x | x in s, f [x]}
+\newcommand{\kernf}{\kern1.67pt f}
+\newcommand{\kernfpost}{\kern.3pt}
 
-map : []([]A -> B) -> {A} -> {B}
-map [f] s = {f [x] | x in s}
-\end{verbatim}
+\begin{code}
+  \name{filter} \isa (\iso \eqt A \to \tbool) \to \tseteq A \to \tseteq A\\
+  \name{filter} \<f \<s = \esetfor{\dvar x}{\dvar x \in s, f\<\ebox{\dvar x}}
+  \\[\functionskip]
+  \name{map} \isa \iso(\iso \eqt A \to \eqt B) \to \tseteq A \to \tseteq B\\
+  % need some kerning between the [{ and the f
+  \name{map} \<\pboxvar{\kernf\kernfpost} \<s = \esetfor{\dvar{\kernf}\<\ebox{\dvar x}}{\dvar x \in s}
+\end{code}
 
 \noindent
 Why is \name{filter} monotone in its function argument while \name{map} is not? Recall that functions are ordered pointwise while sets are ordered by inclusion, and observe that increasing the filtering function (making it \emph{true} on more inputs) enlarges the result of \name{filter}, but the same does not hold for \name{map}: 
 
-\[\begin{array}{rcccccl}
+\[\begin{array}{rcccccr}
   \name{filter} \<(\le 0) \<\esetraw{0,1}
   &=& \esetraw{0}
   &\subseteq&
@@ -139,7 +152,7 @@ Why is \name{filter} monotone in its function argument while \name{map} is not? 
 \end{array}\]
 
 \noindent
-\todo{explain why neither map nor filter requires function itself to be monotone}
+\todo{explain why neither map nor filter requires function to be monotone}
 
 We can also define set difference, although we must first detour into boolean
 negation:
@@ -168,7 +181,7 @@ $\dvar t$ is boxed, because the operation is not monotone in $\dvar t$.
 This enforces stratification.
 
 Finally, generalizing the \name{ancestor} relation from the Datalog program in
-\cref{sec:datalog}, we can define the transitive closure of a relation:
+\cref{section-datalog}, we can define the transitive closure of a relation:
 
 \nopagebreak[2]
 \begin{code}
@@ -190,7 +203,7 @@ This is because we must use the relation within the fixed point, and so its
 parameter needs to be discrete to occur within.
 %
 This restriction is artificial -- transitive closure is semantically a monotone
-operation -- but we'll see why it's useful in \cref{sec:transformations}.
+operation -- but its explanation will have to wait until \todo{fwdref discreteness of fix}.
 
 
 \subsection{Regular expression combinators}
@@ -299,7 +312,7 @@ to compute a fixed point.\footnote{Technically the inclusion order on sets of
   integer pairs does not satisfy the ascending chain condition, so this use
   of \name{trans} is not well-typed. However, since the positions in a
   particular string form a finite set, semantically there is no issue.
-  \todo{We will address this further in section \cref{todo}. TODO: we haven't even discussed typing rules yet!}}
+  We will address this in \cref{section-nested-fixed-points}.}
 
 
 
@@ -390,85 +403,117 @@ semantics of Datafun.
 \subsection{CYK parsing}
 \label{cyk-parsing}
 
-%% TODO: edit and rewrite this section
+\splittodo{This section needs several things.}{It wants equality patterns. It
+  also needs explanations of various helper functions, including length,
+  substring, and range. It also needs data type declaration. I need to sign post
+  all these things in the appropriate place for each one.}
 
-\todo{This section needs several things. It wants non linear pattern matching or perhaps just equality patterns. It also needs explanations of various helper functions, including length, substring, and range. It also needs data type declaration. I need to sign post all these things in the appropriate place for each one. Also, the order of the rules should be swapped.}
-
-Parsing can be understood logically, with a parse tree representing a proof that
-a certain string belongs to a language described by a context-free grammar. As a
-result, it is possible to formulate parsing in terms of proof
-search~\cite{deductive-parsing}. One of the simplest algorithms for parsing
-context free grammars is the Cocke-Younger-Kasami (CYK) algorithm for parsing
-with grammars in Chomsky normal form.\footnote{In Chomsky normal form, each
-  production is of the form $A \to B \cdot C$ or $A \to \vec{a}$, with $A,B,C$
-  ranging over nonterminals, and $\vec{a}$ over strings of terminals.} Given a
-grammar $G$, we begin by introducing a family of predicates (sometimes called
-\emph{facts} or \emph{items}) $A(i,j)$, with one $A$ for each nonterminal, and
-$i$ and $j$ representing indices into a string. Given a word $w$, we write
-$w[i,n]$ for the $n$-element substring of $w$ beginning at position $i$. Then,
-we can specify the CYK algorithm with the following two inference rules:
+Parsing can be understood logically: a parse tree is a proof that a string
+belongs to a language, and parsing is proof search~\cite{deductive-parsing}.
+%
+One of the simplest parsing algorithms is the Cocke-Younger-Kasami (CYK)
+algorithm for parsing grammars in Chomsky normal form; that is, where each
+production is either of the form $A \to B\,C$ or $A \to \vec{a}$, with $A,B,C$
+ranging over nonterminals and $\vec{a}$ over strings of terminals.
+%
+Fix a Chomsky-normal grammar $G$ and a word $w = w_0 w_1 ... w_{n-1}$ to be parsed,
+and write $w_{i..j}$ for the substring $w_i ... w_{j-1}$.
+%
+Now, we introduce a family of predicates $A(i,j)$ (sometimes called \emph{facts}
+or \emph{items}), intended to represent the proposition that $w_{i..j}$ is
+generated by the nonterminal $A$.
+%
+Then, we can specify the CYK algorithm with the following two inference rules:
 
 %% TODO: the before/after spacing on this is off
 \begin{mathpar}
-  \inferrule*{ (A \to \vec{a}) \in G \\ w[i,n] = \vec{a} }
-             {A(i,i+n)}
-  \and
-  \inferrule*{B(i, j) \\ C(j, k) \\ (A \to B\; C) \in G}
+  \inferrule*{(A \to B\,C) \in G \\ B(i, j) \\ C(j, k)}
              {A(i, k)}
+  \and
+  \inferrule*{(A \to \vec{a}) \in G \\ \vec{a} = w_{i..j}}
+             {A(i,j)}
 \end{mathpar}
 
 \noindent
-\todo{TODO: explain these rules.}
-Then, the predicate $A(i,j)$ means that $A$ is derivable from the
-substring of $w$ running from $i$ to $j$, and so the whole word $w$ is
-derivable from the start symbol $S$ if $S(0, \name{length}\<w)$ is
-derivable.
+\todo{explain CYK rules.} Then the whole word $w$ is generated by the start
+symbol $S$ if $S(0,n)$ is derivable.
 
-In Datafun, this rule-based description of the algorithm can be
-transliterated almost directly into code. We begin by introducing a
-few basic types.
+In Datafun, this rule-based description of the algorithm can be transliterated
+almost directly into code. We begin by introducing a few basic types.
 
 %% TODO: figure this out
 \newcommand\ctor[1]{\textsc{\lsstyle\MakeLowercase{#1}}}
-\renewcommand\ctor[1]{\textsf{\scshape\MakeLowercase{#1}}}
+\renewcommand\ctor[1]{\textsf{\scshape\MakeLowercase{\lsstyle#1}}}
+\newcommand\tfact{\typename{fact}}
+\newcommand\tsymbol{\typename{symbol}}
+\newcommand\tgrammar{\typename{grammar}}
 
 \begin{code}
-\kw{type}~\typename{symbol} = \tstring\\
+\kw{type}~\tsymbol = \tstring\\
 \kw{data}~\typename{rule}
 = \ctor{String} \<\tstring
-~|~ \ctor{Concat} \<\typename{symbol} \<\typename{symbol}\\
-\kw{type}~\typename{grammar} = \tset{\typename{symbol} \x \typename{rule}}\\
-\kw{type}~\typename{fact} = \typename{symbol} \x \N \x \N\\
+~|~ \ctor{Concat} \<\tsymbol \<\tsymbol\\
+\kw{type}~\tgrammar = \tset{\tsymbol \x \typename{rule}}\\
+\kw{type}~\tfact = \tsymbol \x \N \x \N\\
 \end{code}
 
 \noindent
-The $\typename{symbol}$ type is a type synonym representing nonterminal names
+The $\tsymbol$ type is a type synonym representing nonterminal names
 with strings. The $\typename{rule}$ type is the type of the right-hand-sides
 of productions in Chomsky normal form -- either a string, or a pair of
-nonterminals. A $\typename{grammar}$ is just a set of productions -- a set
-of pairs of nonterminals paired with their rules. The type $\typename{fact}$
+nonterminals. A $\tgrammar$ is just a set of productions -- a set
+of pairs of nonterminals paired with their rules. The type $\tfact$
 is the type representing the atomic facts derived by the CYK inference
 system -- they are triples of the rulename, the start position, and
 the end position.
 
-With these types in hand, we can write the CYK algorithm as a fixed
-point computation. In fact, it is convenient to break it into two
-pieces, by first defining the function whose fixed point we take. So
-we can write down the $\name{iter}$ function, which represents one step of
-the fixed point iteration.
+\todo{we'll need helper functions}
 
-\begin{verbatim}
-iter : []string -> grammar -> {fact} -> {fact}
-iter [text] grammar chart =
-   { (a,i,k)
-   | (a, CONCAT b c) in grammar,
-     (b1, i, j) in chart, b = b1,
-     (c1, j1, k) in chart, c = c1, j = j1 }
- u { (a, i, i + length s)
-   | (a, STRING s) in grammar,
-     i in range 0 (n - length s),
-     s = substring text i (i + length s) }
-\end{verbatim}
+\begin{code}
+  \name{length} \isa \iso\tstring \to \tint\\
+  \name{range} \isa \iso \tint \to \tint \to \tset{\tint}\\
+  \name{substring} \isa \iso(\tstring \x \tint \x \tint) \to \tstring\\
+  (+) \isa \tint \to \tint \to \tint\\
+  (-) \isa \tint \to \iso\tint \to \tint
+\end{code}
+
+With these types in hand, we can write the CYK algorithm as a fixed point
+computation. In fact, it is convenient to break it into two pieces, by first
+defining the function whose fixed point we take. So we can write down the
+$\name{iter}$ function, which represents one step of the fixed point iteration.
+
+\begin{code}
+  \name{iter} \isa \iso \tstring \to \iso\tgrammar
+  \to \tset{\tfact} \to \tset{\tfact}\\
+  \name{iter} \<\pboxvar{text} \<\pboxvar{grammar} \<F =
+  \\\phantom{\quad\cup{}} \{~\eiso{\etuple{\dvar A,\, \dvar i,\, \dvar k}}
+  ~|~
+  (\dvar A, \ctor{Concat} \<\dvar B \<\dvar C) \in \dvar{grammar},
+  \etuple{\peq{\dvar B}, \dvar i, \dvar j} \in F,
+  \etuple{\peq{\dvar C}, \peq{\dvar j}, \dvar k} \in F ~\}
+  \\\quad\cup \{~
+  \eiso{\etuple{\dvar A,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}}
+  \\\phantom{\quad\cup{}} |~
+  (\dvar A, \ctor{String}\<\dvar s) \in \dvar{grammar},
+  \\\phantom{\quad\cup{}} \phantom{|~}
+  \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvar{text} - \ebox{\name{length} \<\dvar s}),
+  \\\phantom{\quad\cup{}} \phantom{|~} \dvar s =
+  \name{substring} \<\ebox{\dvar{text},\, \dvar i,\, \dvar i + \name{length}\<\dvar s}
+  ~\}
+\end{code}
+
+%% \begin{verbatim}
+%% iter : []string -> []grammar -> {fact} -> {fact}
+%% iter [text] [grammar] chart =
+%%    { (a,i,k)
+%%    | (a, CONCAT b c) in grammar,
+%%      (b1, i, j) in chart, b = b1,
+%%      (c1, j1, k) in chart, c = c1, j = j1 }
+%%  u { (a, i, i + length s)
+%%    | (a, STRING s) in grammar,
+%%      i in range 0 (n - length s),
+%%      s = substring text i (i + length s) }
+%% \end{verbatim}
 
 \noindent
 The function \name{iter} takes a \name{text} to parse, a \name{grammar} to parse
@@ -479,7 +524,8 @@ and $(c,j,k)$ are in \name{chart} and $(a, \ctor{Concat} \<b \< c)$ is in
 \name{grammar}. The second clause derives $(a, i, i + \name{length}\<s)$
 whenever $s$ is a substring of $\name{text}$ at position $i$.
 
-We can then use $\name{iter}$ to implement the $\name{parse}$ function:
+We can then use $\name{iter}$ to implement the $\name{parse}$ function: \todo{de
+  verbatim this}
 
 %% TODO: actually I think grammar is going to need to be discrete as well
 \begin{verbatim}
@@ -491,10 +537,10 @@ parse [text] grammar =
 
 \noindent
 This finds all nonterminals in \name{grammar} that generate the entire string
-\name{text}. \todo{maybe this should be explained in more detail?}
+\name{text}. \todo{more detail: why does parse work?}
 
 %% This function just takes the fixed point of $\name{iter}$ --
-%% almost. Because facts are triples $\typename{symbol} \x \N \x \N$, sets of
+%% almost. Because facts are triples $\tsymbol \x \N \x \N$, sets of
 %% facts may in general grow unboundedly.  To ensure termination, we
 %% construct a set $\m{bound}$ to bound the sets of facts we consider in
 %% our fixed point computation, by bounding the symbols to names found in
@@ -504,11 +550,12 @@ This finds all nonterminals in \name{grammar} that generate the entire string
 %% fixed point, we can check chart to see if $(a, 0, \name{length}\;\name{text})$
 %% is derivable.
 
-Observe that this program is not expressible in Datalog, because Datalog
-provides no way to represent a \emph{grammar} as a piece of data (it's compound,
-not an atom); there is simply no way in Datalog to express a \emph{generic}
-parser taking a grammar as an input. This demonstrates one of the key benefits
-of moving to a functional language like Datafun. \todo{TODO: contextualize more}
+This program is not expressible in Datalog, because Datalog provides no way to
+\emph{abstract} over grammars. The rules of a grammar are easily represented as
+Datalog relations --- but since Datalog is first-order, it cannot parameterize
+one relation by another; so there is no way in Datalog to express a generic
+parser. This demonstrates one of the key benefits of moving to a functional
+language like Datafun. \todo{contextualize utility of compound data more.}
 
 %% Moreover, Datalog programs must be \emph{constructor-free}, to ensure all
 %% relations are finite. Primitives such as \name{range} and \name{substring} violate
@@ -527,3 +574,4 @@ of moving to a functional language like Datafun. \todo{TODO: contextualize more}
 \subsection{Dataflow analysis}
 \label{dataflow-analysis}
 
+\todo{import dataflow analysis code from first Datafun paper}
