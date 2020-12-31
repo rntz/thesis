@@ -27,9 +27,9 @@ To represent relations, we add a type of finite sets $\tset{\eqt
   A}$,\footnote{To implement set types, their elements must support decidable
   equality. In our core calculus, we use a subgrammar of ``eqtypes'', and in our
   implementation (which compiles to Haskell) we use typeclass constraints to
-  pick out such types.} introduced with set literals $\eset{e_0, \ldots e_n}$, and
-eliminated using Moggi's monadic bind syntax, $\efor{x}{e_1}{e_2}$, signifying
-the union over all $\dvar x \in e_1$ of $e_2$.
+  pick out such types.} introduced with set literals $\eset{e_0, \ldots e_n}$,
+and eliminated using Moggi's monadic bind syntax, $\efor{x}{e_1}{e_2}$,
+signifying the union over all $\dvar x \in e_1$ of $e_2$.
 %
 Since we are working in \Poset, each type comes with a partial order on it; sets
 are ordered by inclusion, $x \le y : \tseteq{A} \iff x \subseteq y$.
