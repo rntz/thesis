@@ -4,13 +4,39 @@
 % interaction.
 \usepackage{rntztitle,rntzsection,rntzfootnotes,rntzabstract,rntzref,rntzthm}
 \usepackage[a4]{rntzgeometry}
-\usepackage[charter,euler]{rntzfont}
-\makeatletter\edef\zeu@Scale{1}\makeatother % hack.
-\frenchspacing\usepackage[letterspace=30]{microtype}
+
+%% \usepackage[charter,euler]{rntzfont}
+%% \makeatletter\edef\zeu@Scale{1}\makeatother % hack.
+
+\usepackage[sups,scaled=.96]{XCharter}
+\usepackage[scaled=1.01042]{inconsolata}
+\usepackage[scaled=0.95,proportional,semibold]{sourcesanspro}
+% no osf b/c sometimes used in subscripts
+% TODO: the colons and semicolons in AlegreyaSans are way too small
+\usepackage[proportional,scaled=1.007,]{AlegreyaSans}
+
+\let\oldrmdefault\rmdefault \let\rmdefault\sfdefault
+\usepackage[euler-digits]{eulervm}
+%\makeatletter\edef\zeu@Scale{0.997}\makeatother
+\makeatletter\edef\zeu@Scale{0.99}\makeatother
+\let\rmdefault\oldrmdefault
+
+\linespread{1.06667} %\linespread{1.07249} %\linespread{1.08333}
+
+\frenchspacing\usepackage[letterspace=40,letterspace=30,]{microtype}
 
 \usepackage[utf8]{inputenc}
 \usepackage{natbib}
 \usepackage{notation}
+
+\newcommand\textsfit[1]{\textsf{\itshape #1}}
+\renewcommand\name[1]{\text{\sffamily #1}}
+\renewcommand\prim\name
+\renewcommand\kw[1]{\textsf{\bfseries#1}}
+\renewcommand\dvar[1]{\ensuremath{#1}}
+\renewcommand\dvarlong\name
+\renewcommand\mvar[1]{{\MakeUppercase#1}}
+\renewcommand\injc{\textsf{in}}
 
 \begin{document}
 

@@ -23,8 +23,6 @@
     \end{aligned}
     &&
     \begin{aligned}
-      \ewhen e f &\desugars \eforraw{e} f
-      \\
       \esetfor{e}{C} &\desugars \eforraw{C} \eset{e}
       \\
       %% \esetfor{e}{p \in f,\, \dots} &\desugars \eforraw{p \in f} \esetfor{e}{\dots}
@@ -33,6 +31,8 @@
       %% \\
       %% \esetfor{e}{\emptycx} &\desugars \eset{e}
       %% \\
+      \ewhen e f &\desugars \efor{\pwild}{e} f %\eforraw{e} f
+      \\
       \eforraw{e}{f} &\desugars \efor{\pwild}{e} f
       \\
       \eforraw{{\isocolor p} \in e} f &\desugars

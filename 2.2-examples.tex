@@ -19,8 +19,7 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
 
 \item We make use of set comprehensions, which can be desugared into the monadic
-  operators \kw{for} and \kw{when} in the usual
-  way~\cite{wadler-monad-comprehensions}.
+  operator \kw{for} in the usual way~\cite{wadler-monad-comprehensions}.
 
 %% \item It is convenient to treat \prim{fix} as a binding form, $\efixis x e$,
 %%   rather than explicitly supplying a boxed function, $\efix\ebox{\fnof x e}$.
@@ -59,13 +58,13 @@ The first operation we consider is testing membership:
 
 \begin{code}
   \mem \isa \iso \eqt A \to \tseteq A \to \tbool\\
-  \mem \<\pboxvar x \<s = \efor{y}{s} \eeq {\dvar x} {\dvar y}
+  \mem \<\pboxvar x \<\mvar s = \efor{y}{\mvar s} \eeq {\dvar x} {\dvar y}
 \end{code}
 
 \noindent
-This checks if $\dvar x$ is equal to any element $\dvar y \in s$. The argument
-$\dvar x$ is discrete because increasing $\dvar x$ might send it from being
-\emph{in} the set to being \emph{outside} the set: although $1 \le 2$ and
+This checks if $\dvar x$ is equal to any element $\dvar y \in \mvar s$. The
+argument $\dvar x$ is discrete because increasing $\dvar x$ might send it from
+being \emph{in} the set to being \emph{outside} the set: although $1 \le 2$ and
 $1 \in \esetraw{1}$, nonetheless $2 \notin \esetraw{1}$. Notice that here we're
 taking advantage of encoding booleans as sets of empty tuples -- unioning these
 sets implements logical \emph{or}.
@@ -80,14 +79,17 @@ $\dvar x$ is in both $s$ and $t$:
 \begin{code}
   \pwild \cap \pwild \isa \tseteq A \to \tseteq A \to \tseteq A\\
   %% NB. \kern -.5pt to get "member" closer to open paren.
-  s \cap t = \efor x {s} \ewhen{\kern -.5pt \mem \<\eboxvar x \<t} \eset{\dvar x}
+  \mvar s \cap \mvar t = \efor x {\mvar s}
+  \ewhen{\kern -.5pt \mem \<\eboxvar x \<\mvar t}
+  \eset{\dvar x}
 \end{code}
 
 \noindent
 Using comprehensions, this could alternately be written as:
 
 \begin{code}
-  s \cap t = \esetfor{\dvar x}{\dvar x \in s, \mem \<\eboxvar x \<t}
+  \mvar s \cap \mvar t =
+  \esetfor{\dvar x}{\dvar x \in \mvar s,\, \mem \<\eboxvar x \<\mvar t}
 \end{code}
 
 \noindent From now on, we'll use comprehensions whenever possible. For example, comprehensions make cross product and relational composition look almost exactly like their mathematical definitions:
@@ -97,20 +99,26 @@ Using comprehensions, this could alternately be written as:
 \newcommand\yone{\dvar y_{\isocolor 1}}
 \newcommand\ytwo{\dvar y_{\isocolor 2}}
 
+\renewcommand\bone{\dvar{b_{1}}}
+\renewcommand\btwo{\dvar{b_{2}}}
+\renewcommand\yone{\dvar{y_{1}}}
+\renewcommand\ytwo{\dvar{y_{2}}}
+
 \newlength\functionskip \setlength{\functionskip}{1em}
 
 \begin{code}
   \pwild \x \pwild \isa \tseteq A \to \tseteq B \to \tset{\eqt A \x \eqt B}\\
   %s \x t = \efor{x}{s} \efor{y}{t} \eset{\etuple{\dvar x, \dvar y}}
-  s \x t = \esetfor{\etuple{\dvar x, \dvar y}}{\dvar x \in s,\, \dvar y \in t}
+  \mvar s \x \mvar t =
+  \esetfor{\etuple{\dvar x, \dvar y}}{\dvar x \in \mvar s,\, \dvar y \in \mvar t}
   \\[\functionskip]
   \pwild \compose \pwild \isa
   \tset{\eqt A \x \eqt B}
   \to \tset{\eqt B \x \eqt C}
   \to \tset{\eqt A \x \eqt C}\\
-  s \compose t = \esetfor{\etuple{\dvar a, \dvar c}}{
-    \ptuple{\dvar a, \bone} \in s,\,
-    \ptuple{\btwo, \dvar c} \in t,\,
+  \mvar s \compose \mvar t = \esetfor{\etuple{\dvar a, \dvar c}}{
+    \ptuple{\dvar a, \bone} \in \mvar s,\,
+    \ptuple{\btwo, \dvar c} \in \mvar t,\,
     \eeq \bone \btwo}
 \end{code}
 
@@ -122,14 +130,17 @@ complicated by the need to be explicit about
 
 \newcommand{\kernf}{\kern1.67pt f}
 \newcommand{\kernfpost}{\kern.3pt}
+\renewcommand{\kernf}{f}
+\renewcommand{\kernfpost}{\kern.4pt}
 
 \begin{code}
   \name{filter} \isa (\iso \eqt A \to \tbool) \to \tseteq A \to \tseteq A\\
-  \name{filter} \<f \<s = \esetfor{\dvar x}{\dvar x \in s, f\<\ebox{\dvar x}}
+  \name{filter} \<\mvar f \<\mvar s =
+  \esetfor{\dvar x}{\dvar x \in \mvar s,\, \mvar f\<\ebox{\dvar x}}
   \\[\functionskip]
   \name{map} \isa \iso(\iso \eqt A \to \eqt B) \to \tseteq A \to \tseteq B\\
   % need some kerning between the [{ and the f
-  \name{map} \<\pboxvar{\kernf\kernfpost} \<s = \esetfor{\dvar{\kernf}\<\ebox{\dvar x}}{\dvar x \in s}
+  \name{map} \<\pboxvar{\kernf\kernfpost} \<\mvar s = \esetfor{\dvar{\kernf}\<\ebox{\dvar x}}{\dvar x \in \mvar s}
 \end{code}
 
 \noindent
@@ -160,11 +171,11 @@ negation:
 \begin{code}
   {\neg} \isa \iso\tbool \to \tbool\\
   \neg \pboxvar t = \ecase{\eisempty{\dvar t}}
-  \inj 1 \ptuple{} \caseto \etrue\:;\;\inj 2 \ptuple{} \caseto \efalse
+  \inj 1 \ptuple{} \caseto \etrue\textsf\:;\;\inj 2 \ptuple{} \caseto \efalse
   \\[1em] %TODO: right spacing?
   \pwild\setminus\pwild \isa \tseteq A \to \iso \tseteq A \to \tseteq A\\
-  s \setminus \pboxvar t =
-  \esetfor{\dvar x}{\dvar x \in s,\, \neg \ebox{\mem \<\eboxvar x \<\dvar t}}
+  \mvar s \setminus \pboxvar t =
+  \esetfor{\dvar x}{\dvar x \in \mvar s,\, \neg \ebox{\mem \<\eboxvar x \<\dvar t}}
 \end{code}
 
 \noindent
@@ -186,15 +197,17 @@ Finally, generalizing the \name{ancestor} relation from the Datalog program in
 \nopagebreak[2]
 \begin{code}
   \name{trans} \isa \iso \tset{\eqt A \x \eqt A} \to \tset{\eqt A \x \eqt A}\\
-  \name{trans} \<\pboxvar{edge} =
-  \efixis{R}{\dvar{edge} \vee (\dvar{edge} \compose R)}
+  \name{trans} \<\pboxvarlong{edge} =
+  \efixis{R}{\dvarlong{edge} \vee (\dvarlong{edge} \compose \mvar R)}
 \end{code}
 
 \noindent
 This definition uses a least fixed point, just like the mathematical definition
--- a transitive closure is the least relation $R$ including both the original
-relation $\dvar{edge}$ and the composition of $\dvar{edge}$ with $R$.
+-- a transitive closure is the least relation $\mvar R$ including both the
+original relation $\dvarlong{edge}$ and the composition of $\dvarlong{edge}$
+with $\mvar R$.
 %
+\todo{rewrite this sentence:}
 However, one feature of this definition peculiar to Datafun is that the argument
 type is $\iso \tset{\eqt A \times \eqt A}$; the transitive closure takes a
 \emph{discrete} relation.
@@ -271,14 +284,15 @@ the one ``beyond the last character'':
 \end{code}
 
 \noindent
-Appending regexes $r_1, r_2$ amounts to relation composition, since we wish to
-find all substrings consisting of adjacent substrings $s_i \ldots s_{j-1}$ and
-$s_j \ldots s_{k-1}$ matching $r_1$ and $r_2$ respectively:
+Appending regexes $\mvar r_1, \mvar r_2$ amounts to relation composition, since
+we wish to find all substrings consisting of adjacent substrings $s_i \ldots
+s_{j-1}$ and $s_j \ldots s_{k-1}$ matching $\mvar r_1$ and $\mvar r_2$
+respectively:
 
 \nopagebreak[2]
 \begin{code}
   \name{seq} \isa \tre \to \tre \to \tre\\
-  \name{seq} \<r_1 \<r_2 \<s = r_1\<s \compose r_2\<s
+  \name{seq} \<\mvar r_1 \<\mvar r_2 \<\mvar s = \mvar r_1 \<\mvar s \compose \mvar r_2 \<\mvar s
 \end{code}
 
 \noindent
@@ -288,7 +302,7 @@ accomplished by unioning all matches of each:
 \nopagebreak[2]
 \begin{code}
   \name{alt} \isa \tre \to \tre \to \tre\\
-  \name{alt} \<r_1 \<r_2 \<s = r_1\<s \vee r_2\<s
+  \name{alt} \<\mvar r_1 \<\mvar r_2  \<\mvar s = \mvar r_1 \<\mvar s \vee \mvar r_2 \<\mvar s
 \end{code}
 
 \noindent
@@ -319,6 +333,7 @@ to compute a fixed point.\footnote{Technically the inclusion order on sets of
 \label{regular-expression-combinators-take-two}
 
 \newcommand\kernj{\kern1pt j}
+\renewcommand\kernj{j}
 
 %% TODO: edit/rewrite this section, especially the bit about left recursion, it
 %% needs to be clearer
@@ -348,25 +363,24 @@ start position $\dvar i$.
   \name{sym} \isa \iso\tchar \to \tre\\
   \name{sym} \<\pboxvar{c} \<\pboxtuple{\dvar{s}, \dvar{i}}
   = \esetfor{\dvar i+1}{
-    \ptuple{\dvar{\kernj}, \dvar d}
-    \in \name{chars} \<\eboxvar{s},\,
-    \eeq {\dvar i} {\dvar j},\,
-    \eeq {\dvar c} {\dvar {d\kern.5pt}}}
+    \peq{\etuple{\dvar{i}, \dvar c}} \in \name{chars} \<\eboxvar{s}
+    %\mem \<\eboxtuple{\dvar i, \dvar c} \<\name{chars}
+  }
   \\[8pt]
   \name{nil} \isa \tre \to \tre\\
   \name{nil} \<\pboxtuple{\dvar{s}, \dvar{i}} = \eset{\dvar{i}}
 \end{code}
 
 \noindent
-Appending regexes $\name{seq}\<r_1\<r_2$ simply applies $r_2$ starting from
-every ending position that $r_1$ can find:
+Appending regexes $\name{seq}\<\mvar r_1\<\mvar r_2$ simply applies $\mvar r_2$ starting from
+every ending position that $\mvar r_1$ can find:
 
 \nopagebreak[2]
 \begin{code}
   \name{seq} \isa \tre \to \tre \to \tre\\
-  \name{seq} \<r_1 \<r_2 \<\pboxtuple{\dvar{s}, \dvar{i}} =
-  \efor{\kernj}{r_1\<\eboxtuple{\dvar{s}, \dvar{i}}}
-  r_2 \<\eboxtuple{\dvar{s}, \dvar j}
+  \name{seq} \<\mvar r_1 \<\mvar r_2 \<\pboxtuple{\dvar{s}, \dvar{i}} =
+  \efor{\kernj}{\mvar r_1\<\eboxtuple{\dvar{s}, \dvar{i}}}
+  \mvar r_2 \<\eboxtuple{\dvar{s}, \dvar j}
 \end{code}
 
 \noindent
@@ -375,19 +389,19 @@ Regex alternation \name{alt} is effectively unchanged:
 \nopagebreak[2]
 \begin{code}
   \name{alt} \isa \tre \to \tre \to \tre\\
-  \name{alt} \<r_1 \<r_2 \<x = r_1\<x \vee r_2\<x
+  \name{alt} \<\mvar r_1 \<\mvar r_2 \<\mvar x = \mvar r_1\<\mvar x \vee \mvar r_2\<\mvar x
 \end{code}
 
 \noindent
 Finally, Kleene star is implemented by recursively appending $\dvar r$ to a
-set $x$ of matches found so far:
+set $\mvar x$ of matches found so far:
 
 \nopagebreak[2]
 \begin{code}
   \name{star} \isa \iso\tre \to \tre\\
   \name{star} \<\pboxvar r \<\pboxtuple{\dvar{s}, \dvar{i}}
   = \efixis{x}{\bigl(\eset{\dvar{i}} \vee
-    \efor {\kernj} {x} \dvar r\<\eboxtuple{\dvar{s}, \dvar j}
+    \efor {\kernj} {\mvar x} \dvar r\<\eboxtuple{\dvar{s}, \dvar j}
     \bigr)}
 \end{code}
 
@@ -401,11 +415,6 @@ semantics of Datafun.
 
 \subsection{CYK parsing}
 \label{cyk-parsing}
-
-\splittodo{This section needs several things.}{It wants equality patterns. It
-  also needs explanations of various helper functions, including length,
-  substring, and range. It also needs data type declaration. I need to sign post
-  all these things in the appropriate place for each one.}
 
 Parsing can be understood logically: a parse tree is a proof that a string
 belongs to a language, and parsing is proof search~\cite{deductive-parsing}.
@@ -443,6 +452,7 @@ almost directly into code. We begin by introducing a few basic types.
 %% TODO: figure this out
 \newcommand\ctor[1]{\textsc{\lsstyle\MakeLowercase{#1}}}
 \renewcommand\ctor[1]{\textsf{\scshape\MakeLowercase{\lsstyle#1}}}
+%\renewcommand\ctor[1]{\textsf{\scshape\MakeUppercase{\lsstyle#1}}}
 \newcommand\tfact{\typename{fact}}
 \newcommand\tsymbol{\typename{symbol}}
 \newcommand\tgrammar{\typename{grammar}}
@@ -453,7 +463,7 @@ almost directly into code. We begin by introducing a few basic types.
 = \ctor{String} \<\tstring
 ~|~ \ctor{Concat} \<\tsymbol \<\tsymbol\\
 \kw{type}~\tgrammar = \tset{\tsymbol \x \typename{rule}}\\
-\kw{type}~\tfact = \tsymbol \x \N \x \N\\
+\kw{type}~\tfact = \tsymbol \x \tint \x \tint\\
 \end{code}
 
 \noindent
@@ -466,7 +476,7 @@ is the type representing the atomic facts derived by the CYK inference
 system -- they are triples of the rulename, the start position, and
 the end position.
 
-\todo{we'll need helper functions}
+\todo{explain helper functions}
 
 \begin{code}
   \name{length} \isa \iso\tstring \to \tint\\
@@ -485,20 +495,20 @@ $\name{iter}$ function, which represents one step of the fixed point iteration.
 \begin{code}
   \name{iter} \isa \iso \tstring \to \iso\tgrammar
   \to \tset{\tfact} \to \tset{\tfact}\\
-  \name{iter} \<\pboxvar{text} \<\pboxvar{grammar} \<F =
-  \\\phantom{\quad\cup{}} \{~\eiso{\etuple{\dvar A,\, \dvar i,\, \dvar k}}
+  \name{iter} \<\pboxvarlong{text} \<\pboxvarlong{grammar} \<\mvar f =
+  \\\phantom{\quad\cup{}} \{~\eiso{\etuple{\dvar a,\, \dvar i,\, \dvar k}}
   ~|~
-  (\dvar A, \ctor{Concat} \<\dvar B \<\dvar C) \in \dvar{grammar},
-  \etuple{\peqvar B, \dvar i, \dvar j} \in F,
-  \etuple{\peqvar C, \peqvar j, \dvar k} \in F ~\}
+  (\dvar a, \ctor{concat} \<\dvar b \<\dvar c) \in \dvarlong{grammar},
+  \etuple{\peqvar b, \dvar i, \dvar j} \in \mvar f,
+  \etuple{\peqvar c, \peqvar j, \dvar k} \in \mvar f ~\}
   \\\quad\cup \{~
-  \eiso{\etuple{\dvar A,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}}
+  \eiso{\etuple{\dvar a,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}}
   \\\phantom{\quad\cup{}} |~
-  (\dvar A, \ctor{String}\<\dvar s) \in \dvar{grammar},
+  (\dvar a, \ctor{String}\<\dvar s) \in \dvarlong{grammar},
   \\\phantom{\quad\cup{}} \phantom{|~}
-  \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvar{text} - \ebox{\name{length} \<\dvar s}),
+  \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvarlong{text} - \ebox{\name{length} \<\dvar s}),
   \\\phantom{\quad\cup{}} \phantom{|~} \dvar s =
-  \name{substring} \<\ebox{\dvar{text},\, \dvar i,\, \dvar i + \name{length}\<\dvar s}
+  \name{substring} \<\ebox{\dvarlong{text},\, \dvar i,\, \dvar i + \name{length}\<\dvar s}
   ~\}
 \end{code}
 
@@ -507,9 +517,10 @@ We can then use $\name{iter}$ to implement the $\name{parse}$ function:
 
 \begin{code}
   \name{parse} \isa \iso \tstring \to \iso \tgrammar \to \tset{\tsymbol}\\
-  \name{parse} \>\pboxvar{text} \>\pboxvar{grammar} = \\
-  \quad \elet{s = \efixis{c}{\name{iter} \<\ebox{\dvar{text}} \<\ebox{\dvar{grammar}} \<c}}\\
-  \quad \esetfor{\dvar a}{\etuple{\dvar a, \peq 0, \dvar n} \in s, \eeq{\dvar n}{\name{length}\<\dvar{text}}}
+  \name{parse} \>\pboxvarlong{text} \>\pboxvarlong{grammar} = \\
+  \quad \esetfor{\dvar a}{%
+    \etuple{\dvar a,\, \peq 0,\, \peq{(\name{length}\<\dvarlong{text})}}
+    \in \efixis{x}{\name{iter} \<\ebox{\dvarlong{text}} \<\ebox{\dvarlong{grammar}} \<\mvar x}}
 \end{code}
 
 \noindent
@@ -532,7 +543,7 @@ This program is not expressible in Datalog, because Datalog provides no way to
 Datalog relations --- but since Datalog is first-order, it cannot parameterize
 one relation by another; so there is no way in Datalog to express a generic
 parser. This demonstrates one of the key benefits of moving to a functional
-language like Datafun. \todo{contextualize utility of compound data more.}
+language like Datafun. %\todo{contextualize utility of compound data more.}
 
 %% Moreover, Datalog programs must be \emph{constructor-free}, to ensure all
 %% relations are finite. Primitives such as \name{range} and \name{substring} violate
@@ -552,3 +563,21 @@ language like Datafun. \todo{contextualize utility of compound data more.}
 \label{dataflow-analysis}
 
 \todo{import dataflow analysis code from first Datafun paper}
+\todo{consider using naturals instead of integers for everything}
+
+In this section, we show how some simple dataflow analyses can be
+expressed in Datafun. We begin with the types in these programs.
+
+\begin{code}
+  \kw{type}~\typename{var} = \tstring\\
+  \kw{type}~\typename{label} = \tint\\
+  \kw{data}~\typename{op} = \ctor{eq} ~|~ \ctor{le}
+  ~|~ \ctor{add} ~|~ \ctor{sub} ~|~ \ctor{mul} ~|~ \ctor{div}\\
+  \kw{data}~\typename{atom} = \ctor{var} \<\typename{var} ~|~ \ctor{num} \<\tint\\
+  \kw{data}~\typename{expr} =
+    \ctor{atom} \<\typename{atom} ~|~
+    \ctor{apply} \<\typename{op} \<\typename{atom} \<\typename{atom}\\
+  \kw{data}~\name{stmt} =
+    \ctor{assign} \<\typename{var} \<\typename{expr}
+    ~|~ \ctor{if} \<\typename{expr} \<\typename{label} \<\typename{label}
+\end{code}

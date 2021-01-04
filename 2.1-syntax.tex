@@ -19,9 +19,9 @@ possible in Datalog itself!
 In this section we sketch the construction of Datafun hewing closely to this
 semantic intuition.
 
-Datafun begins as the simply-typed \fn-calculus with functions ($\fnof x e$ and
-$e\<f$), sums ($\inj i e$ and $\ecase{e}{\dots}$), and products ($\etuple{e,f}$
-and $\pi_i\<e$).
+Datafun begins as the simply-typed \fn-calculus with functions ($\fnof{\mvar x}
+e$ and $e\<f$), sums ($\inj i e$ and $\ecase{e}{\dots}$), and products
+($\etuple{e,f}$ and $\pi_i\<e$).
 %
 To represent relations, we add a type of finite sets $\tset{\eqt
   A}$,\footnote{To implement set types, their elements must support decidable
@@ -59,12 +59,10 @@ Semantically, $\iso$ is a monoidal comonad or necessity modality, and so we base
 our syntax on \citet{jrml}'s syntax for the necessity fragment of constructive
 S4 modal logic.
 %
-This involves distinguishing two kinds of variable: discrete variables $\dvar x$
-are in \emph{\isocolor\isocolorname\ italics}, while monotone variables $x$ are
-in $upright\ black\ script$.
+This involves distinguishing two kinds of variable: discrete variables are in lowercase ($x, y, \dvarlong{foo}, \dvarlong{bar}$), while monotone variables are capitals ($X, Y, Z$).
 %
-Discrete variables may be used wherever they're in scope, but crucially,
-monotone variables are hidden within non-monotone expressions.
+Discrete variables obey normal scoping rules, but monotone variables are hidden
+within non-monotone expressions.
 %
 For example, in an equality test $\eeq e f$, the terms $e$ and $f$ cannot refer
 to monotone variables bound outside the equality expression.
@@ -83,13 +81,13 @@ f$, giving access to a discrete variable $\dvar{x}$.
 
 Finally, to express Datalog's recursive queries, Datafun includes bottom-up
 recursion, $\efixis x e$, which finds the least fixed point of the function
-$\fnof x e$. Here we impose three restrictions to ensure well-definedness and
-termination:
-
-\begin{enumerate}
-\item The ``loop body'' $e$ must be monotone in the ``loop variable'' $x$; i.e.\ the function whose fixed point we are finding is monotone.
-
-\item Recursion can only occur at \emph{semilattice types with decidable equality and no infinite ascending chains}, $\fixtLkern$.
+$\fnof{\mvar x} e$. On this we impose two restrictions to ensure
+well-definedness and termination.
+%
+First, the ``loop body'' $e$ must be monotone in the ``loop variable'' $\mvar
+x$; i.e.\ the function whose fixed point we are finding is monotone. Second,
+recursion can only occur at \emph{semilattice types with decidable equality and
+  no infinite ascending chains}, $\fixtLkern$.
 %
 For our purposes, a semilattice is a partial order with a least element $\bot$ and a least upper bound operation $\vee$ (``join'').
 %
@@ -105,26 +103,17 @@ As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \
   we extended Datafun with integers, they would form an eqtype, but not a finite
   one.}
 
-\item \todo{it might be better ignore this point for now and only discuss it
-  when it becomes relevant.} The entire expression $\efixis x e$ is regarded as
-  non-monotone, and cannot refer to externally-bound monotone variables besides
-  the loop variable $x$. This may seem unnecessary, as the least-fixed-point
-  operator is semantically monotone: $\fa{x} f(x) \le g(x)$ implies $f$'s least
-  fixed point is less than or equal to $g$'s. The restriction is motivated by
-  concerns that will not become clear until \cref{chapter-seminaive}, and we
-  introduce it here so that we can discuss one consistent language throughout
-  this thesis. It has the effect of preventing semantically nested fixed points;
-  we discuss the kinds of programs this disallows in more detail in
-  \cref{section-nested-fixed-points}. Note that this does not prevent mutual
-  recursion, which can be expressed by taking a fixed point at product type, nor
-  stratified fixed points \`a la Datalog.
+%% \item \todo{it might be better ignore this point for now and only discuss it
+%%   when it becomes relevant.} The entire expression $\efixis x e$ is regarded as
+%%   non-monotone, and cannot refer to externally-bound monotone variables besides
+%%   the loop variable $x$. This may seem unnecessary, as the least-fixed-point
+%%   operator is semantically monotone: $\fa{x} f(x) \le g(x)$ implies $f$'s least
+%%   fixed point is less than or equal to $g$'s. The restriction is motivated by
+%%   concerns that will not become clear until \cref{chapter-seminaive}, and we
+%%   introduce it here so that we can discuss one consistent language throughout
+%%   this thesis. It has the effect of preventing semantically nested fixed points;
+%%   we discuss the kinds of programs this disallows in more detail in
+%%   \cref{section-nested-fixed-points}. Note that this does not prevent mutual
+%%   recursion, which can be expressed by taking a fixed point at product type, nor
+%%   stratified fixed points \`a la Datalog.
 
-  %% We require that the recursive function be boxed, $\isofixLtoL$. Since
-  %% boxed expressions can only refer to discrete values, and fixed point functions
-  %% themselves must be monotone, this has the effect of preventing semantically
-  %% nested fixed points. We discuss this in more detail in
-  %% \cref{section-nested-fixed-points}. Note that this does not prevent mutual
-  %% recursion, which can be expressed by taking a fixed point at product type, nor
-  %% stratified fixed points \`a la Datalog.
-
-\end{enumerate}

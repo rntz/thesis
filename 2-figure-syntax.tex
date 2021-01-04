@@ -17,10 +17,10 @@
     \text{fixtypes} & \fixtLkern, \fixt M &\bnfeq&
     \tset{\fint A} \bnfor \tunit \bnfor \fixt L \x \fixt M
     \\[.5em]
-    \text{terms} & e,f,g &\bnfeq& x \bnfor \dvar x \bnfor \fnof{x} e
+    \text{terms} & e,f,g &\bnfeq& \mvar x \bnfor \dvar x \bnfor \fnof{\mvar x} e
     \bnfor e\<f \bnfor \etuple{} \bnfor \etuple{e,f} \bnfor \pi_i\<e
     \\&&&
-    \inj i e \bnfor \ecase{e} (\inj i x_i \caseto f_i)_{i\in\{1,2\}}
+    \inj i e \bnfor \ecase{e} (\inj i \mvar{x}_i \caseto f_i)_{i\in\{1,2\}}
     \\&&&
     \esetsub{e_i}{i} \bnfor \efor x e f
     \\&&&
@@ -29,6 +29,12 @@
     \eeq e f \bnfor \eisempty e \bnfor \esplit e
     \\&&&
     \bot \bnfor e \vee f \bnfor \efixis x e
+    \\
+    \text{monotone variables} & \mvar x, \mvar y, \mvar z
+    & \multicolumn{2}{l}{\text{are abstract names}}
+    \\
+    \text{discrete variables} & \dvar x, \dvar y, \dvar z
+    & \multicolumn{2}{l}{\text{are abstract names}}
   \end{array}
   \]
   \caption{Datafun syntax}
