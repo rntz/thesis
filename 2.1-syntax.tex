@@ -2,6 +2,8 @@
 
 \input{2-figure-syntax}
 
+\todo{refer to \cref{figure-syntax} somewhere}
+
 The idea behind Datafun is to capture the essence of Datalog in a typed,
 higher-order, functional setting.
 %
@@ -19,16 +21,16 @@ possible in Datalog itself!
 In this section we sketch the construction of Datafun hewing closely to this
 semantic intuition.
 
-Datafun begins as the simply-typed \fn-calculus with functions ($\fnof{\mvar x}
-e$ and $e\<f$), sums ($\inj i e$ and $\ecase{e}{\dots}$), and products
-($\etuple{e,f}$ and $\pi_i\<e$).
+Datafun begins as the simply-typed \fn-calculus with functions ($\efn x e$ and
+$e\<f$), sums ($\inj i e$ and $\emcase{e}{\dots}$), and products ($\etuple{e,f}$
+and $\pi_i\<e$).
 %
 To represent relations, we add a type of finite sets $\tset{\eqt
   A}$,\footnote{To implement set types, their elements must support decidable
   equality. In our core calculus, we use a subgrammar of ``eqtypes'', and in our
   implementation (which compiles to Haskell) we use typeclass constraints to
   pick out such types.} introduced with set literals $\eset{e_0, \ldots e_n}$,
-and eliminated using Moggi's monadic bind syntax, $\efor{x}{e_1}{e_2}$,
+and eliminated using Moggi's monadic bind syntax, $\eforvar{x}{e_1}{e_2}$,
 signifying the union over all $\dvar x \in e_1$ of $e_2$.
 %
 Since we are working in \Poset, each type comes with a partial order on it; sets
@@ -81,7 +83,7 @@ f$, giving access to a discrete variable $\dvar{x}$.
 
 Finally, to express Datalog's recursive queries, Datafun includes bottom-up
 recursion, $\efixis x e$, which finds the least fixed point of the function
-$\fnof{\mvar x} e$. On this we impose two restrictions to ensure
+$\efn x e$. On this we impose two restrictions to ensure
 well-definedness and termination.
 %
 First, the ``loop body'' $e$ must be monotone in the ``loop variable'' $\mvar

@@ -1,0 +1,145 @@
+\section{Typing and Semantics}
+\label{section-typing-and-semantics}
+
+\input{2-figure-typing}
+
+The syntax of core Datafun is given in \cref{figure-syntax} and its typing rules
+in \cref{figure-typing}. Contexts are lists of hypotheses $H$; a
+hypothesis gives the type of either a monotone variable $\hm x A$ or a discrete
+variable $\hd x A$. The stripping operation $\stripcx\G$ drops all monotone
+hypotheses from the context $\G$, leaving only the discrete ones.
+%
+The typing judgement $\J{e}{\G}{A}$ may be read as ``assuming the variables in
+$\G$ have their given types, the term $e$ has type $A$''.
+
+% TODO d\kern0pt var ?
+The \rn{var} and \rn{dvar} rules say that both monotone hypotheses $\hm x A$ and
+discrete hypotheses $\hd x A$ justify ascribing their variable the type $A$.
+%
+The \rn{lam} rule is the familiar rule for $\fn$-abstraction. However, note that
+we introduce the argument variable $\hm x A$ as a monotone hypothesis, not
+a discrete one. (This is the ``right'' choice because in \Poset\ the exponential
+object is the poset of monotone functions.)
+%
+The application rule \rn{app} is standard, as are the rules \rn{unit},
+\rn{pair}, \rn{prj}, \rn{inj}. Case analysis \rn{case} is also standard, noting
+only that as with \rn{lam}, the variables $\hm {x_i}{A_i}$ bound in each branch
+$f_i$ are monotone.
+
+\rn{box} says that $\ebox{e}$ has type $\iso A$ when $e$ has type $A$ in the
+stripped context $\stripcx\G$. This restricts $e$ to refer only to discrete
+variables, ensuring we don't smuggle any information we must treat monotonically
+into a discretely-ordered $\iso$ expression. The elimination rule \rn{letbox}
+for $(\eletbox x e f)$ allows us to ``cash in'' a boxed expression $e : \iso A$
+by binding its result to a discrete variable $\hd x A$ in the body $f$.
+
+At this point, our typing rules correspond to standard constructive S4 modal
+logic~\cite{jrml}. We get to Datafun by adding a handful of domain-specific
+types and operations.
+%
+First, \rn{split} provides an operator $\prim{split} : \iso(A + B) \to \iso A +
+\iso B$ to distribute box across sum types.\footnote{An alternative syntax,
+  pursued in \citet{datafun}, would be to give two rules for $\kw{case}$,
+  depending on whether or not the scrutinee could be typechecked in a stripped
+  context. \todo{here we provide this as syntax sugar, in order to simplify and
+    clarify our semantics.}}
+%
+The other direction, $\iso A + \iso B \to \iso (A + B)$, is already derivable,
+as is the isomorphism $\iso A \times \iso B \cong \iso (A \times B)$.
+%
+This is used implicitly by box pattern-matching -- e.g., in the pattern
+$\pboxtuple{\inj 1 \dvar x, \inj 2 \dvar y}$, the variables $\dvar x$ and $\dvar
+y$ are both discrete, which is information we propagate via these conversions.
+\todo{example of box pattern desugaring? move later?}
+%
+%% TODO: an example of desugaring pattern-matching here?
+%
+Semantically, all of these operations are the identity, as we
+shall see shortly.
+
+This leaves only the rules for manipulating sets and other semilattices.
+\rn{bot} and \rn{join} tell us that $\bot$ and $\vee$ are valid at any
+semilattice type $L$, that is, at sets and products of semilattice types.
+%
+The rule for set-elimination, \rn{for}, is almost a monadic bind.
+%
+However, we generalize it by allowing $\eforvar x e f$ to eliminate into any
+semilattice type, not just sets, denoting a ``big semilattice join'' rather than
+a ``big union''.
+%
+\todo{explain why bot/join/for require an equality lattice.}
+
+The set-introduction rule \rn{set} gives $\esetsub{e_i}{i\in I}$ type $\tseteq
+A$ when each of the $e_i$ has type $\eqt A$.
+%
+Just as in \rn{box}, each $e_i$ has to typecheck in a stripped context;
+constructing a set is a discrete operation, since $1 \le 2$ but $\esetraw{1}
+\not\subseteq \esetraw{2}$.
+
+Likewise discrete is equality comparison $\eeq{e_1}{e_2}$, whose rule \rn{eq} is
+otherwise straightforward; and \rn{empty?}, which requires more explanation. The
+idea is that $\eisempty e$ determines whether $e : \tset{\tunit}$ is empty,
+returning $\inj 1 \etuple{}$ if it is, and $\inj 2 \etuple{}$ if it isn't. This
+lets us turn ``booleans'' (sets of units) into values we can \kw{case}-analyse.
+This is, however, not monotone, because while booleans are ordered $\efalse <
+\etrue$, sum types are ordered disjointly; $\inj 1 ()$ and $\inj 2 ()$ are
+incomparable.
+
+\todo{fix this sentence:}
+%
+Finally, the rule \rn{fix} for fixed points $\efixis x e$ takes a function $e :
+\isofixLtoL$ and yields an expression of type $\fixtLkern$.
+%
+The restriction to ``fixtypes'' ensures $\fixt L$ has no infinite ascending
+chains, guaranteeing the recursion will terminate.
+%
+\todo{but why the context stripping?}
+
+
+\subsection{Semantics}
+\label{section-semantics}
+
+\todo{rewrite from here on; check seminaive.pdf and first paper}
+
+The syntax of core Datafun can be interpreted in $\Poset$, the category of
+partially ordered sets and monotone maps. That is, an object of $\Poset$ is a
+pair $(A, \leq_A)$ consisting of a set $A$ and a reflexive, transitive,
+antisymmetric relation $\leq_A \subseteq A \times A$, while a morphism $f : A
+\to B$ is a function such that $x \leq_A y \implies f(x) \leq_B f(y)$.
+
+\subsubsection{Bicartesian Structure}
+
+The bicartesian closed structure of $\Poset$ is largely the same as in $\Set$.
+%
+The product and sum sets are constructed the same way, and ordered pointwise:
+
+\begin{align*}
+  (a,b) \le_{A \x B} (a',b') &\iff a \le_A a' \wedge b \le_B b'\\
+  \inj i x \le_{A_1 + A_2} \inj j y &\iff i = j \wedge x \le_{A_i} y
+\end{align*}
+
+\noindent Projections $\pi_i$, injections $\injc_i$, tupling $\fork{f,g}$ and
+case-analysis $\krof{f,g}$ are all the same as in \Set, pausing only to note
+that all these operations preserve monotonicity, as we need.
+
+The exponential $A \expto B$ consists of the monotone maps $f : A \to B$, again
+ordered pointwise:
+
+\[ f \le_{A \expto B} g \iff \fa{x \le_A y} f\<x \le_B g\<y \]
+
+\noindent
+Currying $\fn$ and evaluation are the same as in \Set. Supposing $f : A \x B \to
+C$, then:
+
+\begin{align*}
+  \fn(f) &\isa A \to (B \expto C) &
+  \eval_{A,B} &\isa (A \expto B) \x A \to B
+  \\
+  \fn(f) &= x \mapsto y \mapsto f(x,y) &
+  \eval_{A,B} &= (g,x) \mapsto g(x)
+\end{align*}
+
+\noindent
+Monotonicity here follows from the monotonicity of $f$ and $g$ and the pointwise
+ordering of $A \expto B$.
+

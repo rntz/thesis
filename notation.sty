@@ -5,7 +5,7 @@
 \usepackage{mathpartir}         % \begin{mathpar}, \infer, etc.
 \usepackage{mathtools}          % vertical centered colon, \dblcolon, \Coloneqq
 %\usepackage{multirow}           % \multirow
-\usepackage{nccmath}      % fleqn environment, fix spacing around AMS math environments like align*
+\usepackage{nccmath}      % fleqn environment, fix spacing around AMS math environments like align*; but also creates spacing problems around mathpar :(
 %\usepackage{pgfplots}\pgfplotsset{compat=1.5}
 \usepackage{amsmath}
 %\usepackage{placeins}           %\FloatBarrier
@@ -15,6 +15,7 @@
 %\usepackage{tabu}               % tabu environment, \rowfont
 \usepackage{environ}            % \NewEnviron
 %\usepackage{pifont}             % \ding{55}
+\usepackage{ifthen}             % \ifthenelse
 
 \hyphenation{semi-na\"ive} %TODO XXX
 
@@ -54,7 +55,7 @@
 \newcommand\todocolor{\color{OrangeRed}}
 %\newcommand\todowarn[1]{\PackageWarning{notation}{TODO}{\todocolor #1}}
 \newcommand\warntodo[2]{%
-  \PackageWarning{notation}{TODO: #1}%
+  %\PackageWarning{notation}{TODO: #1}% TODO fix TODOs
   {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
 \newcommand\todo[1]{\warntodo{#1}{#1}}
@@ -82,10 +83,30 @@
 
 
 %% ---------- Commands ----------
+\newcommand{\negphantom}[1]{\settowidth{\dimen0}{#1}\hspace*{-\dimen0}}
 \newcommand\ensuretext[1]{\ifmmode\text{#1}\else{#1}\fi}
 \newcommand\naive{na\"ive}
 \newcommand\Naive{Na\"ive}
-\newcommand\rulename\textsc % inference rule names
+\makeatletter
+\def\removekerning#1{\@removekerning#1$\unskip}
+\def\@removekerning{\@ifnextchar${\@gobble}{\sw@p{\kern0pt\@removekerning}}}
+\def\sw@p#1#2{#2#1}
+\makeatother
+
+%% inference rule names
+%% textls/textls* = do/don't add surrounding spacing. minimal difference.
+%% TODO: XCharter small-caps question mark.
+\newcommand\rn[1]{\textsc{\textls[70]{% did manual kerning with [52].
+      \ifthenelse{\equal{#1}{var}}{v\kern-.5pt ar%
+      }{\ifthenelse{\equal{#1}{dvar}}{d\kern-.1pt v\kern-.5pt ar%
+        }{\ifthenelse{\equal{#1}{pair}}{p\kern-.5pt air%
+          }{\ifthenelse{\equal{#1}{box}}{b\kern-.25pt o\kern-.1pt x%
+            }{\ifthenelse{\equal{#1}{bot}}{b\kern-.25pt ot%
+              }{\ifthenelse{\equal{#1}{letbox}}{letb\kern-.25pt o\kern-.1pt x%
+                }{\ifthenelse{\equal{#1}{empty?}}{empty%
+                  }{%\removekerning
+                    #1}}}}}}}}}}
+%\renewcommand\rn[1]{\textsf{\scshape\textls[40]{\removekerning{#1}}}}
 
 %% For some colorblindness stuff, see:
 %% https://davidmathlogic.com/colorblind/
@@ -141,10 +162,9 @@
 \newcommand\tuple[1]{({#1})}
 \newcommand\den[1]{\ensuremath{\llbracket{#1}\rrbracket}}
 % Space for function application.
-% FIXME: not used consistently, in many places we use \;. Abandon?
 \newcommand\<\;
 \newcommand\fnspace{\;}
-\newcommand\fnof[1]{\fn{#1}.\fnspace}
+%\newcommand\fnof[1]{\fn{#1}.\fnspace}
 \newcommand\setfor[2]{\ensuremath{\{#1 \mathrel{|} #2\}}}
 
 \newcommand\quantifierspace{\ }
@@ -184,16 +204,17 @@
 \newcommand\morph\name
 \newcommand\fork[1]{\langle{#1}\rangle}
 \newcommand\krof[1]{[{#1}]}
+
 %% \newcommand\initO{0}
 %% \newcommand\termO{1}
-%% \newcommand\expO[2]{#1 \Rightarrow #2}
+\newcommand\expto\Rightarrow
 
 %\newcommand\bigkrof[1]{\bigl[{#1}\bigr]}
 %\newcommand\Fork[1]{\left\langle{#1}\right\rangle}
 %\newcommand\Krof[1]{\left[{#1}\right]}
 %\newcommand\initE{\krof{\kern .08em}}
 %\newcommand\termI{\fork{}}
-%\newcommand\eval{\morph{eval}}
+\newcommand\eval{\morph{eval}}
 
 %% \newcommand\pfin{\ensuremath{P}}
 %% \newcommand\pfinof[1]{\pfin #1}
@@ -208,11 +229,12 @@
 
 
 %% ===== Datafun syntax =====
-\newcommand\isa{~:~}
-\newcommand\desugars{\,\xrightarrow{\textsf{rewrite}}\,}
+\newcommand\isa{\::\:} %\renewcommand\isa{\,:\,}
+\newcommand\desugars{\,\xrightarrow{\textsf{desugar}}\,}
 \newcommand\kw\textbf
 \newcommand\prim\name
 \newcommand\caseto\shortrightarrow
+\newcommand\casebar{;\;}
 \newcommand\pwild{\underline{\phantom{o}}}
 \newcommand\peq[1]{{}!{\eiso{#1}}}
 \newcommand\peqvar[1]{\peq{\dvar{#1}}}
@@ -242,11 +264,14 @@
 }}
 
 \newcommand\elet[1]{\kw{let}\;{#1}\;\kw{in}\;}
+\newcommand\efn[1]{\fn\mvar{#1}.\fnspace}
 \newcommand\etuple[1]{({#1})}
-\newcommand\ecase[1]{\kw{case} \;{#1}\; \kw{of}\;}
+\newcommand\emcase[1]{\kw{case} \;{#1}\; \kw{of}\;}
+\newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
 % TODO: remove this. make it warn!
 \newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
-\newcommand\efixis[2]{\eiso{\kw{fix}~\mvar{#1}~\kw{is}\fnspace#2}}
+\newcommand\efixisraw[1]{\kw{fix}~\mvar{#1}~\kw{is}\fnspace}
+\newcommand\efixis[2]{\eiso{\efixisraw{#1}{#2}}}
 \newcommand\esplit{\prim{split}\<}
 \newcommand\isempty{\prim{empty?}}
 \newcommand\fastfix{\prim{semifix}}
@@ -260,7 +285,9 @@
 \newcommand\esetfor[2]{\setfor{\eiso{#1}}{#2}}
 \newcommand\esetsub[2]{\eiso{\esetraw{#1}_{#2}}}
 \newcommand\eisempty[1]{\eiso{\isempty\<#1}}
-\newcommand\efor[2]{\eforraw{\dvar{#1} \in #2}}
+\newcommand\efor[1]{\kw{for}\:({#1})\fnspace}
+\newcommand\eforin[2]{\efor{{#1} \in #2}}
+\newcommand\eforvar[2]{\eforin{\dvar #1}{#2}}
 
 \newcommand\bigeboxraw[1]{\bigl[{#1}\bigr]}
 \newcommand\bigebox[1]{\eiso{\bigeboxraw{#1}}}
@@ -269,7 +296,6 @@
 % discrete operators without \isocolor
 \newcommand\esetraw[1]{\{{#1}\}}
 \newcommand\eboxraw[1]{[{#1}]}
-\newcommand\eforraw[1]{\kw{for}\:({#1})\fnspace}
 \newcommand\eeqraw[2]{{#1} = {#2}}
 
 \newcommand\ptuple\etuple
@@ -292,7 +318,7 @@
 %\newcommand\J[3]{{#1} \mathrel{\,:\,} {#2} \vdash {#3}}
 \newcommand\J[3]{{#2} \vdash {#1} \mathrel{:} {#3}}
 \newcommand\Jalign[3]{{#2} &\vdash {#1} \mathrel{:} {#3}}
-\newcommand\h[2]{{#1} : {#2}}
+\newcommand\hm[2]{\mvar{#1} : {#2}}
 \newcommand\hd[2]{{\isocolor\dvar{#1} \dblcolon {#2}}}
 
 \newcommand\stripcxraw[1]{\lceil{#1}\rceil}

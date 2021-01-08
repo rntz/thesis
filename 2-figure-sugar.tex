@@ -5,12 +5,16 @@
     \text{terms} & e,f &\bnfeq& ...
     \bnfor \ewhen e f \bnfor \etrue \bnfor \efalse
     \\&&&
-    \eforraw{C} e \bnfor \esetfor{e}{C}
+    \efor{C} e \bnfor \esetfor{e}{C}
+    \\&&&
+    \edcase{e} (\isocolor p_i \caseto e_i)_i
     \\
-    \text{comprehension clauses} & C,D &\bnfeq&
+    \text{discrete patterns} & \isocolor p &\bnfeq&
+    \dvar x \bnfor \pwild \bnfor \peq{e}
+    \bnfor \ptuple{} \bnfor \ptuple{p_1, p_2} \bnfor \inj i p
+    \\
+    \text{loop clauses} & C,D &\bnfeq&
          {\isocolor p} \in e \bnfor e \bnfor C,D \bnfor \emptycx
-    \\
-    \text{comprehension patterns} & \isocolor p &\bnfeq& \dvar x \bnfor \pwild \bnfor \peq{e}
   \end{array}\]
 
   \begin{align*}
@@ -20,31 +24,27 @@
       \efalse &\desugars \eset{}
       \\
       \etrue &\desugars \eset{\etuple{}}
+      \\
+      \ewhen e f &\desugars \eforin{\pwild}{e} f
     \end{aligned}
     &&
     \begin{aligned}
-      \esetfor{e}{C} &\desugars \eforraw{C} \eset{e}
+      \esetfor{e}{C} &\desugars \efor{C} \eset{e}
       \\
-      %% \esetfor{e}{p \in f,\, \dots} &\desugars \eforraw{p \in f} \esetfor{e}{\dots}
+      %% \ewhen e f &\desugars \eforin{\pwild}{e} f
       %% \\
-      %% \esetfor{e}{f,\, \dots} &\desugars \ewhen{f} \esetfor{e}{\dots}
-      %% \\
-      %% \esetfor{e}{\emptycx} &\desugars \eset{e}
-      %% \\
-      \ewhen e f &\desugars \efor{\pwild}{e} f %\eforraw{e} f
+      \efor{e}{f} &\desugars \efor{\pwild}{e} f
       \\
-      \eforraw{e}{f} &\desugars \efor{\pwild}{e} f
+      \eforin{\isocolor p}{e} f &\desugars
+      \eforvar{x}{e} \edcase{x} p \caseto f \casebar \pwild \caseto \bot
       \\
-      \eforraw{{\isocolor p} \in e} f &\desugars
-      \todo{argh, discrete pattern matching}
+      \efor{C,D} e &\desugars \efor{C} \efor{D} e
       \\
-      \eforraw{C,D} e &\desugars \eforraw{C} \eforraw{D} e
-      \\
-      \eforraw{\emptycx} e &\desugars e
+      \efor{\emptycx} e &\desugars e
     \end{aligned}
   \end{align*}
 
-  \todo{equality patterns}
+  \todo{discrete pattern matching}
   \caption{Syntactic sugar}
   \label{fig:sugar}
 \end{figure}

@@ -4,7 +4,7 @@
 
 \input{2.2-examples}
 
-# Typing and Semantics
+\input{2.3-typing-semantics}
 
 # Extensions
 ## Monotone ``if''

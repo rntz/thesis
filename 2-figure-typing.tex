@@ -1,0 +1,84 @@
+\begin{figure}
+  \begin{mathpar}
+    %% \begin{array}{r@{\hskip 1em}ccl}
+    %% \text{types} & A,B &\bnfeq& \tunit \bnfor A \x B \bnfor A + B \bnfor A \to B
+    %%                             %% \bnfor \iso A \bnfor \tset{\eqt A}
+    %% \\[.5ex]
+    %% \text{eqtypes} & \eqt A, \eqt B &\bnfeq&
+    %% \tset{\eqt A} \bnfor
+    %% \tunit \bnfor \eqt A \x \eqt B \bnfor \eqt A + \eqt B
+    %% \\[.5ex]
+    %% \text{semilattices} & L,M &\bnfeq& \tset{\eqt A} \bnfor \tunit \bnfor L \x M
+    %% \\[.5ex]
+    %% \text{finite eqtypes} & \fint A, \fint B &\bnfeq&
+    %% \tset{\fint A} \bnfor \tunit \bnfor \fint A \x \fint B \bnfor \fint A + \fint B
+    %% \\[.5ex]
+    %% \text{fixtypes} & \fixt L, \fixt M &\bnfeq&
+    %% \tset{\fint A} \bnfor \tunit \bnfor \fixt L \x \fixt M
+    %% \end{array}
+    %%
+    \begin{array}{r@{\hskip 1em}ccl}
+      \text{contexts} & \G &\bnfeq& \emptycx \bnfor \G,\, H \\
+      \text{hypotheses} & H &\bnfeq& \hm x A \bnfor \hd x A
+    \end{array}
+
+    \begin{array}{rcl}
+      \stripcxraw{\emptycx} & = & \emptycx\\
+      \stripcxraw{\G,\, \hm x A} & = & \stripcxraw\G\\
+      \stripcxraw{\G,\, \hd x A} & = & \stripcxraw\G,\, \hd x A
+    \end{array}
+    \\
+    \infer[\rn{var}]{\hm x A \in \G}{\J x \G A}
+
+    \infer[\rn{dvar}]{\hd x A \in \G}{\J {\dvar x} \G A}
+
+    \infer[\rn{lam}]{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}
+
+    \infer[\rn{app}]{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}
+
+    \infer[\rn{unit}]{\quad}{\J {\etuple{}} \G \tunit}
+
+    \infer[\rn{pair}]{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}
+
+    \infer[\rn{prj}]{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}
+
+    \infer[\rn{inj}]{\J e \G A_i}{\J{\inj i e}\G{A_1 + A_2}}
+
+    \infer[\rn{case}]{\J e \G {A_1 + A_2} \\
+      (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
+    }{
+      \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
+    }
+
+    \infer[\rn{box}]{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}
+
+    \infer[\rn{letbox}]{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
+      \J {\eletbox x e f} \G B}
+
+    \infer[\rn{bot}]{\quad}{\J\bot\G {\eqt L}}
+
+    \infer[\rn{join}]{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}
+
+    \infer[\rn{set}]{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
+      \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}
+
+    \infer[\rn{for}]{
+      \J e \G {\tset A} \\
+      \J f {\G,\, \hd x A} {\eqt L}
+    }{\J {\eforvar x e f} \G {\eqt L}}
+
+    \infer[\rn{eq}]{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+          {\J {\eeq{e_1}{e_2}} \G \tbool}
+
+    \infer[\rn{empty?}]{\J {e} {\stripcx\G} {\tset\tunit}}{
+      \J {\eisempty e} \G {\tunit + \tunit}}
+
+    \infer[\rn{split}]{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso B}}
+
+    \infer[\rn{fix}]{\J e {\G,\, \hm x {\fixt L}} {\fixt L}}{%
+      \J{\efixis x e} \G {\fixt L}}
+  \end{mathpar}
+
+  \caption{Datafun typing rules}
+  \label{figure-typing}
+\end{figure}
