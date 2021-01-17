@@ -33,7 +33,7 @@
       \\
       %% \ewhen e f &\desugars \eforin{\pwild}{e} f
       %% \\
-      \efor{e}{f} &\desugars \efor{\pwild}{e} f
+      \efor{e}{f} &\desugars \eforin{\pwild}{e} f
       \\
       \eforin{\isocolor p}{e} f &\desugars
       \eforvar{x}{e} \edcase{x} p \caseto f \casebar \pwild \caseto \bot
@@ -45,6 +45,6 @@
   \end{align*}
 
   \todo{discrete pattern matching}
-  \caption{Syntactic sugar}
+  \caption{Syntax sugar}
   \label{fig:sugar}
 \end{figure}

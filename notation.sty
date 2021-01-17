@@ -17,14 +17,7 @@
 %\usepackage{pifont}             % \ding{55}
 \usepackage{ifthen}             % \ifthenelse
 
-\hyphenation{semi-na\"ive} %TODO XXX
-
-%% % cleveref must be loaded AFTER hyperref, amsmath, & amsthm.
-%% \usepackage[nameinlink,noabbrev,]{cleveref}% other options: capitalise
-%% \newcommand\crefrangeconjunction{--} % use en-dashes for ranges.
-%% \creflabelformat{equation}{#2#1#3} % No parentheses in equation labels.
-%% \crefname{section}{\S\@gobble}{\S\@gobble}
-%% \crefformat{footnote}{#2\footnotemark[#1]#3} % referencing footnotes
+\hyphenation{semi-na\"ive} % TODO necessary? does it work?
 
 % Use stmry medium as bold since there is no stmry bold.
 \SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
@@ -96,13 +89,13 @@
 %% inference rule names
 %% textls/textls* = do/don't add surrounding spacing. minimal difference.
 %% TODO: XCharter small-caps question mark.
-\newcommand\rn[1]{\textsc{\textls[70]{% did manual kerning with [52].
+\newcommand\rn[1]{\textsc{\textls[70]{%
       \ifthenelse{\equal{#1}{var}}{v\kern-.5pt ar%
       }{\ifthenelse{\equal{#1}{dvar}}{d\kern-.1pt v\kern-.5pt ar%
-        }{\ifthenelse{\equal{#1}{pair}}{p\kern-.5pt air%
-          }{\ifthenelse{\equal{#1}{box}}{b\kern-.25pt o\kern-.1pt x%
-            }{\ifthenelse{\equal{#1}{bot}}{b\kern-.25pt ot%
-              }{\ifthenelse{\equal{#1}{letbox}}{letb\kern-.25pt o\kern-.1pt x%
+        }{\ifthenelse{\equal{#1}{pair}}{p\kern-.3pt air%
+          }{\ifthenelse{\equal{#1}{box}}{b\kern-.3pt o\kern-.1pt x%
+            }{\ifthenelse{\equal{#1}{bot}}{b\kern-.3pt ot%
+              }{\ifthenelse{\equal{#1}{letbox}}{letb\kern-.3pt o\kern-.1pt x%
                 }{\ifthenelse{\equal{#1}{empty?}}{empty%
                   }{%\removekerning
                     #1}}}}}}}}}}
@@ -194,7 +187,7 @@
 \newcommand\isox{\ensuremath{\morph{dist}^\x_\iso}}
 \newcommand\isosum{\ensuremath{\morph{dist\kern.5pt}^\iso_+}}
 
-\newcommand\cat\textbf
+\newcommand\cat[1]{\textrm{\bfseries#1}}
 \newcommand\Set{\cat{Set}}
 \newcommand\Poset{\cat{Poset}}
 \newcommand\catC{\ensuremath{\mathcal{C}}}
@@ -205,26 +198,35 @@
 \newcommand\fork[1]{\langle{#1}\rangle}
 \newcommand\krof[1]{[{#1}]}
 
-%% \newcommand\initO{0}
-%% \newcommand\termO{1}
+\newcommand\initialobject{0}
+\newcommand\terminalobject{1}
 \newcommand\expto\Rightarrow
+%% TODO: remove these aliases?
+%\newcommand\initO\initialobject
+%\newcommand\termO\terminalobject
 
-%\newcommand\bigkrof[1]{\bigl[{#1}\bigr]}
+\newcommand\bigkrof[1]{\bigl[{#1}\bigr]}
 %\newcommand\Fork[1]{\left\langle{#1}\right\rangle}
 %\newcommand\Krof[1]{\left[{#1}\right]}
 %\newcommand\initE{\krof{\kern .08em}}
 %\newcommand\termI{\fork{}}
 \newcommand\eval{\morph{eval}}
 
-%% \newcommand\pfin{\ensuremath{P}}
-%% \newcommand\pfinof[1]{\pfin #1}
-%% \newcommand\pcollect[1]{\morph{collect\/}({#1})}
-%% \newcommand\strip{\morph{strip}}
-%% \newcommand\mkbox{\morph{box}}
+%% TODO: rename these?
+\newcommand\pfin{\ensuremath{P}}
+\newcommand\pfinof[1]{\pfin #1}
+\newcommand\powerset{\mathcal{P}} % TODO: typeface
+\newcommand\pcollect[1]{\morph{collect}({#1})}
+\newcommand\morphstrip{\morph{strip}}
+\newcommand\morphbox{\morph{box}}
+\usepackage{xparse}
+\DeclareDocumentCommand\morphjoin{m g}{\ensuremath{\morph{join}_{#1}^{\IfNoValueF{#2}{#2}}}}
+\newcommand\strip\morphstrip % TODO: remove this alias
+\newcommand\mkbox{\morph{box}} % TODO: remove this alias
 
 
 %% ==== Datalog notation ====
-\newcommand\atom[2]{\name{#1\/}({#2})}
+\newcommand\atom[2]{\name{#1}({#2})}
 \newcommand\datum[1]{\textsf{#1}}
 
 

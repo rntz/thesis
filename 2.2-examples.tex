@@ -453,9 +453,7 @@ In Datafun, this rule-based description of the algorithm can be transliterated
 almost directly into code. We begin by introducing a few basic types.
 
 %% TODO: figure this out
-\newcommand\ctor[1]{\textsc{\lsstyle\MakeLowercase{#1}}}
-\renewcommand\ctor[1]{\textsf{\scshape\MakeLowercase{\lsstyle#1}}}
-%\renewcommand\ctor[1]{\textsf{\scshape\MakeUppercase{\lsstyle#1}}}
+\newcommand\ctor[1]{\textls[40]{\sffamily\scshape\MakeLowercase{#1}}}
 \newcommand\tfact{\typename{fact}}
 \newcommand\tsymbol{\typename{symbol}}
 \newcommand\tgrammar{\typename{grammar}}
@@ -501,13 +499,13 @@ $\name{iter}$ function, which represents one step of the fixed point iteration.
   \name{iter} \<\pboxvarlong{text} \<\pboxvarlong{grammar} \<\mvar f =
   \\\phantom{\quad\cup{}} \{~\eiso{\etuple{\dvar a,\, \dvar i,\, \dvar k}}
   ~|~
-  (\dvar a, \ctor{concat} \<\dvar b \<\dvar c) \in \dvarlong{grammar},
+  (\dvar a,\, \ctor{concat} \<\dvar b \<\dvar c) \in \dvarlong{grammar},
   \etuple{\peqvar b, \dvar i, \dvar j} \in \mvar f,
   \etuple{\peqvar c, \peqvar j, \dvar k} \in \mvar f ~\}
   \\\quad\cup \{~
   \eiso{\etuple{\dvar a,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}}
   \\\phantom{\quad\cup{}} |~
-  (\dvar a, \ctor{String}\<\dvar s) \in \dvarlong{grammar},
+  (\dvar a,\, \ctor{String}\<\dvar s) \in \dvarlong{grammar},
   \\\phantom{\quad\cup{}} \phantom{|~}
   \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvarlong{text} - \ebox{\name{length} \<\dvar s}),
   \\\phantom{\quad\cup{}} \phantom{|~} \dvar s =

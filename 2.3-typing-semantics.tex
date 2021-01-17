@@ -1,7 +1,16 @@
-\section{Typing and Semantics}
+\section{Typing and denotational semantics}
 \label{section-typing-and-semantics}
 
 \input{2-figure-typing}
+
+Our guiding intuition so far has been that Datafun is a language for writing
+monotone, higher-order functions.
+%
+Here we substantiate that intuition by giving typing rules for core Datafun and
+showing how to interpret well-typed Datafun terms into \Poset, the category of
+partially ordered sets and monotone maps.
+
+\subsection{Typing rules}
 
 The syntax of core Datafun is given in \cref{figure-syntax} and its typing rules
 in \cref{figure-typing}. Contexts are lists of hypotheses $H$; a
@@ -85,10 +94,7 @@ This is, however, not monotone, because while booleans are ordered $\efalse <
 \etrue$, sum types are ordered disjointly; $\inj 1 ()$ and $\inj 2 ()$ are
 incomparable.
 
-\todo{fix this sentence:}
-%
-Finally, the rule \rn{fix} for fixed points $\efixis x e$ takes a function $e :
-\isofixLtoL$ and yields an expression of type $\fixtLkern$.
+Finally, the rule \rn{fix} for fixed points $\efixis x e$ permits a recursive expression $e : \fixt{L}$ which refers to its own result as $\mvar x$.
 %
 The restriction to ``fixtypes'' ensures $\fixt L$ has no infinite ascending
 chains, guaranteeing the recursion will terminate.
@@ -96,18 +102,19 @@ chains, guaranteeing the recursion will terminate.
 \todo{but why the context stripping?}
 
 
-\subsection{Semantics}
-\label{section-semantics}
+\subsection{The category \Poset\ and its structures}
+\label{section-poset-structures}
 
-\todo{rewrite from here on; check seminaive.pdf and first paper}
+\splittodo{rewrite from here on.}{Talk about the intuition more. check
+  seminaive.pdf and first paper}
 
-The syntax of core Datafun can be interpreted in $\Poset$, the category of
-partially ordered sets and monotone maps. That is, an object of $\Poset$ is a
-pair $(A, \leq_A)$ consisting of a set $A$ and a reflexive, transitive,
-antisymmetric relation $\leq_A \subseteq A \times A$, while a morphism $f : A
-\to B$ is a function such that $x \leq_A y \implies f(x) \leq_B f(y)$.
+An object of $\Poset$ is a pair $(A, \le_A)$ consisting of a set $A$ and a
+reflexive, transitive, antisymmetric relation $\le_A \subseteq A \times A$. For
+convenience, we usually denote these by a single letter $A$, leaving $\le_A$
+implicit. Following this convention, a morphism $f : A \to B$ is a function such
+that $x \le_A y \implies f(x) \le_B f(y)$.
 
-\subsubsection{Bicartesian Structure}
+\subsubsection{Bicartesian structure}
 
 The bicartesian closed structure of $\Poset$ is largely the same as in $\Set$.
 %
@@ -143,3 +150,155 @@ C$, then:
 Monotonicity here follows from the monotonicity of $f$ and $g$ and the pointwise
 ordering of $A \expto B$.
 
+
+\subsubsection{The discreteness comonad}
+
+Given a poset $(A, \le_A)$ we define the discreteness comonad $\iso(A, \le_A)$
+as $(A, \le_{\iso A})$, where \( a \le_{\iso A} a' \iff a = a' \).
+%
+That is, the discrete order preserves the underlying elements, but reduces the
+partial order to mere equality.
+%
+This forms a rather boring comonad whose functorial action $\iso(f)$, extraction $\varepsilon_A : \iso A \to A$, and duplication $\delta_A : \iso A \to \iso \iso A$ are all identities on the underlying sets:
+
+\nopagebreak[2]
+\begin{align*}
+  \iso(f) &= f & \varepsilon_A &= a \mapsto a & \delta_A &= a \mapsto a
+\end{align*}
+
+\noindent
+This makes the functor and comonad laws trivial. Monotonicity holds in each case because \emph{all} functions are monotone with respect to $\le_{\iso A}$.
+%
+It is also immediate that $\iso$ is monoidal with respect to \emph{both}
+products and coproducts. That is, $\iso (A \times B) \cong \iso A \times \iso B$
+and $\iso (A + B) \cong \iso A + \iso B$.
+%
+In both cases the isomorphism is witnessed by identity on the underlying
+elements.
+%
+These lift to $n$-ary products and sums as well, which we write as $\isox : \prod_i \iso A_i \to \iso\prod_i A_i$ and $\isosum : \iso \sum_i
+A_i \to \sum_i \iso A_i$.
+%% %
+%% We will write $\isox : \prod_i \iso A_i \to \iso\prod_i A_i$ to name the map
+%% witnessing distributivity of products over $\iso$, and $\isosum : \iso \sum_i
+%% A_i \to \sum_i \iso A_i$ to name the map witnessing distributivity of $\iso$
+%% over coproducts.
+
+
+\subsubsection{Sets and semilattices}
+
+Given a poset $(A, \le_A)$ we define the finite powerset poset $\pfinof(A,
+\le_A)$ as $(\powerset_{\mathrm{fin}}\, A, \subseteq)$, that is, the finite
+subsets of $A$ ordered by subset inclusion.
+%
+Note that the subset ordering completely ignores the element ordering $\le_A$.
+%
+Finite sets admit a pair of useful morphisms:
+
+\begin{align*}
+  \morph{singleton} &\isa \iso A \to \pfinof A
+  &
+  \morph{isEmpty} &\isa \iso \pfinof A \to \terminalobject + \terminalobject
+  \\
+  \morph{singleton} &= a \mapsto \{a\}
+  &
+  \morph{isEmpty} &= X \mapsto 
+  \begin{cases}
+    \inj 1 () &\text{when }X = \emptyset\\
+    \inj 2 () &\text{otherwise}
+  \end{cases}
+\end{align*}
+
+\noindent
+The \morph{singleton} function takes a value and makes a singleton set out of
+it. The domain must be discrete, as otherwise the map will not be monotone (sets
+are ordered by inclusion, and set membership relies on equality, not the partial
+order). Similarly, the emptiness test \morph{isEmpty} also takes a discrete
+set-valued argument, because otherwise the boolean test would not be monotone.
+
+Sets also form a semilattice, with the least element given by the empty set, and
+join given by union.
+%
+For this and other semilattices $L \in \Poset$, in particular products of
+semilattices, we write $\morphjoin{L}{n} : L^n \to L$ to denote the $n$-ary
+semilattice join (least upper bound).
+%
+Moreover, if $f : A \times \iso B \to L$, we define a morphism
+$\pcollect{f} : A \times \pfinof{B} \to L$ as follows:
+
+\begin{displaymath}
+ \pcollect{f}  = (a, X) \mapsto \bigvee_{b \in X} f(a, b)
+\end{displaymath}
+
+\noindent
+We will use this to interpret \kw{for}-loops. However, it is worth noting that
+the discreteness of \morph{singleton} means finite sets do not quite form a
+monad in $\Poset$.
+
+
+\subsubsection{Equality} Every object $A \in \Poset$ admits an equality-test morphism \morph{eq}:
+
+\begin{align*}
+  \morph{eq} &\isa \iso A \x \iso A \to \pfinof{\terminalobject}\\
+  \morph{eq} &= (x,y) \mapsto 
+  \begin{cases}
+    \{()\} &\text{if }x = y\\
+    \emptyset &\text{otherwise}
+  \end{cases}
+\end{align*}
+
+\noindent
+The domain must be discrete, since $x = y$ and $y \le z$ certainly doesn't imply $x = z$. \todo{explain we only use equality where it is decidable}
+
+
+\subsubsection{Fixed points}
+
+Given a semilattice $L \in \Poset$ without infinite ascending chains, we can
+define a family of fixed point morphisms $\morph{fix} : \iso (L \expto L) \to L$
+as follows:
+
+\begin{displaymath}
+  \morph{fix} = f \mapsto \bigvee_{n \in \mathbb{N}} f^n(\bot)
+\end{displaymath}
+
+\noindent
+A routine inductive argument shows this must yield a least fixed point.
+\todo{sketch this fixed point argument} 
+\todo{explain why fix is discrete}
+
+
+\subsection{Interpretation of Datafun in \Poset}
+\label{section-semantics}
+
+\input{2-figure-semantics}
+
+\Cref{figure-semantics} shows how to interpret Datafun into \Poset\ using the
+structures developed above.
+%
+We interpret Datafun types and typing contexts as \Poset-objects $\den{A},
+\den{\G}$ and well-typed Datafun terms (or more precisely, their typing
+derivations) $\J e \G A$ as \Poset-morphisms $\den{\G} \to \den A$.
+%
+This follows the usual interpretation for constructive S4~\cite{depaiva-s4},
+with the addition of sets, semilattices, fixed points, and the ability to
+distribute $\iso$ over sums.
+%
+We give the interpretation in combinatory style; to increase readability, we
+freely use $n$-ary products to represent our typing context, to avoid the
+book-keeping of reassociating binary products.
+
+Regarding notation, we write composition in diagrammatic or ``pipeline'' order
+with a centered dot, so $f \cdot g : A \to C$ means $f : A \to B$ followed by $g
+: B \to C$.
+%
+If $f_i : A \to B_i$ we write $\fork{f_i}_i : A \to \prod_i B_i$ for the
+``tupling map'' such that $\fork{f_i}_i \then \pi_j = f_j$.
+%
+In particular, $\fork{}$ is the map into the terminal object.
+%
+Dually, if $g_i : A_i \to B$ we write $\krof{g_i}_i : \sum_i A_i \to B$ for the
+``case-analysis map'' such that $\injc_j \then \krof{g_i}_i = g_j$.
+
+\todo{lemma that the interpretation of a semilattice type is a semilattice?}
+
+

@@ -6,6 +6,10 @@
 
 \input{2.3-typing-semantics}
 
+# Operational semantics
+
+# Metatheory
+
 # Extensions
 ## Monotone ``if''
 
@@ -17,7 +21,3 @@
 
 ## Nested fixed points
 \label{section:nested-fixed-points}
-
-# Operational Semantics
-
-# Metatheory

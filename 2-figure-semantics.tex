@@ -1,0 +1,85 @@
+%% ---- Semantics in a Datafun Model ----
+\begin{figure*}
+  \centering
+  \textsc{type and context denotations}
+  \vspace{2pt}
+
+  %% TODO: revert to this more readable version if space allows.
+  \begin{align*}
+    \den{\tunit} &= \terminalobject & \den{A \to B} &= \den{A} \expto \den{B}
+    \\
+    \den{\tseteq A} &= \pfinof{\den{\eqt A}}
+    & \den{A \x B} &= \den{A} \x \den{B}
+    \\
+    \den{\iso A} &= \iso{\den{A}} & \den{A + B} &= \den{A} + \den{B}
+  \end{align*}
+
+  \begin{align*}
+    \den{\G} &= \prod_{H \in \G} \den{H} &
+    \den{\hm x A} &= \den{A} & \den{\hd x A} &= \iso{\den{A}} &
+    \den{\G \vdash A} &= \Poset(\den\G, \den A)
+  \end{align*}
+  \vspace{-4pt}                  % yes this matters
+
+  \textsc{term denotations}
+  \vspace{2pt}
+
+  \begin{displaymath}
+    \def\arraystretch{1.25} % lots of space
+    \begin{array}{rcl}
+      \den{\J {\mvar x} \G A} &=& \pi_{\mvar x} \qquad\quad\, \text{(for $\hm x A \in \G$)} \\
+      \den{\J {\dvar x} \G A} &=& \pi_{\dvar x} \then \varepsilon \qquad \text{(for $\hd x A \in \G$)} \\
+      \den{\J {\efn x e} \G {A \to B}} &=&
+        \lambda_{\mvar x}\den{\J e {\G,\, \hm x A} B} \\
+      \den{\J {e_1\<e_2} \G B} &=& \fork{\den{\J{e_1}\G{A \to B}},\, \den{\J{e_2}\G A}} \then \eval \\
+      \den{\J {\etuple{e_1,\, e_2}} \G {A_1 \times A_2}} &=&
+           \fork{\den{\J {e_1} \G {A_1}},\, \den{\J {e_2} \G {A_2}}} \\
+      \den{\J {\pi_i\<e} \G {A_i}} &=& \den{\J e \G {A_1 \times A_2}} \then \pi_i \\
+      \den{\J {\inj i e} \G {A_1 + A_2}} &=& \den{\J e \G {A_i}} \then \injc_i \\
+      \den{\J {\emcase{e} (\inj i {\mvar{x_i}} \caseto f_i)_i} \G B} &=&
+        \fork{\id_{\den\G},\, \den{\J e \G {A_1 + A_2}}}
+        \then \morph{dist}^\x_+
+        \then \bigkrof{\den{\J {f_i} {\G,\, \hm {x_i} {A_i}} B}}_{i\in\{1,2\}} \\
+      \den{\J {\ebox e} \G {\iso A}} &=& \mkbox_\G(\den {\J e {\stripcx \G} A}) \\
+      \den{\J {\elet{\ebox x = e} f} \G B} &=&  \fork{\id_{\den{\G}}, \den{\J e \G {\iso A}}} \then \den{\J f {\G, \hd x A} B}  \\
+      \den{\J \bot \G L} &=& \fork{} \then \morphjoin{\den L}{0} \\
+      \den{\J {e \vee f} \G L} &=& \fork{\den{\J e \G L},\, \den{\J f \G L}} \then \morphjoin{\den L}{2} \\
+      \den{\J {\eisempty e} \G {1+1}}&=& \mkbox_\Gamma(\den{\J e {\stripcx \G} {\tset \tunit}}) \then \morph{isEmpty} \\
+      \den{\J {\esplit e} \G {\iso A + \iso B}} &=& \den{\J e \G {\iso(A + B)}}\then \isosum \\
+      \den{\J {\eeq{e_1}{e_2}} \G {\tbool}} &=&
+          \fork{\mkbox_\Gamma(\den{\J {e_1} {\stripcx \G} {\eqt A}}),\,
+                \mkbox_\Gamma(\den{\J {e_2} {\stripcx \G} {\eqt A}})}
+          \then \morph{eq} \\
+      \den{\J {\efixis x e} \G {\fixt L \kern 1pt}} &=&
+        \mkbox_\G(\lambda_{\mvar x}
+          \den{\J e {\stripcx{\G}, \hm x {\fixt L}} {\fixt L \kern1pt}})
+        \then \morph{fix}
+      \\
+      \den{\J {\esetsub{e_i}{i}} \G {\tseteq A}}
+      &=& \fork{\mkbox_\Gamma(\den{\J {e_i} {\stripcx \G} {\eqt A}}) \then \morph{singleton}}_i \then \morphjoin{\pfinof{\den{\eqt A}}}
+      \\
+      \den{\J {\eforvar x e f} \G L} &=& \fork{\id_{\den\G},\den{\J e \G {\tseteq A}}} \then \pcollect{\den{\J f {\G, \hd x {\eqt A}} L}} \\
+    \end{array}
+  \end{displaymath}
+  \vspace{2pt} % yes, this matters
+
+  \textsc{auxilliary operations}
+  \vspace{2pt}
+
+  \begin{align*}
+    \morph{dist}^\x_+ &\isa A \x (B_1 + B_2) \to (A \x B_1) + (A \x B_2)
+    &
+    \mkbox_\Gamma &\isa
+    %\Poset(\den{\stripcx \G}, A) \to \Poset(\den{\G}, \iso A)
+    \den{\stripcx \G \vdash A} \to \den{\G \vdash \iso A}
+    \\
+    % this could be simpler if it distributed in the opposite direction.
+    \morph{dist}^\x_+ &= \fork{\pi_2 \then \krof{\lambda (\fork{\pi_2,\pi_1} \then \injc_i)}_i, \pi_1}
+    \then \eval
+    &
+    \mkbox_\Gamma(f) &= \fork{\pi_{\dvar x} \then \delta}_{\hd x A \in \G} \then \isox \then \iso(f)
+  \end{align*}
+
+  \caption{Semantics of Datafun}
+  \label{figure-semantics}\label{def:strip}
+\end{figure*}
