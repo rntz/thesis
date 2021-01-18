@@ -220,7 +220,8 @@
 \newcommand\morphstrip{\morph{strip}}
 \newcommand\morphbox{\morph{box}}
 \usepackage{xparse}
-\DeclareDocumentCommand\morphjoin{m g}{\ensuremath{\morph{join}_{#1}^{\IfNoValueF{#2}{#2}}}}
+\DeclareDocumentCommand\morphjoin{m g}{%
+  \ensuremath{\morph{join}^{#1}_{\IfNoValueF{#2}{#2}}}}
 \newcommand\strip\morphstrip % TODO: remove this alias
 \newcommand\mkbox{\morph{box}} % TODO: remove this alias
 
@@ -272,8 +273,8 @@
 \newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
 % TODO: remove this. make it warn!
 \newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
-\newcommand\efixisraw[1]{\kw{fix}~\mvar{#1}~\kw{is}\fnspace}
-\newcommand\efixis[2]{\eiso{\efixisraw{#1}{#2}}}
+\newcommand\efixisraw[2][]{\kw{fix}_{#1}~\mvar{#2}~\kw{is}\fnspace}
+\newcommand\efixis[3][]{\eiso{\efixisraw[#1]{#2}{#3}}}
 \newcommand\esplit{\prim{split}\<}
 \newcommand\isempty{\prim{empty?}}
 \newcommand\fastfix{\prim{semifix}}
@@ -287,7 +288,7 @@
 \newcommand\esetfor[2]{\setfor{\eiso{#1}}{#2}}
 \newcommand\esetsub[2]{\eiso{\esetraw{#1}_{#2}}}
 \newcommand\eisempty[1]{\eiso{\isempty\<#1}}
-\newcommand\efor[1]{\kw{for}\:({#1})\fnspace}
+\newcommand\efor[2][]{\kw{for}_{#1}\:({#2})\fnspace}
 \newcommand\eforin[2]{\efor{{#1} \in #2}}
 \newcommand\eforvar[2]{\eforin{\dvar #1}{#2}}
 

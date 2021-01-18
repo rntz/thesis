@@ -1,0 +1,52 @@
+\section{Operational semantics}
+
+\newcommand\emptyhole{[\,]}
+%\newcommand\eiter[3][]{\kw{iter}({#1},\, {#2}.\fnspace {#3})}
+
+\input{2-figure-operational-semantics}
+
+We consider the denotational semantics to be primary in Datafun; as with
+Datalog, any implementation technique is valid so long as it lines up with these
+semantics.
+%
+To show such an implementation is possible, we present a simple call-by-value
+structural operational semantics in \cref{figure-operational-semantics} and show
+that all well-typed terms terminate.
+%
+In our operational semantics we:
+
+\begin{enumerate}
+\item Assume all semilattice operations ($\bot$, $\vee$, $\kw{for}$, and
+  $\kw{fix}$) are subscripted with their type.
+\item Drop the distinction between discrete and monotone variables, writing both
+  in lowercase $x,y,z$.
+\item Add $\prim{iter}$ expressions, which occur as intermediate forms in the
+  evaluation of $\kw{fix}$.
+%\item Classify some expressions $e$ as values $v$.
+\end{enumerate}
+
+\noindent
+We use a small-step operational semantics with evaluation contexts $E$ after
+the style of \cref{felleisen-hieb-1992} to enforce a call-by-value evaluation
+order; an evaluation context $E$ is an expression with a hole in it (written
+$\emptyhole$) such that whatever is in the hole is next in line to be evaluated
+(if it is not a value already). To fill the hole $\emptyhole$ in an evaluation
+context $E$ with the expression $e$, we write $E[e]$.
+
+\newcommand\stepsto\mapsto
+
+We define a relation $e \stepsto e'$ for expressions $e$ whose outermost
+structure is immediately reducible; we extend this relation to all
+expressions with the rule:
+
+\[
+\infer{E[e]\stepsto E[e']}{e\stepsto e'}
+\]
+
+\noindent
+In our rules for $e \stepsto e'$ where $e$ is an \prim{iter} expression we make
+use of a decidable ordering test on values, $v \le u : \eqt A$, and a
+corresponding equality test $v \equiv u : \eqt A$. We define these using
+inference rules, but they are easily seen to be decidable by induction on $\eqt
+A$. The quantifiers in the premise of the rule $\subseteq$ range over finite
+domains, and thus pose no issue.

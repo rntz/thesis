@@ -6,7 +6,7 @@
 
 \input{2.3-typing-semantics}
 
-# Operational semantics
+\input{2.4-operational-semantics}
 
 # Metatheory
 
