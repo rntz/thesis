@@ -6,7 +6,7 @@ LATEXRUN := $(RNTZTEXDIR)/latexrun/latexrun
 export TEXINPUTS := $(RNTZTEXDIR):
 
 # Targets to generate.
-TARGETS := 2-datafun.pdf
+TARGETS := 2-datafun.pdf 3-seminaive.pdf
 
 .PHONY: all clean sparkling force watch watch\:% FORCE
 all: $(TARGETS)

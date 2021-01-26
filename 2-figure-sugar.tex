@@ -1,18 +1,18 @@
 \begin{figure}
   \[\begin{array}{rccl}
     \text{types} & A,B &\bnfeq& ... \bnfor \tbool
-    \\
+    \\[\bnfskip]
     \text{terms} & e,f &\bnfeq& ...
     \bnfor \ewhen e f \bnfor \etrue \bnfor \efalse
     \\&&&
     \efor{C} e \bnfor \esetfor{e}{C}
     \\&&&
     \edcase{e} (\isocolor p_i \caseto e_i)_i
-    \\
+    \\[\bnfskip]
     \text{discrete patterns} & \isocolor p &\bnfeq&
     \dvar x \bnfor \pwild \bnfor \peq{e}
     \bnfor \ptuple{} \bnfor \ptuple{p_1, p_2} \bnfor \inj i p
-    \\
+    \\[\bnfskip]
     \text{loop clauses} & C,D &\bnfeq&
          {\isocolor p} \in e \bnfor e \bnfor C,D \bnfor \emptycx
   \end{array}\]

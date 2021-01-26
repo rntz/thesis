@@ -157,7 +157,7 @@
 % Space for function application.
 \newcommand\<\;
 \newcommand\fnspace{\;}
-%\newcommand\fnof[1]{\fn{#1}.\fnspace}
+\newcommand\fnof[1]{\fn{#1}.\fnspace}
 \newcommand\setfor[2]{\ensuremath{\{#1 \mathrel{|} #2\}}}
 
 \newcommand\quantifierspace{\ }
@@ -168,10 +168,11 @@
 %% \renewcommand\fa[1]{\forall({\#1})\quantifierspace}
 %% \renewcommand\ex[1]{\exists({\#1})\quantifierspace}
 
-\newcommand\subst[2]{{#1}\<\{{#2}\}}
+\newcommand\sub[2]{{#1}\,\{{#2}\}}
 % discrete substitution
-\newcommand\substd[2]{\subst{#1}{\isocolor #2}}
-\newcommand\substo\mapsto
+%\newcommand\substd[2]{\subst{#1}{\isocolor #2}}
+\newcommand\subto[2]{{#1} \mapsto {#2}}
+\newcommand\subone[3]{\sub{#1}{\subto{#2}{#3}}}
 
 %% %% various marked equalities.
 %% \newcommand\stareq{\overset{\boldsymbol\star}{=}}
@@ -255,7 +256,8 @@
 \newcommand\dvarlong\dvar
 \newcommand\mvar[1]{#1}
 
-\newcommand\undertype[2]{\underaccent{\textsf{\upshape\scshape#1}}{#2}}
+\newcommand\undertype[2]{%
+  \underaccent{\textls[75]{\sffamily\fontseries{sb}\upshape\scshape#1}}{#2}}
 \newcommand\eqt[1]{\undertype{eq}{#1}}
 \providecommand\fint{}
 \renewcommand\fint[1]{\undertype{fin}{#1}}
@@ -267,16 +269,16 @@
 }}
 
 \newcommand\elet[1]{\kw{let}\;{#1}\;\kw{in}\;}
-\newcommand\efn[1]{\fn\mvar{#1}.\fnspace}
+\newcommand\efn[1]{\fnof{\mvar{#1}}}
 \newcommand\etuple[1]{({#1})}
 \newcommand\emcase[1]{\kw{case} \;{#1}\; \kw{of}\;}
 \newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
 % TODO: remove this. make it warn!
 \newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
-\newcommand\efixisraw[2][]{\kw{fix}_{#1}~\mvar{#2}~\kw{is}\fnspace}
-\newcommand\efixis[3][]{\eiso{\efixisraw[#1]{#2}{#3}}}
+\newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
+\newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}
 \newcommand\esplit{\prim{split}\<}
-\newcommand\isempty{\prim{empty?}}
+\newcommand\eisemptyraw[1]{\prim{empty?}\<#1}
 \newcommand\fastfix{\prim{semifix}}
 \newcommand\eboxvar[1]{\ebox{\dvar{#1}}}
 \newcommand\eboxvarlong[1]{\ebox{\dvarlong{#1}}}
@@ -287,19 +289,28 @@
 \newcommand\eset[1]{\eiso{\esetraw{#1}}}
 \newcommand\esetfor[2]{\setfor{\eiso{#1}}{#2}}
 \newcommand\esetsub[2]{\eiso{\esetraw{#1}_{#2}}}
-\newcommand\eisempty[1]{\eiso{\isempty\<#1}}
+\newcommand\eisempty[1]{\eiso{\eisemptyraw\<#1}}
 \newcommand\efor[2][]{\kw{for}_{#1}\:({#2})\fnspace}
 \newcommand\eforin[2]{\efor{{#1} \in #2}}
 \newcommand\eforvar[2]{\eforin{\dvar #1}{#2}}
 
-\newcommand\bigeboxraw[1]{\bigl[{#1}\bigr]}
-\newcommand\bigebox[1]{\eiso{\bigeboxraw{#1}}}
-\newcommand\bigeboxtuple[1]{\bigebox{\etuple{#1}}}
+\setlength\fboxsep{2.5pt}
+\newcommand\emptyhole{\fbox{\color{gray}\sffamily ?}\kern1pt}
+\renewcommand\emptyhole{\ensuremath{\Box}}
+\newcommand\fillhole[2]{\sub{#1}{#2}}
+\renewcommand\fillhole[2]{\subone{#1}{\emptyhole}{#2}}
+%\newcommand\eiter[4][]{\prim{iter}_{#1}({#2},\, {#3}.\fnspace {#4})}
+\newcommand\eiter[5][]{\prim{iter}_{#1}({#2},\, {#3},\, {#4}.\fnspace {#5})}
+\newcommand\stepsto{\longmapsto}
+
+%% \newcommand\bigeboxraw[1]{\bigl[{#1}\bigr]}
+%% \newcommand\bigebox[1]{\eiso{\bigeboxraw{#1}}}
+%% \newcommand\bigeboxtuple[1]{\bigebox{\etuple{#1}}}
 
 % discrete operators without \isocolor
 \newcommand\esetraw[1]{\{{#1}\}}
 \newcommand\eboxraw[1]{[{#1}]}
-\newcommand\eeqraw[2]{{#1} = {#2}}
+\newcommand\eeqraw[3][]{{#2} =_{#1} {#3}}
 
 \newcommand\ptuple\etuple
 \newcommand\pboxvar[1]{\pbox{\dvar{#1}}}

@@ -1,8 +1,5 @@
 \section{Operational semantics}
 
-\newcommand\emptyhole{[\,]}
-%\newcommand\eiter[3][]{\kw{iter}({#1},\, {#2}.\fnspace {#3})}
-
 \input{2-figure-operational-semantics}
 
 We consider the denotational semantics to be primary in Datafun; as with
@@ -16,37 +13,55 @@ that all well-typed terms terminate.
 In our operational semantics we:
 
 \begin{enumerate}
-\item Assume all semilattice operations ($\bot$, $\vee$, $\kw{for}$, and
-  $\kw{fix}$) are subscripted with their type.
 \item Drop the distinction between discrete and monotone variables, writing both
-  in lowercase $x,y,z$.
+  in lowercase $x,y,z$, and cease using a \isobgname\ background for
+  non-monotone expressions.
+\item Assume all equality tests and all semilattice operations ($\bot$, $\vee$,
+  $\kw{for}$, and $\kw{fix}$) are subscripted with their type.
 \item Add $\prim{iter}$ expressions, which occur as intermediate forms in the
   evaluation of $\kw{fix}$.
-%\item Classify some expressions $e$ as values $v$.
 \end{enumerate}
 
 \noindent
-We use a small-step operational semantics with evaluation contexts $E$ after
-the style of \cref{felleisen-hieb-1992} to enforce a call-by-value evaluation
-order; an evaluation context $E$ is an expression with a hole in it (written
-$\emptyhole$) such that whatever is in the hole is next in line to be evaluated
-(if it is not a value already). To fill the hole $\emptyhole$ in an evaluation
-context $E$ with the expression $e$, we write $E[e]$.
-
-\newcommand\stepsto\mapsto
+We use a small-step operational semantics with evaluation contexts $E$ after the
+style of \cref{felleisen-hieb-1992} to enforce a call-by-value evaluation order;
+an evaluation context $E$ is an expression with a hole in it, written
+$\emptyhole$, such that whatever is in the hole is next in line to be evaluated
+(if it is not a value already). To fill the hole in an evaluation context $E$
+with the expression $e$, we write $\fillhole{E}{e}$.
 
 We define a relation $e \stepsto e'$ for expressions $e$ whose outermost
 structure is immediately reducible; we extend this relation to all
 expressions with the rule:
 
 \[
-\infer{E[e]\stepsto E[e']}{e\stepsto e'}
+\infer{e\stepsto e'}{\fillhole E e \stepsto \fillhole E{e'}}
 \]
 
 \noindent
 In our rules for $e \stepsto e'$ where $e$ is an \prim{iter} expression we make
 use of a decidable ordering test on values, $v \le u : \eqt A$, and a
-corresponding equality test $v \equiv u : \eqt A$. We define these using
+corresponding equality test $v = u : \eqt A$. We define these using
 inference rules, but they are easily seen to be decidable by induction on $\eqt
-A$. The quantifiers in the premise of the rule $\subseteq$ range over finite
-domains, and thus pose no issue.
+A$.
+
+\subsection{Computing fixed points by iteration}
+
+Our implementation strategy for $\efixisraw{x}{e}$ is suggested by the proof of
+\cref{lemma-fixed-point}: starting from $\bot$, iteratively apply $\fnof x e$
+until quiescence. To model this process, we introduce the form
+$\eiter{f_1}{f_2}{x}{e}$, which evaluates two successive function iterations
+$f_1,f_2$.
+%
+For example, the expression $\efixisraw{x}{e}$ immediately steps to
+$\eiter{\bot}{\subone{e}{x}{\bot}}{x}{e}$, which kicks off the first two
+iterations.
+%
+Once these have reduced to values, $\eiter v u x e$ tests $v = u$ to determine
+if a fixed point has been reached. If so, its value $v$ is returned; otherwise
+we step to $\eiter{u}{\subone e x u}{x}{e}$ to evaluate the next iteration, and
+so on.
+
+\subsection{A logical relation for termination}
+
+\todo{logical relation for termination and adequacy}

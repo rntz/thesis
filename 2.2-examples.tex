@@ -639,7 +639,7 @@ indicating that the variable $v$ is live at program point $i$.
   \name{live} \isa \iso \typename{program} \to \iso \typename{flow} \to
   \tset{\typename{label} \x \typename{var}}\\
   \name{live} \<\pboxvarlong{program} \<\pboxvarlong{flow} = \\
-  \quad \efixisraw{l}\\
+  \quad \efixisraw{\mvar l}\\
   \quad \efor{\ptuple{\dvar i, \dvar s} \in \dvarlong{program}}\\
   \quad \phantom{{}\cup}
   (\eset{\dvar i} \x \name{uses}\<\dvar s)\\
@@ -670,7 +670,7 @@ particular statement (a ``definition'') can reach.
   \name{reaching} \isa \iso\typename{program} \to \iso\typename{flow} \to
   \tset{\typename{var} \x \typename{label} \x \typename{label}}\\
   \name{reaching} \<\pboxvarlong{program} \<\pboxvarlong{flow} =\\
-  \quad \efixisraw{r}\\
+  \quad \efixisraw{\mvar r}\\
   \quad \efor{\ptuple{\dvar k, \dvar s} \in \dvarlong{program}}\\
   \quad \phantom{{} \cup}
   \esetfor{\etuple{\dvar v, \dvar k, \dvar k}}{

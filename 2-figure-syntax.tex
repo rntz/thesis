@@ -1,23 +1,24 @@
+\newlength\bnfskip\setlength\bnfskip{1ex}
 \begin{figure}
   \[
   \begin{array}{rccl}
     \text{types} & A,B &\bnfeq&
     \tunit \bnfor A \x B \bnfor A + B \bnfor A \to B
     \bnfor \iso A \bnfor \tset{\eqt A}
-    \\[.5ex]
+    \\[\bnfskip]
     \text{eqtypes} & \eqt A, \eqt B &\bnfeq&
     \tset{\eqt A} \bnfor
     \tunit \bnfor \eqt A \x \eqt B \bnfor \eqt A + \eqt B
-    \\[.5ex]
+    \\[\bnfskip]
     \text{semilattices} & L,M &\bnfeq& \tset{\eqt A} \bnfor \tunit \bnfor L \x M
-    \\[.5ex]
+    \\[\bnfskip]
     \text{finite eqtypes\cref{note-finite-eqtypes}} & \fint A, \fint B &\bnfeq&
     \tset{\fint A} \bnfor \tunit \bnfor \fint A \x \fint B \bnfor \fint A + \fint B
-    \\[.5ex]
+    \\[\bnfskip]
     \text{fixtypes} & \fixtLkern, \fixt M &\bnfeq&
     \tset{\fint A} \bnfor \tunit \bnfor \fixt L \x \fixt M
-    \\[.5em]
-    \text{terms} & e,f,g &\bnfeq& \mvar x \bnfor \dvar x \bnfor \efn x e
+    \\[\bnfskip]
+    \text{terms} & e,f &\bnfeq& \mvar x \bnfor \dvar x \bnfor \efn x e
     \bnfor e\<f \bnfor \etuple{} \bnfor \etuple{e,f} \bnfor \pi_i\<e
     \\&&&
     \inj i e \bnfor \emcase{e} (\inj i \mvar{x}_i \caseto f_i)_{i\in\{1,2\}}
@@ -29,7 +30,7 @@
     \eeq e f \bnfor \eisempty e \bnfor \esplit e
     \\&&&
     \bot \bnfor e \vee f \bnfor \efixis x e
-    \\
+    \\[\bnfskip]
     \text{monotone variables} & \mvar x, \mvar y, \mvar z
     & \multicolumn{2}{l}{\text{are abstract names}}
     \\

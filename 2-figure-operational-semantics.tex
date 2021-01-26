@@ -1,63 +1,140 @@
 \begin{figure*}
   \centering
 
-  \textbf{Additional syntax}
+  \textsc{additional syntax}
   \begin{displaymath}
-    \begin{array}{rrcl}
-      %% expressions
+    \begin{array}{rccl}
       \text{expressions} & e,f,g &\bnfeq&
-      ... \bnfor \bot_L \bnfor e \vee_L e \bnfor \efor[L]{x \in e} f
-      \bnfor \efixis[L]{x}{e}\\
-      %% &&& \eiter{\eq{A}}{e}{x}{e} \bnfor \eiterstep{\eq{A}}{e}{e}{x}{e}\\
-      %% && \iterle{\eq{A}}{e}{e}{x}{e} \bnfor \iterlestep{\eq{A}}{e}{e}{e}{x}{e}
-      %% \vspace{0.5em}\\
-      %% %% values
-      %% v,uw,
-      %% &\bnfeq& \fn\bind{x} e \bnfor (v, v) \bnfor \ms{in}_i\; v
-      %% \bnfor \ms{true} \bnfor \ms{false} \bnfor \setlit{\vec{v}}\\
-      %% \textsf{values}
-      %% \vspace{0.5em}\\
-      %% %% contexts
-      %% E
-      %% &\bnfeq& \hole \bnfor E\;e \bnfor v\;E \bnfor (E, e) \bnfor (v, E) \bnfor \ms{in}_i\;E
-      %% \bnfor \pi_i \; E\\
-      %% \textsf{evaluation}
-      %% && E \vee_L e \bnfor v \vee_L E \bnfor \tforin{L}{x \in E} e\\
-      %% \textsf{contexts}
-      %% && \ifthen{E}{e}{e}\\
-      %% && \case{E}{x}{e}{x}{e}\\
-      %% && \iter{\eq{A}}{E}{x}{e} \bnfor \iterstep{\eq{A}}{v}{E}{x}{e}\\
-      %% && \iterle{\eq{A}}{E}{e}{x}{e} \bnfor \iterle{\eq{A}}{v}{E}{x}{e}\\
-      %% && \iterlestep{\eq{A}}{v}{v}{E}{x}{e}
+      ... \bnfor \eeqraw[\eqt A]{e}{f}
+      \bnfor \bot_L \bnfor e \vee_L f \bnfor \efor[L]{x \in e} f
+      \bnfor \efixisraw[\fixt L]{x}{e}\\
+      &&& \eiter[\eqt A]{e}{f}{x}{g} %\bnfor \eitercmp[\eqt A]{e}{e}{x}{e}
+      \\[\bnfskip]
+      \text{values} & v,u &\bnfeq&
+      \fnof{x} e \bnfor \etuple{} \bnfor \etuple{v, u} \bnfor \inj i v
+      \bnfor \esetraw{{v}_i}_i \bnfor \eboxraw{v}
+      \\[\bnfskip]
+      \text{evaluation contexts} & E &\bnfeq&
+      \emptyhole \bnfor E\<e \bnfor v\<E \bnfor \etuple{E, e}
+      \bnfor \etuple{v, E} \bnfor \pi_i\< E\\
+      &&& \inj i E \bnfor \emcase{E}{(\inj i x_i \caseto e_i)_i}\\
+      &&& \eboxraw{E} \bnfor \eletbox{x}{E}{e}\\
+      &&& \esetraw{\vec v,\, E,\, \vec e}
+      \bnfor E \vee_L e \bnfor v \vee_L E \bnfor \efor[L]{x \in E} e\\
+      &&& \eeqraw[A]{E}{e} \bnfor \eeqraw[A]{v}{E}
+      \bnfor \esplit E \bnfor \eisemptyraw E\\
+      &&& \eiter[A]{E}{e}{x}{f} \bnfor \eiter[A]{v}{E}{x}{e}
     \end{array}
   \end{displaymath}
+  \vspace{0pt}
 
-  %% ~
-  %% %% OPSEM: Rules for (v \ale u : A)
+  \textsc{value (in)equality}
+  \begin{mathpar}
+    \infer{}{\etuple{} \le \etuple{} : \tunit}
+
+    \infer{v_1 \le u_1 : \eqt A \\ v_2 \le u_2 : \eqt B}{%
+      \etuple{v_1,\, v_2} \le \etuple{u_1,\, u_2} : \eqt A \x \eqt B}
+
+    \infer{v \le u : A_i}{\inj i v \le \inj i u : A_1 + A_2}
+
+    \infer{\faex{i}{j} v_i = u_j : \eqt A}{
+      \esetraw{v_i}_i \le \esetraw{u_j}_j : \tset{\eqt A}
+    }
+
+    \infer{v \le u : \eqt A\\ u \le v : \eqt A}{v = u : \eqt A}
+  \end{mathpar}
+  \vspace{2pt}
+
+  \textsc{$\beta$ reductions}
+  \begin{align*}
+    (\fnof{x}e)\<v &~\stepsto~ \subone{e}{x}{v}
+    &
+    \eletbox{x}{\eboxraw{v}}{e} &~\stepsto~ \subone{e}{x}{v}
+    \\
+    \pi_i\<\etuple{v_1,\,v_2} &~\stepsto~ v_i
+    &
+    \emcase{\inj i v}{(\inj j x_j \caseto e_j)_j}
+    &~\stepsto~ \subone{e_i}{x_i}{v}
+    \\
+    \efor[L]{x \in \esetraw{}} e &~\stepsto~ \bot_L
+    &
+    \efor[L]{x \in \esetraw{v, \vec u}} e
+    &~\stepsto~
+      (\subone{e}{x}{v}) \vee_L \efor[L]{x \in \esetraw{\vec u}} e
+  \end{align*}
+  \vspace{0pt}
+
+  \textsc{other reductions}
+  \begin{align*}
+    \bot_{\tset{A}} &~\stepsto~ \esetraw{}
+    &
+    \bot_{L \x M} &~\stepsto~ \etuple{\bot_L,\,\bot_M}
+    \\
+    \esetraw{\vec v} \vee_{\tset A} \esetraw{\vec u}
+    &~\stepsto~ \esetraw{\vec v,\, \vec u}
+    &
+    \etuple{v_1, v_2} \binvee_{L \x M} \etuple{u_1, u_2}
+    &~\stepsto~ \etuple{v_1 \vee_L u_1,\, v_2 \vee_M u_2}
+    \\
+    \eisemptyraw{\esetraw{}} &~\stepsto~ \etrue
+    &
+    \eisemptyraw{\esetraw{v,\vec u}} &~\stepsto~ \efalse
+    \\
+    \esplit{\eboxraw{\inj i v}} &~\stepsto~ \inj i {\eboxraw v}
+    &
+    \eeqraw[\eqt A]{v}{u}
+    &~\stepsto~
+    \begin{cases}
+      \etrue & \text{if}~ v = u : \eqt A\\
+      \efalse & \text{otherwise}
+    \end{cases}
+    \\
+    \efixisraw[\fixt L]{x}{e}
+    &\omit\rlap{$~\stepsto~
+    \eiter[\fixt L]{\bot_{\fixt L}}{\subone{e}{x}{\bot_{\fixt L}}}{x}{e}
+    $}
+    \\
+    \eiter[\eqt A]{v}{u}{x}{e}
+    &\omit\rlap{$~\stepsto~
+    \begin{cases}
+      v & \text{if}~ v = u : \eqt A\\
+      \eiter[\eqt A]{u}{\subone{e}{x}{u}}{x}{e} & \text{otherwise}
+    \end{cases}$}
+  \end{align*}
+
+  \splittodo{should boxes not be values?}{%
+    changes: values, eval ctx, reductions(letbox, split)}\\
+  \todo{finished?}
+
+  \caption{Operational semantics}
+  \label{figure-operational-semantics}
+\end{figure*}
+
+  %% %% OPSEM: Rules for (v \le u : A)
   %% \begin{minipage}{0.45\textwidth}
   %%   \centering
-  %%   \textbf{Rules for $v \ale u : \eq{A}$ and $v \aeq u : \eq{A}$}
+  %%   \textbf{Rules for $v \le u : \eq{A}$ and $v \aeq u : \eq{A}$}
   %%   \begin{mathpar}
-  %%     \infer{\ms{false} \ale \ms{false} : \bool}{}
+  %%     \infer{\ms{false} \le \ms{false} : \bool}{}
   %%     \and
-  %%     \infer{\ms{false} \ale \ms{true} : \bool}{}
+  %%     \infer{\ms{false} \le \ms{true} : \bool}{}
   %%     \and
-  %%     \infer{\ms{true} \ale \ms{true} : \bool}{}
+  %%     \infer{\ms{true} \le \ms{true} : \bool}{}
   %%     \and
   %%     %% rules for set inequality
   %%     \infer[\rn{\subseteq}]
-  %%           { \setlit{\vec{v_i}} \ale \setlit{\vec{u_i}} : \Set{\eq{A}} }
+  %%           { \setlit{\vec{v_i}} \le \setlit{\vec{u_i}} : \Set{\eq{A}} }
   %%           { \forall{v_i}\,\exists{u_j}\; (v_i \aeq u_j : \eq{A}) }
   %%           \and
-  %%           \infer%% [\rn{\ale_{\x}}]
-  %%               { (v_1, u_1) \ale (v_2, u_2) : \eq{A} \x \eq{B} }
-  %%               { v_1 \ale v_2 : \eq{A} & u_1 \ale u_2 : \eq{B} }
+  %%           \infer%% [\rn{\le_{\x}}]
+  %%               { (v_1, u_1) \le (v_2, u_2) : \eq{A} \x \eq{B} }
+  %%               { v_1 \le v_2 : \eq{A} & u_1 \le u_2 : \eq{B} }
   %%               \and
-  %%               \infer%% [\rn{\ale_{+}}]
-  %%                   { \ms{in}_i\; v \ale \ms{in}_i\; u : \eq{A}_1 + \eq{A}_2 }
-  %%                   { v \ale u : \eq{A}_i }
+  %%               \infer%% [\rn{\le_{+}}]
+  %%                   { \inj i v \le \inj i u : \eq{A}_1 + \eq{A}_2 }
+  %%                   { v \le u : \eq{A}_i }
   %%                   \and
-  %%                   \infer[\rn{{\aeq}}]{v \aeq u : \eq{A}}{v \ale u : \eq{A} & u \ale v : \eq{A}}
+  %%                   \infer[\rn{{\aeq}}]{v \aeq u : \eq{A}}{v \le u : \eq{A} & u \le v : \eq{A}}
   %%   \end{mathpar}
   %% \end{minipage}
   %% %% OPSEM: Rules for \step
@@ -116,7 +193,7 @@
   %%     \tfixle{\eq{L}}{x}{e_\top}{e} &\step& \iterle{\eq{L}}{e_\top}{\unit_{\eq{L}}}{x}{e}\\
   %%     \iterle{\eq{A}}{v_\top}{v}{x}{e}
   %%     &\step& \begin{cases}
-  %%       \iterlestep{\eq{A}}{v_\top}{v}{\sub{v/x} e}{x}{e} & \text{if}~{v \ale v_\top : \eq{A}}\\
+  %%       \iterlestep{\eq{A}}{v_\top}{v}{\sub{v/x} e}{x}{e} & \text{if}~{v \le v_\top : \eq{A}}\\
   %%       v_\top & \text{otherwise}
   %%     \end{cases}\\
   %%     \iterlestep{\eq{A}}{v_\top}{v_1}{v_2}{x}{e}
@@ -126,16 +203,3 @@
   %%     \end{cases}
   %%   \end{array}
   %% \end{displaymath}
-
-  \todo{finish this}
-
-  \caption{Operational semantics}
-  \label{figure-operational-semantics}
-\end{figure*}
-
-%% \begin{figure}
-%%   \todo{operational semantics figure}
-  
-%%   \caption{Operational semantics}
-%%   \label{figure-operational-semantics}
-%% \end{figure}
