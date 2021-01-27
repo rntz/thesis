@@ -28,8 +28,8 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   these is relatively standard, and so we will say little about it, with one
   exception: the box-elimination form $\eletbox x e e'$ is a pattern matching
   form, and so we allow it to occur inside of patterns. The effect of a box
-  pattern $\pbox{\isocolor p}$ is to ensure that all of the variables bound in
-  the pattern $\isocolor p$ are treated as discrete variables.
+  pattern $\pbox{p}$ is to ensure that all of the variables bound in
+  the pattern $p$ are treated as discrete variables.
 
 \item \todo{equality patterns.}
 
@@ -96,23 +96,14 @@ Using comprehensions, this could alternately be written as:
 
 \noindent From now on, we'll use comprehensions whenever possible. For example, comprehensions make cross product and relational composition look almost exactly like their mathematical definitions:
 
-\newcommand\bone{\dvar b_{\isocolor 1}}
-\newcommand\btwo{\dvar b_{\isocolor 2}}
-\newcommand\yone{\dvar y_{\isocolor 1}}
-\newcommand\ytwo{\dvar y_{\isocolor 2}}
-
-\renewcommand\bone{\dvar{b_{1}}}
-\renewcommand\btwo{\dvar{b_{2}}}
-\renewcommand\yone{\dvar{y_{1}}}
-\renewcommand\ytwo{\dvar{y_{2}}}
-
-\newlength\functionskip \setlength{\functionskip}{1em}
+\newcommand\bone{\dvar b_{1}} \newcommand\btwo{\dvar b_{2}}
+\newcommand\yone{\dvar y_{1}} \newcommand\ytwo{\dvar y_{2}}
 
 \begin{code}
   \pwild \x \pwild \isa \tseteq A \to \tseteq B \to \tset{\eqt A \x \eqt B}\\
   \mvar s \x \mvar t =
   \esetfor{\etuple{\dvar x, \dvar y}}{\dvar x \in \mvar s,\, \dvar y \in \mvar t}
-  \\[\functionskip]
+  \\[\betweenfunctionskip]
   \pwild \compose \pwild \isa
   \tset{\eqt A \x \eqt B}
   \to \tset{\eqt B \x \eqt C}
@@ -138,7 +129,7 @@ complicated by the need to be explicit about
   \name{filter} \isa (\iso \eqt A \to \tbool) \to \tseteq A \to \tseteq A\\
   \name{filter} \<\mvar f \<\mvar s =
   \esetfor{\dvar x}{\dvar x \in \mvar s,\, \mvar f\<\ebox{\dvar x}}
-  \\[\functionskip]
+  \\[\betweenfunctionskip]
   \name{map} \isa \iso(\iso \eqt A \to \eqt B) \to \tseteq A \to \tseteq B\\
   % need some kerning between the [{ and the f
   \name{map} \<\pboxvar{\kernf\kernfpost} \<\mvar s = \esetfor{\dvar{\kernf}\<\ebox{\dvar x}}{\dvar x \in \mvar s}
@@ -174,7 +165,7 @@ negation:
   {\neg} \isa \iso\tbool \to \tbool\\
   \neg \pboxvar t = \emcase{\eisempty{\dvar t}}
   \inj 1 \ptuple{} \caseto \etrue\textsf \casebar \inj 2 \ptuple{} \caseto \efalse
-  \\[1em] %TODO: right spacing?
+  \\[\betweenfunctionskip]
   \pwild\setminus\pwild \isa \tseteq A \to \iso \tseteq A \to \tseteq A\\
   \mvar s \setminus \pboxvar t =
   \esetfor{\dvar x}{\dvar x \in \mvar s,\, \notmember{\dvar x}{\dvar t}}
@@ -243,7 +234,7 @@ satisfying:
 \begin{code}
   \name{length} \isa \iso\tstring \to \tint\\
   \name{length} \<\pboxvar{s} = \text{the length of }\dvar s
-  \\[1em]
+  \\[\betweenfunctionskip]
   \name{chars} \isa \iso\tstring \to \tset{\tint \x \tchar}\\
   \name{chars} \<\pboxvar{s} =
   \setfor{(i,c)}{\text{the $i$\textsuperscript{th}
@@ -368,7 +359,7 @@ start position $\dvar i$.
     \peq{\etuple{\dvar{i}, \dvar c}} \in \name{chars} \<\eboxvar{s}
     %\mem \<\eboxtuple{\dvar i, \dvar c} \<\name{chars}
   }
-  \\[8pt]
+  \\[\betweenfunctionskip]
   \name{nil} \isa \tre \to \tre\\
   \name{nil} \<\pboxtuple{\dvar{s}, \dvar{i}} = \eset{\dvar{i}}
 \end{code}

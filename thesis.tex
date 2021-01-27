@@ -1,9 +1,12 @@
-\documentclass[12pt]{article}
+% Draft significantly speeds up compilation in various packages by disabling
+% features. eg. hyperref, microtype.
+\documentclass[12pt,draft]{article}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
+% NB. rntzabstract not compatible with book.cls.
 \usepackage[a4]{rntzgeometry}
-\usepackage{rntztitle,rntzsection,rntzabstract,rntzfootnotes,rntzref,rntzthm}
+\usepackage{rntztitle,rntzsection,rntzfootnotes,rntzref,rntzthm}
 % Make section name references use \S.
 \makeatletter\crefname{section}{\S\@gobble}{\S\@gobble}\makeatother
 
@@ -44,8 +47,19 @@
 \usepackage{natbib}
 \usepackage{notation}
 
+
+\includeonly{%
+  2-datafun,
+  3-seminaive,
+}
 \begin{document}
 
-$body$
+%\chapter{Introduction}
+
+\include{2-datafun}
+\include{3-seminaive}
+
+%\chapter{Implementation}
+%\chapter{Related work}
 
 \end{document}

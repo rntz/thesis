@@ -6,7 +6,7 @@ LATEXRUN := $(RNTZTEXDIR)/latexrun/latexrun
 export TEXINPUTS := $(RNTZTEXDIR):
 
 # Targets to generate.
-TARGETS := 2-datafun.pdf 3-seminaive.pdf
+TARGETS := thesis.pdf
 
 .PHONY: all clean sparkling force watch watch\:% FORCE
 all: $(TARGETS)
@@ -19,17 +19,19 @@ force: sparkling all
 # The sed script here filters out form feed lines. I use these to mark &
 # navigate between sections, but they screw up pandoc's parser.
 PANDOC := pandoc --from markdown+raw_tex-latex_macros \
-  --pdf-engine=pdflatex \
-  --template=template.tex
+  --pdf-engine=pdflatex
 
 %.pdf: %.tex FORCE
 	$(LATEXRUN) $<
 
-%.tex: %.md template.tex Makefile
-	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so $@
+# must generate \include{}d files
+thesis.pdf: 2-datafun.tex 3-seminaive.tex
 
-# %.pdf: %.md notation.sty template.tex Makefile
-# 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so $@
+%.tex: %.md Makefile
+	sed -Ee 's/^\f$$//' $< | $(PANDOC) -o $@
+
+# %.tex: %.md template.tex Makefile
+# 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so --template=template.tex $@
 
 # If you have inotify-tools, `make watch` will automatically recompile your pdfs
 # "live". You can also specify a target to recompile, eg. `make watch:foo.pdf`.

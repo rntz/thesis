@@ -1,4 +1,4 @@
-\noindent \emph{Chapter 2: The Datafun Language}
+\emph{Chapter 2: The Datafun Language}
 
 \input{2.1-syntax}
 
@@ -27,6 +27,6 @@
 \todo{bounded fixed points}
 
 ## Nested/monotone fixed points
-\label{section:nested-fixed-points}
+\label{section-nested-fixed-points}
 
 \todo{nested/monotone fixed points}

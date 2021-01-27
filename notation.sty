@@ -16,18 +16,20 @@
 \usepackage{environ}            % \NewEnviron
 %\usepackage{pifont}             % \ding{55}
 \usepackage{ifthen}             % \ifthenelse
+\usepackage{textgreek}          % \textlambda
 
 \hyphenation{semi-na\"ive} % TODO necessary? does it work?
 
 % Use stmry medium as bold since there is no stmry bold.
 \SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
 
-%% % Use Zapf Chancery as \mathscr font. Passing scr=zapfc to mathalfa doesn't
-%% % handle lowercase letters for some reason. Scaled by eye-matching x-heights
-%% % with Euler/XCharter at scaled=.94.
-%% \DeclareFontFamily{OT1}{pzc}{}
-%% \DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [1.13] pzcmi7t}{}
-%% \DeclareMathAlphabet{\mathscr}{OT1}{pzc}{m}{it}
+% Use Zapf Chancery as \mathscr font. Passing scr=zapfc to mathalfa doesn't
+% handle lowercase letters for some reason. Scaled by eye-matching x-heights
+% with Euler/XCharter at scaled=.94. TODO: re-match the scaling, I've changed
+% it!
+\DeclareFontFamily{OT1}{pzc}{}
+\DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [1.16] pzcmi7t}{}
+\DeclareMathAlphabet{\mathscr}{OT1}{pzc}{m}{it}
 
 % Default to vertically centered colons. Doesn't quite work with euler, but
 % better than nothing.
@@ -45,6 +47,8 @@
 \renewcommand\wedge{\mathrel{\binwedge}}
 \renewcommand\bullet{\mathrel{\binbullet}}
 
+
+%% ---------- TODO commands ----------
 \newcommand\todocolor{\color{OrangeRed}}
 %\newcommand\todowarn[1]{\PackageWarning{notation}{TODO}{\todocolor #1}}
 \newcommand\warntodo[2]{%
@@ -62,29 +66,66 @@
   \begin{fleqn}[\codeoffset]
     \begin{flalign*}
       \begin{array}{l}\BODY\end{array}
-  \end{flalign*}
+    \end{flalign*}
   \end{fleqn}
 }
 
-%% \NewEnviron{flail}{
-%%   \begin{fleqn}[\codeoffset]
-%%     \begin{align*}
-%%       \BODY
-%%     \end{align*}
-%%   \end{fleqn}
-%% }
+\NewEnviron{datalog}{
+  \begin{fleqn}[\codeoffset]
+    \begin{align*}
+      \BODY
+    \end{align*}
+  \end{fleqn}
+}
+
+% space to put between functions/declaration groups in code blocks
+\newlength\betweenfunctionskip
+\setlength{\betweenfunctionskip}{\abovedisplayskip}
 
 
-%% ---------- Commands ----------
-\newcommand{\negphantom}[1]{\settowidth{\dimen0}{#1}\hspace*{-\dimen0}}
+%% ---------- Colors ----------
+%% For some colorblindness stuff, see:
+%% https://davidmathlogic.com/colorblind/
+%% http://mkweb.bcgsc.ca/colorblind/
+%% https://www.nature.com/articles/nmeth.1618?WT.ec_id=NMETH-201106
+% TODO: find better names for these colors!
+\definecolor{ColorA}{cmyk}{0, 0.56, .8, 0.43}  % #994A20
+\definecolor{ColorB}{cmyk}{0.75, 1, 0, 0}      % #5E2590
+%\definecolor{LinkBlue}{cmyk}{1, 0.36, 0, 0}
+\definecolor{IsoRed}{cmyk}{0, 1, 1, 0} % tried: K=0, 0.06, 0.12
+\definecolor{IsoRed}{Hsb}{0, 1, .85}
+
+%% Confusingly, pure CMYK yellow doesn't seem to actually generate pure yellow
+%% on the printers I've tried. It has red dots in it instead.
+\definecolor{isobg}{Hsb}{60, 0.33, 1} % s=0.42 originally, for print usage?
+\newcommand\isobgname{yellow}
+\definecolor{isobg}{Hsb}{200, .111, 1} \renewcommand\isobgname{light blue}
+%\definecolor{isobg}{Hsb}{30, .15, 1} \renewcommand\isobgname{salmon}
+%\definecolor{isobg}{Hsb}{300, .08, 1} \renewcommand\isobgname{fuchsia}
+
+
+%% ---------- Miscellaneous commands ----------
+%\newcommand\negphantom[1]{\settowidth{\dimen0}{#1}\hspace*{-\dimen0}}
 \newcommand\ensuretext[1]{\ifmmode\text{#1}\else{#1}\fi}
 \newcommand\naive{na\"ive}
 \newcommand\Naive{Na\"ive}
-\makeatletter
-\def\removekerning#1{\@removekerning#1$\unskip}
-\def\@removekerning{\@ifnextchar${\@gobble}{\sw@p{\kern0pt\@removekerning}}}
-\def\sw@p#1#2{#2#1}
-\makeatother
+\newcommand\textsfit[1]{\textsf{\itshape #1}}
+
+% used for names of functions, primitives, etc. in math mode
+\newcommand\name[1]{\text{\sffamily #1}} % why not \textsf?
+%\renewcommand\name[1]{\texorpdfstring{\TextOrMath{\textit{#1}}{\mathit{#1}}}{\textit{#1}}}
+
+% derivative variables
+\newcommand\mathvar\ensuremath
+\newcommand\da{\mathvar{da}}
+\newcommand\db{\mathvar{db}}
+\newcommand\dx{\mathvar{dx}}
+\newcommand\dy{\mathvar{dy}}
+\newcommand\df{\mathvar{df}}
+\newcommand\dg{\mathvar{dg}}
+\newcommand\ds{\mathvar{ds}}
+\newcommand\dt{\mathvar{dt}}
+\newcommand\dgamma{d\gamma}
 
 %% inference rule names
 %% textls/textls* = do/don't add surrounding spacing. minimal difference.
@@ -99,55 +140,25 @@
                 }{\ifthenelse{\equal{#1}{empty?}}{empty%
                   }{%\removekerning
                     #1}}}}}}}}}}
-%\renewcommand\rn[1]{\textsf{\scshape\textls[40]{\removekerning{#1}}}}
-
-%% For some colorblindness stuff, see:
-%% https://davidmathlogic.com/colorblind/
-%% http://mkweb.bcgsc.ca/colorblind/
-%% https://www.nature.com/articles/nmeth.1618?WT.ec_id=NMETH-201106
-%\definecolor{ColorA}{cmyk}{0, 0.56, .8, 0.43}  % #994A20
-%\definecolor{ColorB}{cmyk}{0.75, 1, 0, 0}      % #5E2590
-%\definecolor{LinkBlue}{cmyk}{1, 0.36, 0, 0}
-\definecolor{IsoRed}{cmyk}{0, 1, 1, 0} % tried: K=0, 0.06, 0.12
-\definecolor{IsoRed}{Hsb}{0, 1, .85}
-
-%% Blue for discrete things just doesn't stand out enough when printed unless I
-%% make it totally cyan, which is too light to be easily readable on white. Red
-%% is the standard printers' second color for a reason.
-\newcommand\isocolor{\color{IsoRed}}
-\newcommand\isocolorname{red}
-
-%% Confusingly, pure CMYK yellow doesn't seem to actually generate pure yellow
-%% on the printers I've tried. It has red dots in it instead.
-\definecolor{isobg}{Hsb}{60, 0.42, 1}
-\newcommand\isobgname{yellow}
-
-% used for names of functions, primitives, etc. in math mode
-\newcommand\name\textit
-\renewcommand\name[1]{\texorpdfstring{\TextOrMath{\textit{#1}}{\mathit{#1}}}{\textit{#1}}}
-
-% derivative variables
-\newcommand\da{\mathvar{da}}
-\newcommand\db{\mathvar{db}}
-\newcommand\dx{\mathvar{dx}}
-\newcommand\dy{\mathvar{dy}}
-\newcommand\df{\mathvar{df}}
-\newcommand\dg{\mathvar{dg}}
-\newcommand\ds{\mathvar{ds}}
-\newcommand\dt{\mathvar{dt}}
-\newcommand\dgamma{d\gamma}
+%% \renewcommand\rn[1]{\textsf{\scshape\textls[40]{\removekerning{#1}}}}
+%% \makeatletter
+%% \def\removekerning#1{\@removekerning#1$\unskip}
+%% \def\@removekerning{\@ifnextchar${\@gobble}{\sw@p{\kern0pt\@removekerning}}}
+%% \def\sw@p#1#2{#2#1}
+%% \makeatother
 
 
 %% ===== General math & PL notation =====
 \newcommand\fn{\texorpdfstring{\ensuremath{\lambda}}{lambda}}
 \newcommand\boldfn{\texorpdfstring{\ensuremath{\boldsymbol\lambda}}{\textlambda}}
-\ifdefined\G\renewcommand\G\Gamma\else\newcommand\G\Gamma\fi
+%\ifdefined\G\renewcommand\G\Gamma\else\newcommand\G\Gamma\fi
+\newcommand\G\Gamma
 \newcommand\g\gamma
 \newcommand\D\Delta
 \newcommand\DP{\D\Phi}
 \newcommand\x\times
-\newcommand\pto\rightharpoonup
-\newcommand\injc{\mathrm{in}}
+%\newcommand\pto\rightharpoonup
+\newcommand\injc{\name{in}}
 \newcommand\inj[1]{\injc_{#1}\,}
 \newcommand\bnfor{\mathrel{\,|\,}}
 \newcommand\bnfeq\Coloneqq
@@ -169,8 +180,6 @@
 %% \renewcommand\ex[1]{\exists({\#1})\quantifierspace}
 
 \newcommand\sub[2]{{#1}\,\{{#2}\}}
-% discrete substitution
-%\newcommand\substd[2]{\subst{#1}{\isocolor #2}}
 \newcommand\subto[2]{{#1} \mapsto {#2}}
 \newcommand\subone[3]{\sub{#1}{\subto{#2}{#3}}}
 
@@ -216,7 +225,7 @@
 %% TODO: rename these?
 \newcommand\pfin{\ensuremath{P}}
 \newcommand\pfinof[1]{\pfin #1}
-\newcommand\powerset{\mathcal{P}} % TODO: typeface
+\newcommand\powerset{\mathcal{P}} % TODO: typeface, \mathscr
 \newcommand\pcollect[1]{\morph{collect}({#1})}
 \newcommand\morphstrip{\morph{strip}}
 \newcommand\morphbox{\morph{box}}
@@ -235,7 +244,7 @@
 %% ===== Datafun syntax =====
 \newcommand\isa{\::\:} %\renewcommand\isa{\,:\,}
 \newcommand\desugars{\,\xrightarrow{\textsf{desugar}}\,}
-\newcommand\kw\textbf
+\newcommand\kw[1]{\textsf{\bfseries#1}}
 \newcommand\prim\name
 \newcommand\caseto\shortrightarrow
 \newcommand\casebar{;\;}
@@ -251,10 +260,23 @@
 \newcommand\tstring{\typename{string}}
 \newcommand\tint{\typename{int}}
 
-%% Discrete variables are colored and italicised.
-\newcommand\dvar[1]{\mathit{\isocolor#1}}
-\newcommand\dvarlong\dvar
-\newcommand\mvar[1]{#1}
+%% Discrete variables are lowercase, possibly sans-serif.
+%% Monotone variables are single-letter capitals. (Colored? Bolded?)
+\newcommand\dvar\ensuremath
+\newcommand\dvarlong\name
+\newcommand\mvar[1]{\MakeUppercase#1} % only uppercases first letter
+
+%\definecolor{Mono}{cmyk}{0,0,0,1}
+%\renewcommand\mvar[1]{{\color{Mono}{\MakeUppercase#1}}}
+%\renewcommand\mvar[1]{{\color{Mono}\mathbold{\MakeUppercase#1}}}
+%\definecolor{Mono}{cmyk}{0, .95, 1, .15} % red
+%\definecolor{Mono}{Hsb}{0, .8, .8} % red
+%\definecolor{Mono}{cmyk}{0, .833, 1, .375} % dark red/brown
+%\definecolor{Mono}{cmyk}{0, .833, 1, .25} % dark red
+%\definecolor{Mono}{cmyk}{0, 0.5, 1, .25} % golden
+%\definecolor{Mono}{cmyk}{1, .2, 0, .2} % blue
+%\definecolor{Mono}{Hsb}{210, .7, .8} % blue
+%\definecolor{Mono}{Hsb}{230, .8, .75} % dark blue
 
 \newcommand\undertype[2]{%
   \underaccent{\textls[75]{\sffamily\fontseries{sb}\upshape\scshape#1}}{#2}}
@@ -273,7 +295,7 @@
 \newcommand\etuple[1]{({#1})}
 \newcommand\emcase[1]{\kw{case} \;{#1}\; \kw{of}\;}
 \newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
-% TODO: remove this. make it warn!
+% TODO: remove \efix.
 \newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
 \newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
 \newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}
@@ -289,7 +311,7 @@
 \newcommand\eset[1]{\eiso{\esetraw{#1}}}
 \newcommand\esetfor[2]{\setfor{\eiso{#1}}{#2}}
 \newcommand\esetsub[2]{\eiso{\esetraw{#1}_{#2}}}
-\newcommand\eisempty[1]{\eiso{\eisemptyraw\<#1}}
+\newcommand\eisempty[1]{\eiso{\eisemptyraw{#1}}}
 \newcommand\efor[2][]{\kw{for}_{#1}\:({#2})\fnspace}
 \newcommand\eforin[2]{\efor{{#1} \in #2}}
 \newcommand\eforvar[2]{\eforin{\dvar #1}{#2}}
@@ -332,35 +354,33 @@
 %\newcommand\J[3]{{#1} \mathrel{\,:\,} {#2} \vdash {#3}}
 \newcommand\J[3]{{#2} \vdash {#1} \mathrel{:} {#3}}
 \newcommand\Jalign[3]{{#2} &\vdash {#1} \mathrel{:} {#3}}
-\newcommand\hm[2]{\mvar{#1} : {#2}}
-\newcommand\hd[2]{{\isocolor\dvar{#1} \dblcolon {#2}}}
+\newcommand\hm[2]{\mvar #1 : {#2}}
+\newcommand\hd[2]{\dvar{#1} \dblcolon {#2}}
 
-\newcommand\stripcxraw[1]{\lceil{#1}\rceil}
-\newcommand\stripcx\stripcxraw
-%\newcommand\stripcx[1]{{\isocolor\stripcxraw{#1}}}
+\newcommand\stripcx[1]{\lceil{#1}\rceil}
 
 
-%% %% ===== Change theory & seminaive translation stuff =====
-%% \newcommand\boldphi{\texorpdfstring{$\boldsymbol\phi$}{\textphi}}
-%% \newcommand\bolddelta{\texorpdfstring{$\boldsymbol\delta$}{\textdelta}}
-%% \newcommand\dummy{\name{dummy}}
-%% \newcommand\zero{\ensuremath{\boldsymbol 0}}
+%% ===== Change theory & seminaive translation stuff =====
+\newcommand\boldphi{\texorpdfstring{$\boldsymbol\phi$}{\textphi}}
+\newcommand\bolddelta{\texorpdfstring{$\boldsymbol\delta$}{\textdelta}}
+\newcommand\dummy{\name{dummy}}
+\newcommand\zero{\ensuremath{\boldsymbol 0}}
 
-%% \newcommand\changesto\leadsto
-%% \newcommand\changescolon\dblcolon
-%% %% \renewcommand\changesto\shortrightarrow
-%% %% \renewcommand\changescolon{:}
-%% \newcommand\changesat[4]{{#2} \changescolon_{#1} {#3} \changesto {#4}}
-%% \newcommand\changes[3]{{#1} \changescolon {#2} \changesto {#3}}
-%% %\renewcommand\changesat[4]{\changes{#2}{#3}{#4} : {#1}}
+\newcommand\changesto\leadsto
+\newcommand\changescolon\dblcolon
+%% \renewcommand\changesto\shortrightarrow
+%% \renewcommand\changescolon{:}
+\newcommand\changesat[4]{{#2} \changescolon_{#1} {#3} \changesto {#4}}
+\newcommand\changes[3]{{#1} \changescolon {#2} \changesto {#3}}
+%\renewcommand\changesat[4]{\changes{#2}{#3}{#4} : {#1}}
 
-%% \DeclareMathOperator\Deriv{\mathscr{Derive}}
+\DeclareMathOperator\Deriv{\mathscr{Derive}}
 
-%% %% The logical relation
-%% \newcommand\impls{\mathbin{\lightning}}
-%% \newcommand\weird[5]{{#1} \changescolon #2 \impls #3 \shortrightarrow #4 \impls #4}
-%% \newcommand\weirdat[6]{{#2} \changescolon_{#1} #3 \impls #4 \shortrightarrow #5 \impls #6}
-%% %\renewcommand\weirdat[6]{\weird{#2}{#3}{#4}{#5}{#6} : #1}
+%% The logical relation
+\newcommand\impls{\mathbin{\lightning}}
+\newcommand\weird[5]{{#1} \changescolon #2 \impls #3 \shortrightarrow #4 \impls #4}
+\newcommand\weirdat[6]{{#2} \changescolon_{#1} #3 \impls #4 \shortrightarrow #5 \impls #6}
+%\renewcommand\weirdat[6]{\weird{#2}{#3}{#4}{#5}{#6} : #1}
 
 
 %% Kerning adjustments
