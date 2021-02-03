@@ -1,0 +1,115 @@
+%% ---- "Go faster" term translation, phi ----
+\begin{figure}
+  \begin{align*}
+    \phi \mvar x &= \mvar x & \phi \dvar x &= \dvar x\\
+    \phi(\efn x e) &= \efn x \phi e & \phi(e\<f) &= \phi e\<\phi f\\
+    \phi\etuple{e_i}_i &= \etuple{\phi e_i}_i &
+    \phi(\pi_i\<e) &= \pi_i\<\phi e\\
+    \phi(\inj i e) &= \inj i \phi e
+    &
+    \phi(\emcase e (\inj i x \caseto f_i)_i)
+    &= \emcase{\phi e} (\inj i x \caseto \phi f_i)_i
+    \\
+    \phi\bot &= \bot &
+    \phi(e \vee f) &= \phi e \vee \phi f\\
+    \phi(\esetsub{e_i}{i}) &= \esetsub{\phi e_i}{i}
+    &
+    %% replaced substitution by let-binding
+    \phi(\eforin x e f) &= \eforin x {\phi e}
+        %{\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}}
+        {\eletbox{\dx}{\ebox{\zero\<\dvar x}} \phi f}
+    \\
+    \phi\ebox{e} &= \eboxtuple{\phi e, \delta e}
+    &
+    \phi(\eletbox x e f)
+    &= \elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi f
+    \\
+    \phi(\eeq e f) &= (\eeq {\phi e} {\phi f})
+    &
+    \phi(\eisempty e) &= \eisempty {\phi e}
+    %% \\
+    %% \phi(\efixis x e) &\omit\rlap{${}=
+    %% \fastfix\<(\subone{(\phi e)}{\mvar x}{\bot},\;
+    %% \delta(\efn{x}{e})
+    %% )$}
+    %% \\
+    %% %% split
+    %% \phi(\esplit e) &= \emcase{\phi e}
+    %% \\
+    %% &\omit\rlap{\(\phantom{{}={}}\
+    %% \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
+    %% \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
+    %% \)}
+    %% \\
+    %% &\omit\rlap{\(\phantom{{}={}}\
+    %% \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
+    %% \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
+    %% \)}
+  \end{align*}
+
+  \begin{align*}
+    \phi(\efixis x e) &=
+    \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
+    \\
+    %% split
+    \phi(\esplit e) &= \emcase{\phi e}
+    \\
+    &\phantom{{}={}}\
+    \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
+    \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
+    \\
+    &\phantom{{}={}}\
+    \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
+    \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
+  \end{align*}
+
+  \caption{Semi\naive{} speed-up translation, $\phi$}
+  \label{figure-phi}
+\end{figure}
+
+
+%% ---- "Derivative" term translation, delta
+\begin{figure}\centering
+  \[ \delta\bot = \delta\esetsub{e_i}{i} = \delta(\eeq e f)
+  = \delta(\efixis x e) = \bot \]
+  %
+  \begin{align*}
+    \delta \mvar x &= \mvar\dx &
+    \delta \dvar x &= \dvar\dx\\
+    \delta(\efn{x} e) &= \fnof{\pboxvar x} \efn\dx \delta e
+    & \delta(e\<f) &= \delta e \<\ebox{\phi e} \<\delta f\\
+    \delta\etuple{e_i}_i &= \etuple{\delta e_i}_i
+    & \delta(\pi_i\<e) &= \pi_i\<\delta e\\
+    \delta(\inj i e) &= \inj i {\delta e} &
+    \delta(e \vee f) &= \delta e \vee \delta f\\
+    \delta\ebox{e} &= \etuple{} &
+    \delta(\eletbox x e f)
+    &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
+    \\
+    \delta(\eisempty e) &= \eisempty {\phi e}
+    &
+    \delta(\esplit e) &= \emcase{\phi e}
+    (\pboxtuple{\inj i \pwild, \pwild}
+    \caseto \inj i {\etuple{}} )_i
+  \end{align*}
+  %
+  \begin{align*}
+    \delta(\emcase e (\inj i \mvar x \caseto f_i)_i)
+    &= \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
+    &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
+    &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
+    %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
+    \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
+    \\
+    \delta(\eforin x e f)
+    &= (\eforin x {\delta e}
+    %\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}) \\
+    \eletbox \dx {\zero\<\dvar x} \phi f) \\
+    &\vee (\eforin x {\phi e \vee \delta e}
+    %\substd{\delta f}{\dvar\dx \substo \zero\<\dvar x})
+    \eletbox{\dx}{\zero\<\dvar x} \delta f)
+  \end{align*}
+
+  \caption{Semi\naive{} derivative translation, $\delta$}
+  \label{figure-delta}
+\end{figure}

@@ -296,7 +296,6 @@
 \newcommand\emcase[1]{\kw{case} \;{#1}\; \kw{of}\;}
 \newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
 % TODO: remove \efix.
-\newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
 \newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
 \newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}
 \newcommand\esplit{\prim{split}\<}
@@ -347,6 +346,11 @@
 \newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}
+
+%% deprecated syntax
+\newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
+\newcommand\isofixLtoL{\PackageWarning{notation}{don't use isofixLtoL}%
+  \todo{$\iso(\kernfixtL \to \fixtLkern)$}}
 
 
 %% ===== Contexts and typing judgments =====

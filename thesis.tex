@@ -1,6 +1,6 @@
-% Draft significantly speeds up compilation in various packages by disabling
+% draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,draft]{article}
+\documentclass[12pt,draft,]{article}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
@@ -30,10 +30,11 @@
 \usepackage[scaled=1.01042]{inconsolata}
 % no osf b/c sometimes used in subscripts
 % the colons and semicolons in AlegreyaSans are too small :(
-\usepackage[proportional,scaled=1]{AlegreyaSans}
+\usepackage[proportional,scaled=1,scaled=1.003,]{AlegreyaSans}
 
 \let\oldrmdefault\rmdefault \let\rmdefault\sfdefault
 \usepackage[euler-digits]{eulervm}
+\makeatletter\edef\zeu@Scale{0.996}\makeatother
 \makeatletter\edef\zeu@Scale{0.995}\makeatother
 %\makeatletter\edef\zeu@Scale{0.99}\makeatother
 \let\rmdefault\oldrmdefault
@@ -49,7 +50,7 @@
 
 
 \includeonly{%
-  2-datafun,
+%  2-datafun,
   3-seminaive,
 }
 \begin{document}

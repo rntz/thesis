@@ -2,5 +2,5 @@
 
 \input{3.1-seminaive-incremental}
 
-# The $\mathbold\phi$ and $\mathbold\delta$ transforms
+\input{3.2-phi-delta}
 

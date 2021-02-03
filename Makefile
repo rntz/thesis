@@ -27,8 +27,8 @@ PANDOC := pandoc --from markdown+raw_tex-latex_macros \
 # must generate \include{}d files
 thesis.pdf: 2-datafun.tex 3-seminaive.tex
 
-%.tex: %.md Makefile
-	sed -Ee 's/^\f$$//' $< | $(PANDOC) -o $@
+# %.tex: %.md Makefile
+# 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -o $@
 
 # %.tex: %.md template.tex Makefile
 # 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -so --template=template.tex $@

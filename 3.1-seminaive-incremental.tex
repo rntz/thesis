@@ -1,6 +1,10 @@
 \section{From semi\naive{} evaluation to the incremental \boldfn-calculus}
 \label{section-seminaive-incremental}
 
+
+\subsection{Semi\naive\ evaluation as incremental computation}
+%\label{section-seminaive-tc-in-datafun}
+
 Let's return to our example Datalog program~\todo{cross reference Datalog
   transitive closure example}, modified to consider graphs rather than ancestry:
 
@@ -48,16 +52,11 @@ $\Theta(n^3)$ deductions in total.
 There being only $\Theta(n^2)$ paths in the final result, this is terribly
 wasteful; hence we term this \emph{\naive\ evaluation}.
 
-
-\subsection{Semi\naive\ evaluation as incremental computation}
-%\label{section-seminaive-tc-in-datafun}
-
-\todo{rewrite/edit from this point on}
-
 Now let's move from Datalog to Datafun.\footnote{In this section we do not
-  bother marking discrete variables $\dvar x$ or expressions $\eiso e$, as it
-  muddies our examples to no benefit.} The transitive closure of \name{edge} is
-the fixed point of the monotone function \name{step} defined by:
+  bother distinguishing monotone variables $\mvar x$ or discrete expressions
+  $\eiso e$, as it muddies our examples to no benefit.} The transitive closure
+of \name{edge} is the fixed point of the monotone function \name{step} defined
+by:
 
 \nopagebreak[2]
 \begin{code}
@@ -66,9 +65,9 @@ the fixed point of the monotone function \name{step} defined by:
 \end{code}
 
 \noindent
-The \naive\ way to compute \name{step}'s fixed point is to iterate it: start from \(\name{path}_0 = \emptyset\) and compute \(\name{path}_{i+1} =
-\name{step}\<\name{path}_i\) for increasing $i$ until \(\name{path}_i =
-\name{path}_{i+1}\).
+The \naive\ way to compute this is to iterate \name{step}: start from
+\(\name{path}_0 = \emptyset\) and compute successive \(\name{path}_{i+1} =
+\name{step}\<\name{path}_i\) until \(\name{path}_i = \name{path}_{i+1}\).
 %
 But as before, $\name{path}_i \subseteq \name{step}\<\name{path}_i$; each iteration re-computes the paths found by its predecessor.
 %
@@ -136,12 +135,14 @@ functional language, we turn to the \emph{incremental
 \label{section-change-structures}
 
 To make precise the notion of change, an incremental \fn-calculus associates
-every type $A$ with a \emph{change structure}, consisting of:\footnote{Our
-  notion of change structure differs significantly from that of
+every type $A$ with a \emph{change structure}, consisting of:%
+%
+\footnote{Our notion of change structure differs significantly from that of
   \citet{incremental}, although it is similar to the logical relation given in
-  \citet{DBLP:conf/esop/GiarrussoRS19}; we discuss this in
-  \cref{sec:differences-from-incremental}. Although we do not use change
-  structures \emph{per se} in the proof of correctness sketched in \cref{sec:logical-relation}, they are an important source of
+  \citet{DBLP:conf/esop/GiarrussoRS19}; \todo{we discuss this in
+    \cref{section-differences-from-incremental}}. Although we do not use change
+  structures \emph{per se} in the proof of correctness sketched in
+  \cref{section-seminaive-logical-relation}, they are an important source of
   intuition.}
 
 \begin{enumerate}
@@ -162,84 +163,85 @@ For example, sets change by gaining new elements:
   \changesat{\tseteq{A}}{\dx}{x}{x \cup \dx}
 \end{align*}
 
+\noindent
 Set changes may be the most significant for fixed point purposes, but to handle
 all of Datafun we need a change structure for every type. For products and sums,
 for example, the change structure is pointwise:
 
-%% \begin{center}
-%%   \setlength\tabcolsep{10pt}
-%%   \begin{tabular}{@{}ccc@{}}
-%%     $\D\tunit = \tunit$
-%%     &
-%%     \(\D(A \x B) = \D A \x \D B\)
-%%     &
-%%     \(\D(A + B) = \D A + \D B\)
-%%     \\[8pt]
-%%     \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
-%%     &
-%%     \(\infer{
-%%       \changesat{A}{\da}{a_1}{a_2}
-%%       \\
-%%       \changesat{B}{\db}{b_1}{b_2}
-%%     }{\changesat{A \x B}
-%%       {\tuple{\da,\db}}
-%%       {\tuple{a_1,b_1}}
-%%       {\tuple{a_2,b_2}}
-%%     }\)
-%%     &
-%%     \(\infer{
-%%       \changesat{A_i}{\dx_i}{x_i}{y_i}
-%%     }{
-%%       \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
-%%     }\)
-%%   \end{tabular}
-%% \end{center}
+\begin{center}
+  \setlength\tabcolsep{10pt}
+  \begin{tabular}{@{}ccc@{}}
+    $\D\tunit = \tunit$
+    &
+    \(\D(A \x B) = \D A \x \D B\)
+    &
+    \(\D(A + B) = \D A + \D B\)
+    \\[\betweenfunctionskip]    % TODO: is this the right distance?
+    \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
+    &
+    \(\infer{
+      \changesat{A}{\da}{a}{a'}
+      \\
+      \changesat{B}{\db}{b}{b'}
+    }{\changesat{A \x B}
+      {\tuple{\da,\db}}
+      {\tuple{a,b}}
+      {\tuple{a',b'}}
+    }\)
+    &
+    \(\infer{
+      \changesat{A_i}{\dx_i}{x}{x'}
+    }{
+      \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i x'}
+    }\)
+  \end{tabular}
+\end{center}
 
-\begin{align*}
-  \D\tunit &= \tunit
-  &
-  \D(A \x B) &= \D A \x \D B
-  &
-  \D(A + B) &= \D A + \D B
-\end{align*}
+%% \begin{align*}
+%%   \D\tunit &= \tunit
+%%   &
+%%   \D(A \x B) &= \D A \x \D B
+%%   &
+%%   \D(A + B) &= \D A + \D B
+%% \end{align*}
+%%
+%% \begin{align*}
+%%   \changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}
+%%   &&
+%%   %% \infer{
+%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
+%%   %% }{\changesat{A_1 \x A_2}
+%%   %%   {\tuple{\vec\dx}}
+%%   %%   {\tuple{\vec x}}
+%%   %%   {\tuple{\vec y}}
+%%   %% }
+%%   %
+%%   %% \infer{
+%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
+%%   %% }{\changesat{A_1 \x A_2}
+%%   %%   {\tuple{\dx_1,\dx_2}}
+%%   %%   {\tuple{x_1,x_2}}
+%%   %%   {\tuple{y_1,y_2}}
+%%   %% }
+%%   %
+%%   \infer{
+%%     \changesat{A}{\da}{a}{a'}
+%%     \\
+%%     \changesat{B}{\db}{b}{b'}
+%%   }{\changesat{A \x B}
+%%     {\tuple{\da,\db}}
+%%     {\tuple{a,b}}
+%%     {\tuple{a',b'}}
+%%   }
+%%   &&
+%%   \infer{
+%%     \changesat{A_i}{\dx}{x}{y}
+%%   }{
+%%     \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
+%%   }
+%% \end{align*}
 
-\begin{align*}
-  \changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}
-  &&
-  %% \infer{
-  %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
-  %% }{\changesat{A_1 \x A_2}
-  %%   {\tuple{\vec\dx}}
-  %%   {\tuple{\vec x}}
-  %%   {\tuple{\vec y}}
-  %% }
-  %
-  %% \infer{
-  %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
-  %% }{\changesat{A_1 \x A_2}
-  %%   {\tuple{\dx_1,\dx_2}}
-  %%   {\tuple{x_1,x_2}}
-  %%   {\tuple{y_1,y_2}}
-  %% }
-  %
-  \infer{
-    \changesat{A}{\da}{a}{a'}
-    \\
-    \changesat{B}{\db}{b}{b'}
-  }{\changesat{A \x B}
-    {\tuple{\da,\db}}
-    {\tuple{a,b}}
-    {\tuple{a',b'}}
-  }
-  &&
-  \infer{
-    \changesat{A_i}{\dx}{x}{y}
-  }{
-    \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
-  }
-\end{align*}
-%\vspace{0pt} % TODO: double-check if this is better.
-
+\noindent
 Since we only consider increasing changes, and $\iso A$ is ordered discretely,
 the only ``change'' permitted is to stay the same. Consequently, no information
 is necessary to indicate what changed:
@@ -250,6 +252,7 @@ is necessary to indicate what changed:
   \changesat{\iso A}{\tuple{}}{x}{x}
 \end{align*}
 
+\noindent
 Finally we come to the most interesting case: functions.
 
 \begin{align*}
@@ -272,13 +275,13 @@ we wish to know how $f\<x$ changes as both $f$ and $x$ change.
 Supposing $\changes{\df}{f}{g}$ and $\changes{\dx}{x}{y}$, how do we find a
 change $f\<x \changesto g\<y$ that updates both function and argument?
 
-If changes were given
-pointwise, taking only a base point, we'd stipulate that $\changes{\df}{f} g$
-iff $\fa{x} \changes{\df\<x}{f\<x}{g\<x}$. But this only gets us to $g\<x$, not
-$g\<y$: we've accounted for the change in the function, but not the argument.
+If changes were given pointwise, taking only a base point, we might take
+$\changes{\df}{f} g$ to mean that $\fa{x} \changes{\df\<x}{f\<x}{g\<x}$. But
+this only gets us to $g\<x$, not $g\<y$: we've accounted for the change in the
+function, but not the argument.
 %
 We can account for both by giving $\df$ an additional parameter: not just the
-base point $x$, but also the change $\dx$ to it.
+base point $x$, but also the change to it $\dx$.
 %
 Then by inverting \rn{fn~change} we have $\changes{\df\<x\<\dx}{f\<x}{g\<y}$ as
 desired.
@@ -299,7 +302,7 @@ Note also the mixture of monotonicity and non-monotonicity in the type $\iso A
 increasing outputs), function changes are monotone with respect to input changes
 $\D A$: a larger increase in the input yields a larger increase in the output.
 However, there's no reason to expect the change in the output to grow as the
-base point increases -- hence the use of $\iso$.
+base point increases -- hence the base point argument is discrete, $\iso A$.
 
 
 \subsection{Zero changes, derivatives, and faster fixed points}
@@ -325,41 +328,19 @@ This is exactly the property of $\name{step}'$ that made it useful for
 semi\naive\ evaluation -- indeed, $\name{step}'$ is a zero change to
 \name{step}, modulo not taking the base point $x$ as an argument:
 
-%% \begin{equation*}
-%%   \changesat{\tseteq A} \dx x y
-%%   \implies
-%%   \changesat{\tseteq A}{\name{step}'\<\dx}{\name{step}\<x}{\name{step}\<y}
-%% \end{equation*}
-
 \begin{align*}
   \changesat{\tseteq A} \dx x y
   &\implies
   \changesat{\tseteq A}{\name{step}'\<\dx}{\name{step}\<x}{\name{step}\<y}
   \\
-  &\hphantom{x.}\text{i.e.}
-  \\
+  % should make a box that is as wide as \implies here.
+  &\textit{that is,}
+%  &\omit\hphantom{wut}\clap{\text{\emph{equivalently}}}
+  \\[2.5pt]
   x \cup \dx = y
   &\implies
   \name{step}\<x \cup \name{step}'\<\dx = \name{step}\<y
 \end{align*}
-
-%% \begin{align*}
-%%   \begin{gathered}
-%%     \changesat{\tseteq A} \dx x y\\
-%%     \Updownarrow\\
-%%     x \cup \dx = y
-%%   \end{gathered}
-%%   &%\quad\implies\quad
-%%   \mathrel{\begin{gathered}
-%%     \implies\\\vphantom{\Updownarrow}\\\implies
-%%   \end{gathered}}
-%%   \begin{gathered}
-%%     \changesat{\tseteq A}{\name{step}'\<\dx}{\name{step}\<x}{\name{step}\<y}
-%%     \\
-%%     \Updownarrow\\
-%%     \name{step}\<x \cup \name{step}'\<\dx = \name{step}\<y
-%%   \end{gathered}
-%% \end{align*}
 
 \noindent
 Function zero changes are so important we give them a special name:
@@ -370,10 +351,6 @@ general \emph{semi\naive\ fixed point strategy}. First, observe that:
   At every semilattice type $L$, we have $\D L = L$ and
   $\changesat{L}{\dx}{x}{y} \iff (x \binvee \dx) = y$.
 \end{lemma}
-
-%% \begin{proof}
-%%   By induction on semilattice types $L$.
-%% \end{proof}
 
 \noindent
 This holds by a simple induction on semilattice types $L$. Now, given
@@ -386,11 +363,21 @@ defined:
   \dx_0 &= f\<\bot & \dx_{i+1} &= f'\<x_i\<\dx_i
 \end{align*}
 
-\noindent Let $\fastfix\<(f,f') = \bigvee_i x_i$. By induction and the
-derivative property, we have $\changes{\dx_i}{x_i}{f\<x_i}$ and so
-$x_i = f^i\<x$, and therefore $\fastfix\<(f,f') = \efix f$. Moreover,
-if $L$ has no infinite ascending chains, we will reach our fixed point
-$x_i = x_{i+1}$ in a finite number of iterations.
+\noindent
+Observe that the function $f$ itself is only used once, to calculate $\dx_0 = f
+\<\bot$.
+%
+Given this initial ``kickoff'' change, the remaining $x_i$ are calculated
+entirely using the derivative $f'$.
+%
+Let $\fastfix\<(\dx_0,\, f') = \bigvee_i x_i$ be the limit of this sequence.
+%
+By induction and the derivative property, we have $\changes{\dx_i}{x_i}{f\<x_i}$
+and so $x_i = f^i\<x$, and therefore $\fastfix\<(f\<\bot,\, f')$ is the least
+fixed point of $f$.
+%
+And if $L$ has no infinite ascending chains, we will reach this fixed point in
+some finite number of iterations $i$ such that $x_i = x_{i+1}$.
 
 \label{section-seminaive-strategy}
 

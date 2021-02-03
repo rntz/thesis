@@ -1,0 +1,525 @@
+\section{The \boldphi\ and \bolddelta\ transforms}
+\label{section-phi-delta}
+
+We use two static transformations, $\phi$ and $\delta$, defined in
+\cref{figure-phi,figure-delta} respectively. Rather than dive into the gory
+details immediately, we first build some intuition.
+
+The speed-up transform $\phi$ computes fixed points semi\naive{}ly by
+replacing $\efixis x e$ by $\fastfix\<({f\<\bot,\, f'})$ where $f = \efn x e$.
+%
+To find this derivative $f'$ we'll need a second transform, $\delta$.
+%
+Since a derivative is a zero change, can $\delta e$ simply find a zero change to
+$e$?
+%
+Unfortunately, this is not strong enough.
+%
+For example, the zero change to (derivative of) $\efn x e$ depends not on the
+\emph{zero} change to $e$, but on how $e$ changes in response to changes in $x$.
+%
+To compute derivatives, we need to solve the general problem of computing and
+propagating \emph{changes}.
+%
+So, modelled on the incremental \fn-calculus' $\Deriv$ \citep{incremental},
+$\delta e$ will compute how $\phi e$ changes as its free variables change.
+
+In generalizing from zero changes to changes, however, we seem to have
+jettisoned our original goal: \fastfix\ doesn't need the change to $f$, it needs its derivative.
+%to speed up $\efixis x e$ we don't want the change to $\efn x e$; we want its derivative.
+%
+Since derivatives are zero changes, function changes and derivatives coincide if
+\emph{the function cannot change}.
+%
+This is why the typing rule for $\efixis x e$ wipes the monotone context (apart
+from $\mvar x$): to prevent $f = \efn x e$ from changing!
+%
+So the key strategy of our speed-up transformation $\phi$ is to
+{\bfseries\boldmath decorate expressions of type ${\iso A}$ with their zero
+  changes.}
+%
+This makes derivatives available exactly where we need them: at \kw{fix}
+expressions.
+
+
+\subsection{Typing \boldphi\ and \bolddelta}
+
+\input{3-figure-DeltaPhi}
+\input{3-figure-phi-delta}
+
+In order to decorate expressions with extra information, $\phi$ also needs to
+decorate their types. In \cref{figure-DeltaPhi} we give a type translation $\Phi A$
+capturing this.
+%
+In particular, if $e : \iso A$ then $\phi e$ will have type $\Phi(\iso A) =
+\iso(\Phi A \x \DP A)$.
+%
+The idea is that evaluating $\phi e$ will produce a pair
+$\eboxraw{\etuple{x,\dx}}$ where $x : \Phi A$ is the sped-up result and $\dx :
+\DP A$ is a zero change to $x$.
+%
+For example, if $e : \iso(A \to B)$, then $\phi e$ will compute $\eboxraw{\etuple{f,f'}}$, where $f'$ is the derivative of $f$.
+
+On types other than $\iso A$, there is no information we need to add, so $\Phi$
+simply distributes.
+%
+In particular, source programs and sped-up programs agree on the shape of
+first-order data:
+
+\begin{lemma}\label{thm:phi-eqt}
+  $\Phi\eqt A = \eqt A$.
+\end{lemma}
+
+\begin{proof}
+ Induct on $\eqt A$.
+\end{proof}
+
+%\noindent
+As we'll see in \cref{section-var-fn-app,section-phi-delta-box}, $\phi$ and $\delta$ are
+mutually recursive. To make this work, $\delta e$ must find the change to $\phi
+e$ rather than $e$.
+%
+So if $e : A$ then $\phi e : \Phi A$ and $\delta e : \DP A$.
+%
+However, so far we have neglected to say what $\phi$ and $\delta$ do to typing
+contexts.
+%
+To understand this, it's helpful to look at what $\Phi$ and $\DP$ do to
+functions and to $\iso$.
+%
+This is because expressions denote functions of their free variables.
+%
+Moreover, in Datafun free variables come in two flavors, monotone and discrete, and discrete variables are semantically $\iso$-ed.
+
+Viewed as functions of their free variables, $\delta e$ denotes the
+\emph{derivative} of $\phi e$.
+%
+And just as the derivative of a unary function $f\<x$ has \emph{two} arguments,
+$\df\<x\<\dx$, the derivative of an expression $e$ with $n$ variables $x_1,
+\dots, x_n$ will have $2n$ variables: the original $x_1, \dots, x_n$ and their
+changes $\dx_1, \dots, \dx_n$.%
+%
+\footnote{For notational convenience we assume
+  that source programs contain no variables starting with the letter \emph{d}.}
+%
+However, this says nothing yet about monotonicity or discreteness.
+%
+To make this precise, we'll use three context transformations, named according
+to the analogous type operators $\iso$, $\Phi$, and $\Delta$:
+%% %
+%% We define these pointwise by their action on singleton contexts (they all
+%% preserve empty contexts and distribute across context union):
+
+\todo{explain mono-to-disc renaming confusion}
+
+\begin{align*}
+  \iso{(\hm x A)} &= \hd x A & \iso{(\hd x A)} &= \hd x A
+  \\
+  \Phi(\hm x A) &= \hm x {\Phi A} & \Phi(\hd x A) &= \hd x {\Phi A}, \hd \dx {\DP A}
+  \\
+  \D(\hm x A) &= \hm \dx {\D A}
+  & \D(\hd x A) &= \emptycx\quad\textsf{\small(the empty context)}
+\end{align*}
+
+\noindent
+Otherwise all three operators distribute; e.g.\ $\iso\emptycx = \emptycx$ and
+$\iso(\G_1,\G_2) = \iso\G_1, \iso\G_2$.
+%
+Intuitively, $\iso\G$, $\Phi\G$, and $\D\G$ mirror the effect of
+$\iso$, $\Phi$, and $\D$ on the semantics of $\G$:
+
+\begin{align*}
+  \den{\iso\G} &\cong \iso\den\G
+  &
+  \begin{aligned}
+    \den{\Phi(\hm x A)} &\cong \den{\Phi A}
+    \\
+    \den{\Phi(\hd x A)} &\cong \den{\Phi \iso A}
+  \end{aligned}
+  &&
+  \begin{aligned}
+    \den{\D(\hm x A)} &\cong \den{\D A}
+    \\
+    \den{\D(\hd x A)} &\cong \den{\D \iso A}
+  \end{aligned}
+\end{align*}
+
+%% \begin{align*}
+%%   \multirow{2}{*}{\den{\iso \G} = \iso\den\G}
+%%   &&
+%%   \den{\D(\hm x A)} &\cong \den{\D A}
+%%   &
+%%   \den{\Phi(\hm x A)} &\cong \den{\Phi A}
+%%   \\
+%%   &&
+%%   \den{\D(\hd x A)} &\cong \den{\D \iso A}
+%%   &
+%%   \den{\Phi(\hd x A)} &\cong \den{\Phi \iso A}
+%% \end{align*}
+
+\noindent
+These defined, we can state the types of $\phi e$ and $\delta e$:
+
+\begin{theorem}[well-typedness]
+  \label{thm:type-correct}
+  If\/ $\J e \G A$, then $\phi e$ and $\delta e$ have the following types:
+  \begin{align*}
+    \Jalign {\phi e} {\Phi\G} {\Phi A}\\
+    \Jalign {\delta e} {\iso{\Phi\G}, \DP\G} {\DP A}
+  \end{align*}
+\end{theorem}
+
+%% \begin{proof}
+%%   By induction on typing derivations; see appendix.
+%% \end{proof}
+
+\noindent As expected, if we view expressions as functions of their free
+variables, and pretend $\G$ is a type, these correspond to $\Phi(\G \to A)$
+and $\DP(\G \to A)$ respectively:
+
+\begin{align*}
+  \Phi(\G \to A) &= \Phi\G \to \Phi A
+  & \DP(\G \to A) &= \iso\Phi\G \to \DP\G \to \DP A
+\end{align*}
+
+%% TODO: can I maybe cut this bit?
+\noindent
+To get the hang of these context and type transformations, suppose $\J
+e {\hd x A, \hm y B} C$. Then \cref{thm:type-correct} tells us:
+
+\nopagebreak[1]
+\begin{align*}
+  \Jalign{\phi e} {\hd x{\Phi A},\, \hd \dx {\DP A},\, \hm y {\Phi B}} {\Phi C}
+  \\
+  \Jalign{\delta e} {\hd x{\Phi A},\, \hd\dx{\DP A},\, \hd y{\Phi B}, \hm\dy{\DP B}} {\DP C}
+\end{align*}
+
+%% %% TODO: should we include this? I think the point is pretty well-made already.
+%% \noindent
+%% These correspond respectively to $\Phi$ and $\DP$ applied to $\iso A \to B \to
+%% C$:
+%%
+%% \begin{align*}
+%%   \Phi(\iso A \to B \to C)
+%%   &= \iso (\Phi A \x \DP A) \to \Phi B \to \Phi C
+%%   \\
+%%   \DP(\iso A \to B \to C)
+%%   &= \D(\iso (\Phi A \x \DP A) \to \Phi B \to \Phi C)\\
+%%   &= \iso (\iso (\Phi A \x \DP A))
+%%   \to \D(\iso (\Phi A \x \DP A))
+%%   \to \D(\Phi B \to \Phi C)\\
+%%   &\cong \iso (\Phi A \x \DP A)
+%%   \to \tunit
+%%   \to \iso\Phi B \to \DP B \to \DP C\\
+%%   &\cong \iso \Phi A \to \iso \DP A \to \iso\Phi B \to \DP B \to \DP C
+%% \end{align*}
+
+\noindent
+Along with the original program's variables, $\phi e$ requires zero change
+variables $\dvar\dx$ for every discrete source variable $\dvar x$. Meanwhile,
+$\delta e$ requires changes for \emph{every} source program variable (for
+discrete variables these will be zero changes), and moreover is \emph{discrete}
+with respect to the source program variables (the ``base points'').
+
+We now have enough information to tackle the definitions of $\phi$ and $\delta$
+given in \cref{figure-phi,figure-delta}. In the remainder of this section, we'll
+examine the most interesting and important parts of these definitions in detail.
+
+
+\subsection{Fixed points}
+
+\todo{NEEDS REWRITTEN}
+
+The whole purpose of $\phi$ and $\delta$ is to speed up fixed points, so let's
+start there.
+%
+In a fixed point expression $\efix e$, we know $e : \isofixLtoL$. Consequently the type of $\phi e$ is
+
+\begin{align*}
+  \Phi(\isofixLtoL)
+  &= \iso(\Phi(\kernfixtL \to \fixtLkern) \x \DP(\kernfixtL \to \fixtLkern))\\
+  &= \iso((\Phi\fixt L \to \Phi\fixtLkern)
+  \x (\iso\Phi\fixt L \to \DP \fixt L \to \DP \fixtLkern))
+  \\
+  &= \iso((\kernfixtL \to \fixtLkern) \x
+  (\iso\fixt L \to \D \fixt L \to \D\fixtLkern)
+  & \text{by \cref{thm:phi-eqt}, }\Phi\fixt L = \fixt L
+  \\
+  &= \iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)
+  & \text{by \cref{lem:DeltaL}, }\Delta \fixt L = \fixt L
+\end{align*}
+
+\noindent
+The behavior of $\phi e$ is to compute a boxed pair $\eboxtupleraw{f,f'}$, where
+$f : \fixt L \to \fixt L$ is a sped-up function and $f' : \iso\fixt L \to \fixt
+L \to \fixt L$ is its derivative. This is exactly what we need to call \fastfix.
+Therefore $\phi(\efix e) = \fastfix\<\phi e$.
+%
+However, if we're going to use \fastfix\ in the output of $\phi$, we ought to
+give it a typing rule and semantics:
+
+\nopagebreak[4]
+\begin{align*}
+  \infer{
+    \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
+  }{\J{\fastfix\<e}{\G}{\fixt L}}
+  &&
+  \begin{aligned}
+    \den{\fastfix\<e}\<\g &= \fastfix \<(f, f')
+    \\
+    \text{where}~ & (f,f') = \den{e}\<\g
+  \end{aligned}
+\end{align*}
+
+As for $\delta(\efix e)$, since $e$ can't change (having $\iso$ type), neither
+can $\efix e$ (or $\fastfix\<\phi e$). All we need is a zero change at type
+$\fixtLkern$; by \cref{lem:DeltaL}, $\bot$ suffices.
+
+
+\subsection{Variables, \boldfn, and application}
+\label{section-var-fn-app}
+
+At the core of a functional language are variables, \fn, and application. The
+$\phi$ translation leaves these alone, simply distributing over subexpressions.
+On variables, $\delta$ yields the corresponding change variables. On functions
+and application, $\delta$ is more interesting:
+
+\begin{align*}
+  \DP(A \to B) &= \iso\Phi A \to \DP A \to \DP B
+  &
+  \delta(\efn x e) &= \fnof{\pboxvar x} \efn\dx \delta e
+  &
+  \delta(e\<f) &= \delta e \<\ebox{\phi f} \<\delta f
+\end{align*}
+
+\noindent
+The intuition behind $\delta(\efn x e) = \fnof{\pboxvar x} \efn\dx \delta e$ is
+that a function change takes two arguments, a base point $\dvar x$ and a change
+$\mvar\dx$, and yields the change in the result of the function, $\delta e$.
+However, we are given an argument of type $\iso \Phi A$, but consulting
+\cref{thm:type-correct} for the type of $\delta e$, we need a discrete variable
+$\hd x {\Phi A}$, so we use pattern-matching to unbox our argument.
+
+The intuition behind $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$ is
+much the same: $\delta e$ needs two arguments, the original input $\phi f$ and
+its change $\delta f$, to return the change in the function's output. Moreover,
+it's discrete in its first argument, so we need to box it, $\ebox{\phi f}$.
+
+One might ask why this type-checks, since $\phi e$ and $\delta e$ don't use the
+same typing context.
+%
+We're even boxing $\phi f$, hiding all monotone variables; consequently, it gets
+the context $\stripcx{\iso\Phi\G, \DP\G}$.
+%
+However, $\iso$ makes every variable discrete, and $\stripcx{-}$ leaves
+discrete variables alone, so this includes \emph{at least} $\iso\Phi\G$. The
+context $\phi f$ needs is $\Phi\G$. Since $\iso$ only makes a context stronger
+(recalling our definition of weakening from \cref{section-weakening}), we're safe.
+%
+The same argument applies (all the more easily) when $\phi e$ is used in a
+monotone rather than a discrete position.
+%% %
+%% \todo{Simplify this explanation? We're basically establishing that $\Phi\G
+%%   \sqsubseteq \stripcx{\iso\Phi\G, \DP\G}$.}
+
+
+\subsection{The discreteness comonad, \iso}
+\label{section-phi-delta-box}
+
+Our strategy hinges on decorating expressions of type $\iso A$ with their
+zero changes, so the translations of $\ebox e$ and $(\eletbox x e f)$ are of
+particular interest.
+%
+The most trivial of these is $\delta\ebox{e} = \etuple{}$; this follows from
+$\DP\iso A = \tunit$, since boxed values cannot change.
+
+Next, consider \(\phi\ebox e = \ebox{\etuple{\phi e, \delta e}}\).
+%
+The intuition here is straightforward: $\phi$ needs to decorate $e$ with its
+zero change; since $e$ is discrete and cannot change, we use $\delta e$.
+%
+However! In general, one cannot use $\delta$ inside the $\phi$ translation and
+expect the result to be well-typed; $\phi$ and $\delta$ require different typing
+contexts. To see this, let's apply \cref{thm:type-correct} to singleton
+contexts:
+
+\begin{center}
+  \setlength\tabcolsep{10pt}
+  \begin{tabular}{@{}lll@{}}
+    $\G$ \ \textsf{\small(context of $e$)}
+    & $\Phi\G$ \ \textsf{\small(context of $\phi e$)}
+    & $\iso\Phi\G,\DP\G$ \ \textsf{\small(context of $\delta e$)}
+    \\
+    %% $e$'s context & $\phi e$'s context & $\delta e$'s context
+    %% \\
+    \midrule
+    $\hm x A$ & $\hm x {\Phi A}$ & $\hd x {\Phi A}, \hm\dx{\DP A}$
+    \\
+    $\hd x A$
+    & $\hd x {\Phi A}, \hd\dx{\DP A}$
+    & $\hd x {\Phi A}, \hd\dx{\DP A}$
+  \end{tabular}
+\end{center}
+
+\noindent
+Luckily, although $\Phi\G$ and $\iso\Phi\G,\DP\G$ differ on monotone variables,
+they agree on discrete ones. And since $e$ is discrete, it \emph{has} no
+free monotone variables, justifying the use of $\delta e$ in
+$\phi\ebox{e} = \ebox{\etuple{\phi e, \delta e}}$.
+
+Next we come to $(\eletbox x e f)$, whose $\phi$ and $\delta$ translations are
+very similar:
+
+\begin{align*}
+  \phi(\eletbox x e f)
+  &=
+  \elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi f
+  \\
+  \delta(\eletbox x e f) &=
+  \elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \delta f
+\end{align*}
+
+\noindent
+Since $\dvar x$ is a discrete variable, both $\phi f$ and $\delta f$ need access
+to its zero change $\dvar\dx$. Luckily, $\phi e : \iso(\Phi A \x \DP A)$
+provides it, so we simply unpack it. We don't use $\delta e$ in $\delta f$, but
+this is unsurprising when you consider that its type is $\DP\iso A = \tunit$.
+
+
+\subsection{Case analysis, \prim{split}, and \name{dummy}}
+
+%\newcommand\evalsto\mapsto %% TODO: remove this
+
+The derivative of case-analysis, $\delta(\emcase{e}{(\inj i \mvar x_i \caseto
+  f_i)_i})$, is complex.
+%
+Suppose $\phi e$ evaluates to $\inj i x$ and its change $\delta e$ evaluates to
+$\inj j \dx$.
+%
+Since $\delta e$ is a change to $\phi e$, the change structure on sums tells us
+that $i = j$! (This is because sums are ordered disjointly; the value $x$ can
+increase, but the tag $\injc_i$ must remain the same.)
+%
+So the desired change $\delta(\emcase{e}{\dots})$ is given by $\delta f_i$ in a
+context supplying a discrete base point $\dvar x$ (the value $x$) and the change
+$\mvar\dx$.
+%
+To bind $\dvar x$ discretely, we need to use $\ebox{\phi e} : \iso(\Phi A + \Phi
+B)$; to pattern-match on this, we need \emph{split} to distribute the $\iso$.
+
+This handles the first two cases, $(\inj i {\pboxvar x},\, \inj i \mvar\dx
+\caseto \delta f_i)_i$. Since we know the tags on $\phi e$ and $\delta e$ agree,
+these are the only possible cases. However, to appease our type-checker we must
+handle the \emph{impossible} case that $i \ne j$. This case is dead code: it
+needs to typecheck, but is otherwise irrelevant. It suffices to generate a dummy
+change $\dx : \DP A_i$ from our base point $\hd{x}{\Phi A_i}$. We do this using
+a simple function $\dummy_A : A \to \D A$ (\cref{fig:dummy}).
+
+\input{3-figure-dummy}
+
+\splittodo{explain}{ that $\phi$, $\delta(\esplit e)$ are effectively book-keeping
+  the decorations that the $\phi$ translation adds to $\iso$.}
+
+We also need \dummy\ in the definition of $\phi(\esplit e)$. In effect
+$\prim{split} : \iso(A + B) \to \iso A + \iso B$. Observe that
+
+\begin{align*}
+  \Phi(\iso (A + B)) &= \iso((\Phi A + \Phi B) \x (\DP A + \DP B))
+  \\
+  \Phi(\iso A + \iso B) &= \iso(\Phi A \x \DP A) + \iso(\Phi B \x \DP B)
+\end{align*}
+
+\noindent
+So while $\phi e$ yields a boxed pair of tagged values, $\eboxraw{\etuple{\inj i
+    x, \inj j \dx}}$, we need $\phi(\esplit e)$ to yield a tagged boxed pair,
+$\inj i {\eboxraw{\etuple{x,\dx}}}$. Again we use \dummy\ to handle the
+impossible case $i \ne j$.
+
+Finally, observe that $\delta(\esplit e)$ has type
+%
+\(
+  \DP(\iso A + \iso B)
+  = \DP\iso A + \DP\iso B
+  = \tunit + \tunit
+\).
+%
+\noindent
+All it must do is return $(\inj i \etuple{})$ with a tag that matches
+$\phi(\esplit e)$ and $\phi e$; \kw{case}-analysing $\phi e$ suffices.
+
+
+\subsection{Semilattices and comprehensions}
+\label{section-semilattice-delta-phi}
+
+The translation $\phi(e \vee f) = \phi e \vee \phi f$ is as simple as it seems.
+However, $\delta(e \vee f) = \delta e \vee \delta f$ is mildly clever.
+%
+Restricting to sets, suppose that $\dx$ changes $x$ into $x'$ and $\dy$ changes
+$y$ to $y'$. In particular, suppose these changes are \emph{precise}: that $\dx
+= x' \setminus x$ and $\dy = y' \setminus y$. Then the precise change from $x
+\cup y$ into $x' \cup y'$ is:
+
+\[ (x' \cup y') \setminus (x \cup y)
+= (x' \setminus x \setminus y) \cup (y' \setminus y \setminus x)
+= (\dx \setminus y) \cup (\dy \setminus x)
+\]
+
+\noindent
+This suggests letting $\delta(e \cup f) = (\delta e \setminus \phi f) \cup
+(\delta f \setminus \phi e)$. This is a valid derivative, but it involves
+recomputing $\phi e$ and $\phi f$, and our goal is to avoid recomputation. So
+instead, we \emph{overapproximate} the derivative: $\delta e \cup \delta f$
+might contain some unnecessary elements, but we expect it to be cheaper to
+include these than to recompute $\phi e$ and $\phi f$. This overapproximation
+agrees with semi\naive\ evaluation in Datalog: Datalog implicitly unions the
+results of different rules for the same predicate (e.g. those for \name{path} in
+\cref{section-seminaive-and-ilc}), and the semi\naive\ translations of these rules
+do not include negated premises to compute a more precise difference.
+
+Now let's consider $\eforin x e f$.
+%
+Its $\phi$-translation is straightforward, with one hitch: because $\hd x {\eqt
+  A}$ is a discrete variable, the inner loop $\phi f$ needs access to its zero
+change $\hd \dx {\D\eqt A}$.
+%
+Conveniently, at eqtypes (although not in general), the \dummy\ function
+computes zero changes:
+%% TODO: explain why this can't work at function types, which is one reason we
+%% restrict sets to containing first-order data?
+
+\begin{lemma} \label{lem:dummy-change}
+  If $x : \eqt A$ then
+  $\changesat{\eqt A}{\dummy\<x}{x}{x}$.
+\end{lemma}
+
+\begin{proof}
+  \todo{prove dummy is 0 on eqtypes.}
+\end{proof}
+
+\noindent For clarity, we write \zero\ rather than \dummy\ when we use it to
+produce zero changes; we only call it \dummy\ in dead code.
+
+Finally, we come to $\delta(\eforin x e f)$, the computational heart of the
+semi\naive\ transformation, as \kw{for} is what enables embedding relational
+algebra (the right-hand-sides of Datalog clauses) into Datafun.
+%
+Here there are two things to consider, corresponding to the two \kw{for}-clauses
+generated by $\delta(\eforin x e f)$.
+%
+First, if the set $\phi e$ we're looping over gains new elements $\dvar x \in
+\delta e$, we need to compute $\phi f$ over these new elements. Second, if the
+inner loop $\phi f$ changes, we need to add in its changes $\delta f$ for every
+element, new or old, in the looped-over set, $\phi e \vee \delta e$. Just as in
+the $\phi$-translation, we use \zero/\dummy\ to calculate zero changes to set
+elements.
+
+
+\subsection{Leftovers}
+
+The $\phi$ rules we haven't yet discussed simply distribute $\phi$ over
+subexpressions. The remaining $\delta$ rules mostly do the same, with a few
+exceptions. In the case of $\delta(\esetsub{e_i}{i}) = \delta(\eeq e f) = \bot$,
+the sub-expressions are discrete and cannot change, so we produce a zero change
+$\bot$. This is also the case for $\delta(\eisempty e) = \eisempty{\phi e}$, but
+as with $\delta(\esplit e)$, the zero change here is at type $\tunit + \tunit$,
+so to get the tag right we must analyse $\phi e$.
