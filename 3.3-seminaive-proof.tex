@@ -1,0 +1,201 @@
+\section{Proving the semi\naive\ transformation correct}
+
+\todo{rewrite from here on}
+
+\label{section-logical-relation}
+
+We have given two program transformations: $\phi e$, which optimizes $e$ by
+computing fixed points semi\naive{}ly; and $\delta e$, which finds the change in
+$\phi e$ under a change in its free variables.
+%
+To state the correctness of $\phi$ and $\delta$, we need to show that $\phi e$
+preserves the meaning of $e$ and that $\delta e$ correctly updates $\phi e$ with
+respect to changes in its variable bindings.
+%
+Since our transformations modify the types of higher-order expressions to
+include the extra information needed for semi\naive\ evaluation, we cannot
+directly prove that the semantics is preserved.
+%
+Instead, we formalize the relationship between $e$, $\phi e$, and $\delta e$
+using a logical relation, and use this relation to prove an \emph{adequacy
+  theorem} saying that the semantics is preserved for closed, first-order
+programs.
+
+\todo{figure with logical relation}
+%\input{fig-logical-relation}
+
+So, inductively on types $A$, letting $a,b \in \den{A}$, $x,y \in \den{\Phi A}$,
+and $\dx \in \den{\DP A}$, we define a five place relation
+$\weirdat{A}{\dx}{x}{a}{y}{b}$, meaning roughly ``$x,y$ speed up $a,b$
+respectively, and $\dx$ changes $x$ into $y$''. The full definition is in
+\cref{fig:logical-relation}.
+
+At product, sum, and function types this is essentially a more elaborate version
+of the change structures given in \cref{section-change-structures}.
+%
+At set types, changes are still a set of values added to the initial value, but
+we additionally insist that the ``slow'' $a,b$ and ``speedy'' $x,y$ are equal.
+%
+This is because we have engineered the definitions of $\Phi$ and $\phi$ to
+preserve behavior on equality types.
+%
+Finally, since $\iso A$ represents values which cannot change, $\dx$ is an
+uninformative empty tuple and the original and updated values are identical.
+%
+However, the ``speedy'' values are now \emph{pairs} of a value and its zero
+change.
+%
+This ensures that at a boxed function type, we will always have a derivative (a
+zero change) available.
+
+The logical relation is defined on simple values, and so before we can state the
+fundamental theorem, we have to extend it to contexts $\G$ and substitutions,
+letting $\rho,\rho' \in \den{\G}$, $\g,\g' \in \den{\Phi\G}$, and $\dgamma \in
+\den{\DP\G}$:
+
+\nopagebreak[1]
+\begin{align*}
+  \weirdat{\G}{\dgamma}{\g}{\rho}{\g'}{\rho'}
+  &\iff \fa{\hm x A \in \G}
+  \weirdat{A}{\dgamma_{\mvar\dx}}{\g_{\mvar x}}{\rho_{\mvar x}}{\g'_{\mvar x}}{\rho'_{\mvar x}}
+  \\
+  &\hphantom{{}\iff{}} \hspace*{-15.9pt} \wedge \fa{\hd x A \in \G}
+  \weirdat{\iso A}
+          {\etuple{}}
+          {(\g_{\dvar \dx}, \g_{\dvar x})}
+          {\rho_{\dvar x}}
+          {(\g'_{\dvar\dx}, \g'_{\dvar x})}
+          {\rho'_{\dvar x}}
+\end{align*}
+
+\noindent
+With that in place, we can state the fundamental theorem, showing that
+$\phi$ and $\delta$ generate expressions which satisfy this logical
+relation:
+
+\begin{theorem}[Fundamental property]\label{theorem-seminaive-fundamental}
+  If\/ $\J e \G A$ and\/ $\weirdat{\G}{\dgamma}{\g}{\rho}{\g'}{\rho'}$ then
+  \[\weirdat{A}{\den{\delta e} \<\tuple{\g,\dgamma}}{\den{\phi
+      e}\<\g}{\den{e}\<\rho}{\den{\phi e}\<\g'}{\den{e}\<\rho'}\]
+\end{theorem}
+
+\begin{proof}
+  See \cref{proof-fundamental-property}. \todo{prove fundamental property}
+\end{proof}
+
+\noindent
+This theorem follows by a structural induction on typing derivations as usual,
+but requires a number of lemmas.
+%
+By and large, these lemmas generalize or build on results stated earlier
+regarding the simpler change structures from \cref{section-change-structures}.
+%
+For example, we build on \cref{lemma-phi-eqt,lemma-dummy-change} to
+characterize the logical relation at equality types $\eqt A$ and the behavior of
+\dummy:
+
+\begin{lemma}[Equality changes]\label{lemma-equality-changes}
+  If\/ $\weirdat{\eqt A}{\dx}{x}{a}{y}{b}$ then\/ $x = a$ and\/ $y = b$.
+\end{lemma}
+
+\begin{lemma}[Dummy is zero at eqtypes]\label{lemma-lr-dummy}
+  If\/ $x \in \den{\eqt A}$ then $\weirdat{\eqt A}{\dummy\<x}{x}{x}{x}{x}$.
+\end{lemma}
+
+\begin{proof}
+  Induct on $\eqt A$. \todo{check equality changes \& dummy zero proofs}
+\end{proof}
+
+\noindent
+\Cref{lemma-equality-changes} tells us that at equality types, the sped-up version
+of a value is the value itself. This is used later to prove our adequacy
+theorem.
+%
+\Cref{lemma-lr-dummy} is an analogue of \cref{lemma-dummy-change}, showing that
+\dummy\ function computes zero changes at equality types.
+%
+This is used in the proof of the fundamental theorem for \kw{for}-loops,
+in whose $\phi$ and $\delta$ translations $\zero$ is implemented by \dummy.
+
+Next, we generalize \cref{lemma-DeltaL} to characterize changes at semilattice
+type:
+
+%% The lemma involves the lattice types, showing that a change for a lattice type
+%% $L$ is something that can be joined on to it:
+
+\begin{lemma}[Semilattice changes]
+  At any semilattice type\/ $L$, we have\/ $\Delta L = L$, and moreover\/
+  $\weirdat{L}{\dx}{x}{a}{y}{b}$ iff\/ $x = a$ and\/ $y = b = x \vee_L \dx$
+\end{lemma}
+
+\begin{proof}
+  By induction on semilattice types $L$, applying \cref{lemma-equality-changes}
+  (noting that every semilattice type is an equality type).
+\end{proof}
+
+\noindent
+We require this lemma in the proofs of the fundamental theorem in all the
+cases involving semilattice types -- namely $\bot$, ${\vee}$, \kw{for},
+and \kw{fix}.
+
+Since typing rules that involve discreteness (such as the $\iso$ rules)
+manipulate the context, we need some lemmas regarding these manipulations.
+First, we show that all valid changes for a context with only discrete variables
+send substitutions to themselves, recalling that $\stripcx{\G}$ contains only the
+discrete variables from $\G$.
+
+\begin{lemma}[Discrete contexts don't change]
+  If\/ $\weirdat{\stripcx{\G}}{\tuple{}}{\gamma}{\rho}{\gamma'}{\rho'}$ then\/
+  $\gamma = \gamma'$ and\/ $\rho = \rho'$.
+\end{lemma}
+
+\begin{proof}
+  \todo{sketch discrete contexts don't change proof}
+\end{proof}
+
+\noindent
+We use this lemma in combination with the next, which says that any valid
+context change gives rise to a valid change on a stripped context:
+
+\begin{lemma}[Context stripping]
+  If\/ $\weirdat{\G}{\dgamma}{\gamma}{\rho}{\gamma'}{\rho'}$
+  then
+
+  \[
+  \weirdat
+      {\stripcx{\G}}
+      {\tuple{}}
+      {\strip_{\Phi\G}(\g)}
+      {\strip_{\G}(\rho)}
+      {\strip_{\Phi\G}(\g')}
+      {\strip_{\G}(\rho')}
+  \]
+
+  where $\strip_\G = \fork{\pi_{\dvar x}}_{\hd x A \in \G}$ keeps only the
+  discrete variables from a substitution.
+\end{lemma}
+
+\begin{proof}
+  \todo{sketch context stripping proof}
+\end{proof}
+
+\noindent
+Jointly, these two lemmas ensure that a valid change to any context is an
+identity on the discrete part. We use these in all the cases of the fundamental
+theorem involving discrete expressions -- equality $\eeq{e_1}{e_2}$, set
+literals $\esetsub{e_i}{i}$, emptiness tests $\eisempty e$, and box
+introduction $\ebox e$.
+
+Combining all these lemmas to establish the fundamental theorem, adequacy
+follows immediately:
+
+\begin{theorem}[Adequacy]
+  If\/ $\J e {\emptycx} {\eqt A}$ then\/ $\den{e} = \den{\phi e}$.
+\end{theorem}
+
+\begin{proof}
+  By \cref{theorem-seminaive-fundamental}, noting the premise is trivial since
+  the context is empty, we have %
+  $\weirdat{\eqt A}{\den{\delta e}}{\den{\phi e}}{\den{e}}{\den{\phi e}}{\den{e}}$%
+  , which by \cref{lemma-equality-changes} implies $\den{\phi e} = \den{e}$.
+\end{proof}

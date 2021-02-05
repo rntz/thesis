@@ -66,7 +66,7 @@ simply distributes.
 In particular, source programs and sped-up programs agree on the shape of
 first-order data:
 
-\begin{lemma}\label{thm:phi-eqt}
+\begin{lemma}\label{lemma-phi-eqt}
   $\Phi\eqt A = \eqt A$.
 \end{lemma}
 
@@ -74,7 +74,7 @@ first-order data:
  Induct on $\eqt A$.
 \end{proof}
 
-%\noindent
+\noindent
 As we'll see in \cref{section-var-fn-app,section-phi-delta-box}, $\phi$ and $\delta$ are
 mutually recursive. To make this work, $\delta e$ must find the change to $\phi
 e$ rather than $e$.
@@ -161,7 +161,7 @@ $\iso$, $\Phi$, and $\D$ on the semantics of $\G$:
 These defined, we can state the types of $\phi e$ and $\delta e$:
 
 \begin{theorem}[well-typedness]
-  \label{thm:type-correct}
+  \label{theorem-type-correct}
   If\/ $\J e \G A$, then $\phi e$ and $\delta e$ have the following types:
   \begin{align*}
     \Jalign {\phi e} {\Phi\G} {\Phi A}\\
@@ -185,7 +185,7 @@ and $\DP(\G \to A)$ respectively:
 %% TODO: can I maybe cut this bit?
 \noindent
 To get the hang of these context and type transformations, suppose $\J
-e {\hd x A, \hm y B} C$. Then \cref{thm:type-correct} tells us:
+e {\hd x A, \hm y B} C$. Then \cref{theorem-type-correct} tells us:
 
 \nopagebreak[1]
 \begin{align*}
@@ -243,10 +243,10 @@ In a fixed point expression $\efix e$, we know $e : \isofixLtoL$. Consequently t
   \\
   &= \iso((\kernfixtL \to \fixtLkern) \x
   (\iso\fixt L \to \D \fixt L \to \D\fixtLkern)
-  & \text{by \cref{thm:phi-eqt}, }\Phi\fixt L = \fixt L
+  & \text{by \cref{lemma-phi-eqt}, }\Phi\fixt L = \fixt L
   \\
   &= \iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)
-  & \text{by \cref{lem:DeltaL}, }\Delta \fixt L = \fixt L
+  & \text{by \cref{lemma-DeltaL}, }\Delta \fixt L = \fixt L
 \end{align*}
 
 \noindent
@@ -271,9 +271,10 @@ give it a typing rule and semantics:
   \end{aligned}
 \end{align*}
 
+\noindent
 As for $\delta(\efix e)$, since $e$ can't change (having $\iso$ type), neither
 can $\efix e$ (or $\fastfix\<\phi e$). All we need is a zero change at type
-$\fixtLkern$; by \cref{lem:DeltaL}, $\bot$ suffices.
+$\fixtLkern$; by \cref{lemma-DeltaL}, $\bot$ suffices.
 
 
 \subsection{Variables, \boldfn, and application}
@@ -297,7 +298,7 @@ The intuition behind $\delta(\efn x e) = \fnof{\pboxvar x} \efn\dx \delta e$ is
 that a function change takes two arguments, a base point $\dvar x$ and a change
 $\mvar\dx$, and yields the change in the result of the function, $\delta e$.
 However, we are given an argument of type $\iso \Phi A$, but consulting
-\cref{thm:type-correct} for the type of $\delta e$, we need a discrete variable
+\cref{theorem-type-correct} for the type of $\delta e$, we need a discrete variable
 $\hd x {\Phi A}$, so we use pattern-matching to unbox our argument.
 
 The intuition behind $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$ is
@@ -340,7 +341,7 @@ zero change; since $e$ is discrete and cannot change, we use $\delta e$.
 %
 However! In general, one cannot use $\delta$ inside the $\phi$ translation and
 expect the result to be well-typed; $\phi$ and $\delta$ require different typing
-contexts. To see this, let's apply \cref{thm:type-correct} to singleton
+contexts. To see this, let's apply \cref{theorem-type-correct} to singleton
 contexts:
 
 \begin{center}
@@ -487,7 +488,7 @@ computes zero changes:
 %% TODO: explain why this can't work at function types, which is one reason we
 %% restrict sets to containing first-order data?
 
-\begin{lemma} \label{lem:dummy-change}
+\begin{lemma} \label{lemma-dummy-change}
   If $x : \eqt A$ then
   $\changesat{\eqt A}{\dummy\<x}{x}{x}$.
 \end{lemma}
