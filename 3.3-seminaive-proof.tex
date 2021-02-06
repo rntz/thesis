@@ -21,14 +21,13 @@ using a logical relation, and use this relation to prove an \emph{adequacy
   theorem} saying that the semantics is preserved for closed, first-order
 programs.
 
-\todo{figure with logical relation}
-%\input{fig-logical-relation}
+\input{3-figure-logical-relation}
 
 So, inductively on types $A$, letting $a,b \in \den{A}$, $x,y \in \den{\Phi A}$,
 and $\dx \in \den{\DP A}$, we define a five place relation
 $\weirdat{A}{\dx}{x}{a}{y}{b}$, meaning roughly ``$x,y$ speed up $a,b$
 respectively, and $\dx$ changes $x$ into $y$''. The full definition is in
-\cref{fig:logical-relation}.
+\cref{figure-seminaive-logical-relation}.
 
 At product, sum, and function types this is essentially a more elaborate version
 of the change structures given in \cref{section-change-structures}.

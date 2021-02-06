@@ -1,0 +1,24 @@
+\emph{Chapter 4: Implementation}
+
+\newcommand\deep{\mathvar{dp}}
+
+The previous chapter was entirely theoretical, formalizing the intuition that
+semi\naive\ evaluation works by computing the changes between iterations toward
+a fixed point by, first, constructing a theory of changes four datafun; and
+second, applying that theory to construct and prove correct a program
+transformation which implements this strategy. However, the purpose of
+semi\naive\ evaluation is not to push changes around, but to compute results
+faster. We have proven that our transformed program computes the same result,
+but not shown that it does so more efficiently.
+
+In this chapter we remedy this experimentally. First, we apply our program
+transformation to our running example, transitive closure. In the process we
+observe a few additional optimizations necessary to reap the efficiency
+benefits of seminaive evaluation. We discuss our implementation of the
+semi\naive\ program transformation and these optimizations and measure their
+effect on the performance of some example program.
+
+\todo{rewrite/edit/restructure from here on}
+
+\input{4.1-seminaive-trans}
+\input{4.2-implementation-optimization}

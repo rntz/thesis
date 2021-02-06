@@ -1,0 +1,198 @@
+\section{Applying the semi\naive\ transformation to transitive closure}
+\label{section-seminaive-trans}
+
+\todo{rewrite this with new efix \& fastfix}
+
+Let's try applying the semi\naive\ transform to a simple Datafun program: the
+transitive closure function \name{trans} from
+\cref{section-datafun-transitive-closure}:
+
+\begin{code}
+  \name{trans} \< \pbox{\dvarlong{edge}}
+  = \efixis{r}{\dvarlong{edge} \cup (\dvarlong{edge} \bullet \mvar r)}
+  \\
+  \mvar s \bullet \mvar t =
+  \efor{\etuple{\dvar x, \yone} \in \mvar s,\,
+        \etuple{\ytwo , \dvar z} \in \mvar t}
+  \ewhen{\eeq{\yone}{\ytwo}} \eset{\etuple{\dvar x, \dvar z}}
+\end{code}
+
+\noindent
+In the process we'll discover that besides $\phi$ itself we need a few simple
+optimisations to actually speed up our program: most importantly, we need to
+propagate $\bot$ expressions.
+
+In our experience, performing $\phi$ and $\delta$ by hand is easiest when you
+work inside-out. At the core of transitive closure is a relation composition,
+$(\dvar e \bullet p)$, and at the core of relation composition is a
+\kw{when}-expression. Let's take a look at its $\phi$ and $\delta$ translations:
+
+%% Avoid overfull hboxes in this section
+\setlength\codeoffset{17.1pt}
+
+\begin{flail}
+  \phi(\ewhen {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  &= \phi(\efor {\etuple{} \in \eeq \yone \ytwo} \eset{\etuple{\dvar x,
+      \dvar z}})
+  && \text{desugar \kw{when}}
+  \\
+  &= \efor{\etuple{} \in \eeq \yone \ytwo}
+  \phi{\eset{\etuple{\dvar x, \dvar z}}}
+  && \text{apply $\phi$, omitting an unused \kw{let}}\\
+  &= \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  && \text{resugar}
+\end{flail}
+
+\noindent
+Frequently, as in this case, $\phi$ does nothing interesting. For brevity we'll
+skip such no-op translations.
+
+\begin{flail}
+  &\mathrel{\hphantom{=}}
+  \delta(\ewhen {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \\
+  &= \delta(\efor{\etuple{} \in \eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  && \text{desugar \kw{when}}
+  \\
+  &= \hphantom{{}\cup} \efor{\etuple{} \in \delta(\eeq \yone \ytwo)}
+  \phi\eset{\etuple{\dvar x, \dvar z}}
+  %% this generates two "Overfull \vbox" warnings. :(
+  && \multirow{2}{*}{\text{apply $\phi$, omitting unused \kw{let}s}}
+  \\
+  &\hphantom{={}} \cup
+  \efor{\etuple{} \in \phi(\eeq \yone \ytwo) \cup \delta(\eeq \yone \ytwo)}
+  \delta\eset{\etuple{\dvar x, \dvar z}}
+  \\
+  &= \efor{\etuple{} \in \bot} \eset{\etuple{\dvar x, \dvar z}}
+  \cup \efor{\etuple{} \in \phi(\eeq \yone \ytwo) \cup \bot} \bot
+  && \text{apply $\phi(\eeq \yone \ytwo)$ and $\delta\eset{\etuple{\dvar x, \dvar z}}$}
+  \\
+  &= \bot && \text{propagate }\bot
+\end{flail}
+
+\noindent
+The core insight here is that neither $\eeq \yone \ytwo$ nor
+$\eset{\etuple{\dvar x, \dvar z}}$ can change. Propagating this information --
+for example, rewriting $(\efor {...} \bot)$ to $\bot$ -- can simplify
+derivatives and eliminate expensive \kw{for}-loops.
+
+Now let's pull out and examine $\efor{\etuple{\ytwo, \dvar z} \in t}
+\ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}$. The $\phi$
+translation is again a no-op.
+
+\begin{flail}
+  &\mathrel{\hphantom{=}}
+  \delta(\efor{\etuple{\ytwo, \dvar z} \in t}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \\
+  &= \hphantom{{}\cup} \efor{\etuple{\ytwo, \dvar z} \in \dt}
+  \phi(\ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  && {\text{apply $\delta$, omitting some unused \kw{let}s}}
+  \\
+  &\hphantom{{}=} \cup \efor{\etuple{\ytwo, \dvar z} \in t \cup \dt}
+  \delta(\ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \\
+  &= \efor{\etuple{\ytwo, \dvar z} \in \dt}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  && \text{applying prior work, propagating }\bot
+\end{flail}
+
+\noindent Tackling the outermost \kw{for} loop:
+
+\begin{flail}
+  &\mathrel{\hphantom{=}}
+  \delta(
+  \efor{\etuple{\dvar x, \yone} \in s}
+  \efor{\etuple{\ytwo, \dvar z} \in t}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \\
+  &= \efor{\etuple{\dvar x, \yone} \in \ds}
+  \phi(\efor{\etuple{\ytwo, \dvar z} \in t}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  && \text{definition of $\delta(\kw{for} \dots)$}
+  \\
+  &\cup \efor{\etuple{\dvar x, \yone} \in s \cup \ds}
+  \delta(\efor{\etuple{\ytwo, \dvar z} \in t}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \\
+  &= \efor{\etuple{\dvar x, \yone} \in \ds}
+  \efor{\etuple{\ytwo, \dvar z} \in t}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  && \text{applying prior work}
+  \\
+  &\cup
+  \efor{\etuple{\dvar x, \yone} \in s \cup \ds}
+  \efor{\etuple{\ytwo, \dvar z} \in \dt}
+  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  \\
+  &= (\ds \bullet t) \cup ((s \cup \ds) \bullet \dt)
+  && \text{rewriting in terms of ${\bullet}$}
+\end{flail}
+
+\noindent
+This, then, is the derivative $\delta(s \bullet t)$ of relation composition.
+With a bit of rewriting, this is equivalent to $(\ds \bullet t) \cup (s \bullet
+\dt) \cup (\ds \bullet \dt)$, which is perhaps the derivative a human would
+give.
+
+Let's use this to figure out $\phi(\name{trans}\<\eboxvar{e})$. Working inside
+out, we start with the derivative of the loop body, $\delta(\dvar e \cup (\dvar
+e \bullet p))$:
+
+\begin{flail}
+  \delta({\dvar e \cup (\dvar e \bullet p)})
+  &= \delta\dvar e \cup \delta(\dvar e \bullet p)\\
+  &= \delta\dvar e
+  \cup (\delta\dvar e \bullet p)
+  \cup ((\dvar e \cup \delta\dvar e) \bullet \deep)
+  \\
+  &= \bot \cup (\bot \bullet p) \cup ((\dvar e \cup \bot) \bullet \deep)
+  && \delta\dvar e ~\text{is a zero change; insert }\bot
+  \\
+  &= \dvar e \bullet \deep
+  && \text{propagate}~\bot
+\end{flail}
+
+\noindent
+The penultimate step requires a new optimization.
+%
+By definition $\delta\dvar e = \dvar{de}$, but since $\dvar e$ is discrete we
+know $\dvar{de}$ is a zero change, so we may safely replace it by $\bot$.
+
+Putting everything together, we have:
+
+\begin{flail}
+  \phi(\efixis{p}{\dvar e \cup (\dvar e \bullet p)}
+  &= \phi(\efix \ebox{\fnof{p} \dvar e \cup (\dvar e \bullet p)})
+  && \text{desugaring}
+  \\
+  &= \fastfix\< \phi\ebox{\fnof{p} \dvar e \cup (\dvar e \bullet p)}
+  \\
+  &= \fastfix\<\bigeboxtuple{\phi({\fnof{p} \dvar e \cup (\dvar e \bullet p)}),\
+  \delta({\fnof{p} \dvar e \cup (\dvar e \bullet p)})}
+  \\
+  &= \fastfix\<\bigeboxtuple{
+      ({\fnof{p} \dvar e \cup (\dvar e \bullet p)}),\
+      ({\fnof{\pboxvar p} \fnof{\deep} \dvar e \bullet \deep})}
+  && \text{previous work}
+\end{flail}
+
+\noindent
+Examining the recurrence produced by this use of \fastfix, we recover the
+semi\naive\ transitive closure algorithm from
+\cref{sec:seminaive-tc-in-datafun}:
+
+\nopagebreak[4]
+\begin{align*}
+  x_0 &= \bot & x_{i+1} &= x_i \cup \dx_i\\
+  \dx_0 &= ({\fnof{p} \dvar e \cup (\dvar e \bullet p)}) \<\bot
+  = \dvar e
+  &
+  \dx_{i+1} &=
+  ({\fnof{\pboxvar p} \fnof{\dx} \dvar e \bullet \deep})
+  \<\ebox{x_i} \<\dx_i
+  = \dvar e \bullet \dx_i
+\end{align*}
+
+\setlength\codeoffset{20pt}     %restore.
+

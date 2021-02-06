@@ -4,7 +4,7 @@
 \usepackage{booktabs}           % \midrule
 \usepackage{mathpartir}         % \begin{mathpar}, \infer, etc.
 \usepackage{mathtools}          % vertical centered colon, \dblcolon, \Coloneqq
-%\usepackage{multirow}           % \multirow
+\usepackage{multirow}           % \multirow
 \usepackage{nccmath}      % fleqn environment, fix spacing around AMS math environments like align*; but also creates spacing problems around mathpar :(
 %\usepackage{pgfplots}\pgfplotsset{compat=1.5}
 \usepackage{amsmath}
@@ -71,6 +71,15 @@
 }
 
 \NewEnviron{datalog}{
+  \begin{fleqn}[\codeoffset]
+    \begin{align*}
+      \BODY
+    \end{align*}
+  \end{fleqn}
+}
+
+%% TODO: rename
+\NewEnviron{flail}{
   \begin{fleqn}[\codeoffset]
     \begin{align*}
       \BODY
@@ -188,8 +197,8 @@
 %% \newcommand\daggereq{\overset{\dagger}{=}}
 %% \newcommand\stardaggereq{\overset{\boldsymbol\star\dagger}{=}}
 
-%% %% Used in sections 7 & 8
-%% \newcommand\rewrites\leadsto
+%% Used in ch4, implementation.
+\newcommand\rewrites\leadsto
 
 
 %% ===== Semantic and categorical notation =====
@@ -324,9 +333,10 @@
 \newcommand\eiter[5][]{\prim{iter}_{#1}({#2},\, {#3},\, {#4}.\fnspace {#5})}
 \newcommand\stepsto{\longmapsto}
 
-%% \newcommand\bigeboxraw[1]{\bigl[{#1}\bigr]}
-%% \newcommand\bigebox[1]{\eiso{\bigeboxraw{#1}}}
-%% \newcommand\bigeboxtuple[1]{\bigebox{\etuple{#1}}}
+%% Used in ch4, 4-implementation.tex.
+\newcommand\bigeboxraw[1]{\bigl[{#1}\bigr]}
+\newcommand\bigebox[1]{\eiso{\bigeboxraw{#1}}}
+\newcommand\bigeboxtuple[1]{\bigebox{\etuple{#1}}}
 
 % discrete operators without \isocolor
 \newcommand\esetraw[1]{\{{#1}\}}
