@@ -1,6 +1,6 @@
 % draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,draft,]{article}
+\documentclass[12pt,]{article}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
@@ -40,7 +40,14 @@
 \let\rmdefault\oldrmdefault
 
 \linespread{1.06667} %\linespread{1.07249} %\linespread{1.08333}
-\frenchspacing\usepackage[tracking=true,letterspace=75,]{microtype}
+\frenchspacing
+\usepackage[tracking=true,letterspace=75,]{microtype}
+% 4-figure-seminaive-vs-naive-graph
+\SetTracking{encoding=*,family=sf*,shape=sc,}{50}
+\SetTracking{encoding=*,family={sf*,AlegreyaSans-TLF},shape=*,size=scriptsize}
+            {14} % ideally 20, but overfull hbox
+\SetTracking{encoding=*,family={sf*,AlegreyaSans-TLF},shape=sc*,size=scriptsize}
+            {50} % ideally 50-60 but overfull hbox
 
 
 %% -- ETC --

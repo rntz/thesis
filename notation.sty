@@ -6,13 +6,13 @@
 \usepackage{mathtools}          % vertical centered colon, \dblcolon, \Coloneqq
 \usepackage{multirow}           % \multirow
 \usepackage{nccmath}      % fleqn environment, fix spacing around AMS math environments like align*; but also creates spacing problems around mathpar :(
-%\usepackage{pgfplots}\pgfplotsset{compat=1.5}
+\usepackage{pgfplots}\pgfplotsset{compat=1.5} % tikzpicture environment
 \usepackage{amsmath}
 %\usepackage{placeins}           %\FloatBarrier
 \usepackage{stmaryrd}           % \shortrightarrow, \llbracket, etc.
 %\usepackage{subcaption}   % for complex figures with subfigures/subcaptions
 \usepackage{adjustbox}          % \adjustbox (used for eg \iso)
-%\usepackage{tabu}               % tabu environment, \rowfont
+\usepackage{tabu}               % tabu environment, \rowfont
 \usepackage{environ}            % \NewEnviron
 %\usepackage{pifont}             % \ding{55}
 \usepackage{ifthen}             % \ifthenelse
@@ -403,3 +403,6 @@
 \renewcommand\fixtLkern{\fixt{L}}
 \renewcommand\kernfixtL{\fixt{L}}
 
+%% used in example code
+\newcommand\bone{\dvar b_{1}} \newcommand\btwo{\dvar b_{2}}
+\newcommand\yone{\dvar y_{1}} \newcommand\ytwo{\dvar y_{2}}
