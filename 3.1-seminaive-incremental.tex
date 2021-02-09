@@ -335,8 +335,7 @@ semi\naive\ evaluation -- indeed, $\name{step}'$ is a zero change to
   \changesat{\tseteq A}{\name{step}'\<\dx}{\name{step}\<x}{\name{step}\<y}
   \\
   % should make a box that is as wide as \implies here.
-  &\textit{that is,}
-%  &\omit\hphantom{wut}\clap{\text{\emph{equivalently}}}
+  &\parbox[t]{\widthof{${}\implies{}$}}{\centering\emph{i.e.}}
   \\[2.5pt]
   x \cup \dx = y
   &\implies
@@ -384,9 +383,9 @@ some finite number of iterations $i$ such that $x_i = x_{i+1}$.
 
 This leads directly to our strategy for semi\naive\ Datafun.
 %
-\Citet{incremental} defines a static transformation $\Deriv e$ which computes
-the change in $e$ given the change in its free variables; it
-\emph{incrementalizes} $e$.
+The original incremental \fn-calculus~\citep{incremental} defines a static
+transformation $\Deriv e$ which computes the change in $e$ given the change in
+its free variables; it \emph{incrementalizes} $e$.
 %
 Our goal is not to incrementalize Datafun \emph{per se}, but to find fixed
 points faster.

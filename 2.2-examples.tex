@@ -22,7 +22,7 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
 
 \item We make use of set comprehensions, which can be desugared into the monadic
-  operator \kw{for} in the usual way~\cite{wadler-monad-comprehensions}.
+  operator \kw{for} in the usual way~\citep{wadler-monad-comprehensions}.
 
 \item We make free use of curried functions and pattern matching. Desugaring
   these is relatively standard, and so we will say little about it, with one
@@ -47,6 +47,7 @@ pattern matching and algebraic datatypes, which are standard).
 \label{set-operations-and-relational-algebra}
 
 \todo{reorder this to introduce equality patterns.}
+\splittodo{introduce not-a-member function}{$\notmember{x}{s}$, it's used in dataflow examples, eg. in \name{live}}
 
 \newcommand\mem{\name{member}}
 
@@ -408,7 +409,7 @@ semantics of Datafun.
 \label{cyk-parsing}
 
 Parsing can be understood logically: a parse tree is a proof that a string
-belongs to a language, and parsing is proof search~\cite{deductive-parsing}.
+belongs to a language, and parsing is proof search~\citep{deductive-parsing}.
 %
 One of the simplest parsing algorithms is the Cocke-Younger-Kasami (CYK)
 algorithm for parsing grammars in Chomsky normal form; that is, where each
@@ -655,6 +656,7 @@ Next we give one of the classic forwards dataflow analyses: reaching
 definitions. This determines which program points the value assigned by a
 particular statement (a ``definition'') can reach.
 
+\nopagebreak[2]
 \begin{code}
   \name{reaching} \isa \iso\typename{program} \to \iso\typename{flow} \to
   \tset{\typename{var} \x \typename{label} \x \typename{label}}\\

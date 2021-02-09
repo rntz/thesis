@@ -36,10 +36,11 @@
            \fork{\den{\J {e_1} \G {A_1}},\, \den{\J {e_2} \G {A_2}}} \\
       \den{\J {\pi_i\<e} \G {A_i}} &=& \den{\J e \G {A_1 \times A_2}} \then \pi_i \\
       \den{\J {\inj i e} \G {A_1 + A_2}} &=& \den{\J e \G {A_i}} \then \injc_i \\
-      \den{\J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B} &=&
-        \fork{\id_{\den\G},\, \den{\J e \G {A_1 + A_2}}}
-        \then \morph{dist}^\x_+
-        \then \bigkrof{\den{\J {f_i} {\G,\, \hm {x_i} {A_i}} B}}_{i\in\{1,2\}} \\
+      \den{\J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B}
+      &=& \fork{\id_{\den\G},\, \den{\J e \G {A_1 + A_2}}} \\
+      && \quad{} \then \morph{dist}^\x_+
+      \\
+      && \quad{} \then \bigkrof{\den{\J {f_i} {\G,\, \hm {x_i} {A_i}} B}}_{i\in\{1,2\}} \\
       \den{\J {\ebox e} \G {\iso A}} &=& \mkbox_\G(\den {\J e {\stripcx \G} A}) \\
       \den{\J {\elet{\ebox x = e} f} \G B} &=&  \fork{\id_{\den{\G}}, \den{\J e \G {\iso A}}} \then \den{\J f {\G, \hd x A} B}  \\
       \den{\J \bot \G L} &=& \fork{} \then \morphjoin{\den L}{0} \\

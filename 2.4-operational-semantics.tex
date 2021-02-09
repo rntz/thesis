@@ -23,12 +23,12 @@ In our operational semantics we:
 \end{enumerate}
 
 \noindent
-We use a small-step operational semantics with evaluation contexts $E$ after the
-style of \cref{felleisen-hieb-1992} to enforce a call-by-value evaluation order;
-an evaluation context $E$ is an expression with a hole in it, written
-$\emptyhole$, such that whatever is in the hole is next in line to be evaluated
-(if it is not a value already). To fill the hole in an evaluation context $E$
-with the expression $e$, we write $\fillhole{E}{e}$.
+We use a small-step operational semantics with evaluation contexts
+$E$~\citep{felleisen-hieb-1992} to enforce a call-by-value evaluation order; an
+evaluation context $E$ is an expression with a hole in it, written $\emptyhole$,
+such that whatever is in the hole is next in line to be evaluated (if it is not
+a value already). To fill the hole in an evaluation context $E$ with the
+expression $e$, we write $\fillhole{E}{e}$.
 
 We define a relation $e \stepsto e'$ for expressions $e$ whose outermost
 structure is immediately reducible; we extend this relation to all

@@ -43,7 +43,7 @@ for $(\eletbox x e f)$ allows us to ``cash in'' a boxed expression $e : \iso A$
 by binding its result to a discrete variable $\hd x A$ in the body $f$.
 
 At this point, our typing rules correspond to standard constructive S4 modal
-logic~\cite{jrml}. We get to Datafun by adding a handful of domain-specific
+logic~\citep{jrml}. We get to Datafun by adding a handful of domain-specific
 types and operations.
 %
 First, \rn{split} provides an operator $\prim{split} : \iso(A + B) \to \iso A +
@@ -279,7 +279,7 @@ We interpret Datafun types and typing contexts as \Poset-objects $\den{A},
 \den{\G}$ and well-typed Datafun terms (or more precisely, their typing
 derivations) $\J e \G A$ as \Poset-morphisms $\den{\G} \to \den A$.
 %
-This follows the usual interpretation for constructive S4~\cite{depaiva-s4},
+This follows the usual interpretation for constructive S4~\citep{depaiva-s4},
 with the addition of sets, semilattices, fixed points, and the ability to
 distribute $\iso$ over sums.
 %

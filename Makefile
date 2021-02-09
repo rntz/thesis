@@ -37,7 +37,8 @@ thesis.pdf: 2-datafun.tex 3-seminaive.tex
 # "live". You can also specify a target to recompile, eg. `make watch:foo.pdf`.
 # It's a bit overenthusiastic, though; it reruns when ANYTHING changes.
 watch: watch\:all
-watch\:%: %
+watch\:%:
+	make --no-print-directory -j $^
 	@while inotifywait -e modify -r . >/dev/null 2>&1; do \
 		echo; \
 		make --no-print-directory -j $^; \
