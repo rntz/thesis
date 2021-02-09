@@ -3,7 +3,6 @@
 
 
 \subsection{Semi\naive\ evaluation as incremental computation}
-%\label{section-seminaive-tc-in-datafun}
 
 Let's return to our example Datalog program~\todo{cross reference Datalog
   transitive closure example}, modified to consider graphs rather than ancestry:
@@ -51,6 +50,8 @@ $\Theta(n^3)$ deductions in total.
 %
 There being only $\Theta(n^2)$ paths in the final result, this is terribly
 wasteful; hence we term this \emph{\naive\ evaluation}.
+
+\label{section-seminaive-tc-in-datafun}
 
 Now let's move from Datalog to Datafun.\footnote{In this section we do not
   bother distinguishing monotone variables $\mvar x$ or discrete expressions

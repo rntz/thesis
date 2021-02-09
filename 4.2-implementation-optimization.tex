@@ -1,5 +1,5 @@
 \section{Implementation and optimization}
-\label{sec:implementation}
+\label{section-implementation}
 
 \todo{expand and edit this section}
 
@@ -38,14 +38,14 @@ gains we claim, we benchmark two example Datafun programs:
 
 \begin{enumerate}
 \item Finding the transitive closure of a linear graph using the \name{trans}
-  function from \cref{sec:generic-transitive-closure}. We chose this example
-  because, as discussed in \cref{sec:seminaive-and-ilc}, it has a well
+  function from \cref{section-generic-transitive-closure}. We chose this example
+  because, as discussed in \cref{section-seminaive-and-ilc}, it has a well
   understood asymptotic speed-up under semi\naive\ evaluation. This means that
   if we've failed to capture the essence of semi\naive\ evaluation, it should be
   highly visible.
 
 \item Finding all matches of the regular expression \texttt{/a*/} in the string
-  $\texttt{a}^n$, using the regex combinators from \cref{sec:regex-combinators}.
+  $\texttt{a}^n$, using the regex combinators from \cref{section-regex-combinators}.
   Finding all matches for \texttt{/a*/} amounts to finding the reflexive,
   transitive closure of the matches of \texttt{/a/}, and on $\texttt{a}^n$ these
   form a linear graph. Thus it is a close computational analogue of our first
@@ -88,7 +88,7 @@ We believe this is because both $\phi(\eforin x e ...)$ and $\delta(\eforin x e
 ...)$ produce loops that iterate over at least every $\dvar x \in \phi e$.
 Consulting our logical relation at set type, we see that in this case $e$ and
 $\phi e$ will be identical, and so the number of iterations never shrinks.
-However, as demonstrated in \cref{sec:seminaive-examples}, if the body can be
+However, as demonstrated in \cref{section-seminaive-examples}, if the body can be
 simplified to $\bot$, then we can eliminate the loop entirely by rewriting
 $(\eforin x e \bot)$ to $\bot$, which allows for asymptotic improvement.
 
