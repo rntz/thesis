@@ -72,14 +72,16 @@ With that in place, we can state the fundamental theorem, showing that
 $\phi$ and $\delta$ generate expressions which satisfy this logical
 relation:
 
-\begin{theorem}[Fundamental property]\label{theorem-seminaive-fundamental}
-  If\/ $\J e \G A$ and\/ $\weirdat{\G}{\dgamma}{\g}{\rho}{\g'}{\rho'}$ then
+\begin{restatable}[Fundamental property]{theorem}{SeminaiveFundamental}
+  \label{theorem-seminaive-fundamental}
+  If $\J e \G A$ and $\weirdat{\G}{\dgamma}{\g}{\rho}{\g'}{\rho'}$ then
   \[\weirdat{A}{\den{\delta e} \<\tuple{\g,\dgamma}}{\den{\phi
       e}\<\g}{\den{e}\<\rho}{\den{\phi e}\<\g'}{\den{e}\<\rho'}\]
-\end{theorem}
+\end{restatable}
 
+\nopagebreak[2]
 \begin{proof}
-  See \cref{proof-fundamental-property}. \todo{prove fundamental property}
+  See \cref{proof-seminaive-fundamental}.
 \end{proof}
 
 \noindent
@@ -93,16 +95,27 @@ For example, we build on \cref{lemma-phi-eqt,lemma-dummy-change} to
 characterize the logical relation at equality types $\eqt A$ and the behavior of
 \dummy:
 
-\begin{lemma}[Equality changes]\label{lemma-equality-changes}
-  If\/ $\weirdat{\eqt A}{\dx}{x}{a}{y}{b}$ then\/ $x = a$ and\/ $y = b$.
-\end{lemma}
+%% \begin{lemma}[Equality Changes]
+%%   If $\weirdat{\eqt A}{\dx}{x}{a}{y}{b}$ then $x = a$ and $y = b$.
+%% \end{lemma}
 
-\begin{lemma}[Dummy is zero at eqtypes]\label{lemma-lr-dummy}
-  If\/ $x \in \den{\eqt A}$ then $\weirdat{\eqt A}{\dummy\<x}{x}{x}{x}{x}$.
-\end{lemma}
+%% \begin{lemma}[Dummy is zero at eqtypes]
+%%   If $x \in \den{\eqt A}$ then $\weirdat{\eqt A}{\dummy\<x}{x}{x}{x}{x}$.
+%% \end{lemma}
+
+\begin{restatable}[Equality changes]{lemma}{EqualityChanges}
+  \label{lemma-equality-changes}
+  If $\weirdat{\eqt A}{\dx}{x}{a}{y}{b}$ then $x = a$ and $y = b$.
+\end{restatable}
+% TODO: why is restatable adding so much vertical space here?
+\begin{restatable}[Dummy is zero at eqtypes]{lemma}{EqualityDummy}
+  \label{lemma-equality-dummy}
+  If $x \in \den{\eqt A}$ then $\weirdat{\eqt A}{\dummy\<x}{x}{x}{x}{x}$.
+\end{restatable}
 
 \begin{proof}
-  Induct on $\eqt A$. \todo{check equality changes \& dummy zero proofs}
+  In each case, induct on $\eqt A$. See
+  \cref{proof-equality-changes,proof-equality-dummy}.
 \end{proof}
 
 \noindent
@@ -110,8 +123,8 @@ characterize the logical relation at equality types $\eqt A$ and the behavior of
 of a value is the value itself. This is used later to prove our adequacy
 theorem.
 %
-\Cref{lemma-lr-dummy} is an analogue of \cref{lemma-dummy-change}, showing that
-\dummy\ function computes zero changes at equality types.
+\Cref{lemma-equality-dummy} is an analogue of \cref{lemma-dummy-change}, showing
+that \dummy\ function computes zero changes at equality types.
 %
 This is used in the proof of the fundamental theorem for \kw{for}-loops,
 in whose $\phi$ and $\delta$ translations $\zero$ is implemented by \dummy.
@@ -123,8 +136,8 @@ type:
 %% $L$ is something that can be joined on to it:
 
 \begin{lemma}[Semilattice changes]
-  At any semilattice type\/ $L$, we have\/ $\Delta L = L$, and moreover\/
-  $\weirdat{L}{\dx}{x}{a}{y}{b}$ iff\/ $x = a$ and\/ $y = b = x \vee_L \dx$
+  At any semilattice type $L$, we have $\Delta L = L$, and moreover
+  $\weirdat{L}{\dx}{x}{a}{y}{b}$ iff $x = a$ and $y = b = x \vee_L \dx$
 \end{lemma}
 
 \begin{proof}
@@ -143,21 +156,22 @@ First, we show that all valid changes for a context with only discrete variables
 send substitutions to themselves, recalling that $\stripcx{\G}$ contains only the
 discrete variables from $\G$.
 
-\begin{lemma}[Discrete contexts don't change]
-  If\/ $\weirdat{\stripcx{\G}}{\tuple{}}{\gamma}{\rho}{\gamma'}{\rho'}$ then\/
-  $\gamma = \gamma'$ and\/ $\rho = \rho'$.
-\end{lemma}
+\begin{restatable}[Discrete contexts don't change]{lemma}{DiscreteContexts}
+  If $\weirdat{\stripcx{\G}}{\tuple{}}{\gamma}{\rho}{\gamma'}{\rho'}$ then
+  $\gamma = \gamma'$ and $\rho = \rho'$.
+\end{restatable}
 
 \begin{proof}
-  \todo{sketch discrete contexts don't change proof}
+  \todo{sketch discrete contexts don't change proof}. See
+  \cref{proof-discrete-contexts}.
 \end{proof}
 
 \noindent
 We use this lemma in combination with the next, which says that any valid
 context change gives rise to a valid change on a stripped context:
 
-\begin{lemma}[Context stripping]
-  If\/ $\weirdat{\G}{\dgamma}{\gamma}{\rho}{\gamma'}{\rho'}$
+\begin{restatable}[Context stripping]{lemma}{ContextStripping}
+  If $\weirdat{\G}{\dgamma}{\gamma}{\rho}{\gamma'}{\rho'}$
   then
 
   \[
@@ -172,10 +186,10 @@ context change gives rise to a valid change on a stripped context:
 
   where $\strip_\G = \fork{\pi_{\dvar x}}_{\hd x A \in \G}$ keeps only the
   discrete variables from a substitution.
-\end{lemma}
+\end{restatable}
 
 \begin{proof}
-  \todo{sketch context stripping proof}
+  \todo{sketch context stripping proof}. See \cref{proof-context-stripping}.
 \end{proof}
 
 \noindent
@@ -189,7 +203,7 @@ Combining all these lemmas to establish the fundamental theorem, adequacy
 follows immediately:
 
 \begin{theorem}[Adequacy]
-  If\/ $\J e {\emptycx} {\eqt A}$ then\/ $\den{e} = \den{\phi e}$.
+  If $\J e {\emptycx} {\eqt A}$ then $\den{e} = \den{\phi e}$.
 \end{theorem}
 
 \begin{proof}

@@ -1,14 +1,17 @@
 % draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,]{article}
+\documentclass[12pt,draft,]{report}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
 % NB. rntzabstract not compatible with book.cls.
-\usepackage[a4]{rntzgeometry}
+\usepackage[a4,hratio=1:1,]{rntzgeometry}
 \usepackage{rntztitle,rntzsection,rntzfootnotes,rntzref,rntzthm}
 % Make section name references use \S.
 \makeatletter\crefname{section}{\S\@gobble}{\S\@gobble}\makeatother
+
+%% TODO: fiddle with page formatting, might want headers
+%\usepackage{fancyhdr} %?
 
 %% figure captions
 \usepackage{caption}
@@ -57,21 +60,26 @@
 \usepackage{notation}
 
 
-\includeonly{%
+\includeonly{
+  1-introduction,
   2-datafun,
   3-seminaive,
   4-implementation,
+  5-extensions,
+  6-related-work,
+  appendix-proofs,
 }
 \begin{document}
 
-%\chapter{Introduction}
-
+\include{1-introduction}
 \include{2-datafun}
 \include{3-seminaive}
 \include{4-implementation}
+\include{5-extensions}
+\include{6-related-work}
 
-%\chapter{Implementation}
-%\chapter{Related work}
+\appendix
+\include{appendix-proofs}
 
 %% ---------- Bibliography ----------
 %\FloatBarrier
