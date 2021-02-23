@@ -18,6 +18,8 @@
 \usepackage{ifthen}             % \ifthenelse
 \usepackage{textgreek}          % \textlambda
 \usepackage{calc}               % \widthof
+%\usepackage{lipsum}             % \lipsum
+\usepackage{enumitem}           % \setlist
 
 \hyphenation{semi-na\"ive} % TODO necessary? does it work?
 
@@ -35,6 +37,12 @@
 % Default to vertically centered colons. Doesn't quite work with euler, but
 % better than nothing.
 \mathtoolsset{centercolon}
+
+%% Adjust description lists to be more suitable for proofs by cases.
+\setlist[description]{
+  topsep=\parsep,
+  font={\mdseries\itshape},
+}
 
 %% More space around \cup, \vee, \wedge.
 \let\bincup\cup
@@ -87,6 +95,11 @@
     \end{align*}
   \end{fleqn}
 }
+
+% TODO: Case environment for proof by cases
+\newenvironment{proofcase}[1]
+  {\begin{quote}\noindent\emph{Case {#1}.}}
+  {\end{quote}}
 
 % space to put between functions/declaration groups in code blocks
 \newlength\betweenfunctionskip
