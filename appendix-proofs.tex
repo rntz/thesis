@@ -16,11 +16,37 @@ in the text.
 \EqualityChanges*
 \begin{proof}
   \label{proof-equality-changes}
-  By induction on $\eqt A$:
-%
+  By induction on $\eqt A$, applying the definition from
+  \cref{figure-seminaive-logical-relation}:
+
   \begin{description}
-    \item[Case $\tseteq{A}$]
-      \XXX
+    \item[Case $\tunit$.] Trivial.
+
+    \item[Case $\eqt A \x \eqt B$.] Then our assumption is equivalent to
+%
+      \[\weirdat{\eqt A \x \eqt B}{(\dx_1,\dx_2)}{(x_1,x_2)}{(a_1,a_2)}{(y_1,y_2)}{(b_1,b_2)}\]
+%
+      and by unfolding this we have
+      \(\weirdat{\eqt{A}}{\dx_1}{x_1}{a_1}{y_1}{b_1}\) and
+      \(\weirdat{\eqt{B}}{\dx_2}{x_2}{a_2}{y_2}{b_2}\), which by our induction
+      hypotheses show \(x_1 = a_1\), \(y_1 = b_1\) and \(x_2 = a_2\), \(y_2 = b_2\),
+      which suffices.
+
+    \item[Case $\eqt A_1 + \eqt A_2$.] Then for some $i \in \{1,2\}$ our
+      assumption is equivalent to
+%
+      \[
+      \weirdat{\eqt A_1 + \eqt A_2}{\inj i \dx}{\inj i x}{\inj i a}
+              {\inj i y}{\inj i b}
+      \]
+%
+      and by unfolding this we have \(\weirdat{\eqt{A}_i}{\dx}{x}{a}{y}{b}\),
+      which by our induction hypothesis implies \(x=a\) and \(y=b\), which
+      suffices.
+
+    \item[Case $\tseteq{A}$.] Then our assumption unfolds to \((x,y,x \cup \dx)
+      = (a,b,y)\), which suffices.
+      
   \end{description}
 \end{proof}
 
