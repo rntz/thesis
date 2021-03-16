@@ -61,9 +61,9 @@ letting $\rho,\rho' \in \den{\G}$, $\g,\g' \in \den{\Phi\G}$, and $\dgamma \in
   &\hphantom{{}\iff{}} \hspace*{-15.9pt} \wedge \fa{\hd x A \in \G}
   \weirdat{\iso A}
           {\etuple{}}
-          {(\g_{\dvar \dx}, \g_{\dvar x})}
+          {(\g_{\dvar x}, \g_{\dvar \dx})}
           {\rho_{\dvar x}}
-          {(\g'_{\dvar\dx}, \g'_{\dvar x})}
+          {(\g'_{\dvar x}, \g'_{\dvar \dx})}
           {\rho'_{\dvar x}}
 \end{align*}
 
@@ -161,10 +161,11 @@ discrete variables from $\G$.
   $\gamma = \gamma'$ and $\rho = \rho'$.
 \end{restatable}
 
-\begin{proof}
-  \todo{sketch discrete contexts don't change proof}. See
-  \cref{proof-discrete-contexts}.
-\end{proof}
+\begin{restatable}{proof}{DiscreteContextsProof}
+  All variables in the stripped contexts are discrete, and therefore the logical
+  relation for discrete variables in contexts, which invokes the logical
+  relation at $\iso$ type, requires their corresponding components be equal.
+\end{restatable}
 
 \noindent
 We use this lemma in combination with the next, which says that any valid
@@ -188,9 +189,9 @@ context change gives rise to a valid change on a stripped context:
   discrete variables from a substitution.
 \end{restatable}
 
-\begin{proof}
-  \todo{sketch context stripping proof}. See \cref{proof-context-stripping}.
-\end{proof}
+\begin{restatable}{proof}{ContextStrippingProof}
+  Immediate from the definitions. \todo{shouldn't I be a little more explicit?}
+\end{restatable}
 
 \noindent
 Jointly, these two lemmas ensure that a valid change to any context is an

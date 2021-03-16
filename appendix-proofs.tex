@@ -1,18 +1,581 @@
 \chapter{Proofs}
 
+\newcommand\nextlemma{\par\pagebreak[3]\vspace{1\baselineskip}}
+
 We state these lemmas and theorems in dependency order, so that nothing is used
 before it has been proven. This is not always the order in which they are stated
-in the text.
+in the text. \todo{But maybe it should be?}
+
+
+\section{Datafun}
+
+\begin{lemma}\label{lemma-weakening-variables}
+  If $\hm x A \in \Gamma$ or $\hd x A \in \Gamma$ and $\Gamma \weaker \Delta$
+  then $\hm x A \in \Delta$ or $\hd x A \in \Delta$.
+\end{lemma}
+\begin{proof}
+  Recall that although we write them differently we regard $\mvar x$ and $\dvar
+  x$ as the same variable.
+%
+  Let $H$ stand for the hypothesis in our assumption, either $\hm x A$ or $\hd x
+  A$ respectively. Then by induction on the derivation of $\Gamma
+  \weaker \Delta$:
+
+  \begin{description}[itemsep=1ex]
+  \item[Case\, $\emptycx \weaker \emptycx$.] By contradiction, since $H \in
+    \emptycx$ is impossible.
+
+  \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',H' \weaker
+      \Delta',H'}$.] If $H = H'$ we are done. Otherwise, $H \in \Gamma'$, so
+    apply the IH.
+
+  \item[Case\, $\infer{\Gamma \weaker \Delta'}{\Gamma \weaker \Delta',H}$.]
+    Apply the IH.
+
+  \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',\,\hm x A \weaker
+      \Delta',\hd x A}$.] If $H = \hm x A$ we are done. Otherwise, $H \in
+    \Gamma'$, so apply the IH.
+  \end{description}
+\end{proof}
+
+
+\nextlemma
+\begin{lemma}\label{lemma-weakening-strip-context}
+  If $\Gamma \weaker \Delta$ then $\stripcx{\Gamma} \weaker \stripcx{\Delta}$.
+\end{lemma}
+\begin{proof}
+  By induction on $\Gamma \weaker \Delta$:
+
+  \begin{description}
+    \item[Case $\emptycx \weaker \emptycx$.] Immediate.
+
+  \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',H' \weaker
+      \Delta',H'}$.] \XXX
+
+  \item[Case\, $\infer{\Gamma \weaker \Delta'}{\Gamma \weaker \Delta',H}$.] \XXX
+
+  \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',\,\hm x A \weaker
+      \Delta',\hd x A}$.] \XXX 
+  \end{description}
+\end{proof}
+
+
+\nextlemma
+\Weakening*
+
+\begin{proof}\label{proof-weakening}
+  By induction on the derivation of $\J{e}{\Gamma} A$.
+
+  \begin{description}[topsep=1em,itemsep=1em]
+    \item[Cases\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$%
+      \quad
+      $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$.]\
+%
+      By \cref{lemma-weakening-variables}.
+
+    \item[Cases\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$%
+      \quad $\infer{\quad}{\J\bot\G {\eqt L}}$.]\
+%
+      Trivial.
+
+    \item[Cases where the premises have the same context as the conclusion, namely:]
+
+      \begin{mathpar}
+        \infer{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}
+
+        \infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}
+
+        \infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}
+
+        \infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}
+
+        \infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso B}}
+      \end{mathpar}
+
+      Apply the same typing rule to our inductive hypotheses.
+
+    \item[Cases where the premises add hypotheses to the context, namely:]
+
+      \begin{mathpar}
+        \infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}
+
+        \infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{\J {\eletbox x e f} \G B}
+
+        \infer{\J e \G {A_1 + A_2} \\
+          (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
+        }{
+          \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
+        }
+
+        \infer{
+          \J e \G {\tset A} \\
+          \J f {\G,\, \hd x A} {\eqt L}
+        }{\J {\eforvar x e f} \G {\eqt L}}
+      \end{mathpar}
+
+      Apply the inductive hypotheses, using \rn{cons} when necessary to show
+      that the modified contexts also satisfy our precondition, for example,
+      $\Delta,\hm{x}{A} \stronger \Gamma,\hm{x8}{A}$.
+
+    \item[Case where the premises strip the context, namely:]
+
+      \begin{mathpar}
+        \infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}
+
+        \infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+              {\J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}
+
+        \infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+              {\J {\eeq{e_1}{e_2}} \G \tbool}
+
+              \infer{\J {e} {\stripcx\G} {\tset\tunit}}
+                    {\J {\eisempty e} \G {\tunit + \tunit}}
+      \end{mathpar}
+
+      Then $\stripcx{\Delta} \stronger \stripcx{\Gamma}$ by
+      \cref{lemma-weakening-strip-context}, so we apply the inductive
+      hypotheses.
+
+    \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
+      \J{\efixis x e} \G {\fixt L}}$.]\
+%
+      Then by combining \cref{lemma-weakening-strip-context} and \rn{cons} we
+      have $\stripcx{\Delta}, \hm x {\fixt L} \stronger \stripcx{\Gamma}, \hm x
+      {\fixt L}$ and we apply our inductive hypothesis.
+
+  \end{description}
+\end{proof}
 
 \section{Semi\naive\ evaluation}
 
 \emph{Theorems and lemmas from \cref{chapter-seminaive}.}
 
+
+\DeltaLattice*
+\DeltaLatticeProof*
+
+
+\nextlemma
+\PhiEqualityType*
+\PhiEqualityTypeProof*
+
+
+\nextlemma
 \PhiDeltaWellTyped*
+
 \begin{proof}\label{proof-phi-delta-well-typed}
-  \todo{prove the phi and delta transforms are well typed}
+  By induction on the typing derivation $\J e \Gamma A$.
+
+  \begin{description}[topsep=1em,itemsep=1em]
+    \item[Case\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$,\quad $\phi\mvar{x} =
+      \mvar{x}$,\quad $\delta\mvar{x} = \mvar\dx$.]\
+
+      Then $\phi \mvar x = \mvar{x}$ and $\delta\mvar x = \mvar\dx$, so we
+      need to show that $\J{\mvar{x}}{\Phi\Gamma}{\Phi A}$ and
+      $\J{\mvar\dx}{\iso\Phi\Gamma, \Delta\Phi\Gamma}{\Delta\Phi A}$. We know
+      that $\Phi$ and $\Delta$ distribute over contexts, so since $\hm x A \in
+      \Gamma$ we know that $\Phi(\hm x A) = \hm x {\Phi A} \in \Phi\Gamma$ and
+      $\Delta\Phi(\hm x A) = \hm{\dx}{\Delta\Phi A} \in \Delta\Phi\Gamma$, which
+      suffices by \rn{var}.
+
+    \item[Case\quad $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$,\quad
+      $\phi\dvar{x} = \dvar{x}$,\quad $\delta\dvar{x} = \dvar\dx$.]\
+
+      Then $\phi\dvar{x} = \dvar{x}$ and $\delta\dvar{x} = \dvar\dx$. By the
+      same argument as the previous case, it suffices to show that $\hd{x}{\Phi
+        A} \in \Phi\Gamma$ and $\hd{\dx}{\Delta\Phi A} \in \Delta\Phi\Gamma$,
+      which is true by distributing $\Phi$ and $\Delta$.
+
+    \item[Case\quad $\infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}$,\quad
+      $\phi(\efn x e) = \efn x \phi e$,\quad
+      $\delta(\efn x e) = \fnof{\pboxvar x}\efn\dx \delta e$.]\
+
+      Then by our inductive hypothesis,
+      \[
+      \infer{
+        \J{\phi e}{\Phi\Gamma,\, \hm x {\Phi A}}{\Phi B}
+      }{\J{\efn x \phi e}{\Phi\Gamma}{\Phi A \to \Phi B}}
+      \]
+      which handles the case for $\phi$.
+
+      The case for $\delta$ is complicated by the use of syntax sugar,
+      $(\fnof{\pboxvar x} ...) \desugars (\efn y \eletbox x {\mvar y} ...)$. For
+      simplicity's sake we first derive a typing rule for this sugared syntax:
+
+      \[
+      \infer{
+        \J{f}{\Gamma,\, \hd x A}{B}
+      }{
+        \J{\fnof{\pboxvar x} f}{\Gamma}{\iso A \to B}
+      }
+      \]
+
+      \noindent
+      which is justified by the following expansion and weakening
+      \todo{reference weakening}:
+
+      \[
+      \infer*{
+        \infer*{
+          \infer*{
+            \infer*{~}{
+              {\hm y {\iso A}} \in {\Gamma, \hm y {\iso A}}
+          }}{\J{\mvar{y}}{\Gamma, \hm y {\iso A}}{\iso A}}
+          \\
+          \infer*[right={weakening}]{
+            \J{f}{\Gamma,\, \hd x A}{B}
+          }{\J{f}{\Gamma, \hm y {\iso A}, \hd x A}{B}}
+        }{
+          \J{\eletbox x {\mvar y} f}{\Gamma, \hm y {\iso A}}{B}
+      }}{
+        \J{\efn y \eletbox x {\mvar y} f}{\Gamma}{\iso A \to B}
+      }
+      \]
+
+      \noindent
+      Putting this syntactic sugar to work, we have:
+
+      \[
+      \infer*[right=sugar]{
+        \infer*{
+          \J{\delta e}
+            {\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso A},\,
+              \hm{\dx}{\Delta\Phi A}}
+            {\Delta\Phi B}
+        }{
+          \J{\efn\dx \delta e}
+            {\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso\Phi A}}
+            {\Delta\Phi A  \to \Delta\Phi B}
+        }
+      }{
+        \J{\fnof{\pboxvar x} \efn\dx \delta e}
+          {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
+          {\iso \Phi A \to \Delta\Phi A \to \Delta\Phi B}
+      }
+      \]
+
+      and if we rearrange the typing context of the premise at the top, we see
+      that it matches our inductive hypothesis:
+%
+      \begin{align*}
+        &\phantom{{}={}}\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso A},\,
+        \hm{\dx}{\Delta\Phi A}\\
+        &=
+        \iso\Phi\Gamma,\, \hd x {\iso A},\:
+        \Delta\Phi\Gamma,\, \hm{\dx}{\Delta\Phi A}\\
+        &=
+        \iso\Phi(\Gamma,\, \hm x A),\, \Delta\Phi(\Gamma,\, \hm x A)
+      \end{align*}
+%
+      which finishes the case for $\delta$.
+
+    \item[Case\quad $\infer{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}$,\quad
+      $\phi(e\<f) = \phi e\<\phi f$,\quad
+      $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$.]\
+
+      The $\phi$ case fairly straightforward: by our inductive hypotheses,
+
+      \[
+      \infer*{
+        \J{\phi e}{\Phi\Gamma}{\Phi A \to \Phi B}\\
+        \J{\phi f}{\Phi\Gamma}{\Phi A}
+      }{
+        \J{\phi e\<\phi f}{\Phi\Gamma}{\Phi B}
+      }
+      \]
+
+      The $\delta$ case is not more complex, but the types get larger, so it
+      does not fit easily in one derivation. Applying \rn{app} it suffices to
+      show that, in the context ${\iso\Phi\Gamma,\, \Delta\Phi\Gamma}$, we have
+      $\delta e \isa {\iso\Phi A \to \Delta\Phi A \to \Delta\Phi B}$ and
+      ${\ebox{\phi f}} \isa {\iso\Phi A}$ and $\delta f \isa {\Delta\Phi B}$.
+      The first and last of these are supplied directly by our inductive
+      hypotheses, while the last needs a use of weakening, observing that
+      $\Phi\Gamma$ can be weakened to $\iso\Phi\Gamma$ and then further
+      weakened to $\stripcx{\iso\Phi\Gamma, \Delta\Phi\Gamma}$. \todo{isn't
+        there something we should be referencing here?}
+
+      \[
+      \infer*{
+        \infer*[right=weakening]{
+          \J{\phi f}{\Phi\Gamma}{\Phi A}
+        }{
+          \J{\phi f}
+            {\stripcx{\iso\Phi\Gamma,\, \Delta\Phi\Gamma}}
+            {\Phi A}
+      }}{
+        \J{\ebox{\phi f}}{\iso\Phi\Gamma,\, \Delta\Phi\Gamma}{\iso\Phi A}
+      }
+      \]
+
+    \item[Case\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$,\quad
+      $\phi() = ()$,\quad $\delta() = ()$.]\
+
+      Trivial.
+
+    \item[Case\quad
+      $\infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}$,\quad
+      $\phi(e_1, e_2) = (\phi e_1, \phi e_2)$,\quad
+      $\delta(e_1, e_2) = (\delta e_1, \delta e_2)$.]\
+
+      Immediate.
+
+    \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$,\quad
+      $\phi(\pi_i\<e) = \pi_i\<\phi e$,\quad
+      $\delta(\pi_i\<e) = \pi_i\<\delta e$.]\
+
+      Immediate.
+
+    \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
+        (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
+      }{
+        \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
+      }$.]\
+
+      Recall that
+      \begin{align*}
+        \phi(\emcase e (\inj i x \caseto f_i)_i)
+        &= \emcase{\phi e} (\inj i x \caseto \phi f_i)_i
+        \\
+        \delta({\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i})
+        &=
+        \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
+        &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
+        &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
+        %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
+        \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
+      \end{align*}
+
+      \todo{prove this case}
+
+    \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$,\quad
+      $\phi\ebox{e} = \ebox{(\phi e, \delta e)}$,\quad
+      $\delta\ebox{e} = ()$.]\label{case-well-typed-box}\
+
+      Observe that
+      \begin{align*}
+        \Phi\iso A &= \iso(\Phi A \x \Delta\Phi A)
+        & \Delta\Phi\iso A &= \tunit
+      \end{align*}
+
+      Thus the $\delta$ case is trivial, and the $\phi$ case follows by
+      weakening our inductive hypotheses:
+
+      \[
+      \infer*{
+        \infer*{
+          \infer*[right=ih]{~}{
+            \J{\phi e}{\stripcx{\Phi\Gamma}}{\Phi A}
+          }
+          \\
+          \infer*[right=ih]{~}{
+            \J{\delta e}{\stripcx{\Phi\Gamma}}{\Delta\Phi A}
+          }
+        }{
+          \J{(\phi e, \delta e)}{\stripcx{\Phi\Gamma}}{\Phi A \x \Delta\Phi A}
+        }
+      }{
+        \J{\ebox{(\phi e, \delta e)}}{\Phi\Gamma}{\iso(\Phi A \x \Delta\Phi A)}
+      }
+      \]
+
+      To justify the typing of our inductive hypotheses, observe that
+      $\Phi\stripcx{\Gamma} = \stripcx{\Phi\Gamma}$ because $\Phi$ preserves the
+      mode (discrete or monotone) of hypotheses. Justifying
+      $\stripcx{\Phi\Gamma} = \iso\Phi\stripcx{\Gamma},\,
+      \Delta\Phi\stripcx{\Gamma}$ requires a little more footwork:
+
+      \begin{align*}
+        &\phantom{{}={}}\iso\Phi\stripcx{\Gamma},\, \Delta\Phi\stripcx{\Gamma}\\
+        &= \iso\stripcx{\Phi\Gamma},\, \Delta\stripcx{\Phi\Gamma}
+        &&\text{because }\Phi\stripcx{\Gamma} = \stripcx{\Phi\Gamma}\\
+        &= \iso\stripcx{\Phi\Gamma}
+        &&\text{$\stripcx{\Phi\Gamma}$ has only discrete hypotheses, which $\Delta$ drops}\\
+        &= \stripcx{\Phi\Gamma}
+        &&\text{$\stripcx{\Phi\Gamma}$ has only discrete hypotheses, which $\iso$ leaves alone}
+      \end{align*}
+
+    \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
+      \J {\eletbox x e f} \G B}$.]\
+
+      Recall that
+      \begin{align*}
+        \phi(\eletbox{x} e f) &= \elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi
+        \\
+        \delta(\eletbox{x} e f) &=
+        \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
+      \end{align*}
+
+      This involves some syntax sugar, so let us first derive the following
+      typing rule:
+
+      \[
+      \infer{
+        \J{e}{\Gamma}{\iso(A \times B)}\\
+        \J{f}{\Gamma,\, \hd x A,\, \hd y B}{C}
+      }{
+        \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}{\Gamma}{C}
+      }
+      \]
+
+      Expanding our syntax sugar, we have
+
+      \[
+      \elet{\pboxtuple{\dvar x, \dvar y} = e} f
+      \desugars
+      \elet{y = e} \XXX
+      \]
+
+      \todo{what does this desugar to?}
+
+      Putting this syntax sugar to work, we have:
+      \[
+      \infer*{
+        \infer*[right=ih]{~}{
+          \J{\phi e}{\Phi\Gamma}{\iso(\Phi A \x \Delta\Phi A)}
+        }
+        \\
+        \infer*[right=ih]{~}{
+          \J{\phi f}{\Phi\Gamma, \hd x {\Phi A}, \hd\dx{\Delta\Phi A}}{\Phi B}
+        }
+      }{
+        \J{\elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi f}
+          {\Phi\Gamma}
+          {\Phi B}
+      }
+      \]
+
+      And similarly:
+      \[
+      \infer*{
+        \J{\phi e}
+          {\iso\Phi\Gamma, \Delta\Phi\Gamma}
+          {\iso(\Phi A \x \Delta\Phi A)}
+        \\
+        \J{\delta f}
+          {\iso\Phi\Gamma, \Delta\Phi\Gamma, \hd x {\Phi A}, \hd\dx{\Delta\Phi A}}
+          {\Delta\Phi B}
+      }{
+        \J{\elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \delta f}
+          {\iso\Phi\Gamma, \Delta\Phi\Gamma}
+          {\Phi B}
+      }
+      \]
+      where the two premises come from our induction hypotheses, the
+      latter directly, and the former by way of weakening: \todo{finish proving
+        this case}
+
+    \item[Case\quad $\infer{\quad}{\J\bot\G {\eqt L}}$,\quad $\phi\bot = \bot$,
+      \quad $\delta\bot = \bot$.]\
+
+      Trivial, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
+      and $\Delta\Phi\eqt{L} = \eqt{L}$ by
+      \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
+      types as required.
+
+    \item[Case\quad $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}$,\quad
+      $\phi(e_1 \vee e_2) = \phi e_1 \vee \phi e_2$,\quad
+      $\delta(e_1 \vee e_2) = \delta e_1 \vee \delta e_2$.]\
+
+      Immediate, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
+      and $\Delta\Phi\eqt{L} = \eqt{L}$ by
+      \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
+      types as required.
+
+    \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
+      \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$,\quad
+      $\phi(\esetsub{e_i}{i}) = \esetsub{\phi e_i}{i}$,\quad
+      $\delta\esetsub{e_i}{i} = \bot$.]\
+
+      Immediate.
+
+    \item[Case\quad $\infer{
+        \J e \G {\tset A} \\
+        \J f {\G,\, \hd x A} {\eqt L}
+      }{\J {\eforvar x e f} \G {\eqt L}}$.]\
+
+      Recall that
+      \begin{align*}
+        \phi(\eforvar x e f)
+        &= \eforvar x {\phi e}{\eletbox{\dx}{\ebox{\zero\<\dvar x}} \phi f}\\
+        \delta(\eforvar x e f)
+        &= (\eforvar x {\delta e}
+        %\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}) \\
+        \eletbox \dx {\zero\<\dvar x} \phi f) \\
+        &\vee (\eforvar x {\phi e \vee \delta e}
+        %\substd{\delta f}{\dvar\dx \substo \zero\<\dvar x})
+        \eletbox{\dx}{\zero\<\dvar x} \delta f)
+      \end{align*}
+
+      \todo{prove this case}
+
+    \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+          {\J {\eeq{e_1}{e_2}} \G \tbool}$,\quad
+          $\phi(\eeq e f) = \eeq{\phi e}{\phi f}$,\quad
+          $\delta(\eeq e f) = \bot$.]\
+
+      The $\phi$ case requires only that $\Phi \eqt{A}$ be an equality type,
+      which it is by \cref{lemma-phi-eqt}; the $\delta$ case type checks because
+      $\Delta\Phi\tbool = \tbool$.
+
+    \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
+      \J {\eisempty e} \G {\tunit + \tunit}}$,\quad
+      $\phi(\eisempty e) = \eisempty{\phi e}$,\quad
+      $\delta(\eisempty e) = \eisempty{\phi e}$.]\
+
+      Immediate, observing that $\Phi\tset{\tunit} = \tset{\tunit}$ and
+      $\Phi(\tunit + \tunit) = \Delta\Phi(\tunit + \tunit) = \tunit + \tunit$.
+
+    \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
+          B}}$.]\
+
+      Recall that
+      \begin{align*}
+        \phi(\esplit e) &= \emcase{\phi e}
+        \\
+        &\phantom{{}={}}\
+        \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
+        \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
+        \\
+        &\phantom{{}={}}\
+        \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
+        \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
+      \end{align*}
+
+      \todo{prove this case}
+
+    \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
+      \J{\efixis x e} \G {\fixt L}}$.]\
+
+      Recall that
+      \begin{align*}
+        \phi(\efixis x e)
+        &= \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
+        \\
+        \delta(\efixis x e) &= \bot
+        \\
+        \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
+        \\
+        \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+      \end{align*}
+
+      This justifies the case for $\delta$ immediately. As for $\phi$, recall
+      the typing rule for $\fastfix$: \todo{oops, this is going to be different
+        if we keep fix different}
+
+      \[
+      \infer{
+        \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
+      }{\J{\fastfix\<e}{\G}{\fixt L}}
+      \]
+
+      \todo{prove this case}
+
+  \end{description}
 \end{proof}
 
+
+\nextlemma
 \EqualityChanges*
 \begin{proof}
   \label{proof-equality-changes}
@@ -28,7 +591,7 @@ in the text.
 %
       and by unfolding this we have
       \(\weirdat{\eqt{A}}{\dx_1}{x_1}{a_1}{y_1}{b_1}\) and
-      \(\weirdat{\eqt{B}}{\dx_2}{x_2}{a_2}{y_2}{b_2}\), which by our induction
+      \(\weirdat{\eqt{B}}{\dx_2}{x_2}{a_2}{y_2}{b_2}\), which by our inductive
       hypotheses show \(x_1 = a_1\), \(y_1 = b_1\) and \(x_2 = a_2\), \(y_2 = b_2\),
       which suffices.
 
@@ -41,33 +604,140 @@ in the text.
       \]
 %
       and by unfolding this we have \(\weirdat{\eqt{A}_i}{\dx}{x}{a}{y}{b}\),
-      which by our induction hypothesis implies \(x=a\) and \(y=b\), which
+      which by our inductive hypothesis implies \(x=a\) and \(y=b\), which
       suffices.
 
     \item[Case $\tseteq{A}$.] Then our assumption unfolds to \((x,y,x \cup \dx)
       = (a,b,y)\), which suffices.
-      
+
   \end{description}
 \end{proof}
 
+
+\nextlemma
 \EqualityDummy*
 \begin{proof}
   \label{proof-equality-dummy}
-  \todo{prove}
+  By induction on \(\eqt{A}\), applying the definitions of $\dummy$ and
+  $\weirdat{\eqt{A}}{\dummy\<x}{x}{x}{x}{x}$
+  (\cref{figure-dummy,figure-seminaive-logical-relation}).
+
+  \begin{description}
+  \item[Case $\tunit$.] Trivial.
+
+  \item[Case $\eqt{A} \times \eqt{B}$.]
+
+    Letting \(x = (y,z)\), we have $\dummy\<x = \dummy\<(y,z) =
+    (\dummy\<y,\dummy\<z)$. By our inductive hypotheses, we have
+    \(\weirdat{\eqt{A}}{\dummy\<y}{y}{y}{y}{y}\) and likewise for $z$. By
+    definition this shows that
+    \[
+    \weirdat{\eqt{A} \times \eqt{B}}{(\dummy\<y, \dummy\<z)}
+            {(y,z)}{(y,z)}{(y,z)}{(y,z)}
+    \]
+    as desired.
+
+  \item[Case $\eqt{A}_1 + \eqt{A}_2$.]
+
+    Without loss of generality we have \(x = \inj i y\) for some $i \in
+    \{1,2\}$. Applying the definition of \dummy\ we have \(\dummy\<x = \inj i
+    (\dummy\<y)\). By our inductive hypothesis we have
+    \(\weirdat{\eqt{A}_i}{\dummy\<y}{y}{y}{y}{y}\), which suffices to show
+    \[
+    \weirdat{\eqt{A}_i}{\inj i (\dummy\<y)}
+            {\inj i y}{\inj i y}{\inj i y}{\inj i y}
+    \]
+    as desired.
+
+  \item[Case $\tset{\eqt{A}}$.]
+
+    Unfolding our theorem's definition, we need to show that
+    \((x, x, x \cup \dummy\<x) = (x, x, x)\), or in other words
+    \(x = x \cup \dummy_{\tseteq{A}}\<x\), which is trivial since \(\dummy_{\tseteq{A}}\<x = \esetraw{}\).
+  \end{description}
 \end{proof}
 
+
+\nextlemma
 \DiscreteContexts*
-\begin{proof}
-  \label{proof-discrete-contexts}
-  \todo{prove}
-\end{proof}
+\DiscreteContextsProof*
 
+%% \begin{proof}
+%%   \label{proof-discrete-contexts}
+
+%%   First, let's observe the types of the contexts we are dealing with. We have
+%%   \(\rho, \rho' \in \den{\stripcx{\Gamma}}\) and \(\gamma, \gamma' \in
+%%   \den{\Phi\stripcx{\Gamma}}\). In particular this means that all four will
+%%   contain only discrete variables, namely, for every $\hd x A \in \Gamma$, we
+%%   will have $\rho_{\dvar x}, \rho'_{\dvar{x}}$ and $\gamma_{\dvar{x}},
+%%   \gamma_{\dvar \dx}, \gamma'_{\dvar{x}}, \gamma'_{\dvar\dx}$.
+
+%%   Next, unfolding the definition of our assumption, we have
+%%   \[
+%%   \fa{\hm x A \in \stripcx{\Gamma}}
+%%   \weirdat{A}{\dgamma_{\mvar\dx}}
+%%           {\gamma_{\mvar{x}}}{\rho_{\mvar{x}}}
+%%           {\gamma'_{\mvar{x}}}{\rho'_{\mvar{x}}}
+%%   \]
+%%   which is boring --- there \emph{are} no monotone hypotheses
+%%   $\hm x A \in \stripcx{\Gamma}$ --- but also:
+%%   \[
+%%   \fa{\hd x A \in \stripcx{\Gamma}}
+%%   \weirdat{\iso A}{()}
+%%           {(\gamma_{\dvar x}, \gamma_{\dvar \dx})}
+%%           {\rho_{\dvar x}}
+%%           {(\gamma'_{\dvar x}, \gamma'_{\dvar \dx})}
+%%           {\rho'_{\dvar x}}
+%%   \]
+
+%%   \noindent
+%%   Unfolding the logical relation for the box type $\iso$, we have for each
+%%   $\hd x A \in \stripcx{\Gamma}$ that
+%% %
+%%   \[
+%%   (\rho_{\dvar x}, \gamma_{\dvar x}, \gamma_{\dvar\dx}) =
+%%   (\rho'_{\dvar x}, \gamma'_{\dvar x}, \gamma'_{\dvar\dx})
+%%   ~~\wedge~~ \weirdat{A}{\gamma_{\dvar\dx}}
+%%          {\gamma_{\dvar x}}{\rho_{\dvar x}}
+%%          {\gamma'_{\dvar x}}{\rho'_{\dvar x}}
+%%   \]
+%% %
+%%   of which the first conjunct tells us that each component of $\rho$ equals
+%%   its partner in $\rho'$ and the same for $\gamma$ and $\gamma'$, as desired.
+%% \end{proof}
+
+
+\nextlemma
 \ContextStripping*
-\begin{proof}
-  \label{proof-context-stripping}
-  \todo{prove}
-\end{proof}
+\ContextStrippingProof*
 
+%% \begin{proof}
+%%   \label{proof-context-stripping}
+%%   To prove this, it suffices to show for each $\hd x A \in \stripcx{\Gamma}$
+%%   (since after all there are no monotone $\hm x A \in \stripcx{\Gamma}$) that
+%%   \[
+%%   \weirdat{\iso A}{()}
+%%           {(\strip(\gamma)_{\dvar x},\,
+%%             \strip(\gamma)_{\dvar\dx})}
+%%           {\strip(\rho)_{\dvar x}}
+%%           {(\strip(\gamma')_{\dvar x},\,
+%%             \strip(\gamma')_{\dvar\dx})}
+%%           {\strip(\rho')_{\dvar x}}
+%%   \]
+%%   but since $\strip$ merely projects out the discrete variables, this is
+%%   equivalent to
+%%   \[
+%%   \weirdat{\iso A}{()}
+%%           {(\gamma_{\dvar x},\, \gamma_{\dvar\dx})}
+%%           {\rho_{\dvar x}}
+%%           {(\gamma'_{\dvar x},\, \gamma'_{\dvar\dx})}
+%%           {\rho'_{\dvar x}}
+%%   \]
+%%   which is true by our assumption.
+%% \end{proof}
+
+
+\nextlemma
 \SeminaiveFundamental*
 \begin{proof}
   \label{proof-seminaive-fundamental}

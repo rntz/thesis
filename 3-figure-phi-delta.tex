@@ -15,7 +15,7 @@
     \phi(\esetsub{e_i}{i}) &= \esetsub{\phi e_i}{i}
     &
     %% replaced substitution by let-binding
-    \phi(\eforin x e f) &= \eforin x {\phi e}
+    \phi(\eforvar x e f) &= \eforvar x {\phi e}
         %{\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}}
         {\eletbox{\dx}{\ebox{\zero\<\dvar x}} \phi f}
     \\
@@ -101,11 +101,11 @@
     %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
     \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
     \\
-    \delta(\eforin x e f)
-    &= (\eforin x {\delta e}
+    \delta(\eforvar x e f)
+    &= (\eforvar x {\delta e}
     %\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}) \\
     \eletbox \dx {\zero\<\dvar x} \phi f) \\
-    &\vee (\eforin x {\phi e \vee \delta e}
+    &\vee (\eforvar x {\phi e \vee \delta e}
     %\substd{\delta f}{\dvar\dx \substo \zero\<\dvar x})
     \eletbox{\dx}{\zero\<\dvar x} \delta f)
   \end{align*}
