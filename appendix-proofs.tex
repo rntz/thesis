@@ -49,13 +49,27 @@ in the text. \todo{But maybe it should be?}
   \begin{description}
     \item[Case $\emptycx \weaker \emptycx$.] Immediate.
 
-  \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',H' \weaker
-      \Delta',H'}$.] \XXX
+  \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',H \weaker \Delta',H}$.]\
 
-  \item[Case\, $\infer{\Gamma \weaker \Delta'}{\Gamma \weaker \Delta',H}$.] \XXX
+    Either $H$ is discrete $\hd x A$, in which case $\stripcx{\Gamma',H} =
+    \stripcx{\Gamma'}, H \weaker \stripcx{\Delta'}, H = \stripcx{\Delta',H}$ by
+    \rn{cons} and our inductive hypothesis; or $H$ is monotone $\hm x A$, in
+    which case $\stripcx{\Gamma',H} = \stripcx{\Gamma'} \weaker \stripcx{\Delta'} = \stripcx{\Delta',H}$ by our inductive hypothesis alone.
+
+  \item[Case\, $\infer{\Gamma \weaker \Delta'}{\Gamma \weaker \Delta',H}$.]\
+
+    Then $\stripcx{\Gamma} \weaker \stripcx{\Delta'}$ by our inductive
+    hypothesis. Depending upon whether $H$ is monotone or discrete, we have
+    either $\stripcx{\Delta', H} = \stripcx{\Delta'}$ (in which case our
+    inductive hypothesis suffices) or $\stripcx{\Delta', H} = \stripcx{\Delta'},
+    H$, in which case by \rn{cons} \todo{and transitivity} $\stripcx{\Gamma}
+    \weaker \stripcx{\Delta'}, H$.
 
   \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',\,\hm x A \weaker
-      \Delta',\hd x A}$.] \XXX 
+      \Delta',\hd x A}$.]\
+
+    Then $\stripcx{\Gamma', \hm x A} = \stripcx{\Gamma'}$ while
+    $\stripcx{\Delta', \hd x A} = \stripcx{\Delta'}, \hd x A$ \XXX
   \end{description}
 \end{proof}
 
@@ -115,7 +129,7 @@ in the text. \todo{But maybe it should be?}
 
       Apply the inductive hypotheses, using \rn{cons} when necessary to show
       that the modified contexts also satisfy our precondition, for example,
-      $\Delta,\hm{x}{A} \stronger \Gamma,\hm{x8}{A}$.
+      $\Delta,\hm{x}{A} \stronger \Gamma,\hm{x}{A}$.
 
     \item[Case where the premises strip the context, namely:]
 
@@ -138,7 +152,7 @@ in the text. \todo{But maybe it should be?}
 
     \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
       \J{\efixis x e} \G {\fixt L}}$.]\
-%
+
       Then by combining \cref{lemma-weakening-strip-context} and \rn{cons} we
       have $\stripcx{\Delta}, \hm x {\fixt L} \stronger \stripcx{\Gamma}, \hm x
       {\fixt L}$ and we apply our inductive hypothesis.
@@ -211,8 +225,8 @@ in the text. \todo{But maybe it should be?}
       \]
 
       \noindent
-      which is justified by the following expansion and weakening
-      \todo{reference weakening}:
+      which is justified by the following expansion and
+      weakening~(\cref{theorem-weakening}):
 
       \[
       \infer*{
@@ -291,9 +305,15 @@ in the text. \todo{But maybe it should be?}
       ${\ebox{\phi f}} \isa {\iso\Phi A}$ and $\delta f \isa {\Delta\Phi B}$.
       The first and last of these are supplied directly by our inductive
       hypotheses, while the last needs a use of weakening, observing that
-      $\Phi\Gamma$ can be weakened to $\iso\Phi\Gamma$ and then further
-      weakened to $\stripcx{\iso\Phi\Gamma, \Delta\Phi\Gamma}$. \todo{isn't
-        there something we should be referencing here?}
+      $
+      \stripcx{\iso\Phi\Gamma, \Delta\Phi\Gamma}
+      \stronger
+      \stripcx{\iso\Phi\Gamma}
+      =
+      \iso\Phi\Gamma
+      \stronger
+      \Phi\Gamma
+      $ (using \cref{lemma-weakening-strip-context}).
 
       \[
       \infer*{
