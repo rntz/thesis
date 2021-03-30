@@ -354,8 +354,8 @@ in the text. \todo{But maybe it should be?}
 
       Recall that
       \begin{align*}
-        \phi(\emcase e (\inj i x \caseto f_i)_i)
-        &= \emcase{\phi e} (\inj i x \caseto \phi f_i)_i
+        \phi(\emcase e (\inj i \mvar x \caseto f_i)_i)
+        &= \emcase{\phi e} (\inj i \mvar x \caseto \phi f_i)_i
         \\
         \delta({\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i})
         &=
@@ -365,6 +365,58 @@ in the text. \todo{But maybe it should be?}
         %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
         \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
       \end{align*}
+
+      The $\phi$ case is straightforward, observing that $\Phi(A_1 + A_2) = \Phi
+      A_1 + \Phi A_2$:
+%
+      \[
+      \infer*{
+        \infer*[right=ih]{~}{\J{\phi e}{\Phi\Gamma}{\Phi A_1 + \Phi A_2}}
+        \and
+        \Big(
+        \infer*[right=ih]{~}
+               {\J{\phi f_i}{\Phi\Gamma,\, \hm x \Phi A_i}{\Phi B}}
+        \Big)_i
+      }{
+        \J{\emcase{\phi e} (\inj i \dvar x \caseto \phi f_i)_i}{\Phi\Gamma}{\Phi B}
+      }
+      \]
+
+      The $\delta$ case is more interesting, as it uses syntax sugar. First we
+      give a rule for this syntax sugar and establish its deriveability:
+
+      \[
+      \infer{
+        \J{e}{\Omega}{\iso ? \x (B_1 + B_2)}\\
+        (\J{f_{i,j}}{\Omega,\, \hd x A_i,\, \hm y B_j}{C})_{i,j}
+      }{
+        \J{\emcase{e} (\inj i \pboxvar{x}, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
+          {\Omega}
+          {C}
+      }
+      \]
+
+      This is derivable as follows:
+
+      \[
+      \XXX
+      \]
+
+      We can use this to type the $\delta$-translation as follows:
+
+      \[
+      \infer*{
+        \J{(\esplit{\ebox{\phi e}},\, \delta e)}
+          {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
+          {?}
+        \and
+        ...
+      }{
+        \J{\emcase{\esplit{\ebox{\phi e}},\, \delta e} \text{...}}
+          {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
+          {\Delta\Phi B}
+      }
+      \]
 
       \todo{prove this case}
 
