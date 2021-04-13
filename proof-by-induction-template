@@ -1,0 +1,52 @@
+\begin{description}[topsep=1em,itemsep=1em]
+  \item[Case\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$.]
+
+  \item[Case\quad $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$.]
+
+  \item[Case\quad $\infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}$.]
+
+  \item[Case\quad $\infer{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}$.]
+
+  \item[Case\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$.]
+
+  \item[Case\quad
+    $\infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}$.]
+
+  \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$.]
+
+  \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
+      (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
+    }{
+      \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
+    }$.]
+
+  \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$.]
+
+  \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
+    \J {\eletbox x e f} \G B}$.]
+
+  \item[Case\quad $\infer{\quad}{\J\bot\G {\eqt L}}$.]
+
+  \item[Case\quad $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}$.]
+
+  \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
+    \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$.]
+
+  \item[Case\quad $\infer{
+      \J e \G {\tset A} \\
+      \J f {\G,\, \hd x A} {\eqt L}
+    }{\J {\eforvar x e f} \G {\eqt L}}$.]
+
+  \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+        {\J {\eeq{e_1}{e_2}} \G \tbool}$.]
+
+  \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
+    \J {\eisempty e} \G {\tunit + \tunit}}$.]
+
+  \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
+        B}}$.]
+
+  \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
+    \J{\efixis x e} \G {\fixt L}}$.]
+
+\end{description}

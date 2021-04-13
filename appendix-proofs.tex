@@ -387,10 +387,10 @@ in the text. \todo{But maybe it should be?}
 
       \[
       \infer{
-        \J{e}{\Omega}{\iso ? \x (B_1 + B_2)}\\
+        \J{e}{\Omega}{\iso (A_1 + A_2) \x (B_1 + B_2)}\\
         (\J{f_{i,j}}{\Omega,\, \hd x A_i,\, \hm y B_j}{C})_{i,j}
       }{
-        \J{\emcase{e} (\inj i \pboxvar{x}, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
+        \J{\emcase{e} (\inj i \pboxvar{x},\, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
           {\Omega}
           {C}
       }
@@ -399,7 +399,13 @@ in the text. \todo{But maybe it should be?}
       This is derivable as follows:
 
       \[
-      \XXX
+      \infer*{
+        \XXX
+      }{
+        \J{\emcase{e} (\inj i \pboxvar{x},\, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
+          {\Omega}
+          {C}
+      }
       \]
 
       We can use this to type the $\delta$-translation as follows:

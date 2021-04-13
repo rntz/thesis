@@ -247,7 +247,7 @@ In a fixed point expression $\efix e$, we know $e : \isofixLtoL$. Consequently t
   & \text{by \cref{lemma-phi-eqt}, }\Phi\fixt L = \fixt L
   \\
   &= \iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)
-  & \text{by \cref{lemma-DeltaL}, }\Delta \fixt L = \fixt L
+  & \text{by \cref{lemma-delta-lattice}, }\Delta \fixt L = \fixt L
 \end{align*}
 
 \noindent
@@ -275,7 +275,7 @@ give it a typing rule and semantics:
 \noindent
 As for $\delta(\efix e)$, since $e$ can't change (having $\iso$ type), neither
 can $\efix e$ (or $\fastfix\<\phi e$). All we need is a zero change at type
-$\fixtLkern$; by \cref{lemma-DeltaL}, $\bot$ suffices.
+$\fixtLkern$; by \cref{lemma-delta-lattice}, $\bot$ suffices.
 
 
 \subsection{Variables, \boldfn, and application}

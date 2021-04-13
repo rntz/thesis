@@ -66,7 +66,8 @@
   {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
 \newcommand\todo[1]{\warntodo{#1}{#1}}
-\newcommand\XXX{\PackageWarning{notation}{XXX}\textsf{\bfseries\todocolor XXX}}
+%\newcommand\XXX{\PackageWarning{notation}{XXX}\textsf{\bfseries\todocolor XXX}}
+\newcommand\XXX{\warntodo{XXX}{XXX}}
 
 
 %% ---------- Environments ----------

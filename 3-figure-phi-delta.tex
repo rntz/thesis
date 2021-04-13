@@ -1,5 +1,7 @@
 %% ---- "Go faster" term translation, phi ----
 \begin{figure}
+  \centering
+  \textsc{speed-up translation $\phi$}
   \begin{align*}
     \phi \mvar x &= \mvar x & \phi \dvar x &= \dvar x\\
     \phi(\efn x e) &= \efn x \phi e & \phi(e\<f) &= \phi e\<\phi f\\
@@ -62,17 +64,20 @@
     \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
     \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
   \end{align*}
+  \vspace{0pt}
 
-  \caption{Semi\naive{} speed-up translation, $\phi$}
-  \label{figure-phi}
-\end{figure}
+%%   \caption{Semi\naive{} speed-up translation, $\phi$}
+%%   \label{figure-phi}
+%% \end{figure}
 
-
-%% ---- "Derivative" term translation, delta
-\begin{figure}\centering
+%% 
+%% %% ---- "Derivative" term translation, delta
+%% \begin{figure}\centering
+  \textsc{derivative translation $\delta$}
+
   \[ \delta\bot = \delta\esetsub{e_i}{i} = \delta(\eeq e f)
   = \delta(\efixis x e) = \bot \]
-  %
+
   \begin{align*}
     \delta \mvar x &= \mvar\dx &
     \delta \dvar x &= \dvar\dx\\
@@ -110,6 +115,9 @@
     \eletbox{\dx}{\zero\<\dvar x} \delta f)
   \end{align*}
 
-  \caption{Semi\naive{} derivative translation, $\delta$}
+%  \caption{Semi\naive{} derivative translation, $\delta$}
+%  \caption{Semi\naive{} speed-up and derivative translations, $\phi/\delta$}
+  \caption{$\phi$ and $\delta$ term translations}
   \label{figure-delta}
+  \label{figure-phi}
 \end{figure}
