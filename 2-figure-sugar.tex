@@ -14,7 +14,7 @@
     \bnfor \ptuple{} \bnfor \ptuple{p_1, p_2} \bnfor \inj i p
     \\[\bnfskip]
     \text{loop clauses} & C,D &\bnfeq&
-    p \in e \bnfor e \bnfor C,D \bnfor \emptycx
+    p \in e \bnfor e \bnfor C,D \bnfor %\emptycx
   \end{array}\]
 
   \begin{align*}
@@ -31,16 +31,15 @@
     \begin{aligned}
       \esetfor{e}{C} &\desugars \efor{C} \eset{e}
       \\
-      %% \ewhen e f &\desugars \eforin{\pwild}{e} f
-      %% \\
+      \efor{%\emptycx
+} e &\desugars e
+      \\
+      \efor{C,D} e &\desugars \efor{C} \efor{D} e
+      \\
       \efor{e}{f} &\desugars \eforin{\pwild}{e} f
       \\
       \eforin{p}{e} f &\desugars
       \eforvar{x}{e} \edcase{x} p \caseto f \casebar \pwild \caseto \bot
-      \\
-      \efor{C,D} e &\desugars \efor{C} \efor{D} e
-      \\
-      \efor{\emptycx} e &\desugars e
     \end{aligned}
   \end{align*}
 

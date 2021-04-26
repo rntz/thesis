@@ -370,6 +370,8 @@
 
 %% more surface syntax
 \newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
+\renewcommand\ewhen[1]{\PackageWarning{notation}{don't use ewhen}{}%
+\todo{\kw{when}}}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}
 
