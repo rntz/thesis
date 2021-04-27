@@ -323,6 +323,10 @@
 \newcommand\etuple[1]{({#1})}
 \newcommand\emcase[1]{\kw{case} \;{#1}\; \kw{of}\;}
 \newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
+\renewcommand\edcase{\PackageWarning{notation}{don't use edcase}{}\todo{\kw{if}}}
+\newcommand\ematch[4]{%
+  \kw{if}\; {#1} \shortleftarrow \eiso{#2} \;\kw{then}\; {#3} \;\kw{else}\; {#4}%
+}
 % TODO: remove \efix.
 \newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
 \newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}

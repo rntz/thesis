@@ -12,19 +12,29 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
 
 \item We mentioned earlier that Datafun's boolean type \tbool\ is ordered
   $\efalse < \etrue$. This is because we encode booleans as sets of empty
-  tuples, $\tset 1$, with \efalse\ as the empty set $\esetraw{}$ and
-  \etrue\ as the singleton $\esetraw{\etuple{}}$. On these sets \kw{for}
-  degenerates to a ``one-sided'' conditional, $\efor {\pwild \in b} e$, yielding
-  $e$ if $b$ is $\etrue$ and $\bot$ otherwise. Compared with encoding booleans
-  as a sum type \(\tunit + \tunit\) and our one-sided conditional as \kw{case}, our approach has
-  the advantage that $\efor{\pwild \in b} e$ is monotone in the condition $b$.
+  tuples, $\tset 1$, with \etrue\ as the singleton $\esetraw{\etuple{}}$ and
+  \efalse\ as the empty set $\esetraw{}$. In a loop over a boolean, $\eforvar x
+  e f$, the variable $\dvar x$ has no useful information, so for concision we
+  abbreviate these to a ``one-sided'' conditional, $\efor{e} f$:
 
+  \begin{equation*}
+    \efor{e} f = 
+    \begin{cases}
+      f & \text{if }e\text{ is true}\\
+      \bot & \text{if }e\text{ is false}
+    \end{cases}
+  \end{equation*}
+
+  Compared with encoding booleans as a sum type \(\tunit + \tunit\) and our
+  one-sided conditional as \kw{case}, our approach has the advantage that
+  $\efor{b} e$ is monotone in the condition $b$.
+%
   \splittodo{technically incorrect, when would still be monotone.}{but we'd be losing information when we converted \emph{into} a boolean type from an ordered one. hm.}
 
   \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
 
 \item We make use of set comprehensions, which can be desugared into the monadic
-  operator \kw{for} in the usual way~\citep{wadler-monad-comprehensions}.
+  operator \kw{for} in the usual way~\citep{wadler-monad-comprehensions}. \todo{discuss discrete case-analysis and how we integrate it with comprehensions.}
 
 \item We make free use of curried functions and pattern matching. Desugaring
   these is relatively standard, and so we will say little about it, with one
@@ -33,11 +43,11 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   pattern $\pbox{p}$ is to ensure that all of the variables bound in
   the pattern $p$ are treated as discrete variables.
 
-\item \todo{equality patterns.}
-
 \item \todo{algebraic datatypes}
 
-\item \todo{discrete case-analysis.}
+\item We augment our pattern-matching construct \kw{case} to support matching not only tuples and tagged values, but also to allow testing equality. The pattern $\peq{e}$ matches only a value equal to $\eiso{e}$. This is particularly useful when combined with set comprehensions, to implement filters or equijoins.
+
+  \todo{equality patterns.}
 \end{enumerate}
 
 \noindent

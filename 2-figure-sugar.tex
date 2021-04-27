@@ -8,11 +8,13 @@
     \\&&&
     \efor{C} e \bnfor \esetfor{e}{C}
     \\&&&
-    \edcase{e} (p_i \caseto e_i)_i
+    %\edcase{e} (p_i \caseto e_i)_i
+%    \edcase{e} p \caseto f_1 \casebar \pwild \caseto f_2
+    \ematch{p}{e}{f_1}{f_2}
     \\[\bnfskip]
     \text{discrete patterns} & p &\bnfeq&
     \dvar x \bnfor \pwild \bnfor \peq{e}
-    \bnfor \ptuple{} \bnfor \ptuple{p_1, p_2} \bnfor \inj i p
+    \bnfor \ptuple{p_1, p_2} \bnfor \inj i p
     \\[\bnfskip]
     \text{loop clauses} & C,D &\bnfeq&
     p \in e \bnfor e \bnfor C,D \bnfor %\emptycx
@@ -40,38 +42,31 @@
       \efor{e}{f} &\desugars \eforin{\pwild}{e} f
       \\
       \eforin{p}{e} f &\desugars
-      \eforvar{\color{freshvar} x}{e} \edcase{\color{freshvar} x}
-      p \caseto f \casebar \pwild \caseto \bot
+      \eforvar{\color{freshvar} x}{e}
+      \ematch{p}{\color{freshvar} x}{f}{\bot}
     \end{aligned}
   \end{align*}
 
   \begin{align*}
-    \edcase{e} \dvar x \caseto f_1 \casebar \pwild \caseto f_2
-    &\desugars \eletbox{x}{\ebox{e}} f_1
+    \ematch{\pwild}{e}{f_1}{f_2} &\desugars f_1
     \\
-    \edcase{e} \pwild \caseto f_1 \casebar \pwild \caseto f_2
-    &\desugars f_1
+    \ematch{\dvar x}{e}{f_1}{f_2} &\desugars \eletbox{x}{\ebox{e}} f_1
     \\
-    \edcase{e_1} \peq{e_2} \caseto f_1 \casebar \pwild \caseto f_2
+    \ematch{\peq{e_1}}{e_2}{f_1}{f_2}
     &\desugars \emcase{\eisempty{(\eeq{e_1}{e_2})}}
-    \inj 1 \ptuple{} \caseto f_2
-    \casebar \inj 2 \ptuple{} \caseto f_1
+    \inj 1 \pwild \caseto f_2
+    \casebar \inj 2 \pwild \caseto f_1
     \\
-    \edcase{e} \ptuple{} \caseto f_1 \casebar \pwild \caseto f_2
-    &\desugars f_1 \quad\todo{is this case actually used?}
+    \ematch{\ptuple{p_1,p_2}}{e}{f_1}{f_2}
+    &\desugars \ematch{p_1}{\pi_1\<e}{(\ematch{p_2}{\pi_2\<e}{f_1}{f_2})}{f_2}
     \\
-    \edcase{e} \ptuple{p_1,p_2} \caseto f_1 \casebar \pwild \caseto f_2
-    &\desugars \edcase{\pi_1\<e}
-    p_1 \caseto (\edcase{\pi_2\<e} p_2 \caseto f_1 \casebar \pwild \caseto f_2)
-    \casebar \pwild \caseto f_2
-    \\
-    \edcase{e} \inj i p \caseto f_1 \casebar \pwild \caseto f_2
+    \ematch{\inj i p}{e}{f_1}{f_2}
     &\desugars \emcase{\esplit{\ebox{e}}}
     \\
     &\phantom{{}\desugars\quad}
     \inj i {\color{freshvar} \mvar x} \caseto
     \eletbox{\color{freshvar} \dvar y}{\color{freshvar} \mvar x}
-    (\edcase{\color{freshvar} \dvar y} p \caseto f_1 \casebar \pwild \caseto f_2)
+    (\ematch{p}{\color{freshvar}\dvar y}{f_1}{f_2})
     \\
     &\phantom{{}\desugars\quad}
     \inj{(i+1 \bmod 2)} {\color{freshvar} \mvar x} \caseto f_2
