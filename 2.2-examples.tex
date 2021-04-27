@@ -19,6 +19,8 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   as a sum type \(\tunit + \tunit\) and our one-sided conditional as \kw{case}, our approach has
   the advantage that $\efor{\pwild \in b} e$ is monotone in the condition $b$.
 
+  \splittodo{technically incorrect, when would still be monotone.}{but we'd be losing information when we converted \emph{into} a boolean type from an ordered one. hm.}
+
   \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
 
 \item We make use of set comprehensions, which can be desugared into the monadic

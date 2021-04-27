@@ -128,6 +128,9 @@
 %\definecolor{isobg}{Hsb}{30, .15, 1} \renewcommand\isobgname{salmon}
 %\definecolor{isobg}{Hsb}{300, .08, 1} \renewcommand\isobgname{fuchsia}
 
+\colorlet{freshvar}{Rhodamine}
+\newcommand\freshvarname{pink}
+
 
 %% ---------- Miscellaneous commands ----------
 %\newcommand\negphantom[1]{\settowidth{\dimen0}{#1}\hspace*{-\dimen0}}
@@ -336,7 +339,7 @@
 \newcommand\esetfor[2]{\setfor{\eiso{#1}}{#2}}
 \newcommand\esetsub[2]{\eiso{\esetraw{#1}_{#2}}}
 \newcommand\eisempty[1]{\eiso{\eisemptyraw{#1}}}
-\newcommand\efor[2][]{\kw{for}_{#1}\:({#2})\fnspace}
+\newcommand\efor[2][]{\kw{for}_{#1}\;({#2})\fnspace}
 \newcommand\eforin[2]{\efor{{#1} \in #2}}
 \newcommand\eforvar[2]{\eforin{\dvar #1}{#2}}
 

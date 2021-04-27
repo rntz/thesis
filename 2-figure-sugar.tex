@@ -40,11 +40,46 @@
       \efor{e}{f} &\desugars \eforin{\pwild}{e} f
       \\
       \eforin{p}{e} f &\desugars
-      \eforvar{x}{e} \edcase{x} p \caseto f \casebar \pwild \caseto \bot
+      \eforvar{\color{freshvar} x}{e} \edcase{\color{freshvar} x}
+      p \caseto f \casebar \pwild \caseto \bot
     \end{aligned}
   \end{align*}
 
-  \todo{discrete pattern matching}
+  \begin{align*}
+    \edcase{e} \dvar x \caseto f_1 \casebar \pwild \caseto f_2
+    &\desugars \eletbox{x}{\ebox{e}} f_1
+    \\
+    \edcase{e} \pwild \caseto f_1 \casebar \pwild \caseto f_2
+    &\desugars f_1
+    \\
+    \edcase{e_1} \peq{e_2} \caseto f_1 \casebar \pwild \caseto f_2
+    &\desugars \emcase{\eisempty{(\eeq{e_1}{e_2})}}
+    \inj 1 \ptuple{} \caseto f_2
+    \casebar \inj 2 \ptuple{} \caseto f_1
+    \\
+    \edcase{e} \ptuple{} \caseto f_1 \casebar \pwild \caseto f_2
+    &\desugars f_1 \quad\todo{is this case actually used?}
+    \\
+    \edcase{e} \ptuple{p_1,p_2} \caseto f_1 \casebar \pwild \caseto f_2
+    &\desugars \edcase{\pi_1\<e}
+    p_1 \caseto (\edcase{\pi_2\<e} p_2 \caseto f_1 \casebar \pwild \caseto f_2)
+    \casebar \pwild \caseto f_2
+    \\
+    \edcase{e} \inj i p \caseto f_1 \casebar \pwild \caseto f_2
+    &\desugars \emcase{\esplit{\ebox{e}}}
+    \\
+    &\phantom{{}\desugars\quad}
+    \inj i {\color{freshvar} \mvar x} \caseto
+    \eletbox{\color{freshvar} \dvar y}{\color{freshvar} \mvar x}
+    (\edcase{\color{freshvar} \dvar y} p \caseto f_1 \casebar \pwild \caseto f_2)
+    \\
+    &\phantom{{}\desugars\quad}
+    \inj{(i+1 \bmod 2)} {\color{freshvar} \mvar x} \caseto f_2
+  \end{align*}
+
+  \centering\itshape
+  Fresh variables introduced by desugaring are colored {\color{freshvar}\freshvarname}.
+
   \caption{Syntax sugar}
   \label{figure-sugar}
 \end{figure}
