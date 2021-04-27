@@ -14,10 +14,10 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   $\efalse < \etrue$. This is because we encode booleans as sets of empty
   tuples, $\tset 1$, with \efalse\ as the empty set $\esetraw{}$ and
   \etrue\ as the singleton $\esetraw{\etuple{}}$. On these sets \kw{for}
-  degenerates to a ``one-sided'' conditional, $\ewhen b e$, yielding
+  degenerates to a ``one-sided'' conditional, $\efor {\pwild \in b} e$, yielding
   $e$ if $b$ is $\etrue$ and $\bot$ otherwise. Compared with encoding booleans
-  as a sum type \(\tunit + \tunit\) and \kw{when} as \kw{case}, our approach has
-  the advantage that \kw{when} is monotone in the condition $b$.
+  as a sum type \(\tunit + \tunit\) and our one-sided conditional as \kw{case}, our approach has
+  the advantage that $\efor{\pwild \in b} e$ is monotone in the condition $b$.
 
   \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
 
@@ -82,8 +82,10 @@ $\dvar x$ is in both $s$ and $t$:
 \begin{code}
   \pwild \cap \pwild \isa \tseteq A \to \tseteq A \to \tseteq A\\
   %% NB. \kern -.5pt to get "member" closer to open paren.
-  \mvar s \cap \mvar t = \eforvar x {\mvar s}
-  \ewhen{\kern -.5pt \mem \<\eboxvar x \<\mvar t}
+  \mvar s \cap \mvar t =
+  %\eforvar x {\mvar s} \ewhen{\kern -.5pt \mem \<\eboxvar x \<\mvar t}
+  \efor{\dvar x \in \mvar s,\, \mem \<\eboxvar x \<\mvar t}
+%  \efor{\dvar x \in \mvar s} \efor{\pwild \in \mem \<\eboxvar x \<\mvar t}
   \eset{\dvar x}
 \end{code}
 

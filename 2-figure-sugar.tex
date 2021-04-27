@@ -3,7 +3,8 @@
     \text{types} & A,B &\bnfeq& ... \bnfor \tbool
     \\[\bnfskip]
     \text{terms} & e,f &\bnfeq& ...
-    \bnfor \ewhen e f \bnfor \etrue \bnfor \efalse
+%    \bnfor \ewhen e f
+    \bnfor \etrue \bnfor \efalse
     \\&&&
     \efor{C} e \bnfor \esetfor{e}{C}
     \\&&&
@@ -25,12 +26,12 @@
       \\
       \etrue &\desugars \eset{\etuple{}}
       \\
-      \ewhen e f &\desugars \eforin{\pwild}{e} f
+      \esetfor{e}{C} &\desugars \efor{C} \eset{e}
+      %% \\
+      %% \ewhen e f &\desugars \eforin{\pwild}{e} f
     \end{aligned}
     &&
     \begin{aligned}
-      \esetfor{e}{C} &\desugars \efor{C} \eset{e}
-      \\
       \efor{%\emptycx
 } e &\desugars e
       \\
