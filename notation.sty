@@ -128,8 +128,8 @@
 %\definecolor{isobg}{Hsb}{30, .15, 1} \renewcommand\isobgname{salmon}
 %\definecolor{isobg}{Hsb}{300, .08, 1} \renewcommand\isobgname{fuchsia}
 
-\colorlet{freshvar}{Rhodamine}
-\newcommand\freshvarname{pink}
+\colorlet{fresh}{Rhodamine}
+\newcommand\freshname{pink}
 
 
 %% ---------- Miscellaneous commands ----------
@@ -279,6 +279,7 @@
 \newcommand\pwild{\underline{\phantom{o}}}
 \newcommand\peq[1]{{}!{\eiso{#1}}}
 \newcommand\peqvar[1]{\peq{\dvar{#1}}}
+\newcommand\ctor[1]{\textls[40]{\sffamily\scshape\MakeLowercase{#1}}}
 
 \newcommand\tset[1]{\{{#1}\}}
 \newcommand\tunit{1}
@@ -324,9 +325,10 @@
 \newcommand\emcase[1]{\kw{case} \;{#1}\; \kw{of}\;}
 \newcommand\edcase[1]{\kw{if} \;\eiso{#1}\; \kw{is}\;}
 \renewcommand\edcase{\PackageWarning{notation}{don't use edcase}{}\todo{\kw{if}}}
-\newcommand\ematch[4]{%
-  \kw{if}\; {#1} \shortleftarrow \eiso{#2} \;\kw{then}\; {#3} \;\kw{else}\; {#4}%
-}
+\newcommand\ematch[4]{\ematchif{#1}{#2} \ematchthen{#3} \;\ematchelse{#4}}
+\newcommand\ematchif[2]{\kw{if}\; {#1} \shortleftarrow \eiso{#2} \;}
+\newcommand\ematchthen{\kw{then}\;}
+\newcommand\ematchelse{\kw{else}\;}
 % TODO: remove \efix.
 \newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
 \newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}

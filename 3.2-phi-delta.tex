@@ -286,13 +286,46 @@ $\phi$ translation leaves these alone, simply distributing over subexpressions.
 On variables, $\delta$ yields the corresponding change variables. On functions
 and application, $\delta$ is more interesting:
 
+%% \begin{align*}
+%%   \begin{aligned}
+%%     \delta(\efn x e) &= \fnof{\pboxvar x} \efn\dx \delta e
+%%     \\
+%%     \delta(e\<f) &= \delta e \<\ebox{\phi f} \<\delta f
+%%   \end{aligned}
+%%   &&
+%%   \begin{aligned}
+%% %    \clap{\quad\quad\textit{recalling that}}\\[-.25ex]
+%% %    \clap{\quad\;\;\textit{N.B.}}\\[-.25ex]
+%% %    \textit{N.B.}\:\:\:
+%%     \DP(A \to B) &= \iso\Phi A \to \DP A \to \DP B
+%%   \end{aligned}
+%% \end{align*}
+
+%% \begin{align*}
+%%   \DP(A \to B) &= \iso\Phi A \to \DP A \to \DP B
+%%   &
+%%   \begin{aligned}
+%%     \delta(\efn x e) &= \fnof{\pboxvar x} \efn\dx \delta e
+%%     \\
+%%     \delta(e\<f) &= \delta e \<\ebox{\phi f} \<\delta f
+%%   \end{aligned}
+%% \end{align*}
+
 \begin{align*}
   \DP(A \to B) &= \iso\Phi A \to \DP A \to \DP B
-  &
+  \\
   \delta(\efn x e) &= \fnof{\pboxvar x} \efn\dx \delta e
-  &
+  \\
   \delta(e\<f) &= \delta e \<\ebox{\phi f} \<\delta f
 \end{align*}
+
+%% \begin{align*}
+%%   \DP(A \to B) &= \iso\Phi A \to \DP A \to \DP B
+%%   &
+%%   \delta(\efn x e) &= \fnof{\pboxvar x} \efn\dx \delta e
+%%   &
+%%   \delta(e\<f) &= \delta e \<\ebox{\phi f} \<\delta f
+%% \end{align*}
 
 \noindent
 The intuition behind $\delta(\efn x e) = \fnof{\pboxvar x} \efn\dx \delta e$ is
@@ -313,10 +346,11 @@ same typing context.
 We're even boxing $\phi f$, hiding all monotone variables; consequently, it gets
 the context $\stripcx{\iso\Phi\G, \DP\G}$.
 %
-However, $\iso$ makes every variable discrete, and $\stripcx{-}$ leaves
-discrete variables alone, so this includes \emph{at least} $\iso\Phi\G$. The
-context $\phi f$ needs is $\Phi\G$. Since $\iso$ only makes a context stronger
-(recalling our definition of weakening from \cref{section-weakening}), we're safe.
+However, $\iso$ makes every variable discrete, and $\stripcx{-}$ leaves discrete
+variables alone, so this includes \emph{at least} $\iso\Phi\G$. The context
+$\phi f$ needs is $\Phi\G$. Since $\iso$ only makes a context stronger
+(recalling our definition of weakening from
+\cref{section-weakening,figure-weakening}), we're safe.
 %
 The same argument applies (all the more easily) when $\phi e$ is used in a
 monotone rather than a discrete position.

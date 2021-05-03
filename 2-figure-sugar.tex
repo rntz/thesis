@@ -42,12 +42,26 @@
       \efor{e}{f} &\desugars \eforin{\pwild}{e} f
       \\
       \eforin{p}{e} f &\desugars
-      \eforvar{\color{freshvar} x}{e}
-      \ematch{p}{\color{freshvar} x}{f}{\bot}
+      \eforvar{\color{fresh} x}{e}
+      \ematch{p}{\color{fresh} x}{f}{\bot}
     \end{aligned}
   \end{align*}
 
   \begin{align*}
+    \fnof{\pboxvar{p}} e
+    &\desugars
+    \fnof{\color{fresh} \mvar y} \eletbox p {\color{fresh}\mvar y} e
+    \\
+    \elet{\pboxtuple{x, y} = e} f
+    &\desugars
+    \eletbox{\color{fresh} z}{e}
+    \sub{f}{
+      \subto{\dvar x}{\eiso{\pi_1\<\dvar z}},\,
+      \subto{\dvar y}{\eiso{\pi_2\<\dvar z}}
+    }
+    \\
+  %% \end{align*}
+  %% \begin{align*}
     \ematch{\pwild}{e}{f_1}{f_2} &\desugars f_1
     \\
     \ematch{\dvar x}{e}{f_1}{f_2} &\desugars \eletbox{x}{\ebox{e}} f_1
@@ -64,16 +78,16 @@
     &\desugars \emcase{\esplit{\ebox{e}}}
     \\
     &\phantom{{}\desugars\quad}
-    \inj i {\color{freshvar} \mvar x} \caseto
-    \eletbox{\color{freshvar} \dvar y}{\color{freshvar} \mvar x}
-    (\ematch{p}{\color{freshvar}\dvar y}{f_1}{f_2})
+    \inj i {\color{fresh} \mvar x} \caseto
+    \eletbox{\color{fresh} \dvar y}{\color{fresh} \mvar x}
+    (\ematch{p}{\color{fresh}\dvar y}{f_1}{f_2})
     \\
     &\phantom{{}\desugars\quad}
-    \inj{(i+1 \bmod 2)} {\color{freshvar} \mvar x} \caseto f_2
+    \inj{(i+1 \bmod 2)} {\color{fresh} \mvar x} \caseto f_2
   \end{align*}
 
   \centering\itshape
-  Fresh variables introduced by desugaring are colored {\color{freshvar}\freshvarname}.
+  Fresh variables introduced by desugaring are colored {\color{fresh}\freshname}.
 
   \caption{Syntax sugar}
   \label{figure-sugar}

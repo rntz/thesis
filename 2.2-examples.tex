@@ -12,47 +12,82 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
 
 \item We mentioned earlier that Datafun's boolean type \tbool\ is ordered
   $\efalse < \etrue$. This is because we encode booleans as sets of empty
-  tuples, $\tset 1$, with \etrue\ as the singleton $\esetraw{\etuple{}}$ and
-  \efalse\ as the empty set $\esetraw{}$. In a loop over a boolean, $\eforvar x
-  e f$, the variable $\dvar x$ has no useful information, so for concision we
-  abbreviate these to a ``one-sided'' conditional, $\efor{e} f$:
+  tuples, $\tset{\tunit}$, with \etrue\ as the singleton $\esetraw{\etuple{}}$
+  and \efalse\ as the empty set $\esetraw{}$. In a loop over a boolean,
+  $\eforvar x e f$, the variable $\dvar x$ contains no useful information; if
+  for brevity we omit it, the condensed expression $\efor{e} f$ may be thought
+  of as a ``one-sided'' conditional:
+
+%  so the expression becomes a ``one-sided'' conditional, which we abbreviate $\efor{e} f$:
 
   \begin{equation*}
-    \efor{e} f = 
+    \efor{e} f =
     \begin{cases}
-      f & \text{if }e\text{ is true}\\
-      \bot & \text{if }e\text{ is false}
+      f & \text{if }e\text{ is }\etrue\\
+      \bot & \text{if }e\text{ is }\efalse
     \end{cases}
   \end{equation*}
 
-  Compared with encoding booleans as a sum type \(\tunit + \tunit\) and our
-  one-sided conditional as \kw{case}, our approach has the advantage that
-  $\efor{b} e$ is monotone in the condition $b$.
-%
-  \splittodo{technically incorrect, when would still be monotone.}{but we'd be losing information when we converted \emph{into} a boolean type from an ordered one. hm.}
+  Compared with encoding booleans as a sum type \(\tunit + \tunit\), our
+  approach has the advantage that it can express the type of ``monotone''
+  predicates $P \isa A \to \tbool$ such that $P(x)$ may change from $\efalse$ to
+  $\etrue$ as $x$ grows, but cannot revert from $\etrue$ to $\efalse$.
 
-  \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
+%% and our
+%%   one-sided conditional as \kw{case}, our approach has the advantage that
+%%   $\efor{b} e$ is monotone in the condition $b$.
+%% %
+%%   \splittodo{technically incorrect, when would still be monotone.}{but we'd be losing information when we converted \emph{into} a boolean type from an ordered one. hm.}
+
+  %% \splittodo{do we ever use $\kw{when}$?}{YES: intersection example. but this might go away after rewrite. anywhere else? I think we only use conditions in set comprehensions and the like.}
+
+\item We make use of pattern matching. Besides the usual sum/tuple patterns, we
+  support box-patterns $\pbox{p}$ and equality-check patterns $\peq{e}$. Box
+  patterns $\pbox{p}$ correspond to box-elimination $\eletbox x e f$, and their
+  effect is to make all of the variables bound by $p$ discrete. The
+  equality-check pattern $\peq{e}$ matches only a value equal to $\eiso{e}$ --
+  this is particularly useful when combined with set comprehensions.
 
 \item We make use of set comprehensions, which can be desugared into the monadic
-  operator \kw{for} in the usual way~\citep{wadler-monad-comprehensions}. \todo{discuss discrete case-analysis and how we integrate it with comprehensions.}
+  operator \kw{for}~\citep{wadler-monad-comprehensions}. We also support
+  looping/comprehending over only those elements of a set which match a certain
+  pattern.
 
-\item We make free use of curried functions and pattern matching. Desugaring
-  these is relatively standard, and so we will say little about it, with one
-  exception: the box-elimination form $\eletbox x e e'$ is a pattern matching
-  form, and so we allow it to occur inside of patterns. The effect of a box
-  pattern $\pbox{p}$ is to ensure that all of the variables bound in
-  the pattern $p$ are treated as discrete variables.
+\item We permit ourselves a top-level surface syntax similar to Haskell or SML. In particular, we allow:
 
-\item \todo{algebraic datatypes}
+  \begin{enumerate}
+  \item Function definitions, including currying:
 
-\item We augment our pattern-matching construct \kw{case} to support matching not only tuples and tagged values, but also to allow testing equality. The pattern $\peq{e}$ matches only a value equal to $\eiso{e}$. This is particularly useful when combined with set comprehensions, to implement filters or equijoins.
+    \begin{code}
+      \name{disjunction} \isa \tbool \to \tbool \to \tbool\\
+      \name{disjunction} \<\mvar x \<\mvar y = \mvar x \vee \mvar y
+    \end{code}
 
-  \todo{equality patterns.}
+  \item Type aliases:
+
+    \XXX
+
+  \item Algebraic datatype definitions, introduced by the syntax \kw{data}:
+
+    \begin{code}
+      \kw{data}~\typename{color} =
+      \ctor{black}
+      ~|~ \ctor{named} \<\typename{string}
+      ~|~ \ctor{rgb} \<\typename{int} \<\typename{int} \<\typename{int}
+    \end{code}
+
+    We do not allow these types to be defined recursively, so they can be easily
+    desugared into sums of products in the standard way. Similarly, we allow
+    ourselves $n$-ary tuples, since they can easily be desugared into nested
+    binary tuples.
+  \end{enumerate}
+
 \end{enumerate}
 
 \noindent
-We summarize the desugaring rules we use in \cref{figure-sugar} (except for
-pattern matching and algebraic datatypes, which are standard).
+We summarize the desugaring rules we use in \cref{figure-sugar}, excepting our
+top-level declarations and the desugaring of algebraic data types, which should
+be fairly familiar.
 
 
 \subsection{Set operations and relational algebra}
@@ -456,8 +491,6 @@ symbol $S$ if $S(0,n)$ is derivable.
 In Datafun, this rule-based description of the algorithm can be transliterated
 almost directly into code. We begin by introducing a few basic types.
 
-%% TODO: figure this out
-\newcommand\ctor[1]{\textls[40]{\sffamily\scshape\MakeLowercase{#1}}}
 \newcommand\tfact{\typename{fact}}
 \newcommand\tsymbol{\typename{symbol}}
 \newcommand\tgrammar{\typename{grammar}}
@@ -619,14 +652,24 @@ Given a program, we can recover its 1-step control flow graph with the
   \name{flow} \<\mvar p =
   \efor{\ptuple{\dvar i, \dvar s} \in \mvar p}\\
   \phantom{\name{flow} \<\mvar p = {}}
-  \edcase{\dvar s} \ctor{if} \<\pwild \<\dvar j \<\dvar k
-  \caseto \eset{(\dvar i, \dvar j),\, (\dvar i, \dvar k)}
+  \ematchif{\ctor{if} \<\pwild \<\dvar j \<\dvar k}{\dvar s}
   \\
-  \phantom{\name{flow} \<\mvar p = \edcase{\dvar s}}
-  \pwild \caseto \esetfor{\etuple{\dvar i, \dvar i + 1}}{
+  \phantom{\name{flow} \<\mvar p = {}}
+  \ematchthen{\eset{(\dvar i, \dvar j),\, (\dvar i, \dvar k)}}
+  \\
+  \phantom{\name{flow} \<\mvar p = {}}
+  \ematchelse{\esetfor{\etuple{\dvar i, \dvar i + 1}}{
   %%   \mem \<\ebox{\dvar i + 1} \<(\name{labels} \<\mvar p)
     \peq{(\dvar i + 1)} \in \name{labels} \<\mvar p
-  }
+  }}
+  %% \edcase{\dvar s} \ctor{if} \<\pwild \<\dvar j \<\dvar k
+  %% \caseto \eset{(\dvar i, \dvar j),\, (\dvar i, \dvar k)}
+  %% \\
+  %% \phantom{\name{flow} \<\mvar p = \edcase{\dvar s}}
+  %% \pwild \caseto \esetfor{\etuple{\dvar i, \dvar i + 1}}{
+  %% %%   \mem \<\ebox{\dvar i + 1} \<(\name{labels} \<\mvar p)
+  %%   \peq{(\dvar i + 1)} \in \name{labels} \<\mvar p
+  %% }
 \end{code}
 
 \noindent
