@@ -54,13 +54,13 @@
     \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
     \\
     %% split
-    \phi(\esplit e) &= \emcase{\phi e}
+    \phi(\esplit e) &\stareq \emcase{\phi e}
     \\
-    &\phantom{{}={}}\
+    &\qquad
     \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
     \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
     \\
-    &\phantom{{}={}}\
+    &\qquad
     \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
     \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
   \end{align*}
@@ -93,14 +93,15 @@
     \\
     \delta(\eisempty e) &= \eisempty {\phi e}
     &
-    \delta(\esplit e) &= \emcase{\phi e}
+    \delta(\esplit e) &\stareq \emcase{\phi e}
     (\pboxtuple{\inj i \pwild, \pwild}
     \caseto \inj i {\etuple{}} )_i
   \end{align*}
   %
   \begin{align*}
     \delta(\emcase e (\inj i \mvar x \caseto f_i)_i)
-    &= \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
+    &\stareq
+    \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
     &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
     &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
     %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
@@ -114,6 +115,10 @@
     %\substd{\delta f}{\dvar\dx \substo \zero\<\dvar x})
     \eletbox{\dx}{\zero\<\dvar x} \delta f)
   \end{align*}
+
+  \raggedright \emph{Equations marked with a red star, $\stareq$, use syntax
+    sugar that we have not properly defined; see \cref{appendix-seminaive},
+    \cref{appendix-seminaive-syntax-sugar} for details.}
 
 %  \caption{Semi\naive{} derivative translation, $\delta$}
 %  \caption{Semi\naive{} speed-up and derivative translations, $\phi/\delta$}

@@ -160,9 +160,101 @@ in the text. \todo{But maybe it should be?}
   \end{description}
 \end{proof}
 
+
 \section{Semi\naive\ evaluation}
+\label{appendix-seminaive}
 
 \emph{Theorems and lemmas from \cref{chapter-seminaive}.}
+
+\begin{figure}
+  \todo{typing rules for syntax sugar}
+  \begin{mathpar}
+    \infer*{
+      \J{e}{\Gamma}{\iso(A \x B)}\\
+      \J{f}{\Gamma,\,\hd x A,\,\hd y B}{C}
+    }{
+      \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}
+        {\Gamma}
+        {C}
+    }
+  \end{mathpar}
+
+  \todo{extra desugarings}
+
+  \begin{align*}
+    % φ(split e)
+    \phi(\esplit e) &\stareq \emcase{\phi e}
+    \\
+    &\qquad
+    \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
+    \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
+    \\
+    &\qquad
+    \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
+    \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
+    \\
+    &=
+    \elet{\pboxtuple{{\color{fresh}\dvar x},{\color{fresh}\dvar\dx}} = \phi e}
+    \\
+    &\phantom{{}={}}
+    \emcase{\esplit{\eboxvar{\color{fresh}x}}}
+    (\inj i \mvar y \caseto 
+    )_i
+    \\[.5\baselineskip]
+    % δ(split e)
+    \delta(\esplit e) &\stareq \emcase{\phi e}
+    (\pboxtuple{\inj i \pwild, \pwild}
+    \caseto \inj i {\etuple{}} )_i
+    \\
+    &= \eletbox{\color{fresh} y}{\phi e}
+    \emcase{\pi_1\<{\color{fresh}\dvar y}}
+    (\inj i \pwild \caseto \inj i \ptuple{})_{i \in \{1,2\}}
+    \\[.5\baselineskip]
+    % δ(case e of ...)
+    \delta(\emcase e (\inj i \mvar x \caseto f_i)_i)
+    &\stareq
+    \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
+    &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
+    &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
+    %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
+    \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
+    \\
+    &=
+    \emcase{\esplit{\ebox{\phi e}}}\\
+    &\qquad
+    (
+    \inj i {\color{fresh}\mvar y} \caseto
+    \eletbox{x}{\color{fresh}\mvar y}
+    \\
+    &\qquad\phantom{(\inj i {\mvar y} \caseto {}}
+    (\efn{\dx} \delta f_i)
+    \<(\emcase{\delta e}
+    \inj i \mvar\dx \caseto \mvar\dx
+    \\
+    &\qquad\phantom{(\inj i {\mvar y} \caseto {} (\efn{\dx} \delta f_i) \<(\emcase{\delta e}}
+    \inj{i+1 \bmod 2} \pwild \caseto \dummy\<\dvar x
+    ))_i
+    %% \\
+    %% &\qquad\phantom{(\inj i {\mvar y} \caseto {}}
+    %% \emcase{\delta e}
+    %% \\
+    %% &\qquad\phantom{(\inj i {\mvar y} \caseto {}}\quad
+    %% \inj i {\mvar\dx} \caseto \delta f_i\\
+    %% &\qquad\phantom{(\inj i {\mvar y} \caseto {}}\quad
+    %% \inj{i+1 \bmod 2} \pwild \caseto 
+    %% )_{i \in \{1,2\}}
+  \end{align*}
+
+  \centering\itshape
+  Fresh variables introduced by desugaring are colored {\color{fresh}\freshname}.
+
+  \caption{Syntax sugar in $\phi$ and $\delta$ transformations}
+  \label{appendix-seminaive-syntax-sugar}
+\end{figure}
+
+%% \begin{definition}[Syntax sugar in $\phi$ and $\delta$ transformations]
+%%   \label{appendix-seminaive-syntax-sugar}
+%% \end{definition}
 
 
 \DeltaLattice*
