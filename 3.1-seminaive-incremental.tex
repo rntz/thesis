@@ -8,9 +8,9 @@ Let's return to our example Datalog program~\todo{cross reference Datalog
   transitive closure example}, modified to consider graphs rather than ancestry:
 
 \begin{datalog}
-  \atom{path}{X,Z} &\gets \atom{edge}{X,Z}
+  \atom{path}{X,Z} \gets \atom{edge}{X,Z}.
   \\
-  \atom{path}{X,Z} &\gets \atom{edge}{X,Y} \wedge \atom{path}{Y,Z}
+  \atom{path}{X,Z} \gets \atom{edge}{X,Y} \conj \atom{path}{Y,Z}.
 \end{datalog}
 
 \noindent
@@ -22,9 +22,15 @@ apply its rules until nothing more is deducible. We can make this strategy
 explicit by time-indexing the \name{path} relation:
 
 \begin{datalog}
-  \name{path}_{i+1}(X,Z) &\gets \atom{edge}{X,Z}
+  \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Z}.
   \\
-  \name{path}_{i+1}(X,Z) &\gets \atom{edge}{X,Y} \wedge \name{path}_i(Y,Z)
+  \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Y} \conj \name{path}_i(Y,Z).
+\end{datalog}
+
+\begin{datalog}
+  \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Z}.
+  \\
+  \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Y} \conj \name{path}_i(Y,Z).
 \end{datalog}
 
 \noindent
@@ -33,8 +39,8 @@ By omission $\name{path}_0 = \emptyset$.
 From this inductively $\name{path}_i \subseteq \name{path}_{i+1}$, because at step $i+1$ we re-deduce every fact known at step $i$.
 %
 For example, suppose $\name{path}_i(j, k)$ holds. Then at step $i+1$ the second
-rule deduces $\name{path}_{i+1}({j-1}, k)$ from $\atom{edge}{{j-1}, j} \wedge
-\name{path}_i(j,k)$.
+rule deduces $\name{path}_{i+1}({j-1}, k)$ from
+$\atom{edge}{{j-1}, j} \wedge \name{path}_i(j,k)$.
 %
 But since $\name{path}_{i+1}(j, k)$ holds, we perform the same deduction at time
 $i+2$, and again at $i+3$, $i+4$, etc.
@@ -90,7 +96,7 @@ So consider $\name{step}'$ defined by:
 Observe that
 
 \nopagebreak[4]
-\begin{datalog}
+\begin{align*}
   &\mathrel{\hphantom{=}} \name{step} \<(\name{path} \cup \name{dpath})
   \\
   &= \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path} \cup \name{dpath}}
@@ -98,7 +104,7 @@ Observe that
   &= {\colorA \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path}}} \cup {\colorB \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}}}
   \\
   &= {\colorA\name{step}\<\name{path}} \cup {\colorB\name{step}'\<\name{dpath}}
-\end{datalog}
+\end{align*}
 
 \noindent
 In other words, $\name{step}'$ tells us how \name{step} changes as its input
@@ -107,7 +113,7 @@ grows.
 This lets us directly compute the changes $\name{dpath}_i$ between our
 iterations $\name{path}_i$:
 
-\begin{datalog}
+\begin{align*}
   \name{dpath}_0
   &= \name{step}\<\emptyset
   = \name{edge}
@@ -118,7 +124,7 @@ iterations $\name{path}_i$:
   \\
   \name{path}_{i+1}
   &= \name{path}_i \cup \name{dpath}_i
-\end{datalog}
+\end{align*}
 
 \noindent These exactly mirror the derivative and accumulator rules for
 \(\name{path}_i\) and \(\name{dpath}_i\) we gave earlier.

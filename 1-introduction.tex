@@ -1,3 +1,522 @@
 \chapter{Introduction}
 
-\XXX
+
+\section{Monotone fixed points}
+
+%% \splittodo{sketch problem space:}{recursive queries + higher-order functions + a
+%%   clean denotational semantics free of implementation details (``declarative'')
+%%   + be able to reuse optimizations from the database and Datalog literature}
+
+An extraordinary number of classic and useful computational problems can be
+expressed as finding the least fixed point of a monotone map on a semilattice
+satisfying the ascending chain condition. The utility of Datalog is explained by
+the fact that it captures precisely this pattern, albeit restricted to the
+semilattice of finite sets under union. To understand this pattern better, let's
+consider three examples of increasing complexity:
+%
+(1) reachability in a graph;
+(2) single-source shortest paths;
+and (3) analyzing which variable assignments may reach a given line in a simple
+  imperative program (often called ``reaching definitions'').
+
+\paragraph{Reachability}
+
+\begin{figure}[t]
+  \XXX
+  \caption{Graph reachability}
+  \label{figure-reachability}
+\end{figure}
+
+Consider a graph with a designated start node, as in \cref{figure-reachability},
+and suppose we wish to find all nodes reachable from the start node. A
+systematic procedure for doing this is as follows: first, put a check mark next
+to the start node; then, whenever you see an edge between a marked and an
+unmarked node, mark the unmarked node. Once there are no edges between marked
+and unmarked nodes -- and thus no possibility of any node becoming marked -- we
+are done.
+
+\paragraph{Shortest paths}
+
+\begin{figure}
+  \XXX
+  \caption{Shortest paths}
+  \label{figure-shortest-paths}
+\end{figure}
+
+Now suppose each edge in the graph has an associated non-negative length, and we
+wish to find the length of the shortest path to each reachable
+node~(\cref{figure-shortest-paths}). A slight modification of the previous
+procedure solves this problem as well: instead of a check mark, we annotate
+nodes with the length of the shortest path to them we've discovered so far. So
+initially we mark the start node with 0 and every other node with $\infty$
+(representing ``no known path''). Then, whenever we see an edge that provides a
+shorter path to a node than its current annotation, we update it appropriately
+-- that is, if we see an edge $e$ with length $l_e$ between nodes $v$ and $u$
+with annotations $l_v, l_u$ respectively, if $l_v + l_e < l_u$ then we annotate
+$u$ with $l_v + l_e$. Once no such edges exist, the annotations on nodes can no
+longer change, and we are done.%
+%
+\footnote{The classic algorithm for single-source shortest paths, Dijkstra's
+  algorithm, can be seen as a version of the algorithm we've described, but with
+  a crucial optimization: it carefully chooses which edge to consider next in a
+  way that guarantees it never needs to revisit a node.}
+
+
+\paragraph{Reaching definitions}
+
+\begin{figure}
+  \XXX
+  \caption{Reaching definitions}
+  \label{figure-reaching-definitions}
+\end{figure}
+
+Finally, let's consider something seemingly completely different: statically
+analyzing a program.
+
+
+
+\section{Datalog}
+\label{section-datalog}
+
+Datalog may be seen either as a restricted logic programming language or an
+expressive database query language. To start with, we consider the former view,
+explaining Datalog in terms of deduction. Here is a simple Datalog program:
+
+\begin{datalog}
+  \atom{parent}{\datum{alice}, \datum{bob}}.
+  \\
+  \atom{parent}{\datum{bob}, \datum{charlie}}.
+  \\
+  \atom{grandparent}{X, Z} \gets \atom{parent}{X, Y} \conj \atom{parent}{Y, Z}.
+\end{datalog}
+
+\noindent
+We can see each line, or clause, of this program as an inference rule. The first
+two lines are axioms, or inference rules with no premises; the last line is a
+rule with two premises. In inference rule notation we might write this:
+%
+\begin{mathpar}
+  \infer{~}{\atom{parent}{\datum{alice}, \datum{bob}}}
+
+  \infer{~}{\atom{parent}{\datum{bob}, \datum{charlie}}}
+
+  \infer{\atom{parent}{X, Y} \\ \atom{parent}{Y, Z}}{\atom{grandparent}{X, Z}}
+\end{mathpar}
+
+\noindent
+More formally, a Datalog program is a sequence of \emph{clauses} terminated by
+periods. Each clause is an implication with one conclusion and an optional list
+of premises, written conclusion-first, ``$B \gets A_1 \conj A_2 \conj ... \conj
+A_n.$''; or if there are no premises, simply ``$B.$''. The premises and
+conclusion are \emph{atoms} of first-order logic: a predicate applied to a
+sequence of arguments, $P(X_1, ..., X_n)$, or a negation of the same, $\neg
+P(X_1, ..., X_n)$, where each argument must either be a variable (generally
+written as an uppercase letter $X,Y,Z$) or a constant (written in lower case
+sans-serif: $\datum{alice}, \datum{bob}, \datum{charlie}$). Moreover, the
+conclusion of a clause must be positive, not negated.
+
+As is the convention when interpreting inference rules, in Datalog the variables
+in a clause are considered to be universally quantified: the logical
+interpretation of our third line, for example, is $\fa{X, Y, Z} \atom{parent}{X,
+  Y} \wedge \atom{parent}{Y, Z} \implies \atom{grandparent}{X, Z}$.
+
+Occasionally we will consider Datalog programs which slightly relax some of
+these requirements, for example by allowing premises which are notated infix,
+for example $X = Y$ or $X < Y$.
+
+Informally, the intended interpretation of a Datalog program is the set of all
+facts deducible from its clauses. We access this set via \emph{queries}, for
+example $\atom{grandparent}{\datum{alice},X}$, which asks for a list of all $X$
+such that $\atom{grandparent}{\datum{alice},X}$ is deriveable. In general we
+allow conjunctive queries: lists of atoms conjuncted together, for instance the
+unlikely query $\atom{parent}{X,Y} \conj \atom{parent}{Y,X}$, which asks for a
+pair of people who are each the parent of the other (or, in the case $X = Y$, a
+single person who is their own parent). Finally, a query without any variables,
+such as $\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
+yes-or-no question: is the query deriveable or not?
+
+
+
+\subsection{Termination and recursion}
+
+Thus far our description of Datalog has not distinguished it from its ancestor
+Prolog; this is because the difference lies not so much in their syntax as in
+their semantics.
+%
+Without further restrictions, whether a proposition is deducible from a
+collection of clauses is in general undecidable.
+%
+Prolog's solution is to specify its proof search strategy.
+%
+This lets Prolog programmers reason about the execution of their programs, but
+it can mean that some logically sensible recursive programs fail to terminate.
+For example:
+
+\begin{datalog}
+\atom{path}{X,Z} \gets \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
+\atom{path}{X,Y} \gets \atom{edge}{X,Y}.
+\end{datalog}
+
+\noindent
+Read as inference rules, these clauses make \name{path} the transitive closure
+of \name{edge}.
+%
+In Prolog, however, any query to \name{path} will loop.
+%
+This is because Prolog uses backward chaining (also called goal-directed or
+top-down) depth-first search: we start from a goal and reason backward, applying
+rules that might prove it.
+%
+These rules are applied in the order they occur in the program, so to solve the
+query $\atom{path}{\datum{st-louis}, \datum{detroit}}$, Prolog will apply the
+first rule and try recursively to solve $\atom{path}{\datum{st-louis},Y}$ for
+unknown $Y$.
+%
+This in turn will apply the same rule, solving $\atom{path}{\datum{st-louis},
+  Y_2}$ for unknown $Y_2$, which will solve $\atom{path}{\datum{st-louis}, Y_3}$
+for unknown $Y_3$, and so on indefinitely.%
+%
+\footnote{One natural approach to this problem is to keep backward chaining, but
+  use a complete search strategy instead of depth-first search; this is the
+  approach adopted by miniKanren~\citep{kanren}. This restores some
+  declarativeness to logic programming; in particular, reordering rules can no
+  longer cause unproductive infinite looping. However, introducing a
+  ``redundant'' rule like $\atom{path}{X,Y} \gets \atom{path}{X,Y}$ will still
+  cause proof search to continue indefinitely (although it won't prevent any
+  proofs from being found). And while this example is contrived, the problem in
+  general is fundamental: without further limitations on clauses, proof search
+  is only semi-decidable, so while complete search strategies can guarantee
+  finding all proofs, they cannot guarantee they'll \emph{halt} after doing so.
+  This is particularly important for the handling of negation-as-failure; see
+  \cref{section-stratified-negation}.}
+
+Datalog takes a different tack: rather than fix a proof search strategy, it
+imposes limitations that keep proof search decidable. In particular, ignoring
+for now the issue of negation, it imposes two restrictions which keep all
+\todo{haven't explained the word relation} relations finite:
+
+\begin{enumerate}
+\item Clauses are \emph{range-restricted}: all variables in the conclusion of a
+  clause must occur positively in its premises. For example, the premiseless
+  clause ``$\atom{path}{X,X}.$'' is disallowed; while logically sensible (it
+  asserts $\name{path}$ is reflexive), it leaves the variable $X$ unconstrained,
+  which would generate an infinite relation.
+
+\item Programs are \emph{constructor-free}: predicate arguments are either
+  atomic terms or variables. This prevents the introduction of new terms that
+  don't already appear in the program, as this could also result in an infinite
+  relation; for example, the relation containing all digit-lists (the use of a
+  `constructor' is highlighted in {\color{Red}red}):
+
+  \nopagebreak[3]
+  \begin{datalog}
+    \atom{digits}{\datum{nil}}.
+    \\
+    \atom{digits}{{\color{Red}\datum{cons}(X, Xs)}} \gets
+    \atom{digit}{X} \conj \atom{digits}{Xs}.
+    %\qquad\textsf{\color{Red}\scshape\ding{55}}%\textsf{\color{red} disallowed!}
+  \end{datalog}
+\end{enumerate}
+
+\noindent
+Together, range-restriction and constructor-freedom ensure that relations are
+\emph{finite}. This permits the most common Datalog implementation strategy,
+\emph{forward chaining}.
+%
+In backward chaining we start from a goal (``is there a path from St.
+Louis to Detroit?'') and reason backward, applying rules that might prove it.
+%
+In forward chaining, we start from what we know (``there's a path from
+St. Louis to Chicago, and another from Chicago to Detroit'') and apply rules
+whose premises are satisfied.
+
+The weakness of forward chaining is that it's undirected: it deduces everything
+it can! If all you want to know is whether you can reach Detroit from St. Louis,
+this is wasteful. On the other hand, it's much easier to know when to stop: when
+there is no rule whose application yields a new fact. This is the operational
+justification for range-restriction and constructor-freedom: by ensuring all
+predicates are finite, we guarantee forward-chaining deduction terminates.%
+%
+\footnote{\todo{talk about tabling, as a mixture of forward- and backward-chaining}}
+
+\todo{missing a segue here}
+
+
+\subsection{Stratified negation}
+\label{section-stratified-negation}
+
+Negation and deduction have an interesting relationship.
+%
+Consider the following program:
+
+\nopagebreak[1]
+\begin{datalog}
+  \atom{underiveable}{} \gets \neg \atom{underiveable}{}.
+\end{datalog}
+
+\noindent
+In classical logic, an implication $B \gets A$ is equivalent to $B \vee \neg A$.
+Applying this, the above is equivalent to $\atom{underiveable}{} \vee
+\neg\neg\atom{underiveable}{}$, and thus simply to $\atom{underiveable}{}$.
+%
+Regarded as a rule of inference, however -- as a strategy for deriving new facts
+from ones already known -- this clause makes little sense: we cannot invoke it
+unless we can prove its conclusion is false!
+
+To avoid this sort of gap between the logical meaning of a program and its
+interpretation as inference rules, Datalog allows only programs where uses of
+negation can be \emph{stratified:} a recursively defined predicate (or mutually
+recursive group of predicates) cannot use its own negation in its definition.
+
+This restriction also avoids the need to make arbitrary choices. For example,
+this is disallowed:
+
+\nopagebreak[1]
+\begin{datalog}
+  \atom{marry-rochester}{} \gets \neg \atom{marry-st-john}{}.\\
+  \atom{marry-st-john}{} \gets \neg \atom{marry-rochester}{}.
+\end{datalog}
+
+This is classically equivalent to $\atom{marry-rochester}{} \vee
+\atom{marry-st-john}{}$. While sensible logically, this means answering simple
+yes-or-no queries requires making an arbitrary choice: if we query the
+propositions $\atom{marry-rochester}{}$ and $\atom{marry-st-john}{}$ we
+may consistently answer either \emph{Rochester} or \emph{St John} or
+\emph{both}.
+%
+The symmetry of our program makes answering either
+\emph{Rochester} or \emph{St John} unprincipled, and \emph{both} is simply
+not deriveable from the given rules.%
+%
+\footnote{\todo{talk about answer-set programming?}}
+
+Thus, unlike the preceding restrictions, stratified negation is not about
+finiteness or decidability; rather, it is motivated by interpreting a program
+as a set of rules for deduction and not merely a set of propositions. In other
+words, in Datalog \emph{truth} is identified with \emph{deriveability}.
+
+Following this principle, we regard anything not deriveable as false. This
+conforms with the programmer's expectation that anything not explicitly
+declared to be true is false. For example, returning to our example program
+defining the paths through a graph:
+
+\nopagebreak[1]
+\begin{datalogarray}
+  \atom{path}{X,Z} &\gets& \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
+  \atom{path}{X,Y} &\gets& \atom{edge}{X,Y}.
+\end{datalogarray}
+
+\noindent
+Regarded as mere propositions, these implications do not rule out the
+possibility that $\atom{path}{X,Y}$ is true for all vertices $X,Y$, regardless
+of the \name{edge} relation (in other words, one model of these propositions
+makes \name{path} the complete relation). But this is clearly not the
+programmer's intent, which is to capture reachability under the \name{edge}
+relation: not every graph is completely connected!
+
+The principle of regarding anything not deriveable as false is known as
+\emph{negation as failure}: to derive $\neg \atom{path}{X,Y}$ it suffices to
+attempt to derive $\atom{path}{X,Y}$ and fail.
+%
+Forward-chaining provides a natural implementation strategy for
+negation-as-failure: once we have deduced all facts of the form
+$\atom{path}{X,Y}$, if a particular such fact was not deduced, for example
+$\atom{path}{\datum{detroit}, \datum{\textalpha-centauri}}$, we regard this as
+proof of its negation.
+
+However, because it must wait until all facts $\atom{path}{X,Y}$ are deduced
+before handling negative queries $\neg\atom{path}{X,Y}$, a forward-chaining
+system cannot support such negative queries in \name{path}'s own definition.
+%
+This is the operational justification for stratification: we must be able to
+stratify our Datalog program into layers, each of which may only use the
+negation of predicates defined in the preceding layers.
+
+%% Stratified negation thus ensures that it is possible for truth to coincide with
+%% deriveability, and falsehood with underiveability (in model-theoretic terms, it
+%% ensures the unique existence of a minimal model).
+
+
+\section{What Datalog is good for}
+
+\splittodo{in order, using examples:}{
+  \begin{enumerate}
+  \item monotone fixpt as long as the semilattice is sets; demonstrate
+    reachability and reaching definitions
+  \item simple sql-style queries, business analytics, use simple examples
+  \item scalable static analysis, eg: doop, semmle
+  \end{enumerate}
+}
+
+\subsection{Static analysis}
+
+\todo{implement reaching definitions in Datalog}
+
+\citet{DBLP:conf/datalog/SmaragdakisB10} list several reasons why they found
+Datalog to be useful when implementing a scalable points-to analysis, compared
+in particular with a conventional language like Java or C++:
+
+\begin{enumerate}
+\item handles mutually-recursive relation definitions, which is common in static
+  analysis. \emph{``Mutual recursion is the source of all complexity in program
+    analysis. For a standard example, the logic for computing a callgraph
+    depends on having points-to information for pointer expressions, which, in
+    turn, requires a callgraph.''}~\citep{DBLP:conf/datalog/SmaragdakisB10}
+  
+\item Allows experimenting with implementation techniques without having to rewrite your program, e.g. BDD versus explicit representations of relations, different indexing strategies; or while making very small changes (compared to a lower level implementation language)
+  
+\item Query optimisation of individual rules being performed automatically, as
+  opposed to having to hand optimize it: \emph{``We relied on query optimization
+    (i.e., intra-rule, as opposed to inter-rule, optimization) being performed
+    automatically. This was crucial for performance and, although a
+    straightforward optimization in the context of database relations, results
+    in far more automation than programming in a mainstream high-level
+    language.''}
+  
+\item concision: \emph{``Generally, the declarative nature of \textsc{Doop}
+  often allows for very concise specifications of analyses. We show in an
+  earlier publication the striking example of the logic for the Java cast
+  checking---i.e., the answer to the question “can type A be cast to type B?”
+  The Datalog rules are almost an exact transcription of the Java
+  Language Specification.''}
+
+  \emph{``[W]e believe that our ability to efficiently optimize our
+    implementation was largely due to the declarative specifications of
+    analyses. Working at the Datalog level eliminated much of the artificial
+    complexity of a points-to analysis implementation, allowing us to
+    concentrate on indexing optimizations and on the algorithmic essence of each
+    analysis.''}
+\end{enumerate}
+
+
+\section{What Datalog can't do}
+
+\splittodo{what Datalog can't do:}{
+  \begin{enumerate}
+  \item semilattices other than sets (e.g. shortest paths)
+  \item functional abstraction
+  \item aggregations
+  \item arithmetic or other functions
+  \item compound data
+  \end{enumerate}
+
+  Often extended to handle aggregations, arithmetic, and compound data; but of
+  course this gives up its semantics; or does it?
+}
+
+\cite{DBLP:conf/datalog/SmaragdakisB10}: they needed to add a macro system in
+order to handle deep contexts, because Datalog does not support combining
+multiple values into one, so they have to add an extra parameter to a predicate
+for each component of the context.
+
+\emph{``For deeper contexts, one needs to add extra variables, since pure
+  Datalog does not allow constructors and therefore cannot support value
+  combination. We have introduced in \textsc{Doop} a macro system to hide the
+  number of context elements so that such variations do not pollute the analysis
+  logic.''}
+
+They also mention possibly wanting expressiveness enhancements: \emph{``The
+  language needs to be developed as a real programming language, with [...], and
+  possibly expressiveness enhancements (e.g., macros, exponential-search, or
+  other high-order capabilities).''}
+
+
+\section{Our goal}
+
+\splittodo{our goal:}{ease these limitations by combining Datalog with
+  functional programming. From this we can gain: semantics a la carte, more
+  compositional approach to guarantees; functions to factor out repetition;
+  types to describe \& hopefully handle other semilattices in a principled way;
+  compound data via datatypes}
+
+
+\subsection{Datalog by example}
+
+\todo{remove this section and move its content into other sections}
+
+\XXX \todo{ideas for Datalog examples:}
+\begin{itemize}
+\item some simple business logic examples, department-employee stuff
+\item transitive closure, of course; maybe a less contrived example
+\item sketch a points-to analysis? DOOP?
+\item find things that people use souffle for? Look through Semmle papers? Check will crichton's site?
+\end{itemize}
+
+\noindent
+\textbf{possible example programs}
+
+\begin{datalog}
+  \atom{grandparent}{X,Z} \gets \atom{parent}{X,Y} \conj \atom{parent}{Y,Z}.
+  \\
+  \atom{sibling}{Y,Z} \gets \atom{parent}{X,Y} \conj \atom{parent}{X,Z} \conj Y \ne Z.
+  \\
+\end{datalog}
+\begin{datalog}
+  \atom{hasparent}{Y} \gets \atom{parent}{X,Y}.
+  \\
+  \atom{orphan}{Y} \gets \neg\atom{hasparent}{Y}.
+\end{datalog}
+\begin{datalog}
+  \atom{possibly-overpaid}{Y} \gets
+  \atom{manages}{X,Y} \conj \atom{salary}{X,S_1}
+  \conj \atom{salary}{Y,S_2} \conj S_1 < S_2.
+  \\
+  \atom{cross-department}{X,Y} \gets
+  \atom{department}{X,D_1} \conj \atom{department}{Y,D_2} \conj
+  \\
+  \phantom{\atom{cross-department}{X,Y} \gets {}}
+  \atom{manages}{X,Y} \conj D_1 \ne D_2.
+\end{datalog}
+
+\begin{datalog}
+  \atom{purchased-every-food}{P}
+  \gets
+  \atom{buyer}{P} \conj \neg\atom{unpurchased}{P}.
+  \\
+  \atom{unpurchased}{P}
+  \gets
+  \atom{buyer}{P}  \conj \atom{food}{F} \conj \neg\atom{purchased}{P,F}.
+\end{datalog}
+
+\noindent
+\splittodo{use unique drinkers as datafun example?}{ it should involve much less redundancy
+  in datafun}
+
+\begin{datalog}
+  \atom{unique-drinker}{D} \gets
+  \atom{drinker}{D} \conj \neg\atom{has-twin}{D}.
+  \\
+  \atom{has-twin}{D} \gets \atom{drinker}{D} \conj \atom{drinker}{E}
+  \conj D \ne E
+  \conj \neg\atom{differs}{D,E}.
+  \\
+  \atom{differs}{D,E} \gets
+  \atom{drinker}{E} \conj \atom{likes}{D,B} \conj \neg\atom{likes}{E,B}.
+  \\
+  \atom{differs}{D,E} \gets
+  \atom{drinker}{D} \conj \neg\atom{likes}{D,B} \conj \atom{likes}{E,B}.
+\end{datalog}
+
+\begin{code}
+  \name{unique-drinkers} \isa \tset{\typename{person}}\\
+  \name{unique-drinkers} =
+  \esetfor{\dvar d}{
+    \dvar d \in \name{drinkers},\,
+    \neg\ebox{
+      \eforvar{e}{\name{drinkers}}
+      \eiso{\dvar d \ne \dvar e} \cap
+      \name{same} \<\eboxtuple{\dvar d, \dvar e}
+    }}
+  \\[\betweenfunctionskip]
+  \name{same} \isa \iso(\typename{person} \x \typename{person}) \to \tbool\\
+  \name{same} \<\pboxtuple{\dvar d, \dvar e} =
+  \eeq{
+    \esetfor{\dvar b}{\ptuple{\peqvar{d}, \dvar b} \in \name{likes}}
+  }{
+    \esetfor{\dvar b}{\ptuple{\peqvar{e}, \dvar b} \in \name{likes}}
+  }
+\end{code}
+
+\noindent
+possible examples: intersection, union, relational join, filter, map, constructing a control flow graph, reaching definitions, unique drinkers, purchased-all-items, directors of movies tom hanks starred in
+

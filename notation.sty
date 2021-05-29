@@ -16,13 +16,15 @@
 \usepackage{environ}            % \NewEnviron
 %\usepackage{pifont}             % \ding{55}
 \usepackage{ifthen}             % \ifthenelse
-\usepackage{textgreek}          % \textlambda
+\usepackage{textgreek}          % \textalpha
 \usepackage{calc}               % \widthof
 %\usepackage{lipsum}             % \lipsum
 \usepackage{enumitem}           % \setlist
+\usepackage{pifont}             % \ding{55}
 
 \hyphenation{semi-na\"ive} % TODO necessary? does it work?
 \hyphenation{hypo-the-ses}
+\hyphenation{premise-less}
 
 % Use stmry medium as bold since there is no stmry bold.
 \SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
@@ -51,11 +53,13 @@
 \let\binvee\vee
 \let\binwedge\wedge
 \let\binbullet\bullet
+\let\bingets\gets
 \renewcommand\cup{\mathrel{\bincup}}
 \renewcommand\cap{\mathrel{\bincap}}
-\renewcommand\vee{\mathrel{\binvee}}
-\renewcommand\wedge{\mathrel{\binwedge}}
+\renewcommand\vee{\mathrel{\binvee}} % TODO
+\renewcommand\wedge{\,\binwedge\,}
 \renewcommand\bullet{\mathrel{\binbullet}}
+%% \renewcommand\gets{\,\bingets\,}
 
 
 %% ---------- TODO commands ----------
@@ -71,34 +75,34 @@
 
 
 %% ---------- Environments ----------
-\newlength\codeoffset\setlength\codeoffset{20pt}
+\newlength\codeoffset\setlength\codeoffset{\parindent}
 
 \NewEnviron{code}{
   \begin{fleqn}[\codeoffset]
-    \begin{flalign*}
-      \begin{array}{l}\BODY\end{array}
-    \end{flalign*}
-  \end{fleqn}
-}
+    %% \def\arraystretch{1.05} % prefer no array stretch, 2021-05-18
+    \[\begin{array}{@{}l@{}}\BODY\end{array}\]
+  \end{fleqn}}
 
 \NewEnviron{datalog}{
   \begin{fleqn}[\codeoffset]
-    \begin{align*}
-      \BODY
-    \end{align*}
-  \end{fleqn}
-}
+    \def\arraystretch{1.10}
+    \[\begin{array}{@{}l@{}}\BODY\end{array}\]
+  \end{fleqn}}
+
+\NewEnviron{datalogarray}{
+  \begin{fleqn}[\codeoffset]
+    \def\arraystretch{1.10}
+    \setlength\arraycolsep{2pt}
+    \[\begin{array}{@{}lcl@{}}\BODY\end{array}\]
+  \end{fleqn}}
 
 %% TODO: rename
 \NewEnviron{flail}{
   \begin{fleqn}[\codeoffset]
-    \begin{align*}
-      \BODY
-    \end{align*}
-  \end{fleqn}
-}
+    \begin{align*}\BODY\end{align*}
+  \end{fleqn}}
 
-% TODO: Case environment for proof by cases
+% Case environment for proof by cases
 \newenvironment{proofcase}[1]
   {\begin{quote}\noindent\emph{Case {#1}.}}
   {\end{quote}}
@@ -178,7 +182,7 @@
 
 %% ===== General math & PL notation =====
 \newcommand\fn{\texorpdfstring{\ensuremath{\lambda}}{lambda}}
-\newcommand\boldfn{\texorpdfstring{\ensuremath{\boldsymbol\lambda}}{\textlambda}}
+\newcommand\boldfn{\texorpdfstring{\ensuremath{\boldsymbol\lambda}}{lambda}}
 %\ifdefined\G\renewcommand\G\Gamma\else\newcommand\G\Gamma\fi
 \newcommand\G\Gamma
 \newcommand\g\gamma
@@ -266,6 +270,7 @@
 %% ==== Datalog notation ====
 \newcommand\atom[2]{\name{#1}({#2})}
 \newcommand\datum[1]{\textsf{#1}}
+\newcommand\conj{,\,}
 
 
 %% ===== Datafun syntax =====
@@ -378,14 +383,15 @@
 
 %% more surface syntax
 \newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
-\renewcommand\ewhen[1]{\PackageWarning{notation}{don't use ewhen}{}%
+\renewcommand\ewhen[1]{%\PackageWarning{notation}{don't use ewhen}{}%
 \todo{\kw{when}}}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}
 
 %% deprecated syntax
-\newcommand\efix{\PackageWarning{notation}{don't use efix}{}\todo{\prim{fix}}\<}
-\newcommand\isofixLtoL{\PackageWarning{notation}{don't use isofixLtoL}%
+\newcommand\efix{%\PackageWarning{notation}{don't use efix}{}
+  \todo{\prim{fix}}\<}
+\newcommand\isofixLtoL{%\PackageWarning{notation}{don't use isofixLtoL}%
   \todo{$\iso(\kernfixtL \to \fixtLkern)$}}
 
 
@@ -404,8 +410,8 @@
 
 
 %% ===== Change theory & seminaive translation stuff =====
-\newcommand\boldphi{\texorpdfstring{$\boldsymbol\phi$}{\textphi}}
-\newcommand\bolddelta{\texorpdfstring{$\boldsymbol\delta$}{\textdelta}}
+\newcommand\boldphi{\texorpdfstring{$\boldsymbol\phi$}{phi}}
+\newcommand\bolddelta{\texorpdfstring{$\boldsymbol\delta$}{delta}}
 \newcommand\dummy{\name{dummy}}
 \newcommand\zero{\ensuremath{\boldsymbol 0}}
 
