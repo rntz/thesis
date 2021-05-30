@@ -10,69 +10,125 @@
 An extraordinary number of classic and useful computational problems can be
 expressed as finding the least fixed point of a monotone map on a semilattice
 satisfying the ascending chain condition. The utility of Datalog is explained by
-the fact that it captures precisely this pattern, albeit restricted to the
-semilattice of finite sets under union. To understand this pattern better, let's
-consider three examples of increasing complexity:
+the fact that it captures this pattern, albeit restricted to the semilattice of
+finite sets under union. To understand this pattern better, let's consider three
+examples of increasing complexity:
 %
 (1) reachability in a graph;
 (2) single-source shortest paths;
 and (3) analyzing which variable assignments may reach a given line in a simple
-  imperative program (often called ``reaching definitions'').
+imperative program (often called ``reaching definitions'').
 
-\paragraph{Reachability}
+\begin{enumerate}
+\item \emph{Reachability:}
+%
+Consider a graph and suppose we wish to find all nodes reachable from some
+designated start node~(\cref{figure-reachability}). We proceed as follows:
+first, we put a check mark next to the start node; then, repeatedly, we pick a
+node and put a check next to it if any of its neighbors is checked. Once there
+are no nodes which we can mark this way -- in particular, when there are no
+edges between checked and unchecked nodes -- we are done; the reachable nodes
+are exactly the checked nodes.
 
-\begin{figure}[t]
+%% whenever you see an edge between a marked and an
+%% unmarked node, mark the unmarked node. Once there are no edges between marked
+%% and unmarked nodes -- and thus no possibility of any node becoming marked -- we
+%% are done.
+
+\begin{figure}[pth]
   \XXX
   \caption{Graph reachability}
   \label{figure-reachability}
 \end{figure}
 
-Consider a graph with a designated start node, as in \cref{figure-reachability},
-and suppose we wish to find all nodes reachable from the start node. A
-systematic procedure for doing this is as follows: first, put a check mark next
-to the start node; then, whenever you see an edge between a marked and an
-unmarked node, mark the unmarked node. Once there are no edges between marked
-and unmarked nodes -- and thus no possibility of any node becoming marked -- we
-are done.
+\item \emph{Shortest paths:}
+%
+Now suppose each edge $e$ in the graph has an associated non-negative length
+$d_e$, and we wish to find the minimum distance to each reachable
+node~(\cref{figure-shortest-paths}). We use a small modification of the previous
+procedure: instead of a check mark, we annotate nodes $v$ with the length $d_v$
+of the shortest path to them we've discovered so far. Initially we mark the
+start node with 0 and every other node with $\infty$ (representing ``no known
+path'').
+%
+%% Then, repeatedly, we pick a node $u$ and relax its annotation by examining its
+%% neighborhood: in particular, we take the minimum among incoming edges $v
+%% \xrightarrow{e} u$ of the sum $d_v + d_e$ where $d_v$ is the annotation on $v$
+%% and $d_e$ is the length of the edge $e$.
+%
+%% Then, whenever we see an edge providing a shorter path to a node than its
+%% current annotation, we update it appropriately -- that is, if we see an edge $e$
+%% with length $d_e$ between nodes $v$ and $u$ with annotations $d_v, d_u$
+%% respectively, we may update $d_u := \min(d_u, d_v + d_e)$.
+%
+Then, whenever an edge provides a shorter path to a node, we update its
+annotation -- that is, for any edge $v \xrightarrow{e} u$ we may update $d_u :=
+\min(d_u, d_v + d_e)$.
+%
+Once no shortening edges exist, the annotations $d_v$ cannot change, and we are done.%
+%
+%% Once this process stabilizes -- in particular, once there are no edges which
+%% could shorten any annotation -- we are done.%
+%
+\footnote{The classic algorithm for single-source shortest paths, Dijkstra's
+  algorithm, can be seen as a version of the algorithm we've described, but with
+  a crucial optimization: it prioritizes which edges to consider next in a
+  way that guarantees it never needs to revisit a node.}
 
-\paragraph{Shortest paths}
-
-\begin{figure}
+\begin{figure}[pth]
   \XXX
   \caption{Shortest paths}
   \label{figure-shortest-paths}
 \end{figure}
 
-Now suppose each edge in the graph has an associated non-negative length, and we
-wish to find the length of the shortest path to each reachable
-node~(\cref{figure-shortest-paths}). A slight modification of the previous
-procedure solves this problem as well: instead of a check mark, we annotate
-nodes with the length of the shortest path to them we've discovered so far. So
-initially we mark the start node with 0 and every other node with $\infty$
-(representing ``no known path''). Then, whenever we see an edge that provides a
-shorter path to a node than its current annotation, we update it appropriately
--- that is, if we see an edge $e$ with length $l_e$ between nodes $v$ and $u$
-with annotations $l_v, l_u$ respectively, if $l_v + l_e < l_u$ then we annotate
-$u$ with $l_v + l_e$. Once no such edges exist, the annotations on nodes can no
-longer change, and we are done.%
+
+\item \emph{Reaching definitions:}
 %
-\footnote{The classic algorithm for single-source shortest paths, Dijkstra's
-  algorithm, can be seen as a version of the algorithm we've described, but with
-  a crucial optimization: it carefully chooses which edge to consider next in a
-  way that guarantees it never needs to revisit a node.}
+Finally, let's consider something seemingly completely different: statically
+analyzing a simple imperative program~(\cref{figure-reaching-definitions}). In
+particular, we wish to determine which assignments may reach a given program
+line; for example, the \texttt{print} on line 4 may observe the values of
+\texttt{x} assigned on lines 1 and 5 and the value of \texttt{c} assigned on
+line 2, but will never observe the value of \texttt{c} assigned on line 6.
+%
+We can solve this problem by propagating information according to the possible control flow of our program.
+%
+At each line we track a set of assignments (line-number/variable pairs) that we
+know can reach that line.
+%
+In general, a given line collects the assignments from all other lines that can transfer control to it -- usually the line directly above it, but loops and conditionals can complicate this.
+%
+However, lines which assign to a variable add themselves to this set, and remove other assignments to the same variable.
+%
+Once there is no line whose corresponding assignment-set is changing, the analysis is finished.
+%
+See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of this process.
 
-
-\paragraph{Reaching definitions}
-
-\begin{figure}
-  \XXX
-  \caption{Reaching definitions}
+\begin{figure}[pth]
+  \centering
+  \ttfamily
+  \begin{tabular}{cl}
+    1 & \tt x := 0\\
+    2 & \tt c := 0\\
+    3 & \tt while true do\\
+    4 & \tt\quad c := 1\\
+    4 & \tt\quad print c + x\\
+    5 & \tt\quad x := x + 1
+  \end{tabular}
+  \caption{Example program}
   \label{figure-reaching-definitions}
 \end{figure}
 
-Finally, let's consider something seemingly completely different: statically
-analyzing a program.
+\input{1-figure-reaching-definitions-execution}
 
+\end{enumerate}
+
+\vspace{\baselineskip}
+\noindent
+How do these three examples fit into our proposed pattern? Let's break down each point in turn:
+%% These three examples can all be characterized as finding the least fixed point of a monotone map on a semilattice satisfying the ascending chain condition.
+
+\paragraph{Fixed points}
 
 
 \section{Datalog}
@@ -196,13 +252,13 @@ for now the issue of negation, it imposes two restrictions which keep all
 \todo{haven't explained the word relation} relations finite:
 
 \begin{enumerate}
-\item Clauses are \emph{range-restricted}: all variables in the conclusion of a
+\item Clauses are \emph{range-restricted:} all variables in the conclusion of a
   clause must occur positively in its premises. For example, the premiseless
   clause ``$\atom{path}{X,X}.$'' is disallowed; while logically sensible (it
   asserts $\name{path}$ is reflexive), it leaves the variable $X$ unconstrained,
   which would generate an infinite relation.
 
-\item Programs are \emph{constructor-free}: predicate arguments are either
+\item Programs are \emph{constructor-free:} predicate arguments are either
   atomic terms or variables. This prevents the introduction of new terms that
   don't already appear in the program, as this could also result in an infinite
   relation; for example, the relation containing all digit-lists (the use of a
@@ -214,7 +270,6 @@ for now the issue of negation, it imposes two restrictions which keep all
     \\
     \atom{digits}{{\color{Red}\datum{cons}(X, Xs)}} \gets
     \atom{digit}{X} \conj \atom{digits}{Xs}.
-    %\qquad\textsf{\color{Red}\scshape\ding{55}}%\textsf{\color{red} disallowed!}
   \end{datalog}
 \end{enumerate}
 
@@ -315,7 +370,7 @@ programmer's intent, which is to capture reachability under the \name{edge}
 relation: not every graph is completely connected!
 
 The principle of regarding anything not deriveable as false is known as
-\emph{negation as failure}: to derive $\neg \atom{path}{X,Y}$ it suffices to
+\emph{negation as failure:} to derive $\neg \atom{path}{X,Y}$ it suffices to
 attempt to derive $\atom{path}{X,Y}$ and fail.
 %
 Forward-chaining provides a natural implementation strategy for
@@ -350,7 +405,29 @@ negation of predicates defined in the preceding layers.
 
 \subsection{Static analysis}
 
-\todo{implement reaching definitions in Datalog}
+\XXX\ For instance, the essence of our third example, reaching definitions
+analysis, can be expressed in Datalog as follows:
+
+\begin{datalog}
+  \atom{reaches}{L,V,L} \gets \atom{assigns}{L,V}.
+  \\
+  \atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}
+  \gets
+  \neg\atom{assigns}{L_{\textsf{dest}}, V}
+  \conj
+  \atom{flows}{L_{\textsf{prev}}, L_{\textsf{dest}}}
+  \conj 
+  \atom{reaches}{L_{\textsf{prev}}, V, L_{\textsf{src}}}.
+\end{datalog}
+
+\noindent
+Given predicates $\atom{flows}{L_1, L_2}$, meaning that line $L_1$ may transfer
+control to $L_2$, and $\atom{assigns}{L, V}$, meaning line $L$ assigns to
+variable $V$, the above defines $\atom{reaches}{L_{\textsf{dest}}, V,
+  L_{\textsf{src}}}$ to mean that the assignment to $V$ at line
+$L_{\textsf{src}}$ may reach $L_{\textsf{dest}}$.
+
+\todo{discussion}
 
 \citet{DBLP:conf/datalog/SmaragdakisB10} list several reasons why they found
 Datalog to be useful when implementing a scalable points-to analysis, compared
@@ -362,9 +439,9 @@ in particular with a conventional language like Java or C++:
     analysis. For a standard example, the logic for computing a callgraph
     depends on having points-to information for pointer expressions, which, in
     turn, requires a callgraph.''}~\citep{DBLP:conf/datalog/SmaragdakisB10}
-  
+
 \item Allows experimenting with implementation techniques without having to rewrite your program, e.g. BDD versus explicit representations of relations, different indexing strategies; or while making very small changes (compared to a lower level implementation language)
-  
+
 \item Query optimisation of individual rules being performed automatically, as
   opposed to having to hand optimize it: \emph{``We relied on query optimization
     (i.e., intra-rule, as opposed to inter-rule, optimization) being performed
@@ -372,7 +449,7 @@ in particular with a conventional language like Java or C++:
     straightforward optimization in the context of database relations, results
     in far more automation than programming in a mainstream high-level
     language.''}
-  
+
 \item concision: \emph{``Generally, the declarative nature of \textsc{Doop}
   often allows for very concise specifications of analyses. We show in an
   earlier publication the striking example of the logic for the Java cast
@@ -519,4 +596,3 @@ They also mention possibly wanting expressiveness enhancements: \emph{``The
 
 \noindent
 possible examples: intersection, union, relational join, filter, map, constructing a control flow graph, reaching definitions, unique drinkers, purchased-all-items, directors of movies tom hanks starred in
-

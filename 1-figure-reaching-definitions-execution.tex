@@ -1,0 +1,73 @@
+\begin{figure}[pt]
+  \newcommand\stepnumber[1]{{\bfseries\scshape\osfstyle step #1}}
+  \newcommand\reachstep[2]{%
+    \begin{minipage}[b]{.48\textwidth}
+      \centering\stepnumber{#1}\\[1ex]
+      \raggedright
+      \ttfamily
+      \begin{tabular}{cl@{\qquad}l}
+        #2
+      \end{tabular}
+    \end{minipage}%
+  }
+  \footnotesize
+  \centering
+  \reachstep{1}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1\\
+    3 & \tt while x < 5 do\\
+    4 & \tt\quad print c + x\\
+    5 & \tt\quad x += 1\\
+    6 & \tt c := 2}
+  %
+  \reachstep{2}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1 & (x,1) (c,2)\\
+    3 & \tt while x < 5 do\\
+    4 & \tt\quad print c + x\\
+    5 & \tt\quad x += 1\\
+    6 & \tt c := 2}
+  %
+  \reachstep{3}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1 & (x,1) (c,2)\\
+    3 & \tt while x < 5 do & (x,1) (c,2) \\
+    4 & \tt\quad print c + x\\
+    5 & \tt\quad x += 1\\
+    6 & \tt c := 2}
+  %
+  \reachstep{4}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1 & (x,1) (c,2)\\
+    3 & \tt while x < 5 do & (x,1) (c,2) \\
+    4 & \tt\quad print c + x & (x,1) (c,2) \\
+    5 & \tt\quad x += 1\\
+    6 & \tt c := 2}
+  %
+  \reachstep{4}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1 & (x,1) (c,2)\\
+    3 & \tt while x < 5 do & (x,1) (c,2) \\
+    4 & \tt\quad print c + x & (x,1) (c,2) \\
+    5 & \tt\quad x += 1\\
+    6 & \tt c := 2}
+  %
+  \reachstep{5}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1 & (x,1) (c,2)\\
+    3 & \tt while x < 5 do & (x,1) (c,2) \\
+    4 & \tt\quad print c + x & (x,1) (c,2) \\
+    5 & \tt\quad x += 1 & (x,5) (c,2)\\
+    6 & \tt c := 2}
+  %
+  \reachstep{6}{
+    1 & \tt x := 0 & (x,1)\\
+    2 & \tt c := 1 & (x,1) (c,2)\\
+    3 & \tt while x < 5 do & (x,1) (c,2) \\
+    4 & \tt\quad print c + x & (x,1) (c,2) \\
+    5 & \tt\quad x += 1 & (x,5) (c,2)\\
+    6 & \tt c := 2 & (x,1) (c,2) }
+  
+  \caption{Reaching definitions, step-by-step}
+  \label{figure-reaching-definitions-execution}
+\end{figure}
