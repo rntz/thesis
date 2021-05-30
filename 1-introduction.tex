@@ -19,8 +19,13 @@ examples of increasing complexity:
 and (3) analyzing which variable assignments may reach a given line in a simple
 imperative program (often called ``reaching definitions'').
 
-\begin{enumerate}
-\item \emph{Reachability:}
+%% \paragraph{Reachability} Consider a graph and suppose we wish to find all nodes reachable from some
+%% designated start node~(\cref{figure-reachability}).
+
+%% \paragraph{Shortest paths} blha blah
+
+\begin{description}
+\item[Reachability] % \strong{Reachability.}
 %
 Consider a graph and suppose we wish to find all nodes reachable from some
 designated start node~(\cref{figure-reachability}). We proceed as follows:
@@ -30,18 +35,23 @@ are no nodes which we can mark this way -- in particular, when there are no
 edges between checked and unchecked nodes -- we are done; the reachable nodes
 are exactly the checked nodes.
 
+%% parsep: \the\parsep\\
+%% itemsep: \the\itemsep
+
 %% whenever you see an edge between a marked and an
 %% unmarked node, mark the unmarked node. Once there are no edges between marked
 %% and unmarked nodes -- and thus no possibility of any node becoming marked -- we
 %% are done.
 
 \begin{figure}[pth]
+  \centering
   \XXX
   \caption{Graph reachability}
   \label{figure-reachability}
 \end{figure}
 
-\item \emph{Shortest paths:}
+
+\item[Shortest paths]
 %
 Now suppose each edge $e$ in the graph has an associated non-negative length
 $d_e$, and we wish to find the minimum distance to each reachable
@@ -76,43 +86,52 @@ Once no shortening edges exist, the annotations $d_v$ cannot change, and we are 
   way that guarantees it never needs to revisit a node.}
 
 \begin{figure}[pth]
+  \centering
   \XXX
   \caption{Shortest paths}
   \label{figure-shortest-paths}
 \end{figure}
 
 
-\item \emph{Reaching definitions:}
+\item[Reaching definitions]
 %
 Finally, let's consider something seemingly completely different: statically
-analyzing a simple imperative program~(\cref{figure-reaching-definitions}). In
-particular, we wish to determine which assignments may reach a given program
-line; for example, the \texttt{print} on line 4 may observe the values of
-\texttt{x} assigned on lines 1 and 5 and the value of \texttt{c} assigned on
-line 2, but will never observe the value of \texttt{c} assigned on line 6.
+analyzing a simple imperative program~(\cref{figure-reaching-definitions}).
 %
-We can solve this problem by propagating information according to the possible control flow of our program.
+%% In particular, we wish to determine which assignments may reach a given program
+%% line; for example, the \texttt{print} on line 4 may observe the values of
+%% \texttt{x} assigned on lines 1 and 5 and the value of \texttt{c} assigned on
+%% line 2, but will never observe the value of \texttt{c} assigned on line 6.
 %
-At each line we track a set of assignments (line-number/variable pairs) that we
-know can reach that line.
+In particular, we wish to determine which assignments may reach a given program
+line; for example, the \texttt{print} on line 2 will receive only the value of
+\texttt{x} assigned on line 1, while the \texttt{print} on line 4 may receive
+the values assigned on both lines 1 and 5.
+
+We determine this by propagating information along the control flow graph of our
+program.
 %
-In general, a given line collects the assignments from all other lines that can transfer control to it -- usually the line directly above it, but loops and conditionals can complicate this.
+At each line we maintain a set of assignments (line-number/variable pairs) that
+we know can reach that line.
 %
-However, lines which assign to a variable add themselves to this set, and remove other assignments to the same variable.
+Each line collects the assignments from all lines that can transfer control to
+it -- usually the immediately preceding line, but loops and conditionals
+complicate this.
 %
+However, lines which assign to a variable add themselves to this set, and discard other assignments to the same variable from incoming lines.
+
 Once there is no line whose corresponding assignment-set is changing, the analysis is finished.
 %
 See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of this process.
 
-\begin{figure}[pth]
+\begin{figure}[pt]
   \centering
   \ttfamily
   \begin{tabular}{cl}
     1 & \tt x := 0\\
-    2 & \tt c := 0\\
+    2 & \tt print x\\
     3 & \tt while true do\\
-    4 & \tt\quad c := 1\\
-    4 & \tt\quad print c + x\\
+    4 & \tt\quad print x\\
     5 & \tt\quad x := x + 1
   \end{tabular}
   \caption{Example program}
@@ -121,14 +140,21 @@ See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of t
 
 \input{1-figure-reaching-definitions-execution}
 
-\end{enumerate}
+\end{description}
 
-\vspace{\baselineskip}
+%\vspace{\baselineskip}
 \noindent
 How do these three examples fit into our proposed pattern? Let's break down each point in turn:
 %% These three examples can all be characterized as finding the least fixed point of a monotone map on a semilattice satisfying the ascending chain condition.
 
-\paragraph{Fixed points}
+\begin{description}
+\item[Fixed points] \XXX
+\item[Monotone] \XXX
+\item[Semilattices] \XXX
+\item[Ascending chain condition] \XXX
+\end{description}
+
+\todo{finish section}
 
 
 \section{Datalog}
@@ -316,7 +342,7 @@ Applying this, the above is equivalent to $\atom{underiveable}{} \vee
 %
 Regarded as a rule of inference, however -- as a strategy for deriving new facts
 from ones already known -- this clause makes little sense: we cannot invoke it
-unless we can prove its conclusion is false!
+unless we have proved its conclusion is false!
 
 To avoid this sort of gap between the logical meaning of a program and its
 interpretation as inference rules, Datalog allows only programs where uses of
@@ -379,12 +405,13 @@ $\atom{path}{X,Y}$, if a particular such fact was not deduced, for example
 $\atom{path}{\datum{detroit}, \datum{\textalpha-centauri}}$, we regard this as
 proof of its negation.
 
-However, because it must wait until all facts $\atom{path}{X,Y}$ are deduced
-before handling negative queries $\neg\atom{path}{X,Y}$, a forward-chaining
-system cannot support such negative queries in \name{path}'s own definition.
+However, because a forward-chaining system must wait until all facts
+$\atom{path}{X,Y}$ are deduced before handling negative queries
+$\neg\atom{path}{X,Y}$, it cannot handle such negative queries in \name{path}'s
+own definition.
 %
-This is the operational justification for stratification: we must be able to
-stratify our Datalog program into layers, each of which may only use the
+This is the operational justification for stratified negation: we must be able
+to stratify our Datalog program into layers, each of which may only use the
 negation of predicates defined in the preceding layers.
 
 %% Stratified negation thus ensures that it is possible for truth to coincide with
@@ -415,17 +442,17 @@ analysis, can be expressed in Datalog as follows:
   \gets
   \neg\atom{assigns}{L_{\textsf{dest}}, V}
   \conj
-  \atom{flows}{L_{\textsf{prev}}, L_{\textsf{dest}}}
+  \atom{reaches}{L_{\textsf{prev}}, V, L_{\textsf{src}}}
   \conj 
-  \atom{reaches}{L_{\textsf{prev}}, V, L_{\textsf{src}}}.
+  \atom{flows}{L_{\textsf{prev}}, L_{\textsf{dest}}}.
 \end{datalog}
 
 \noindent
-Given predicates $\atom{flows}{L_1, L_2}$, meaning that line $L_1$ may transfer
-control to $L_2$, and $\atom{assigns}{L, V}$, meaning line $L$ assigns to
-variable $V$, the above defines $\atom{reaches}{L_{\textsf{dest}}, V,
-  L_{\textsf{src}}}$ to mean that the assignment to $V$ at line
-$L_{\textsf{src}}$ may reach $L_{\textsf{dest}}$.
+If $\atom{flows}{L_1, L_2}$ means that line $L_1$ may transfer control to $L_2$,
+and $\atom{assigns}{L, V}$ means that line $L$ assigns to variable $V$, the
+above defines $\atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}$ to mean
+that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
+$L_{\textsf{dest}}$.
 
 \todo{discussion}
 
@@ -507,11 +534,11 @@ They also mention possibly wanting expressiveness enhancements: \emph{``The
   compound data via datatypes}
 
 
-\subsection{Datalog by example}
+\section{Datalog by example}
 
-\todo{remove this section and move its content into other sections}
+\splittodo{FIXME: remove this section}{ and move relevant content into other sections if useful}
 
-\XXX \todo{ideas for Datalog examples:}
+Ideas for Datalog examples:
 \begin{itemize}
 \item some simple business logic examples, department-employee stuff
 \item transitive closure, of course; maybe a less contrived example

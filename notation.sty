@@ -17,11 +17,11 @@
 \usepackage{ifthen}             % \ifthenelse
 \usepackage{textgreek}          % \textalpha
 \usepackage{calc}               % \widthof
-%\usepackage{lipsum}             % \lipsum
 \usepackage{enumitem}           % \setlist
 \usepackage{pifont}             % \ding{55}
 %% \usepackage{subcaption}        % for complex figures with subfigures/subcaptions
 % \usepackage{printlen}           % \printlength, DEBUGGING ONLY
+\usepackage{lipsum}             % \lipsum, DEBUGGING ONLY
 
 \hyphenation{semi-na\"ive} % TODO necessary? does it work?
 \hyphenation{hypo-the-ses}
@@ -42,10 +42,15 @@
 % better than nothing.
 \mathtoolsset{centercolon}
 
-%% Adjust description lists to be more suitable for proofs by cases.
+% Description list formatting. See use in ch1, introduction.
+\newlength\itemsepagain
+\setlength\itemsepagain\itemsep
+\addtolength\itemsepagain\itemsep
 \setlist[description]{
-  topsep=\parsep,
-  font={\mdseries\itshape},
+  leftmargin=\parindent,
+  labelsep=1.02em,
+  listparindent=\parindent, parsep=0pt, itemsep=\itemsepagain,
+  %% topsep=\baselineskip,
 }
 
 %% More space around \cup, \vee, \wedge.
@@ -63,7 +68,7 @@
 %% \renewcommand\gets{\,\bingets\,}
 
 
-%% ---------- TODO commands ----------
+%% ---------- todo commands ----------
 \newcommand\todocolor{\color{OrangeRed}}
 %\newcommand\todowarn[1]{\PackageWarning{notation}{TODO}{\todocolor #1}}
 \newcommand\warntodo[2]{%
@@ -139,6 +144,7 @@
 
 %% ---------- Miscellaneous commands ----------
 %\newcommand\negphantom[1]{\settowidth{\dimen0}{#1}\hspace*{-\dimen0}}
+\newcommand\strong[1]{{\bfseries #1}}
 \newcommand\ensuretext[1]{\ifmmode\text{#1}\else{#1}\fi}
 \newcommand\naive{na\"ive}
 \newcommand\Naive{Na\"ive}
