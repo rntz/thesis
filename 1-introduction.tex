@@ -122,7 +122,7 @@ However, lines which assign to a variable add themselves to this set, and discar
 
 Once there is no line whose corresponding assignment-set is changing, the analysis is finished.
 %
-See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of this process.
+See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of this process. \todo{describe the diagrams}
 
 \begin{figure}[pt]
   \centering
@@ -144,17 +144,75 @@ See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of t
 
 %\vspace{\baselineskip}
 \noindent
-How do these three examples fit into our proposed pattern? Let's break down each point in turn:
+How do these three examples fit into our proposed pattern: finding the least fixed point of a monotone map on a semilattice satisfying the ascending chain condition? Let's break down each point in turn:
 %% These three examples can all be characterized as finding the least fixed point of a monotone map on a semilattice satisfying the ascending chain condition.
 
 \begin{description}
-\item[Fixed points] \XXX
-\item[Monotone] \XXX
-\item[Semilattices] \XXX
-\item[Ascending chain condition] \XXX
+\item[Fixed points]
+
+  In each example, we maintained some state -- check marks or distance
+  annotations on nodes, sets of reaching assignments on lines -- that changed
+  over time, and we terminated when there was no action we could take -- no
+  node, edge, or line we could examine -- which would change this state. In
+  other words, we halted once our state was \emph{fixed} under our transition
+  function.
+
+  To make this more precise, \todo{formalize this transition function?}
+  
+\item[Monotone]
+
+  Although our state changed over time, it did not change in arbitrary ways:
+  there was a direction to it. Nodes went from unchecked to checked; distances
+  to nodes decreased; and sets of reaching assignments grew.
+
+  We can formalize this by giving our states a \emph{partial order} representing
+  the direction they change as computation progresses and information increases.
+  For example, in graph reachability, a node's state was a boolean flag; for
+  simplicity we'll regard it as \etrue\ if the node is checked,
+  \efalse\ otherwise. Since nodes go from unchecked to checked but not
+  vice-versa, we say that $\efalse < \etrue$. \XXX
+
+  \todo{need something about least-ness?}
+  
+
+\item[Semilattices] In each example, we had some way of combining information
+  from multiple sources. In graph reachability, we marked a node if \emph{any}
+  of its neighboring nodes were marked; in shortest paths, when there were
+  multiple edges/paths into a node, we took the \emph{minimum} among these
+  competing options; and in reaching definitions, when a line could receive
+  control from multiple lines, we took the \emph{union} of their reaching
+  assignment sets.
+
+  Not coincidentally, these operations -- boolean disjunction, minimum, and
+  union respectively -- are the \emph{least upper bound} operators for the
+  partial orders we imposed on our states, making those partial orders into
+  \emph{join-semilattices}.
+%
+  In general, we write $x \vee y$ for the least upper bound/semilattice join of
+  $x$ and $y$. If our partial order represents the direction of increasing
+  information, $x \vee y$ is a natural way to combine information: it includes
+  all information from (is greater than) both $x$ and $y$, but does not jump to
+  unnecessary conclusions -- it is the \emph{least}, most conservative, upper
+  bound.
+
+\item[Ascending chain condition] Finally, in each case there was a limit on how
+  much information we could possibly learn, and thus how many transitions we
+  could take. For instance, in graph reachability, there were finitely many
+  nodes, and each node could only transition from unchecked to checked once.
+%
+  This argument can be formalized by showing our partial order on states obeys
+  the \emph{ascending chain condition} (ACC), which asserts that there are no
+  infinite strictly ascending chains, $x_0 < x_1 < x_2 < \dots$; consequently,
+  any process producing an increasing state-sequence must halt.
+%
+  We leave it as an exercise for the reader to convince themselves each of our
+  examples satisfies this property. \todo{need to show it here?}
 \end{description}
 
-\todo{finish section}
+\noindent
+\splittodo{finish section.}{Note that monotonicity + ACC gives us a proof of termination: always go in a direction, can't go forever => must halt. furthermore can prove using a weak, easy-to-prove variant of Knaster-Tarski we find \emph{least} fixed point.}
+
+\todo{missing segue}
 
 
 \section{Datalog}
@@ -216,6 +274,8 @@ pair of people who are each the parent of the other (or, in the case $X = Y$, a
 single person who is their own parent). Finally, a query without any variables,
 such as $\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
 yes-or-no question: is the query deriveable or not?
+
+\todo{something about least fixed point semantics}
 
 
 
@@ -347,7 +407,7 @@ unless we have proved its conclusion is false!
 To avoid this sort of gap between the logical meaning of a program and its
 interpretation as inference rules, Datalog allows only programs where uses of
 negation can be \emph{stratified:} a recursively defined predicate (or mutually
-recursive group of predicates) cannot use its own negation in its definition.
+recursive group of predicates) cannot use its own negation in its definition. 
 
 This restriction also avoids the need to make arbitrary choices. For example,
 this is disallowed:
@@ -414,6 +474,8 @@ This is the operational justification for stratified negation: we must be able
 to stratify our Datalog program into layers, each of which may only use the
 negation of predicates defined in the preceding layers.
 
+\todo{something about stratification \& monotonicity}
+
 %% Stratified negation thus ensures that it is possible for truth to coincide with
 %% deriveability, and falsehood with underiveability (in model-theoretic terms, it
 %% ensures the unique existence of a minimal model).
@@ -423,17 +485,23 @@ negation of predicates defined in the preceding layers.
 
 \splittodo{in order, using examples:}{
   \begin{enumerate}
+  \item simple sql-style queries, business analytics, use simple examples. Check Flix website? LogicBlox?
   \item monotone fixpt as long as the semilattice is sets; demonstrate
     reachability and reaching definitions
-  \item simple sql-style queries, business analytics, use simple examples
   \item scalable static analysis, eg: doop, semmle
   \end{enumerate}
 }
 
+\begin{datalog}
+  \atom{reachable}{\datum{start}}.\\
+  \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.
+\end{datalog}
+
 \subsection{Static analysis}
 
-\XXX\ For instance, the essence of our third example, reaching definitions
-analysis, can be expressed in Datalog as follows:
+Datalog makes defining static analyses remarkably easy. For instance, the
+essence of our third example, reaching definitions analysis, can be expressed in
+Datalog as follows:
 
 \begin{datalog}
   \atom{reaches}{L,V,L} \gets \atom{assigns}{L,V}.
@@ -453,6 +521,10 @@ and $\atom{assigns}{L, V}$ means that line $L$ assigns to variable $V$, the
 above defines $\atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}$ to mean
 that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
 $L_{\textsf{dest}}$.
+
+This fluency at defining static analyses is not limited to toy examples.
+\todo{explain:} bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}, Semmle,
+DOOP~\citep{DBLP:conf/datalog/SmaragdakisB10}
 
 \todo{discussion}
 
@@ -523,6 +595,83 @@ They also mention possibly wanting expressiveness enhancements: \emph{``The
   language needs to be developed as a real programming language, with [...], and
   possibly expressiveness enhancements (e.g., macros, exponential-search, or
   other high-order capabilities).''}
+
+
+\subsection{Functional abstraction}
+
+Consider our graph-reachability example again:
+
+\begin{datalog}
+  \atom{reachable}{\datum{start}}.\\
+  \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.
+\end{datalog}
+
+\noindent
+Suppose we wish to compute reachability over multiple different graphs. One way is to repeat ourselves:
+
+\nopagebreak[2]
+\begin{datalog}
+  \atom{reachable1}{\datum{start1}}.\\
+  \atom{reachable1}{Y} \gets \atom{reachable}{X} \conj \atom{edge1}{X,Y}.
+  \\[1ex]
+  \atom{reachable2}{\datum{start2}}.\\
+  \atom{reachable2}{Y} \gets \atom{reachable}{X} \conj \atom{edge2}{X,Y}.
+  \\[1ex]
+  \atom{reachable3}{\datum{start3}}.\\
+  \atom{reachable3}{Y} \gets \atom{reachable}{X} \conj \atom{edge3}{X,Y}.
+  \\
+  \qquad\vdots
+\end{datalog}
+
+\noindent
+This could quickly get out of hand if you want to do this more than a handful of
+times, especially if you want to repeat something more complex than a two-liner
+like graph reachability.
+%
+In any ordinary language, we would factor out this repeated code into a procedure or a function.
+
+Unfortunately, Datalog cannot do this.
+%
+Datalog does not have functions, procedures, or modules, only relations; and
+relations are first-order, unable to manipulate or abstract over other relations.
+%
+This first-order restriction on relations is crucial to making Datalog evaluation tractable while maintaining its straightforward semantics; higher-order logic programming is an open research problem \todo{CITE}. \XXX
+
+
+
+\subsection{Semilattices other than set union}
+
+We have shown how to define reachability and reaching-definitions in Datalog.
+What about our second example, single-source shortest paths? A naive approach at
+expressing this in Datalog might look like this:
+
+\begin{datalog}
+  \atom{shortest}{\datum{start}, 0}.\\
+  \atom{shortest}{Y, D_3} \gets
+  \atom{shortest}{X, D_1} \conj
+  \atom{edge}{X,Y,D_2} \conj
+  D_1 + D_2 = D_3.
+\end{datalog}
+
+\noindent
+One problem with this example is the use of the infinite relation $D_1 + D_2 =
+D_3$; recall that infinite relations can cause a problem for a forward-chaining
+evaluator. However, this particular case can be implemented, since $D_1$ and
+$D_2$ are supplied by the other premises, and together these allow computing
+$D_3$.%
+\footnote{\splittodo{Cite Mistral Contrastin's work}{ on dataflow/mode systems for Datalog?}}
+%
+The bigger problem is that, despite its name, the relation $\atom{shortest}{X,
+  D}$ as defined above finds all distances $D$ from \datum{start} to $X$ rather
+than only the shortest. Besides failing to express our intent, this relation may
+be infinite if there are cycles in our graph, and computing it will loop.
+
+Datalog really only understands one semilattice -- finite sets under union --
+and has no way to specify that multiple sources of information, like the
+distance $D$ in $\atom{shortest}{X,D}$, should be combined using a different
+strategy. This puts any computation using a custom semilattice out of reach.
+This particularly restricts Datalog's application to static analysis,
+\todo{abstract interpretation, other semilattices}.
 
 
 \section{Our goal}

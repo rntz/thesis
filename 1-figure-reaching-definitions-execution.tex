@@ -1,83 +1,89 @@
 \begin{figure}[pt]
+  \newlength\descriptionlength
+  \setlength\descriptionlength{2\baselineskip}
   %\newcommand\stepnumber[1]{{\bfseries\scshape\osfstyle step #1}}
   \newcommand\updline{\color{purple}}
-  \newcommand\stepnumber[1]{{\AlegreyaSansOsF\bfseries\scshape step #1}}
-  \newcommand\reachstep[2]{%
+  \newcommand\reachstep[3]{%
     \hfil
-    \begin{minipage}[t]{.44\textwidth}
-      \centering\stepnumber{#1}\\[\baselineskip]
-      \raggedright
+    \begin{minipage}[t]{.48\textwidth}
+      \vspace{\baselineskip}
       \ttfamily
       \begin{tabular}{cl@{\qquad}l}
-        %% &\textsfit{code} &\textsfit{assignments to x}\\[.25ex]
-        #2
+        #3
+        \\[2ex]
+        \multicolumn{3}{l}{%
+          \parbox[t][\descriptionlength][t]{.94\textwidth}{%
+            \AlegreyaSansOsF
+            {\bfseries\scshape step #1}\hphantom{n}#2}%
+        }
       \end{tabular}
-      \vspace{2\baselineskip}
     \end{minipage}
     \hfil
   }
 
   %\small
   \centering
-  \reachstep{1}{
+  \reachstep{1}{The assignment on line 1 adds itself.}{
+    && \parbox[b]{.3\textwidth}{\linespread{0}\sffamily\itshape reaching assignments}
+    \\[.33ex]
     1 & \tt x := 0          & \updline (x,1)\\
     2 & \tt print x\\
     3 & \tt while true do\\
     4 & \tt\quad print x\\
     5 & \tt\quad x := x + 1}
   %
-  \reachstep{2}{
+  \reachstep{2}{Information propagates to line 2.}{
+    && \parbox[b]{.3\textwidth}{\linespread{0}\sffamily\itshape reaching assignments}
+    \\[.33ex]
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & \updline (x,1)\\
     3 & \tt while true do\\
     4 & \tt\quad print x\\
     5 & \tt\quad x := x + 1}
   %
-  \reachstep{3}{
+  \reachstep{3}{Information propagates to line 3.}{
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & (x,1)\\
     3 & \tt while true do   & \updline (x,1)\\
     4 & \tt\quad print x\\
     5 & \tt\quad x := x + 1}
   %
-  \reachstep{4}{
+  \reachstep{4}{Information propagates to line 4.}{
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & (x,1)\\
     3 & \tt while true do   & (x,1)\\
     4 & \tt\quad print x    & \updline (x,1)\\
     5 & \tt\quad x := x + 1}
   %
-  \reachstep{5}{
+  \reachstep{5}{The assignment on line 5 adds itself, discarding the assignment from line 1.}{
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & (x,1)\\
     3 & \tt while true do   & (x,1)\\
     4 & \tt\quad print x    & (x,1)\\
     5 & \tt\quad x := x + 1 & \updline (x,5) }
   %
-  \reachstep{6}{
+  \reachstep{6}{Information propagates from line 5 to line 3 because of the loop.}{
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & (x,1)\\
     3 & \tt while true do   & (x,1) \updline (x,5)\\
     4 & \tt\quad print x    & (x,1)\\
     5 & \tt\quad x := x + 1 & (x,5) }
-  %
-  \reachstep{7}{
+
+  \vspace{\baselineskip} %HACK to make the spacing look even
+  \reachstep{7}{Information propagates to line 4.}{
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & (x,1)\\
     3 & \tt while true do   & (x,1) (x,5)\\
     4 & \tt\quad print x    & (x,1) \updline (x,5)\\
     5 & \tt\quad x := x + 1 & (x,5) }
   %
-  \reachstep{8}{
+  \reachstep{8}{No changes -- done!}{
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & (x,1)\\
     3 & \tt while true do   & (x,1) (x,5)\\
     4 & \tt\quad print x    & (x,1) (x,5)\\
-    5 & \tt\quad x := x + 1 & (x,5) \\[1ex]
-  \multicolumn{3}{c}{\sffamily\itshape\updline no changes -- done!}}
+    5 & \tt\quad x := x + 1 & (x,5)}
   
-  \todo{needs more polish?}
-
   \caption{Reaching definitions, step-by-step}
   \label{figure-reaching-definitions-execution}
 \end{figure}
