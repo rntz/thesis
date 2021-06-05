@@ -162,7 +162,7 @@ How do these three examples fit into our proposed pattern: finding the least fix
   node, edge, or line we could examine -- which would change this state. In
   other words, we halted once our state was \emph{fixed} under our transition
   function.
-  
+
 \item[Monotone]
 
   Although our state changed over time, it did not change in arbitrary ways:
@@ -395,7 +395,7 @@ $\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
 yes-or-no question: is the query deriveable or not?
 
 %% Although in principle the result of a Datalog program is the set of \emph{all}
-%% deriveable facts, in practice we use 
+%% deriveable facts, in practice we use
 
 Observe that ``the set of all deriveable facts'' fits neatly into our informal
 description of monotone fixed points: applying inference rules is a monotone
@@ -644,7 +644,7 @@ unless we have proved its conclusion is false!
 To avoid this sort of gap between the logical meaning of a program and its
 interpretation as inference rules, Datalog allows only programs where uses of
 negation can be \emph{stratified:} a recursively defined predicate (or mutually
-recursive group of predicates) cannot use its own negation in its definition. 
+recursive group of predicates) cannot use its own negation in its definition.
 
 This restriction also avoids the need to make arbitrary choices. For example,
 this is disallowed:
@@ -743,7 +743,7 @@ essence of reaching definitions analysis can be expressed as follows:
   \neg\atom{assigns}{L_{\textsf{dest}}, V}
   \conj
   \atom{reaches}{L_{\textsf{prev}}, V, L_{\textsf{src}}}
-  \conj 
+  \conj
   \atom{flows}{L_{\textsf{prev}}, L_{\textsf{dest}}}.
 \end{datalog}
 
@@ -801,7 +801,7 @@ in particular with a conventional language like Java or C++:
 \section{What Datalog can't do}
 
 In \cref{section-datalog} we discussed Datalog's semantics and the deliberate
-restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider five things which Datalog does not support and why you might want them: 
+restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider five things which Datalog does not support and why you might want them:
 \begin{enumerate*}[label=({\arabic*})]
   \item functional abstraction,
   \item semilattices other than set union,
@@ -980,7 +980,7 @@ Our approach will be to combine Datalog with typed functional programming, on th
   (functions), we hope to gain the best of both worlds.
 
   %% \todo{contrast this with trying to do higher-obrder relational programming}
-  
+
 \item We can capture the restrictions that make Datalog work by deconstructing
   it type-theoretically. Type theory studies compositional properties of
   programs: if we recast syntactic restrictions (stratification,
@@ -996,7 +996,7 @@ Our approach will be to combine Datalog with typed functional programming, on th
 \item Guided by this type system and its semantics, we can add practical
   features to our language, such as semilattices, aggregation, arithmetic, and
   compound datatypes, without sacrificing its guarantees.
-  
+
   %% \todo{From this we can gain: semantics a la carte, types to describe \&
   %% hopefully handle other semilattices in a principled way; compound data via
   %% datatypes.}
