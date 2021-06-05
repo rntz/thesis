@@ -162,8 +162,6 @@ How do these three examples fit into our proposed pattern: finding the least fix
   node, edge, or line we could examine -- which would change this state. In
   other words, we halted once our state was \emph{fixed} under our transition
   function.
-
-  \XXX
   
 \item[Monotone]
 
@@ -188,7 +186,12 @@ How do these three examples fit into our proposed pattern: finding the least fix
   elements, so we order them by the subset relation, $s \le t \iff s \subseteq
   t$.
 
-  \todo{ok, but how about monotonicity. relate to transition function?}
+  %% Our state increasing over time arises from the \emph{monotonicity} of the
+  %% transition function: feed it a larger input state, and you'll get a larger
+  %% output state. This inductively guarantees that our state can only grow or stay
+  %% the same.
+
+  \todo{ok, but how about \emph{monotonicity.} relate to transition function? or omit this?}
 
 \item[Semilattices] In each example, we had some way of combining information
   from multiple sources. In graph reachability, we marked a node if \emph{any}
@@ -330,6 +333,7 @@ Datalog may be seen either as a restricted logic programming language or an
 expressive database query language. To start with, we consider the former view,
 explaining Datalog in terms of deduction. Here is a simple Datalog program:
 
+\nopagebreak[2]
 \begin{datalog}
   \atom{parent}{\datum{alice}, \datum{bob}}.
   \\
@@ -378,18 +382,29 @@ example, is $\fa{X, Y, Z} \atom{parent}{X, Y} \wedge \atom{parent}{Y, Z}
 \implies \atom{grandparent}{X, Z}$.
 
 Informally, the intended interpretation of a Datalog program is the set of all
-facts deducible from its clauses. We access this set via \emph{queries}, for
-example $\atom{grandparent}{\datum{alice},X}$, which asks for a list of all $X$
-such that $\atom{grandparent}{\datum{alice},X}$ is deriveable. In general we
-allow conjunctive queries: lists of atoms conjuncted together, for instance the
+facts deducible from its clauses.
+%
+We access this set via \emph{queries} such as
+$\atom{grandparent}{\datum{alice},X}$, which asks for a list of all $X$ such
+that $\atom{grandparent}{\datum{alice},X}$ is deriveable. In general we allow
+conjunctive queries: lists of atoms conjuncted together, for instance the
 unlikely query $\atom{parent}{X,Y} \conj \atom{parent}{Y,X}$, which asks for a
-pair of people who are each the parent of the other (or, in the case $X = Y$, a
-single person who is their own parent). Finally, a query without any variables,
-such as $\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
+pair of people each the parent of the other (or, in the case $X = Y$, a single
+person who is their own parent). Finally, a query without any variables, such as
+$\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
 yes-or-no question: is the query deriveable or not?
 
-\todo{something about least fixed point semantics}
+%% Although in principle the result of a Datalog program is the set of \emph{all}
+%% deriveable facts, in practice we use 
 
+Observe that ``the set of all deriveable facts'' fits neatly into our informal
+description of monotone fixed points: applying inference rules is a monotone
+process, adding but never removing knowledge; we desire the fixed point of this
+process, where everything that can be derived has been; our semilattice is sets
+of atoms under union. The ascending chain condition, however, does not obviously
+hold -- perhaps there are infinitely many deducible facts? To answer this
+question, we must consider what differentiates Datalog from other logic
+programming languages.
 
 \todo{INCLUDE DATALOG BY EXAMPLE SECTION?}
 
@@ -581,8 +596,10 @@ for now the issue of negation, it imposes two restrictions which keep all
 
 \noindent
 Together, range-restriction and constructor-freedom ensure that relations are
-\emph{finite}. This permits the most common Datalog implementation strategy,
-\emph{forward chaining}.
+\emph{finite} and thus enforce the ascending chain condition.
+%
+This permits the most common Datalog implementation strategy, \emph{forward
+  chaining}.
 %
 In backward chaining we start from a goal (``is there a path from St.
 Louis to Detroit?'') and reason backward, applying rules that might prove it.
@@ -733,8 +750,8 @@ essence of reaching definitions analysis can be expressed as follows:
 \noindent
 If $\atom{flows}{L_1, L_2}$ means that line $L_1$ may transfer control to $L_2$,
 and $\atom{assigns}{L, V}$ means that line $L$ assigns to variable $V$, the
-above defines $\atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}$ to mean
-that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
+above defines $\atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}$
+to mean that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
 $L_{\textsf{dest}}$.
 
 This fluency at defining static analyses is not limited to toy examples.
