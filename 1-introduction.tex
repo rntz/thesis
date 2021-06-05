@@ -2,22 +2,26 @@
 
 
 \section{Monotone fixed points}
+\label{section-monotone-fixed-points}
 
 %% \splittodo{sketch problem space:}{recursive queries + higher-order functions + a
 %%   clean denotational semantics free of implementation details (``declarative'')
 %%   + be able to reuse optimizations from the database and Datalog literature}
 
-An extraordinary number of classic and useful computational problems can be
-expressed as finding the least fixed point of a monotone map on a semilattice
-satisfying the ascending chain condition. The utility of Datalog is explained by
-the fact that it captures this pattern, albeit restricted to the semilattice of
-finite sets under union. To understand this pattern better, let's consider three
-examples of increasing complexity:
+A remarkable number of computational problems can be expressed as finding the
+least fixed point of a monotone map on a semilattice satisfying the ascending
+chain condition.
+%
+The utility of Datalog is explained by the fact that it captures this pattern,
+albeit restricted to the semilattice of finite sets under union.
+%
+To understand this pattern better, let's consider three examples of increasing
+complexity:
 %
 (1) reachability in a graph;
 (2) single-source shortest paths;
 and (3) analyzing which variable assignments may reach a given line in a simple
-imperative program (often called ``reaching definitions'').
+imperative program (called ``reaching definitions'').
 
 %% \paragraph{Reachability} Consider a graph and suppose we wish to find all nodes reachable from some
 %% designated start node~(\cref{figure-reachability}).
@@ -25,6 +29,8 @@ imperative program (often called ``reaching definitions'').
 %% \paragraph{Shortest paths} blha blah
 
 \begin{description}
+
+
 \item[Reachability] % \strong{Reachability.}
 %
 Consider a graph and suppose we wish to find all nodes reachable from some
@@ -92,6 +98,20 @@ Once no shortening edges exist, the annotations $d_v$ cannot change, and we are 
   \label{figure-shortest-paths}
 \end{figure}
 
+
+\begin{figure}[pth]
+  \centering
+  \ttfamily
+  \begin{tabular}{cl}
+    1 & \tt x := 0\\
+    2 & \tt print x\\
+    3 & \tt while true do\\
+    4 & \tt\quad print x\\
+    5 & \tt\quad x := x + 1
+  \end{tabular}
+  \caption{Example program}
+  \label{figure-reaching-definitions}
+\end{figure}
 
 \item[Reaching definitions]
 %
@@ -124,20 +144,6 @@ Once there is no line whose corresponding assignment-set is changing, the analys
 %
 See \cref{figure-reaching-definitions-execution} for a step-by-step diagram of this process. \todo{describe the diagrams}
 
-\begin{figure}[pt]
-  \centering
-  \ttfamily
-  \begin{tabular}{cl}
-    1 & \tt x := 0\\
-    2 & \tt print x\\
-    3 & \tt while true do\\
-    4 & \tt\quad print x\\
-    5 & \tt\quad x := x + 1
-  \end{tabular}
-  \caption{Example program}
-  \label{figure-reaching-definitions}
-\end{figure}
-
 \input{1-figure-reaching-definitions-execution}
 
 \end{description}
@@ -157,23 +163,32 @@ How do these three examples fit into our proposed pattern: finding the least fix
   other words, we halted once our state was \emph{fixed} under our transition
   function.
 
-  To make this more precise, \todo{formalize this transition function?}
+  \XXX
   
 \item[Monotone]
 
   Although our state changed over time, it did not change in arbitrary ways:
   there was a direction to it. Nodes went from unchecked to checked; distances
   to nodes decreased; and sets of reaching assignments grew.
-
+%
   We can formalize this by giving our states a \emph{partial order} representing
   the direction they change as computation progresses and information increases.
-  For example, in graph reachability, a node's state was a boolean flag; for
-  simplicity we'll regard it as \etrue\ if the node is checked,
-  \efalse\ otherwise. Since nodes go from unchecked to checked but not
-  vice-versa, we say that $\efalse < \etrue$. \XXX
 
-  \todo{need something about least-ness?}
-  
+  For example, in graph reachability a node's state is a boolean flag; for
+  simplicity we'll regard it as \etrue\ if the node is checked,
+  \efalse\ otherwise.
+%
+  Since nodes go from unchecked to checked but not vice-versa, we say that
+  $\efalse < \etrue$.
+%
+  In single-source shortest-path our distances change toward zero, so we order
+  them ``inversely'', $\infty < \hdots < 3 < 2 < 1 < 0$.
+%
+  And in reaching definitions our assignment-sets change by gaining new
+  elements, so we order them by the subset relation, $s \le t \iff s \subseteq
+  t$.
+
+  \todo{ok, but how about monotonicity. relate to transition function?}
 
 \item[Semilattices] In each example, we had some way of combining information
   from multiple sources. In graph reachability, we marked a node if \emph{any}
@@ -206,17 +221,110 @@ How do these three examples fit into our proposed pattern: finding the least fix
   any process producing an increasing state-sequence must halt.
 %
   We leave it as an exercise for the reader to convince themselves each of our
-  examples satisfies this property. \todo{need to show it here?}
+  state-posets satisfies this property.%
+%
+  \footnote{Although for simplicity's sake we have presented our partial orders
+    as ranging over booleans, distances, and finite sets respectively, our
+    states are actually \emph{maps} from nodes or lines into booleans,
+    distances, or finite sets. Fortunately, if the domain is finite, maps into a
+    poset satisfying ACC also satisfy ACC.}
 \end{description}
 
 \noindent
-\splittodo{finish section.}{Note that monotonicity + ACC gives us a proof of termination: always go in a direction, can't go forever => must halt. furthermore can prove using a weak, easy-to-prove variant of Knaster-Tarski we find \emph{least} fixed point.}
+%
+The essence of our computational pattern, then, is this: we follow rules which accumulate information \emph{monotonically} until there is nothing left to learn (a \emph{fixed point}). We usually need a way to combine information from multiple sources (our \emph{semilattice}); and if we are to finish, we cannot keep learning forever (the \emph{ascending chain condition}).
 
-\todo{missing segue}
+%% \splittodo{why these four properties?}{Answer: pattern is roughly ``learning
+%%   more until you know everything''. Fixed points for recursive definition,
+%%   monotonicity + ACC to ensure termination (monotonicity -> direction, acc ->
+%%   can't go forever), semilattice to combine knowledge.}
+
+At this point an inquisitive or sceptical reader might ask: how broadly is this
+pattern applicable -- were these three examples cherry-picked?
+%
+And, although we may now have an intuition for what our examples share in
+common, what precisely, \emph{mathematically}, is going on here?
+%
+For now, I hope only to have whetted your appetite.
+%
+As this thesis progresses, we will see more examples of this pattern and develop a more precise mathematical understanding of what it consists in.
+%
+To do this, it will help to examine a language which is at once an instance of
+this pattern for us to deconstruct and a vehicle for expressing further
+instances of it: Datalog.
+
+%% Connection to Datalog: in order to discuss further examples it will help to have a notation that makes presenting this kind of algorithm easy and precise.
+
+
+%% \subsection{Making this mathematical}
+
+%% \todo{Cut this section?}
+
+%% \noindent
+%% The above gives us a useful intuition for what our examples share in common, but
+%% a mathematician might complain that we haven't actually \emph{demonstrated} the
+%% promised monotone map whose fixed point is, e.g., the set of reachable nodes in
+%% a graph.
+%% %
+%% By inspecting our algorithm, can we define the map whose fixed point it supposedly computes?
+%% %
+%% More interestingly, can we do the reverse: presented with such a map, can we recover an algorithm for computing it?
+%% %
+%% %% What does a transition function whose fixed-point defines graph reachability look like?
+
+%% Recall that there were two components to our algorithm for reachability: marking
+%% the start node, and marking neighbors of marked nodes.
+%% %
+%% Thus once our algorithm terminates, a node will be marked when it is either the start node or the neighbor of a marked node.
+%% %
+%% So letting $G = (V,E)$ be our graph, $\name{start} \in V$ be our start node, and
+%% $\name{reachable}(v)$ be the proposition that $v$ is reachable and thus
+%% eventually marked, we have:
+
+%% \[
+%% \name{reachable}(v) ~\iff~ (v = \datum{start}) \vee
+%% (\exists(v,u) \in E.\ \name{reachable}(u))
+%% \]
+
+%% \noindent
+%% This amounts to a recursive definition of the predicate \name{reachable}, and
+%% any recursive definition $x = F(x)$ is a fixed point of $F$. In this case, $F$ is a \emph{predicate transformer}, defined like so:
+
+%% \begin{align*}
+%% F &\isa 2^V \to 2^V
+%% \\
+%% F(\name{reachable})(v) &=
+%% (v = \datum{start})
+%% \vee
+%% (\exists(v,u) \in E.\ \name{reachable}(u))
+%% \end{align*}
+
+%% \noindent
+%% This $F$, then, is the map whose fixed point we are finding. And, as we might
+%% expect, $F$ is \emph{monotone}: as its argument \name{reachable} increases
+%% (since $\efalse < \etrue$, this means becoming \etrue\ for more arguments), its
+%% output also increases:
+
+%% \[ R_1 \le R_2 \implies F(R_1) \le F(R_2) \]
+
+%% \XXX
+
+%% %% \todo{formalize this transition function?}
+%% %% %
+%% %% \footnote{The astute will notice \XXX. This difference between \emph{states} and \emph{changes} foreshadows a topic we will return to in \cref{chapter-seminaive}.}
+
+%% \splittodo{finish section.}{Can compute fixed point by iterating map.
+%%   Monotonicity + ACC prove termination: always go in a direction, can't go
+%%   forever => must halt. Induction shows that we find the least fixed point. This
+%%   is essentially a weak variant of Knaster-Tarski.}
+
+%% \todo{segue to Datalog}
 
 
 \section{Datalog}
 \label{section-datalog}
+
+\todo{Need more historical bg on Datalog: arose in the 1980's DB community.}
 
 Datalog may be seen either as a restricted logic programming language or an
 expressive database query language. To start with, we consider the former view,
@@ -244,25 +352,30 @@ rule with two premises. In inference rule notation we might write this:
 \end{mathpar}
 
 \noindent
+% We don't mention the restriction to variables or constants here because we
+% will introduce it later when we talk about constructor-freedom.
 More formally, a Datalog program is a sequence of \emph{clauses} terminated by
 periods. Each clause is an implication with one conclusion and an optional list
 of premises, written conclusion-first, ``$B \gets A_1 \conj A_2 \conj ... \conj
 A_n.$''; or if there are no premises, simply ``$B.$''. The premises and
 conclusion are \emph{atoms} of first-order logic: a predicate applied to a
-sequence of arguments, $P(X_1, ..., X_n)$, or a negation of the same, $\neg
-P(X_1, ..., X_n)$, where each argument must either be a variable (generally
-written as an uppercase letter $X,Y,Z$) or a constant (written in lower case
-sans-serif: $\datum{alice}, \datum{bob}, \datum{charlie}$). Moreover, the
-conclusion of a clause must be positive, not negated.
+sequence of terms, $P(T_1, ..., T_n)$, or a negation of the same, $\neg P(T_1,
+..., T_n)$%% , where each argument must either be a variable (generally
+%% written as an uppercase letter $X,Y,Z$) or a constant (written in lower case
+%% sans-serif: $\datum{alice}, \datum{bob}, \datum{charlie}$)
+.
+%
+%% (For convenience and clarity, we notate some predicates infix, for example $X =
+%% Y$ or $X < Y$.)
+%
+Moreover, the conclusion of a clause must be positive, not negated.
+%
 
 As is the convention when interpreting inference rules, in Datalog the variables
-in a clause are considered to be universally quantified: the logical
-interpretation of our third line, for example, is $\fa{X, Y, Z} \atom{parent}{X,
-  Y} \wedge \atom{parent}{Y, Z} \implies \atom{grandparent}{X, Z}$.
-
-Occasionally we will consider Datalog programs which slightly relax some of
-these requirements, for example by allowing premises which are notated infix,
-for example $X = Y$ or $X < Y$.
+in a clause (for which we use capital letters $X,Y,Z$) are considered to be
+universally quantified: the logical interpretation of our third line, for
+example, is $\fa{X, Y, Z} \atom{parent}{X, Y} \wedge \atom{parent}{Y, Z}
+\implies \atom{grandparent}{X, Z}$.
 
 Informally, the intended interpretation of a Datalog program is the set of all
 facts deducible from its clauses. We access this set via \emph{queries}, for
@@ -278,6 +391,112 @@ yes-or-no question: is the query deriveable or not?
 \todo{something about least fixed point semantics}
 
 
+\todo{INCLUDE DATALOG BY EXAMPLE SECTION?}
+
+%% \subsection{Datalog by example}
+
+%% \splittodo{more examples.}{ Only work on this section later, if I have the time.
+%%   The goal is to give people more intuition for what Datalog can do
+%%   and how by exposing them to more examples of Datalog.}
+
+%% \todo{wording} We've seen that Datalog's semantics coincide with the monotone
+%% fixed points of \cref{section-monotone-fixed-points}, so it should be no
+%% surprise that our first example, graph reachability, is easily expressible in
+%% Datalog:
+
+%% \begin{datalog}
+%%   \atom{reachable}{\datum{start}}.\\
+%%   \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.
+%% \end{datalog}
+
+%% \noindent\todo{Example queries:}
+%% \begin{itemize}[nosep]
+%% \item friends in common/siblings
+%% \item grandparents/friend-of-a-friend
+%% \item simple joins, business logic, employee-department stuff
+%% \item directors of movies starring tom hanks (imdb a good running example?)
+%% \item constructing control flow graph
+%% \item is there a path that crosses a certain color edge? that doesn't cross a certain color edge?
+%% \item the compilers puzzle from flix: given interpreters \& compilers, what languages can we compile to what?
+%% \item transitive closure, of course; maybe a less contrived example
+%% \item sketch a points-to analysis? DOOP?
+%% \item find things that people use souffle for? Look through Semmle papers?
+%% \end{itemize}
+
+%% \noindent
+%% \textbf{possible example programs}
+
+%% \begin{datalog}
+%%   \atom{sibling}{Y,Z} \gets \atom{parent}{X,Y} \conj \atom{parent}{X,Z} \conj Y \ne Z.
+%%   \\
+%%   \atom{grandparent}{X,Z} \gets \atom{parent}{X,Y} \conj \atom{parent}{Y,Z}.
+%% \end{datalog}
+
+%% \begin{datalog}
+%%   \atom{hasparent}{Y} \gets \atom{parent}{X,Y}.
+%%   \\
+%%   \atom{orphan}{Y} \gets \neg\atom{hasparent}{Y}.
+%% \end{datalog}
+
+%% \begin{datalog}
+%%   \atom{possibly-overpaid}{Y} \gets
+%%   \atom{manages}{X,Y} \conj \atom{salary}{X,S_1}
+%%   \conj \atom{salary}{Y,S_2} \conj S_1 < S_2.
+%%   \\
+%%   \atom{cross-department}{X,Y} \gets
+%%   \atom{department}{X,D_1} \conj \atom{department}{Y,D_2} \conj
+%%   \\
+%%   \phantom{\atom{cross-department}{X,Y} \gets {}}
+%%   \atom{manages}{X,Y} \conj D_1 \ne D_2.
+%% \end{datalog}
+
+%% %% \begin{datalog}
+%% %%   \atom{purchased-every-food}{P}
+%% %%   \gets
+%% %%   \atom{buyer}{P} \conj \neg\atom{unpurchased}{P}.
+%% %%   \\
+%% %%   \atom{unpurchased}{P}
+%% %%   \gets
+%% %%   \atom{buyer}{P}  \conj \atom{food}{F} \conj \neg\atom{purchased}{P,F}.
+%% %% \end{datalog}
+
+%% %% \noindent Unique drinkers in Datalog:
+%% %% \begin{datalog}
+%% %%   \atom{unique-drinker}{D} \gets
+%% %%   \atom{drinker}{D} \conj \neg\atom{has-twin}{D}.
+%% %%   \\
+%% %%   \atom{has-twin}{D} \gets \atom{drinker}{D} \conj \atom{drinker}{E}
+%% %%   \conj D \ne E
+%% %%   \conj \neg\atom{differs}{D,E}.
+%% %%   \\
+%% %%   \atom{differs}{D,E} \gets
+%% %%   \atom{drinker}{E} \conj \atom{likes}{D,B} \conj \neg\atom{likes}{E,B}.
+%% %%   \\
+%% %%   \atom{differs}{D,E} \gets
+%% %%   \atom{drinker}{D} \conj \neg\atom{likes}{D,B} \conj \atom{likes}{E,B}.
+%% %% \end{datalog}
+
+%% %% \noindent Unique drinkers in Datafun:
+%% %% \begin{code}
+%% %%   \name{unique-drinkers} \isa \tset{\typename{person}}\\
+%% %%   \name{unique-drinkers} =
+%% %%   \esetfor{\dvar d}{
+%% %%     \dvar d \in \name{drinkers},\,
+%% %%     \neg\ebox{
+%% %%       \eforvar{e}{\name{drinkers}}
+%% %%       \eiso{\dvar d \ne \dvar e} \cap
+%% %%       \name{same} \<\eboxtuple{\dvar d, \dvar e}
+%% %%     }}
+%% %%   \\[\betweenfunctionskip]
+%% %%   \name{same} \isa \iso(\typename{person} \x \typename{person}) \to \tbool\\
+%% %%   \name{same} \<\pboxtuple{\dvar d, \dvar e} =
+%% %%   \eeq{
+%% %%     \esetfor{\dvar b}{\ptuple{\peqvar{d}, \dvar b} \in \name{likes}}
+%% %%   }{
+%% %%     \esetfor{\dvar b}{\ptuple{\peqvar{e}, \dvar b} \in \name{likes}}
+%% %%   }
+%% %% \end{code}
+
 
 \subsection{Termination and recursion}
 
@@ -292,12 +511,13 @@ Prolog's solution is to specify its proof search strategy.
 %
 This lets Prolog programmers reason about the execution of their programs, but
 it can mean that some logically sensible recursive programs fail to terminate.
-For example:
+For example: \todo{use single-source reachability here?}
 
 \begin{datalog}
 \atom{path}{X,Z} \gets \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
 \atom{path}{X,Y} \gets \atom{edge}{X,Y}.
 \end{datalog}
+\label{datalog-path}
 
 \noindent
 Read as inference rules, these clauses make \name{path} the transitive closure
@@ -348,13 +568,13 @@ for now the issue of negation, it imposes two restrictions which keep all
   atomic terms or variables. This prevents the introduction of new terms that
   don't already appear in the program, as this could also result in an infinite
   relation; for example, the relation containing all digit-lists (the use of a
-  `constructor' is highlighted in {\color{Red}red}):
+  `constructor' is {\color{Red}\underline{underlined and red}}):
 
   \nopagebreak[3]
   \begin{datalog}
     \atom{digits}{\datum{nil}}.
     \\
-    \atom{digits}{{\color{Red}\datum{cons}(X, Xs)}} \gets
+    \atom{digits}{\underline{\color{Red}\datum{cons}(X, Xs)}} \gets
     \atom{digit}{X} \conj \atom{digits}{Xs}.
   \end{datalog}
 \end{enumerate}
@@ -481,27 +701,22 @@ negation of predicates defined in the preceding layers.
 %% ensures the unique existence of a minimal model).
 
 
-\section{What Datalog is good for}
+\section{Case study: Datalog for static analysis}
+\label{datalog-for-static-analysis}
 
-\splittodo{in order, using examples:}{
-  \begin{enumerate}
-  \item simple sql-style queries, business analytics, use simple examples. Check Flix website? LogicBlox?
-  \item monotone fixpt as long as the semilattice is sets; demonstrate
-    reachability and reaching definitions
-  \item scalable static analysis, eg: doop, semmle
-  \end{enumerate}
-}
+%% \noindent
+%% In fact, this is a special case of the \name{path} relation from
+%% \cref{datalog-path}: a node is reachable iff there is a path to it from
+%% \name{start}: $\atom{reachable}{X} \iff \atom{path}{\datum{start}, X}$. In
+%% general Datalog is a natural fit for graph-oriented questions.
+%% %
 
-\begin{datalog}
-  \atom{reachable}{\datum{start}}.\\
-  \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.
-\end{datalog}
+Datalog has been successfully applied in various domains: for business analytics~\todo{cite: LogicBlox}, as a general purpose database query language~\todo{datomic, datascript}, in network protocols~\todo{OverLog, ???}, and for implementing distributed systems algorithms~\todo{dedalus,bloom}.
+%
+But probably Datalog's most significant real-world adoption has been as a tool for scalable static analysis~\todo{cite: bddbddb, doop, Semmle, souffle}.
 
-\subsection{Static analysis}
-
-Datalog makes defining static analyses remarkably easy. For instance, the
-essence of our third example, reaching definitions analysis, can be expressed in
-Datalog as follows:
+Datalog makes defining simple static analyses almost trivial. For instance, the
+essence of reaching definitions analysis can be expressed as follows:
 
 \begin{datalog}
   \atom{reaches}{L,V,L} \gets \atom{assigns}{L,V}.
@@ -523,7 +738,8 @@ that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
 $L_{\textsf{dest}}$.
 
 This fluency at defining static analyses is not limited to toy examples.
-\todo{explain:} bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}, Semmle,
+\todo{explain what each one used it for:}
+bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}, Semmle,
 DOOP~\citep{DBLP:conf/datalog/SmaragdakisB10}
 
 \todo{discussion}
@@ -567,34 +783,15 @@ in particular with a conventional language like Java or C++:
 
 \section{What Datalog can't do}
 
-\splittodo{what Datalog can't do:}{
-  \begin{enumerate}
-  \item semilattices other than sets (e.g. shortest paths)
-  \item functional abstraction
-  \item aggregations
-  \item arithmetic or other functions
-  \item compound data
-  \end{enumerate}
-
-  Often extended to handle aggregations, arithmetic, and compound data; but of
-  course this gives up its semantics; or does it?
-}
-
-\cite{DBLP:conf/datalog/SmaragdakisB10}: they needed to add a macro system in
-order to handle deep contexts, because Datalog does not support combining
-multiple values into one, so they have to add an extra parameter to a predicate
-for each component of the context.
-
-\emph{``For deeper contexts, one needs to add extra variables, since pure
-  Datalog does not allow constructors and therefore cannot support value
-  combination. We have introduced in \textsc{Doop} a macro system to hide the
-  number of context elements so that such variations do not pollute the analysis
-  logic.''}
-
-They also mention possibly wanting expressiveness enhancements: \emph{``The
-  language needs to be developed as a real programming language, with [...], and
-  possibly expressiveness enhancements (e.g., macros, exponential-search, or
-  other high-order capabilities).''}
+In \cref{section-datalog} we discussed Datalog's semantics and the deliberate
+restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider five things which Datalog does not support and why you might want them: 
+\begin{enumerate*}[label=({\arabic*})]
+  \item functional abstraction,
+  \item semilattices other than set union,
+  \item aggregations,
+  \item arithmetic and other functions, and
+  \item compound data.
+\end{enumerate*}
 
 
 \subsection{Functional abstraction}
@@ -633,10 +830,10 @@ In any ordinary language, we would factor out this repeated code into a procedur
 Unfortunately, Datalog cannot do this.
 %
 Datalog does not have functions, procedures, or modules, only relations; and
-relations are first-order, unable to manipulate or abstract over other relations.
+relations are first-order, unable to manipulate or abstract over other relations,
 %
-This first-order restriction on relations is crucial to making Datalog evaluation tractable while maintaining its straightforward semantics; higher-order logic programming is an open research problem \todo{CITE}. \XXX
-
+and it is unclear how to lift this restriction without giving up the guarantees
+that make forward-chaining Datalog evaluation tractable.
 
 
 \subsection{Semilattices other than set union}
@@ -654,121 +851,136 @@ expressing this in Datalog might look like this:
 \end{datalog}
 
 \noindent
-One problem with this example is the use of the infinite relation $D_1 + D_2 =
-D_3$; recall that infinite relations can cause a problem for a forward-chaining
-evaluator. However, this particular case can be implemented, since $D_1$ and
-$D_2$ are supplied by the other premises, and together these allow computing
-$D_3$.%
+The immediate issue here is the use of the infinite relation $D_1 + D_2 = D_3$;
+recall that infinite relations can cause a problem for a forward-chaining
+evaluator. However, in this case $D_1$ and $D_2$ are supplied by the first two
+premises, and together these allow computing $D_3$.%
 \footnote{\splittodo{Cite Mistral Contrastin's work}{ on dataflow/mode systems for Datalog?}}
 %
-The bigger problem is that, despite its name, the relation $\atom{shortest}{X,
-  D}$ as defined above finds all distances $D$ from \datum{start} to $X$ rather
-than only the shortest. Besides failing to express our intent, this relation may
-be infinite if there are cycles in our graph, and computing it will loop.
+The deeper problem is that, despite its name, $\atom{shortest}{X, D}$ finds
+\emph{all} distances $D$ from \datum{start} to $X$ rather than only the
+shortest. Besides failing to capture our intent, if the graph has cycles, there
+may be infinitely many such distances, causing an infinite loop.
 
 Datalog really only understands one semilattice -- finite sets under union --
 and has no way to specify that multiple sources of information, like the
 distance $D$ in $\atom{shortest}{X,D}$, should be combined using a different
 strategy. This puts any computation using a custom semilattice out of reach.
-This particularly restricts Datalog's application to static analysis,
-\todo{abstract interpretation, other semilattices}.
+This particularly impacts Datalog's application to static analysis, where custom
+semilattices are frequently used to represent carefully-chosen approximations of
+the full set of values an expressions or variables may take on -- e.g. numeric
+intervals under approximate union, polyhedra, \todo{more! cite!}.
+%% \todo{abstract interpretation, other semilattices}.
+
+\todo{maybe use constant analysis as an example?}
 
 
-\section{Our goal}
+\subsection{Aggregations}
 
-\splittodo{our goal:}{ease these limitations by combining Datalog with
-  functional programming. From this we can gain: semantics a la carte, more
-  compositional approach to guarantees; functions to factor out repetition;
-  types to describe \& hopefully handle other semilattices in a principled way;
-  compound data via datatypes}
+\splittodo{aggregations.}{First, point out that minimum is a form of aggregation, so aggregations might also put shortest paths in reach. However, not all aggregations are semilattice joins. In particular, aggregations in general may or may not be monotone. So this raises both syntactic, semantic, and operational concerns.}
 
 
-\section{Datalog by example}
+\subsection{Arithmetic and other functions}
 
-\splittodo{FIXME: remove this section}{ and move relevant content into other sections if useful}
+\todo{arithmetic.}{ Although adding these things to Datalog is not a difficult extension to implement in a forward-chaining evaluator, and consequently almost everybody does it, it does seem to give up our semantics, as we saw with shortest paths: adding arithmetic invalidated our termination guarantee}
 
-Ideas for Datalog examples:
-\begin{itemize}
-\item some simple business logic examples, department-employee stuff
-\item transitive closure, of course; maybe a less contrived example
-\item sketch a points-to analysis? DOOP?
-\item find things that people use souffle for? Look through Semmle papers? Check will crichton's site?
-\end{itemize}
+\XXX
 
-\noindent
-\textbf{possible example programs}
+
+\subsection{Compound data}
 
-\begin{datalog}
-  \atom{grandparent}{X,Z} \gets \atom{parent}{X,Y} \conj \atom{parent}{Y,Z}.
-  \\
-  \atom{sibling}{Y,Z} \gets \atom{parent}{X,Y} \conj \atom{parent}{X,Z} \conj Y \ne Z.
-  \\
-\end{datalog}
-\begin{datalog}
-  \atom{hasparent}{Y} \gets \atom{parent}{X,Y}.
-  \\
-  \atom{orphan}{Y} \gets \neg\atom{hasparent}{Y}.
-\end{datalog}
-\begin{datalog}
-  \atom{possibly-overpaid}{Y} \gets
-  \atom{manages}{X,Y} \conj \atom{salary}{X,S_1}
-  \conj \atom{salary}{Y,S_2} \conj S_1 < S_2.
-  \\
-  \atom{cross-department}{X,Y} \gets
-  \atom{department}{X,D_1} \conj \atom{department}{Y,D_2} \conj
-  \\
-  \phantom{\atom{cross-department}{X,Y} \gets {}}
-  \atom{manages}{X,Y} \conj D_1 \ne D_2.
-\end{datalog}
+Datalog's \emph{constructor-freedom} prevents code that would directly
+manipulate compound data structures, like lists, trees, or even tuples. This
+restriction rules out some infinite relations, such as our ``list of digits''
+example, but it also rules out some legitimate, finite use-cases as well.
+%
+For instance, \citet{DBLP:conf/datalog/SmaragdakisB10} added a macro system to
+their Datalog dialect to make writing context-sensitive static analyses less of
+a chore.
 
-\begin{datalog}
-  \atom{purchased-every-food}{P}
-  \gets
-  \atom{buyer}{P} \conj \neg\atom{unpurchased}{P}.
-  \\
-  \atom{unpurchased}{P}
-  \gets
-  \atom{buyer}{P}  \conj \atom{food}{F} \conj \neg\atom{purchased}{P,F}.
-\end{datalog}
+In a context-sensitive analysis, each rule depends upon a \emph{context} representing an approximation of the conditions the code is executing under; for example, what call-site the function being analysed was invoked from.
+%
+A deep context requires multiple pieces of data to specify (e.g. the preceding
+two or three functions on the call stack).
+%
+It would be convenient to bundle this information into a single piece of data,
+hiding the choice of exactly how deep the context is, a choice orthogonal to the
+essence of the analysis.
+%
+Although logically and operationally unproblematic, this use of compound data is
+not possible in Datalog, barring a macro system or some more principled
+extension.
 
-\noindent
-\splittodo{use unique drinkers as datafun example?}{ it should involve much less redundancy
-  in datafun}
+%% \begin{quote}
+%%   For deeper contexts, one needs to add extra variables, since pure
+%%   Datalog does not allow constructors and therefore cannot support value
+%%   combination. We have introduced in \textsc{Doop} a macro system to hide the
+%%   number of context elements so that such variations do not pollute the analysis
+%%   logic.
 
-\begin{datalog}
-  \atom{unique-drinker}{D} \gets
-  \atom{drinker}{D} \conj \neg\atom{has-twin}{D}.
-  \\
-  \atom{has-twin}{D} \gets \atom{drinker}{D} \conj \atom{drinker}{E}
-  \conj D \ne E
-  \conj \neg\atom{differs}{D,E}.
-  \\
-  \atom{differs}{D,E} \gets
-  \atom{drinker}{E} \conj \atom{likes}{D,B} \conj \neg\atom{likes}{E,B}.
-  \\
-  \atom{differs}{D,E} \gets
-  \atom{drinker}{D} \conj \neg\atom{likes}{D,B} \conj \atom{likes}{E,B}.
-\end{datalog}
+%%   \raggedleft \citep{DBLP:conf/datalog/SmaragdakisB10}
+%% \end{quote}
 
-\begin{code}
-  \name{unique-drinkers} \isa \tset{\typename{person}}\\
-  \name{unique-drinkers} =
-  \esetfor{\dvar d}{
-    \dvar d \in \name{drinkers},\,
-    \neg\ebox{
-      \eforvar{e}{\name{drinkers}}
-      \eiso{\dvar d \ne \dvar e} \cap
-      \name{same} \<\eboxtuple{\dvar d, \dvar e}
-    }}
-  \\[\betweenfunctionskip]
-  \name{same} \isa \iso(\typename{person} \x \typename{person}) \to \tbool\\
-  \name{same} \<\pboxtuple{\dvar d, \dvar e} =
-  \eeq{
-    \esetfor{\dvar b}{\ptuple{\peqvar{d}, \dvar b} \in \name{likes}}
-  }{
-    \esetfor{\dvar b}{\ptuple{\peqvar{e}, \dvar b} \in \name{likes}}
-  }
-\end{code}
+%% They also mention possibly wanting expressiveness enhancements: \emph{``The
+%%   language needs to be developed as a real programming language, with [...], and
+%%   possibly expressiveness enhancements (e.g., macros, exponential-search, or
+%%   other high-order capabilities).''}
 
-\noindent
-possible examples: intersection, union, relational join, filter, map, constructing a control flow graph, reaching definitions, unique drinkers, purchased-all-items, directors of movies tom hanks starred in
+
+\section{Our goal and strategy}
+
+We started by introducing the computational pattern of monotone fixed points.
+We've seen that Datalog can express and compute some, but not all, instances of
+this pattern. Datalog's limitations are both practical -- it is not obvious how
+to extend Datalog with higher-order abstraction -- and theoretical -- real world
+Datalog engines often support aggregation, arithmetic, and compound data, but in
+doing so raise the question of these feature's semantics.
+
+%% \splittodo{ULTIMATE GOAL:}{move towards a language which directly expresses
+%%   the power of monotone fixed points. PROXIMATE GOAL: ease Datalog's
+%%   limitations in this area by combining it with functional programming.}
+
+The goal of this thesis is to design a language which improves on Datalog's
+ability to express monotone fixed point computation over semilattices by finding
+ways to lift Datalog's restrictions without sacrificing either its simple
+semantics or its practical implementation strategies.
+%
+Our approach will be to combine Datalog with typed functional programming, on the basis of three hypotheses:
+
+\begin{enumerate}
+\item We can gain functional abstraction by mixing Datalog with higher-order
+  functional programming. From a traditional logic programming perspective, this
+  is a strange move: functions are a special-case of relations, so the
+  ``natural'' way to make a logic language higher-order is to allow higher-order
+  relations.
+
+  Datalog's power, however, comes from carefully \emph{limiting}, not
+  \emph{expanding}, how relations may be defined; precisely because of their
+  generality, higher-order relations are more complex to implement than
+  higher-order functions, especially if one wishes to keep a natural
+  semantics~\todo{cite HOPES}. By separating our facility for deduction
+  (relations, queries, \& fixed points) from our facility for abstraction
+  (functions), we hope to gain the best of both worlds.
+
+  %% \todo{contrast this with trying to do higher-obrder relational programming}
+  
+\item We can capture the restrictions that make Datalog work by deconstructing
+  it type-theoretically. Type theory studies compositional properties of
+  programs: if we recast syntactic restrictions (stratification,
+  constructor-freedom) in terms of the properties they ensure (monotonicity,
+  ACC), we can design a type system to capture these properties by finding
+  compositional ways to provide them.
+
+  %% Datalog's semantic guarantees are provided by brute syntactic restrictions,
+  %% such as stratification and the absence of function symbols. In place of
+  %% these, we find compositional semantic properties such as monotonicity,
+  %% which we capture using types.
+
+\item Guided by this type system and its semantics, we can add practical
+  features to our language, such as semilattices, aggregation, arithmetic, and
+  compound datatypes, without sacrificing its guarantees.
+  
+  %% \todo{From this we can gain: semantics a la carte, types to describe \&
+  %% hopefully handle other semilattices in a principled way; compound data via
+  %% datatypes.}
+\end{enumerate}
