@@ -526,46 +526,56 @@ Prolog's solution is to specify its proof search strategy.
 %
 This lets Prolog programmers reason about the execution of their programs, but
 it can mean that some logically sensible recursive programs fail to terminate.
-For example: \todo{use single-source reachability here?}
+%
+For example:
 
+\nopagebreak[2]
+\label{datalog-reachable}
 \begin{datalog}
-\atom{path}{X,Z} \gets \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
-\atom{path}{X,Y} \gets \atom{edge}{X,Y}.
+  \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.\\
+  \atom{reachable}{\datum{start}}.
 \end{datalog}
-\label{datalog-path}
+
+%% \todo{use single-source reachability here?}
+%% \begin{datalog}
+%% \atom{path}{X,Z} \gets \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
+%% \atom{path}{X,Y} \gets \atom{edge}{X,Y}.
+%% \end{datalog}
+%% \label{datalog-path}
 
 \noindent
-Read as inference rules, these clauses make \name{path} the transitive closure
-of \name{edge}.
+These rules encode our graph reachability example: a node is reachable if one of its neighbors is, or if it is the start node.
 %
-In Prolog, however, any query to \name{path} will loop.
+%% Read as inference rules, these clauses make \name{path} the transitive
+%% closure of \name{edge}.
 %
+In Prolog, however, any query to \name{reachable} will loop.
+
 This is because Prolog uses backward chaining (also called goal-directed or
 top-down) depth-first search: we start from a goal and reason backward, applying
 rules that might prove it.
 %
 These rules are applied in the order they occur in the program, so to solve the
-query $\atom{path}{\datum{st-louis}, \datum{detroit}}$, Prolog will apply the
-first rule and try recursively to solve $\atom{path}{\datum{st-louis},Y}$ for
-unknown $Y$.
+query $\atom{reachable}{\datum{st-louis}}$, Prolog will apply the
+first rule and try recursively to solve $\atom{reachable}{X}$ for
+unknown $X$.
 %
-This in turn will apply the same rule, solving $\atom{path}{\datum{st-louis},
-  Y_2}$ for unknown $Y_2$, which will solve $\atom{path}{\datum{st-louis}, Y_3}$
-for unknown $Y_3$, and so on indefinitely.%
+This in turn will apply the same rule, solving $\atom{reachable}{X_2}$ for unknown $X_2$, which will solve $\atom{reachable}{X_3}$
+for unknown $X_3$, and so on and on interminably.%
 %
 \footnote{One natural approach to this problem is to keep backward chaining, but
   use a complete search strategy instead of depth-first search; this is the
   approach adopted by miniKanren~\citep{kanren}. This restores some
   declarativeness to logic programming; in particular, reordering rules can no
   longer cause unproductive infinite looping. However, introducing a
-  ``redundant'' rule like $\atom{path}{X,Y} \gets \atom{path}{X,Y}$ will still
-  cause proof search to continue indefinitely (although it won't prevent any
-  proofs from being found). And while this example is contrived, the problem in
-  general is fundamental: without further limitations on clauses, proof search
-  is only semi-decidable, so while complete search strategies can guarantee
-  finding all proofs, they cannot guarantee they'll \emph{halt} after doing so.
-  This is particularly important for the handling of negation-as-failure; see
-  \cref{section-stratified-negation}.}
+  ``redundant'' rule like $\atom{reachable}{X} \gets \atom{reachable}{X}$ will
+  still cause proof search to continue indefinitely (although it won't prevent
+  any proofs from being found). And while this example is contrived, the problem
+  in general is fundamental: without further limitations on clauses, proof
+  search is only semi-decidable, so while complete search strategies can
+  guarantee finding all proofs, they cannot guarantee they'll \emph{halt} after
+  doing so. This is particularly important for the handling of
+  negation-as-failure; see \cref{section-stratified-negation}.}
 
 Datalog takes a different tack: rather than fix a proof search strategy, it
 imposes limitations that keep proof search decidable. In particular, ignoring
@@ -575,9 +585,9 @@ for now the issue of negation, it imposes two restrictions which keep all
 \begin{enumerate}
 \item Clauses are \emph{range-restricted:} all variables in the conclusion of a
   clause must occur positively in its premises. For example, the premiseless
-  clause ``$\atom{path}{X,X}.$'' is disallowed; while logically sensible (it
-  asserts $\name{path}$ is reflexive), it leaves the variable $X$ unconstrained,
-  which would generate an infinite relation.
+  clause ``$\atom{equal}{X,X}.$'' is disallowed; while logically sensible (it
+  asserts $\name{equal}$ is reflexive), it leaves the variable $X$
+  unconstrained, which would generate an infinite relation.
 
 \item Programs are \emph{constructor-free:} predicate arguments are either
   atomic terms or variables. This prevents the introduction of new terms that
@@ -601,17 +611,17 @@ Together, range-restriction and constructor-freedom ensure that relations are
 This permits the most common Datalog implementation strategy, \emph{forward
   chaining}.
 %
-In backward chaining we start from a goal (``is there a path from St.
-Louis to Detroit?'') and reason backward, applying rules that might prove it.
+In backward chaining we start from a goal (``can we reach St.~Louis?'') and
+reason backward, applying rules that might prove it.
 %
-In forward chaining, we start from what we know (``there's a path from
-St. Louis to Chicago, and another from Chicago to Detroit'') and apply rules
-whose premises are satisfied.
+In forward chaining, we start from what we know (``we can reach Chicago, and
+there's an edge from Chicago to St.~Louis'') and apply rules whose premises are
+satisfied.
 
 The weakness of forward chaining is that it's undirected: it deduces everything
-it can! If all you want to know is whether you can reach Detroit from St. Louis,
-this is wasteful. On the other hand, it's much easier to know when to stop: when
-there is no rule whose application yields a new fact. This is the operational
+it can! If all you want to know is whether you can reach St.~Louis, this is
+wasteful. On the other hand, it's much easier to know when to stop: when there
+is no rule whose application yields a new fact. This is the operational
 justification for range-restriction and constructor-freedom: by ensuring all
 predicates are finite, we guarantee forward-chaining deduction terminates.%
 %
@@ -655,6 +665,7 @@ this is disallowed:
   \atom{marry-st-john}{} \gets \neg \atom{marry-rochester}{}.
 \end{datalog}
 
+\noindent
 This is classically equivalent to $\atom{marry-rochester}{} \vee
 \atom{marry-st-john}{}$. While sensible logically, this means answering simple
 yes-or-no queries requires making an arbitrary choice: if we query the
@@ -674,51 +685,70 @@ as a set of rules for deduction and not merely a set of propositions. In other
 words, in Datalog \emph{truth} is identified with \emph{deriveability}.
 
 Following this principle, we regard anything not deriveable as false. This
-conforms with the programmer's expectation that anything not explicitly
-declared to be true is false. For example, returning to our example program
-defining the paths through a graph:
+conforms with the programmer's expectation that anything not explicitly declared
+to be true is false. For example, returning to our graph reachability example:
 
-\nopagebreak[1]
-\begin{datalogarray}
-  \atom{path}{X,Z} &\gets& \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
-  \atom{path}{X,Y} &\gets& \atom{edge}{X,Y}.
-\end{datalogarray}
+\nopagebreak[2]
+\begin{datalog}
+  \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.\\
+  \atom{reachable}{\datum{start}}.
+\end{datalog}
+
+%% \nopagebreak[1]
+%% \begin{datalogarray}
+%%   \atom{path}{X,Z} &\gets& \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
+%%   \atom{path}{X,Y} &\gets& \atom{edge}{X,Y}.
+%% \end{datalogarray}
 
 \noindent
-Regarded as mere propositions, these implications do not rule out the
-possibility that $\atom{path}{X,Y}$ is true for all vertices $X,Y$, regardless
-of the \name{edge} relation (in other words, one model of these propositions
-makes \name{path} the complete relation). But this is clearly not the
-programmer's intent, which is to capture reachability under the \name{edge}
-relation: not every graph is completely connected!
+Regarded as mere propositions, these do not rule out the possibility that
+$\atom{reachable}{X}$ is true for all vertices $X$, regardless of the
+\name{edge} relation (in other words, one model of these propositions makes
+\name{reachable} the entire vertex set). But this is clearly not the
+programmer's intent, which is to capture reachability: not every graph is
+completely connected!
 
 The principle of regarding anything not deriveable as false is known as
-\emph{negation as failure:} to derive $\neg \atom{path}{X,Y}$ it suffices to
-attempt to derive $\atom{path}{X,Y}$ and fail.
+\emph{negation as failure:} to derive $\neg \atom{reachable}{X}$ it suffices to
+attempt to derive $\atom{reachable}{X}$ and fail.
 %
 Forward-chaining provides a natural implementation strategy for
 negation-as-failure: once we have deduced all facts of the form
-$\atom{path}{X,Y}$, if a particular such fact was not deduced, for example
-$\atom{path}{\datum{detroit}, \datum{\textalpha-centauri}}$, we regard this as
-proof of its negation.
+$\atom{reachable}{X}$, if a particular such fact was not deduced, for example
+$\atom{reachable}{\datum{\textalpha-centauri}}$, we regard this as proof of its
+negation.
 
 However, because a forward-chaining system must wait until all facts
-$\atom{path}{X,Y}$ are deduced before handling negative queries
-$\neg\atom{path}{X,Y}$, it cannot handle such negative queries in \name{path}'s
-own definition.
+$\atom{reachable}{X}$ are deduced before handling negative queries
+$\neg\atom{reachable}{X}$, it cannot handle such negative queries in
+\name{reachable}'s own definition.
 %
 This is the operational justification for stratified negation: we must be able
 to stratify our Datalog program into layers, each of which may only use the
 negation of predicates defined in the preceding layers.
 
-\todo{something about stratification \& monotonicity}
+Returning to our computational pattern, if range-restriction and
+constructor-freedom are about establishing the ascending chain condition,
+stratification is about establishing \emph{monotonicity} within each stratum --
+each recursively-defined relation or group of relations.
+%
+These strata correspond to individual fixed point computations.
+%
+But negation is non-monotone: as its input grows toward truth, its result
+decreases to falsehood.
+%
+This makes applying a rule with a negated premise $\neg P(...)$ dangerous: if as
+our knowledge grows we learn that $P(...)$ holds after all, we must retract our
+conclusion because it is not deriveable.
+%
+But this violates the condition that our state -- the set of derived atoms -- grows over time!
 
-%% Stratified negation thus ensures that it is possible for truth to coincide with
-%% deriveability, and falsehood with underiveability (in model-theoretic terms, it
-%% ensures the unique existence of a minimal model).
+%% Thus, applied naively, negation could require retraction of something already derived: as our state increases, a rule depending on a negated premise that we had already fired might need to un-fire because its negated premise became true instead of false.
+
+%% \todo{something about stratification \& monotonicity}
 
 
-\section{Case study: Datalog for static analysis}
+\section{Datalog for static analysis}
 \label{datalog-for-static-analysis}
 
 %% \noindent
@@ -730,7 +760,7 @@ negation of predicates defined in the preceding layers.
 
 Datalog has been successfully applied in various domains: for business analytics~\todo{cite: LogicBlox}, as a general purpose database query language~\todo{datomic, datascript}, in network protocols~\todo{OverLog, ???}, and for implementing distributed systems algorithms~\todo{dedalus,bloom}.
 %
-But probably Datalog's most significant real-world adoption has been as a tool for scalable static analysis~\todo{cite: bddbddb, doop, Semmle, souffle}.
+But probably Datalog's most significant real-world adoption has been as a tool for scalable static analysis.
 
 Datalog makes defining simple static analyses almost trivial. For instance, the
 essence of reaching definitions analysis can be expressed as follows:
@@ -752,50 +782,135 @@ If $\atom{flows}{L_1, L_2}$ means that line $L_1$ may transfer control to $L_2$,
 and $\atom{assigns}{L, V}$ means that line $L$ assigns to variable $V$, the
 above defines $\atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}$
 to mean that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
-$L_{\textsf{dest}}$.
+$L_{\textsf{dest}}$. \todo{maybe also use points-to analysis as an example?}
 
-This fluency at defining static analyses is not limited to toy examples.
-\todo{explain what each one used it for:}
-bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}, Semmle,
-DOOP~\citep{DBLP:conf/datalog/SmaragdakisB10}
+Datalog's fluency at defining static analyses is not limited to toy examples.
+%
+For instance, it has been successfully commercialized by Semmle, a company which
+uses a custom in-house Datalog dialect \& engine \todo{citation} to do static
+analysis on large codebases to find potential security vulnerabilities -- in
+particular variant analysis, which searches for variants of previously
+discovered issues.
+%
+Their system has been used on NASA's Curiosity Rover, at Microsoft, and at the
+Nasdaq stock exchange company, among others\todo{citations}.
+%
+%% Freely available to open source projects on github -- evidence for scalability
 
-\todo{discussion}
+%% Nasdaq: https://semmle.com/case-studies/semmle-nasdaq-improving-roi-and-reducing-time-market
+%% NASA: https://semmle.com/case-studies/semmle-nasa-landing-curiosity-safely-mars
+%% MICROSOFT 
+%% https://semmle.com/case-studies/semmle-microsoft-vulnerability-hunting 
+%% https://msrc-blog.microsoft.com/2018/08/16/vulnerability-hunting-with-semmle-ql-part-1/
 
-\citet{DBLP:conf/datalog/SmaragdakisB10} list several reasons why they found
+On the academic side, \todo{explain}
+bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}.
+
+Building on this, the \textsc{Doop} project implements a state-of-the-art
+points-to analysis for Java code entirely in Datalog~\todo{citations}.
+%
+In a testimonial of sorts for the application of Datalog to static analysis,
+\citet{DBLP:conf/datalog/SmaragdakisB10} give several reasons why they found
 Datalog to be useful when implementing a scalable points-to analysis, compared
 in particular with a conventional language like Java or C++:
 
 \begin{enumerate}
-\item handles mutually-recursive relation definitions, which is common in static
-  analysis. \emph{``Mutual recursion is the source of all complexity in program
-    analysis. For a standard example, the logic for computing a callgraph
-    depends on having points-to information for pointer expressions, which, in
-    turn, requires a callgraph.''}~\citep{DBLP:conf/datalog/SmaragdakisB10}
 
-\item Allows experimenting with implementation techniques without having to rewrite your program, e.g. BDD versus explicit representations of relations, different indexing strategies; or while making very small changes (compared to a lower level implementation language)
+\item The high-level, declarative nature of Datalog allowed them to experiment
+  with implementation techniques and algorithmic tweaks without having to
+  entirely rewrite their analyses; for instance, they needed to carefully choose
+  how to index their relations for maximal performance, a choice that would in a
+  conventional language involve rewriting your data-access code.
+%
+  In their words:
+  \nopagebreak[1]
+  \begin{quote}
+    \emph{[W]e believe that our ability to efficiently optimize our
+      implementation was largely due to the declarative specifications of
+      analyses. Working at the Datalog level eliminated much of the artificial
+      complexity of a points-to analysis implementation, allowing us to
+      concentrate on indexing optimizations and on the algorithmic essence of
+      each analysis.}~(p.~1)
+  \end{quote}
+  
+  %% , e.g. BDD versus explicit representations of relations, different indexing
+  %% strategies; or while making very small changes (compared to a lower level
+  %% implementation language)
 
-\item Query optimisation of individual rules being performed automatically, as
-  opposed to having to hand optimize it: \emph{``We relied on query optimization
-    (i.e., intra-rule, as opposed to inter-rule, optimization) being performed
-    automatically. This was crucial for performance and, although a
-    straightforward optimization in the context of database relations, results
-    in far more automation than programming in a mainstream high-level
-    language.''}
+  %% \begin{quote}
+  %%   \emph{The surprisingly high performance of \textsc{Doop} compared to past
+  %%     frameworks is due to combining two factors: simple algorithmic
+  %%     enhancements, and an explicit representation instead of BDDs. Eliminating
+  %%     either of these factors results in complete lack of scalability in
+  %%     \textsc{Doop}. For instance, an explicit representation alone makes many
+  %%     standard analyses infeasible in \textsc{Doop}: even a 1H-object-sensitive
+  %%     analysis (i.e., 1-object-sensitive with a context-sensitive heap) would be
+  %%     completely infeasible for realistic programs. Nevertheless, we observed
+  %%     that this lack of scalability was due to very high redundancy (i.e., large
+  %%     sizes of some relations without an increase in analysis precision) in the
+  %%     data that the analysis was computing. The redundancy was easy to eliminate
+  %%     with two simple algorithmic enhancements: 1) we perform exception analysis
+  %%     on-the-fly, computing contexts that are reachable because of exceptional
+  %%     control flow while performing the points-to analysis itself. The
+  %%     on-the-fly exception analysis significantly improves both precision and
+  %%     performance; 2) we treat static class initializers context-insensitively
+  %%     (since points-to results are equivalent for all contexts of static class
+  %%     initializers), thus improving performance while keeping identical
+  %%     precision. These enhancements (especially the former, which results in
+  %%     highly recursive definitions of core relations) would be quite hard to
+  %%     consider in a non-declarative context. In \textsc{Doop}, such enhancements
+  %%     could be added with minor changes to the rules or with just the addition
+  %%     of extra rules.}~(p.~6)
+  %% \end{quote}
 
-\item concision: \emph{``Generally, the declarative nature of \textsc{Doop}
-  often allows for very concise specifications of analyses. We show in an
-  earlier publication the striking example of the logic for the Java cast
-  checking---i.e., the answer to the question “can type A be cast to type B?”
-  The Datalog rules are almost an exact transcription of the Java
-  Language Specification.''}
+\item
 
-  \emph{``[W]e believe that our ability to efficiently optimize our
-    implementation was largely due to the declarative specifications of
-    analyses. Working at the Datalog level eliminated much of the artificial
-    complexity of a points-to analysis implementation, allowing us to
-    concentrate on indexing optimizations and on the algorithmic essence of each
-    analysis.''}
+  Datalog easily handles highly mutually-recursive relation definitions, which
+  are common in static analysis: for example, \emph{``the logic for computing a
+    callgraph depends on having points-to information for pointer expressions,
+    which, in turn, requires a callgraph.''}~(p.~3) They also observe that one
+  of their crucial optimizations, performing exception analysis on-the-fly,
+  \emph{``would be quite hard to consider in a non-declarative context''}
+  because it \emph{``results in highly recursive definitions of core
+    relations''}~(p.~6).
+
+\item Rather than hand-optimizing their code as might be necessary in a
+  conventional language, in Datalog they could rely on the language
+  implementation to do a good chunk of this work for them by applying decades of
+  work on query optimisation:
+
+  \begin{quote}
+    \emph{We relied on query optimization (i.e., intra-rule, as opposed to
+      inter-rule, optimization) being performed automatically. This was crucial
+      for performance and, although a straightforward optimization in the
+      context of database relations, results in far more automation than
+      programming in a mainstream high-level language.}~(p.~6)
+  \end{quote}
+  
+\item As we've seen with our examples so far, Datalog is very concise:
+  
+  \begin{quote}
+    \emph{Generally, the declarative nature of \textsc{Doop} often allows for
+      very concise specifications of analyses. We show in an earlier publication
+      the striking example of the logic for the Java cast checking---i.e., the
+      answer to the question ``can type A be cast to type B?'' The Datalog rules
+      are almost an exact transcription of the Java Language
+      Specification.}~(p.~4)
+  \end{quote}
 \end{enumerate}
+
+\noindent
+We must also consider that static analysis blunts one of Datalog's primary
+drawbacks. As mentioned previously, one weakness of forward chaining is that it
+is undirected, deducing everything it can. If all we care about is the result of
+a fairly narrow query, this can waste a lot of effort. Although various
+optimizations and alternative evaluation strategies such as magic sets, tabling,
+and QSQR~\todo{citations} exist to address this problem, in static analysis this
+eager approach is par for the course: we generally do wish to analyse the whole
+program, whether for optimization or for bug-finding purposes. \todo{this is not
+  entirely convincing.}
+
+%% \todo{I should also mention that static analysis blunts one of forward chaining's primary drawbacks: it computes everything. But in static analysis this is par for the course, analyzing the whole program is the point.}
 
 
 \section{What Datalog can't do}
@@ -987,15 +1102,15 @@ Our approach will be to combine Datalog with typed functional programming, on th
   constructor-freedom) in terms of the properties they ensure (monotonicity,
   ACC), we can design a type system to capture these properties by finding
   compositional ways to provide them.
+%
+  Guided by this type system and its semantics, we can add practical
+  features to our language, such as semilattices, aggregation, arithmetic, and
+  compound datatypes, without sacrificing these properties.
 
   %% Datalog's semantic guarantees are provided by brute syntactic restrictions,
   %% such as stratification and the absence of function symbols. In place of
   %% these, we find compositional semantic properties such as monotonicity,
   %% which we capture using types.
-
-\item Guided by this type system and its semantics, we can add practical
-  features to our language, such as semilattices, aggregation, arithmetic, and
-  compound datatypes, without sacrificing its guarantees.
 
   %% \todo{From this we can gain: semantics a la carte, types to describe \&
   %% hopefully handle other semilattices in a principled way; compound data via
