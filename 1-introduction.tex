@@ -169,8 +169,10 @@ How do these three examples fit into our proposed pattern: finding the least fix
   there was a direction to it. Nodes went from unchecked to checked; distances
   to nodes decreased; and sets of reaching assignments grew.
 %
-  We can formalize this by giving our states a \emph{partial order} representing
-  the direction they change as computation progresses and information increases.
+  We can formalize this by giving our states a partial order representing the
+  direction they change as computation progresses and information increases --
+  an order with respect to which our state increases \emph{monotonically} over
+  time.
 
   For example, in graph reachability a node's state is a boolean flag; for
   simplicity we'll regard it as \etrue\ if the node is checked,
@@ -191,7 +193,7 @@ How do these three examples fit into our proposed pattern: finding the least fix
   %% output state. This inductively guarantees that our state can only grow or stay
   %% the same.
 
-  \todo{ok, but how about \emph{monotonicity.} relate to transition function? or omit this?}
+  %% \todo{relate to transition function? or omit this?}
 
 \item[Semilattices] In each example, we had some way of combining information
   from multiple sources. In graph reachability, we marked a node if \emph{any}
@@ -974,6 +976,8 @@ We have shown how to define reachability and reaching-definitions in Datalog.
 What about our second example, single-source shortest paths? A naive approach at
 expressing this in Datalog might look like this:
 
+\todo{maybe rename this pathWithDistance and talk about how we can't make it find just shortest paths; mention the distance semilattice from the example again here}
+
 \begin{datalog}
   \atom{shortest}{\datum{start}, 0}.\\
   \atom{shortest}{Y, D_3} \gets
@@ -1090,7 +1094,7 @@ Our approach will be to combine Datalog with typed functional programming, on th
   \emph{expanding}, how relations may be defined; precisely because of their
   generality, higher-order relations are more complex to implement than
   higher-order functions, especially if one wishes to keep a natural
-  semantics~\todo{cite HOPES}. By separating our facility for deduction
+  semantics~\citep{hopes}. By separating our facility for deduction
   (relations, queries, \& fixed points) from our facility for abstraction
   (functions), we hope to gain the best of both worlds.
 

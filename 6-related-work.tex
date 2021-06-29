@@ -1,14 +1,891 @@
 \chapter{Related work}
-\XXX
 
-\begin{itemize}[nosep]
-\item Datalog implementations: souffle, LogicBlox
-\item incremental Datalog:  Semmle, IncA/DRedL, differential dataflow
-\item incremental lambda calculus, Mario Picallo's thesis
-\item tabling
-\item miniKanren
-\item semilattices: bloomL, Flix
-\item higher-order + logic: Flix, HOPES
-\item other functional/logic hybrids: mercury, curry, ???
-\item formulog, modular Datalog (@bentnib bob atkey)
+Our goal is to give the reader a mental map of the surrounding areas, rather than merely a laundry list of related research.
+
+\noindent\todo{More stuff to include?:}
+\begin{enumerate}[nosep]
+\item tabling in Prolog -- connects to incremental \& semilattice stuff? if i find the right papers?
+\item miscellany: miniKanren, formulog
+\end{enumerate}
+
+%% \vspace{10pt}\noindent
+%% \textbf{Computational pattern:} fixed points of monotone maps on semilattices satisfying the ascending chain condition.
+
+%% \vspace{10pt}\noindent
+%% \textbf{Problems with Datalog:}
+%% \begin{enumerate}[nosep]
+%% \item functional abstraction: flix, modulog, hopes, functional hybrids 
+%% \item semilattices other than set union: blooml, incal, flix
+%% \item aggregations
+%% \item arithmetic and other functions: most datalogs? check this?
+%% \item compound data
+%% \end{enumerate}
+
+%% \vspace{10pt}\noindent
+%% \textbf{Research hypotheses:}
+%% \begin{enumerate}[nosep]
+%% \item We can gain functional abstraction by mixing Datalog with higher-order
+%%   functional programming.
+%% \item We can capture the restrictions that make Datalog work by deconstructing
+%%   it type-theoretically.
+%% \end{enumerate}
+
+%% %% where do we give a retrospective on to what extent Datafun succeeded? THAT should be driven by our list of problems with Datalog, to be sure; and/or by our two hypotheses
+
+
+\section{Logic, higher-order abstraction, and semilattices}
+\label{section-datafun-relatives}
+
+Datafun's value proposition is to extend bottom-up logic programming \`a la
+Datalog with two additional features: higher-order functional abstraction and
+support for semilattices other than finite sets. In this section we'll consider
+related work that fits the same mould, seeking to enhance logic programming with
+either higher-order features~(\cref{section-logic+abstraction}),
+semilattices~(\cref{section-logic+semilattices}), or both~(\cref{section-flix}).
+
+\subsection{Logic + higher-order abstraction}
+\label{section-logic+abstraction}
+
+\begin{enumerate}[nosep]
+\item modulog (Bob Atkey)
+\item functional + top-down: Curry, Kleisli
+\item functional + database: Ferry
+\item directly tackle the problem of higher-order logic programming: HOPES
+\end{enumerate}
+
+\vspace{10pt}
+\noindent
+\todo{taken from ICFP 16}
+Datalog has sometimes been described
+as ``relational algebra plus fixed points'', and there is a long line
+of work on embedding database query languages into general-purpose
+languages, including pioneering efforts such as
+Machiavelli~\citep{machiavelli} and Kleisli~\citep{kleisli}, as well as
+more recent systems such as Ferry~\citep{ferry} and LINQ in C\#~\citep{linq-wadler}.
+%
+The focus of this work has been on embedding query languages based
+on relational algebra into general purpose languages, with an emphasis
+on statically compiling higher-order queries into the first-order
+queries supported by existing database systems (\citet{query-shredding} is a
+representative example).
+
+Our approach is a little bit different. Instead of embedding Datalog
+into a general purpose language, Datafun is \emph{also} a ``little
+language'', albeit one that happens to be a higher-order
+functional language. We very deliberately did not try to embed Datafun
+into an existing language, because that would have greatly complicated
+the context-management operations needed to ensure monotonicity.
+
+In fact, from a language designer's perspective, Datafun can be seen
+as an argument in favor of extending functional languages to support
+programming with user-defined, non-strong comonads.
+
+\subsection{Logic + semilattices}
+\label{section-logic+semilattices}
+
+IncAL, bloomL
+
+
+\subsection{Flix}
+\label{section-flix}
+
+\todo{pull in previous related work on Flix, also possibly from thesis proposal}
+
+Higher-order + logic + semilattices: Flix -- same goals, different method.
+No monotonicity types, instead classic Datalog embedded in functional
+programming; use liquidhaskell-style smt to check monotonicity and other
+properties.
+
+Flix's advantages over datafun: IT SUPPORTS CUSTOM SEMILATTICES. Can prove
+more than just monotonicity. More advanced implementation, can take advantage
+of existing techniques for Datalog impl without reinventing.
+
+Apart from this the main difference between the two is their approach to
+combining functional and relational features. Flix possibly more familiar or
+concise compared to combining both functional \& relational features into the
+same language. OTOH, Datafun approach arguably cleaner \& involves less
+duplication of features and no ceremony required when navigating between the
+two languages.
+
+Our main contribution compared to Flix is that the separation between
+functional and relational layers is unnecessary from the perspective of
+semantics and monotonicity; and a higher-order seminaive transform that also
+incidentally incrementalizes the monotone fragment of the language.
+
+The flip side of this is that the separation is practically useful BECAUSE it 
+allows one to re use a good deal of work that has gone into optimizing Datalog
+evaluation, such a seminaive evaluation, without reinventing it to handle
+higher-order functions; instead, the application of user to find functions is
+limited to relatively small parts of the Datalog programs.
+
+
+\section{Incremental computation}
+
+In \cref{chapter-seminaive} we presented seminaive evaluation in Datalog and
+Datafun as a matter of incrementalizing the inner loop of our fixed points to
+avoid useless recomputation. Our approach was to only compute the changes
+between iterations, to which end we used a static transformation to push changes
+through expressions in our language.
+%
+However, this is only one of many approaches to incremental computation.
+%
+In this section we'll examine other approaches and how they relate to ours.
+
+The core problem of incremental computation is to handle change while minimising work.
+%
+Most approaches to incremental computation are built around one of two insights
+into how to do this: \emph{dependency tracking} or \emph{finite differencing}.
+
+\paragraph{Dependency tracking}
+
+The simplest way to avoid doing unnecessary work is to avoid re-executing code
+if the data it depends on hasn't changed, and re-use its previous result
+instead.
+%
+Generally these dependencies are represented by some sort of \emph{dependency
+  graph}.
+%
+One of the oldest and most familiar applications of this idea is the build
+system Make and its many relatives.
+%
+Perhaps even more ubiquitously, this strategy is used by spreadsheet software such as Microsoft Excel, where cells' contents may be (re)computed using the content of other cells, and so on recursively~\citep{build-systems-a-la-carte}.
+%
+A long line of work starting with self-adjusting
+computation~\citep{DBLP:conf/popl/AcarBH02,umut-acar-thesis} and descendant
+systems such as Adapton~\citep{DBLP:conf/pldi/HammerKHF14} apply dependency
+tracking general-purpose programming languages by tracing execution to
+construct a dynamic dependency graph.
+
+It would be an intriguing line of future work to examine whether a dependency
+tracking approach, probably building on prior work such as SAC or Adapton, would
+be useful for computing Datafun's monotone fixed points. However, Datafun was
+inspired by Datalog, and dependency tracking is not the approach taken by
+Datalog's semi\naive\ evaluation. Instead, it uses \emph{finite differencing.}
+
+\paragraph{Finite differencing}
+
+Dependency tracking approaches incrementalization with a yes-or-no mindset: did
+our dependencies change?
+%
+%% Suppose, however, that our inputs have changed \emph{only a little}.
+%
+Suppose instead we ask the question: \emph{how} did our dependencies change?
+%
+By analyzing this difference we may be able to compute the resulting difference
+to our output.
+%
+%% (In \cref{chapter-seminaive} we called these stratagems \emph{derivatives}.)
+%
+For constant-time operations over atomic data, like adding two 64-bit numbers,
+this may not be any faster than simple re-execution.
+%
+But for bulk operations over collection types, where changes can be much smaller
+than the original data, differencing is a more natural approach.
+
+For example, you \emph{could} incrementally sum a list of changing numbers using
+a dependency graph -- if you're clever, a balanced tree, so updates take $O(\log
+n)$ steps.
+%
+But with direct access to the difference, when an element changes you can simply
+add the difference to the previous sum. This is $O(1)$, easily extended to
+handle new or removed elements, and doesn't require balancing or rebalancing a
+tree.
+
+However, this example works only because addition on the integers commutes and
+associates. This is what allows us to combine a sum $\sum_i x_i$ with a
+difference $dx$ to the $j$\textsuperscript{th} element and find the updated sum:
+
+\nopagebreak[2]
+\[
+dx + \sum_i x_i = \sum_i 
+\begin{cases}
+  x_i + dx & \text{if}~i = j\\
+  x_i & \text{otherwise}
+\end{cases}
+\]
+
+\noindent
+In contrast to the dependency-graph strategy, which is fairly generic, finding
+efficient derivatives often requires taking advantage of such algebraic laws.
+%
+For instance, DBToaster \todo{does what?} using rings~\citep{dbtoaster-rings};
+Differential Dataflow uses groups~\citep{DBLP:conf/cidr/McSherryMII13}; Mario
+Alvarez-Picallo's thesis work \todo{and Semmle! sort of?} uses monoids and
+monoid actions~\citep{mario-picallo-thesis,semmle-changes}; and Datafun uses
+semilattices. \todo{I should probably cite some older database work on view
+  maintenance}
+
+Since finite differencing is advantageous for operations over large collections,
+but requires algebraic insight that makes it non-obvious how to apply it to
+arbitrary programs, it should be no surprise that most of the examples just
+cited come from the database research community, which often deals with
+structured operations on bulk data.
+%
+However, this approach has recently crossed over into the PL research community
+by way of the \emph{incremental \fn-calculus}, and it is from this line of work
+that Datafun takes inspiration.
+
+
+\subsection{The incremental \boldfn-calculus}
+\label{section-incremental-lambda-calculus}
+
+The incremental \fn-calculus was introduced by \citet*{incremental} and further
+developed by \citet*{DBLP:conf/esop/GiarrussoRS19} and in Giarrusso's PhD thesis
+\citeyearpar{DBLP:phd/dnb/Giarrusso20}.
+%
+We briefly discussed our adaptation of it in \cref{section-change-structures},
+but here we give a slightly fuller comparison (though still only a summary)
+between our formulation, the original, and its further developments.
+
+
+\subsubsection{Change structures}
+
+The insight of the incremental \fn-calculus that is it is possible to extend the differencing approach to higher-order computation by finding an appropriate notion of change for functions.
+%
+To this end, the incremental \fn-calculus associates each type with a \emph{change structure} capturing how values of that type may change, and how to represent these changes.
+%
+The precise formal definition of a change structure differs between the various versions of the incremental \fn-calculus.
+%
+A good starting point is the notion of a \emph{basic change structure} introduced in Giarrusso's PhD thesis~\citeyearpar[chapter 12, definition 12.1.1]{DBLP:phd/dnb/Giarrusso20}:
+%
+a basic change structure on a set $V$ consists of a change set $\Delta V$ and a validity relation $\gvalid{V}{dx}{x_1}{x_2}$ indicating that $dx : \Delta V$ is a valid change from the base points $x_1 : V$ to $x_2 : V$.
+
+For example, we can endow the naturals $\N$ with a basic change structure by
+letting changes be integer differences $\Delta \N = \mathbb{Z}$ and letting
+$\gvalid{\N}{dx}{x_1}{x_2} \iff x_1 + dx = x_2$.
+%
+To handle higher-order computation, we can endow function types $A \to B$ with a
+basic change structure as follows: let $\Delta(A \to B) = A \to \Delta A \to
+\Delta B$ and define the validity relation by saying that a valid function
+change $\gvalid{A \to B}{df}{f_1}{f_2}$ is one which takes valid input changes
+$\gvalid{A}{dx}{x_1}{x_2}$ to valid output changes
+$\gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}$, that is, a change between the
+original function applied to its original argument $f_1\<x_1$ and the updated
+function applied to an updated argument $f_2\<x_2$.
+
+%% \begin{eqnarray*}
+%% &\gvalid{A \to B}{df}{f_1}{f_2}\\
+%% &\text{if and only if}\\
+%% &\fa{x_1,x_2 : A, dx : \Delta A}
+%% \gvalid{A}{dx}{x_1}{x_2} \implies \gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}
+%% \end{eqnarray*}
+
+%% \begin{eqnarray*}
+%% \gvalid{A \to B}{df}{f_1}{f_2} \iff \fa{\gvalid{A}{dx}{x_1}{x_2}}
+%% \gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}
+%% \end{eqnarray*}
+
+%% And, returning to the subject of higher-order computation,
+%% \todo{talk about the change structure on functions?}
+
+Notation aside, basic change structures coincide with the change
+structures introduced in \cref{section-change-structures}, save that in Datafun
+$V$ and $\Delta V$ are not sets but posets.
+%
+The change structures for functions also nearly coincide, except that in Datafun we are concerned with monotonicity, which forces us to let $\Delta(A \to B) = {\color{Rhodamine}\iso} A \to \Delta A \to \Delta B$, using \iso\ to allow function changes to be non-monotone with respect to the base point.
+%
+Here we see the beginnings of divergence between Datafun and the incremental
+\fn-calculus, driven at root by a difference of goals: in Datafun we are not
+trying to respond to arbitrary changes to our whole program's input, but only to
+incrementalize the inner loops of fixed points to calculate them more
+efficiently.
+%
+Because these fixed points are monotone, in Datafun we need only handle \emph{increasing} change.
+%
+The price of this simplification is that we must pay careful attention to the interaction of incrementalization with Datafun's monotonicity-checking modal type system in our program transformation and its proof of correctness.
+
+%% Consequently, in Datafun we need only handle increasing change, an apparent
+%% simplification -- the price of which is needing to account for the interaction
+%% between incrementalization and Datafun's monotonicity-checking modal type
+%% system.
+
+This is also the cause of our second divergence: Giarrusso goes on to define a
+more elaborate version of change structure (definition 13.1.1) which
+additionally possesses operators $\oplus$ for updating a base point by a change,
+$\ominus$ for finding a change between two points, $\zero$ for finding a zero
+change from a point to itself, and $\circledcirc$ for composing two changes.
+%
+Because of the limited way Datafun uses incremental computation, we only need
+some of these operators, and only at certain types.%
+%
+\footnote{In the original presentation by \citet{incremental} these operators
+  (except $\circledcirc$, which is not present) are taken as primary rather than
+  as additions to a basic change structure, and the validity relation
+  $\gvalid{V}{dx}{x_1}{x_2}$ is reduced to a set of valid changes $\Delta_V
+  \,x_1 \subseteq \Delta V$. Datafun's approach to semi\naive\ computation was originally inspired by this paper, but we moved to a validity-relation approach because of the difficulties of defining these operators in a monotonicity-aware setting; thus the validity relation approach to change structures appears to have been indendently invented in both Datafun and in Giarrusso's work.}
+%
+We use $\zero$ explicitly in the $\phi$ and $\delta$ translations of loops, $\eforvar x e f$, to supply the zero change for the elements $\dvar x$;
+%
+but since these elements are always of first-order type $\eqt A$, we only need to compute zero changes for first order values.
+%
+We implicitly use $\oplus$ in restricted form in the implementation of
+semi\naive\ fixed points, to combine the value $x_i$ of the
+$i$\textsuperscript{th} iteration with its corresponding change $dx_i$.
+%
+However, fixed points are always at first-order lattice types $\fixtLkern$, and because of the way our change types are constructed $\oplus$ at these types is simply $\vee$.
+%
+Even more subtly, we use $\ominus$ in the same place, to find the kick-off change between the first iteration $x_1 = f\<\bot$ and the zeroth $x_0 = \bot$; but, again because of the way these change types are constructed, $f\<\bot \ominus \bot$ is simply $f\<\bot$.
+%
+These simplifications are fortuitous, because the interaction of the fully general versions of these operators with monotonicity typing presents several difficulties.%
+%
+\footnote{For starters, in general $x \ominus y$ may not exist unless $x \ge y$ since in Datafun we only support increasing changes.
+%
+  For another example, it is difficult to define the ${\oplus}$ operator internally in a way that respects monotonicity typing at higher type.
+%
+  Recall that in Datafun all functions are monotone and $\Delta(A \to B) = \iso A \to \Delta A \to \Delta B$.
+%
+  The natural definition of $\oplus_{A \to B}$ would seem to be:
+
+  \begin{align*}
+    {\oplus}_{A \to B} &\isa (A \to B) \x (\iso A \to \delta A \to \delta B)
+    \to (A \to B)
+    \\
+    (f \oplus \df) &=
+    \efn{x} f \<\mvar x
+    \oplus \df \<{\color{red}\ebox{\mvar x}} \<(\zero \<{\mvar x})
+  \end{align*}
+
+  \noindent
+  However, this passes the \emph{monotone} variable $\mvar x$ to the function change $\df$, which takes it as a \emph{discrete} argument -- it does not type-check!
+%
+  Indeed, it is not hard to come up with functions $f, \df$ such that the result of $f \oplus \df$ as defined above is not a monotone function.
+
+  I suspect these difficulties are surmountable; for example, it should
+  be possible to prove that $f \oplus \df$ is monotone so long as
+  $\df$ is a valid change to $f$.
+%
+  This would make $\oplus$, like \fastfix, a ``trusted primitive'' whose implementation cannot be expressed in Datafun itself.
+}
+
+
+\subsubsection{The derivative translation}
+
+Although change structures allow us to specify the notion of a derivative that takes input changes to output changes, they do not by themselves tell us how to find such a derivative. The incremental \fn-calculus and Datafun both accomplish this by static differentiation: we give source-to-source translations from a program to its derivative, essentially by decomposing a program into primitive operations which we know how to differentiate and recombining these using an analogue of the chain rule.
+
+\Citet{incremental} call this translation $\Derive$, while Datafun calls it
+$\delta$. Datafun's approach was directly inspired by \citeauthor{incremental},
+and where their features overlap the two translations nearly coincide. For
+example, the derivative of function application is:
+
+\begin{align*}
+  \Derive(e_1\<e_2) &= \Derive(e_1) \<e_2 \<\Derive(e_2)\\
+  \delta(e_1\<e_2) &= \delta e_1 \<\ebox{\phi e_2} \<\delta e_2
+\end{align*}
+
+\noindent
+Besides notation there are two differences here, which are indicative of the differences from the incremental \fn-calculus more generally: (1) Datafun is concerned with monotonicity, and so for reasons explained in \cref{section-} we need to allow function changes to treat their first argument discretely; and (2) besides $\delta$, Datafun has another term translation $\phi$ which speeds up execution by executing fixed points semi\naive{}ly, and for technical reasons these translations must be mutually-recursive; wherever $\Derive$ uses a part of the original term it is given, $\delta$ instead uses its $\phi$-translation.
+
+While Datafun adds complications in the form of monotonicity typing and the semi\naive\ transformation, later work on the incremental \fn-calculus adds complications of its own: \todo{talk about the untyped lambda calculus and turing-completeness. step-indexed logical relation for proof of correctness. forward-reference caching. before that it will help to briefly revisit the idea of dependency tracking.}
+
+%% \todo{more things to mention?}
+%% \begin{itemize}[nosep]
+  
+%% \item almost on accident, trying to handle monotonicity forced us to discover the box comonad, which in an incremental context is interesting because it controls what can change, which may be useful in other contexts as well
+  
+%% \item we handle sum types
+  
+%% \item what we call $\delta$ the inc lambda-calc calls $\Derive$, except that in their version they don't have a mutually-recursive $\phi$ translation; this complicates our translation
+  
+%% \item Giarrusso's work extended this to handle the untyped lambda calculus and also incorporate caching (see other section). He gives a proof of correctness using logical relations which look a lot like our relations (both formal and informal)
+
+%% \item mention that Giarrusso uses a step indexed version of this relation to prove correctness, b/c turing-complete; meanwhile we don't have infloops but do have a translation on base types and so we have to elaborate our change structures into a logical relation in a different way
+  
+%% \item some sort segue to the next section, other approaches to differencing?
+%% \end{itemize}
+
+%% %% ----- TAKEN FROM POPL 2020 -----
+%% Subsequently, \citet{DBLP:conf/esop/GiarrussoRS19} extended this work to support
+%% the \emph{untyped} lambda calculus, additionally also extending the incremental
+%% transform to support additional caching (about which, more in
+%% \cref{section-caching}).
+%% %
+%% In this work, the overall correctness of change
+%% propagation was proven using a step-indexed logical relation, which
+%% defined which changes were valid in a fashion very similar to our own
+
+
+\subsubsection{Dependency tracking as a change structure}
+
+We started this section by comparing dependency tracking to finite differencing,
+observing informally that finite differencing generalizes dependency tracking by
+asking not merely ``did our dependencies change?'' but ``\emph{how} did our
+dependencies change?'' This insight can be formalized using the incremental
+\fn-calculus's change structures, as there is a simple generic change structure
+which captures the question ``did it change?''. Allowing ourselves to dip into
+pseudocode for a moment, consider the parameterized type $\typename{update}~A$
+defined by:
+
+\nopagebreak[2]
+\begin{code}
+  \kw{data}~\typename{update}~A
+  = \ctor{old} ~|~ \ctor{new}~A
+\end{code}
+
+\noindent
+Any type $A$ may be endowed with a change structure by letting $\Delta A = \typename{update}~A$ and letting $\gvalid{A}{dx} x y$ be defined by:
+%
+\begin{mathpar}
+  \infer*{}{\gvalid{A}{\ctor{old}} x x}
+
+  \infer*{}{\gvalid{A}{\ctor{new}\<y} x y}
+\end{mathpar}
+
+\noindent
+This change structure has the wonderful property of trivializing differentiation; one valid derivative of $f : A \to B$ is simply:
+
+\begin{code}
+  f' \<x \<\ctor{old} = \ctor{old}\\
+  f' \<x \<(\ctor{new}\<y) = \ctor{new} \<(f\<y)
+\end{code}
+
+\noindent
+The only complication is handling multi-argument functions: since $\typename{update}~(A \x B) \not\cong \typename{update}~A \x \typename{update}~B$, a function taking multiple arguments $g : A \to B \to C$ needs a slightly more interesting derivative:
+
+%% \begin{code}
+%%   g' \isa A \to \typename{update}~A \to B \to \typename{update}~B
+%%  \to \typename{update}~C\\
+%%  g' \<a \<\ctor{old} \<b \<\ctor{old} = \ctor{old}\\
+%%  g' \<\pwild \<(\ctor{new}\<a) \<b \<\ctor{old} = \ctor{new}\<(f \<a \<b)\\
+%%  g' \<a \<\ctor{old} \<\pwild \<(\ctor{new}\<b) = \ctor{new}\<(f \<a \<b)\\
+%%  g' \<\pwild \<(\ctor{new}\<a) \<\pwild \<(\ctor{new}\<b) = \ctor{new}\<(f \<a \<b)
+%% \end{code}
+
+\begin{fleqn}[\codeoffset]
+  \[\begin{array}{@{}lllllcl@{}}
+    \multicolumn{7}{@{}l@{}}{g' \isa A \to \typename{update}~A \to B \to \typename{update}~B \to \typename{update}~C}\\
+    g' &a &\ctor{old} &b &\ctor{old} &=& \ctor{old}\\
+    g' &\pwild &(\ctor{new}\<a) &b &\ctor{old} &=& \ctor{new}\<(g \<a \<b)\\
+    g' &a &\ctor{old} &\pwild &(\ctor{new}\<b) &=& \ctor{new}\<(g \<a \<b)\\
+    g' &\pwild &(\ctor{new}\<a) &\pwild &(\ctor{new}\<b) &=& \ctor{new}\<(g \<a \<b)
+  \end{array}\]
+\end{fleqn}
+
+\noindent
+The general strategy is to rerun the original function if any of its arguments change, reusing the previous value for arguments that did not change. This is precisely the strategy behind dependency tracking.
+
+%% \XXX pairing needs a new derivative (the derivatives of the projections are straightforward):
+
+%% \begin{code}
+%%   \name{pair}' \isa A \x \typename{update}~A
+%%   \to B \x \typename{update}~B
+%%   \to \typename{update}~(A \x B)
+%%   \\
+%%   \name{pair}' \<(a, \ctor{old}) \<(b, \ctor{old}) = \ctor{old}
+%%   \\
+%%   \name{pair}' \<(a, \ctor{old}) \<(\pwild, \ctor{new}\<b) = \ctor{new}\<(a, b)
+%%   \\
+%%   \name{pair}' \<(\pwild, \ctor{new}\<a) \<(b, \ctor{old}) = \ctor{new}\<(a, b)
+%%   \\
+%%   \name{pair}' \<(\pwild, \ctor{new}\<a) \<(\pwild, \ctor{new}\<b) = \ctor{new}\<(a, b)
+%% \end{code}
+
+
+
+\subsubsection{Caching intermediate results}
+\label{section-caching}
+
+I have claimed that dependency tracking can be seen as a special case of finite differencing.
+%
+However, one thing all dependency tracking systems do is store intermediate results between runs so they can reuse them if they don't need to be recomputed because their dependencies haven't changed.
+%
+Thus far our presentation of the incremental \fn-calculus (or indeed of Datafun) has not mentioned caching intermediate results.
+%
+%% When, in general, do finite differencing approaches need to remember intermediate results, and how does the incremental \fn-calculus in particular go about doing this?
+%
+This presents an issue; although our goal is to translate input changes into output changes, in general computing the output difference may require both the input difference \emph{and the original input}.
+%
+For example, in the incremental \fn-calculus the derivative of a function $f : A \to B$ has type $A \to \Delta A \to \Delta B$, taking the original argument $A$ as well as its change $\Delta A$.
+%
+Where does this original argument come from?
+%% %
+%% If we do not cache this original input, we must either recompute it or avoid needing it.
+%% %We can either recompute this original input, cache it, or avoid needing it.
+
+By default, both Datafun and the incremental \fn-calculus as originally
+introduced in \citet{incremental} recompute these arguments. For example,
+recall the derivatives of function application in each system:
+
+\begin{align*}
+  \Derive(e_1\<e_2) &= \Derive(e_1) \<e_2 \<\Derive(e_2)\\
+  \delta(e_1\<e_2) &= \delta e_1 \<\ebox{\phi e_2} \<\delta e_2
+\end{align*}
+
+\noindent
+As you can see, these recalculate the original argument $e_2$ (or in the case of Datafun, its sped-up version $\phi e_2$).
+%
+%% On its own, recomputation is a losing strategy. Suppose our program is a
+%% pipeline-style computation: \todo{boxes-and-wires diagram for $f \then g
+%% \then h$}. If we take the derivative, every step but the last will need to
+%% recompute its original input \todo{delta boxes and wires diagram}. But the
+%% point of finite differencing is to compute the change more efficiently than
+%% by recomputing the output!
+%
+On its own, recomputation is a losing strategy: the whole point of finite
+differencing is to compute the change \emph{more efficiently} than by
+recomputing the output!
+%
+Luckily, sometimes we do not need this original input.
+%
+A simple example is summing a list of changing numbers: the change to the sum is simply the sum of the changes to each element; the original list is not necessary to compute the change.
+%
+Or, for a natural example in the context of Datafun, fix a binary relation $\name{edge}$ and consider two different functions, \name{consing} and \name{appending}, defined as follows (recall that $R \relcomp S$ stands for relation composition):
+
+\nopagebreak[2]
+\begin{align*}
+  \name{consing} \<\name{path}
+  &= \name{edge} \cup (\name{edge} \relcomp \name{path})
+  \\
+  \name{appending} \<\name{path}
+  &= \name{edge} \cup (\name{path} \relcomp \name{path})
+\end{align*}
+
+\noindent
+The fixed point of either function computes the transitive closure of
+\name{edge}: \name{consing} by extending paths one edge at a time, and
+\name{appending} by appending paths together. Now let's take a look at these
+functions' derivatives:%
+%
+\footnote{To obtain these derivatives, let $\delta \name{edge} = \varnothing$
+  since we assume the edge-set is fixed and apply the rules:
+  \begin{align*}
+  \delta(R \cup S) &= \delta R \cup \delta S
+  \\
+  \delta(R \relcomp S) &=
+  (R \relcomp \delta S) \cup (\delta R \relcomp S) \cup (\delta R \relcomp \delta S)
+  \end{align*}}
+
+\begin{align*}
+  \name{consing}' \<\name{path} \<\name{dpath}
+  &= \name{edge} \relcomp \name{dpath}
+  \\
+  \name{appending}' \<\name{path} \<\name{dpath}
+  &= (\name{path} \relcomp \name{dpath})
+  \cup (\name{dpath} \relcomp \name{path})
+  \cup (\name{dpath} \relcomp \name{dpath})
+\end{align*}
+
+\noindent
+Observe that $\name{consing}'$, unlike $\name{appending}'$, does not need its
+first argument \name{path}, representing the original argument value.
+
+Following the incremental \fn-calculus we call functions whose derivatives do
+not depend on their original input, like \name{consing} or the sum of a
+list, \emph{self-maintainable}.
+%
+Because the transformation in \citet{incremental} does not cache intermediate results, it is really only suitable for programs composed primarily of self-maintainable functions, where the recomputation of these unused original arguments can be optimized out.
+%
+%% While, as we have seen, there are useful self-maintainable functions, it is rare for an entire program to be composed of them.
+%
+To handle non-self-maintainable behavior, follow-up work on the incremental
+\fn-lambda calculus~\citep{DBLP:conf/esop/GiarrussoRS19} extends the derivative
+translation to cache intermediate results.
+%
+%% \todo{what about other differencing systems? How much of their state do they remember?}
+
+Datafun takes a simpler approach.
+%
+We cache intermediate results in exactly one place: the implementation of \fastfix.
+%
+Recall that, to compute the fixed point of a function $f$, \fastfix\ computes the sequences $x_i$, $dx_i$ defined by:
+
+\nopagebreak[2]
+\begin{align*}
+  x_0 &= \varnothing &
+  x_{i + 1} &= x_i \cup dx_i\\
+  dx_0 &= f \<\bot &
+  dx_{i + 1} &= f' \<x_i \<dx_i
+\end{align*}
+
+\noindent
+Since $x_{i + 1}$ and $dx_{i + 1}$ depend only on their immediate predecessors, we
+need exactly two pieces of state to produce this sequence: the previous iteration $x_i$ and its change $dx_i$.
+%
+This is our only cache; unless $f$ is self-maintainable, any intermediate values it requires will be recomputed by $dx_{i + 1} = f' \<x_i \<dx_i$.
+%
+By a happy and surprising serendipity, in practice most step functions  are either self-maintainable or do not compute expensive intermediate results.
+
+For instance, consider implementing transitive closure as the fixed point of either \name{consing} or \name{appending}.
+%
+We have already observed that \name{consing} is self-maintainable.%
+%
+\footnote{In fact, it is an exemplar of a large class of self-maintainable functions: join-distributive maps. \todo{say a little more about this}
+%
+%% Any function $f$ on a semilattice $L$ such that $f\<(x \vee y) = f\<x \vee f\<y$ is self-maintainable, because we can let $f' \<x \<dx = f\<dx$.
+%% %
+}
+%
+Even though $\name{appending}$ is not, however, it does not require extensive recomputation:
+
+\begin{align*}
+  dx_{i + 1} &= \name{appending}' \<x_i \<dx_i
+  = (x_i \relcomp dx_i) \cup (dx_i \relcomp x_i) \cup (dx_i \relcomp dx_i)
+\end{align*}
+
+\noindent
+All intermediate results in this expression (for example, $x_i \relcomp dx_i$) depend upon $dx_i$; there is no work that could be saved by caching them, because the cache would be invalidated immediately.
+%
+We conjecture that this holds so often for the programs we have examined because these fixed point step functions are essentially unions of (possibly many-way) relational joins.
+%
+(Indeed, in Datalog this is literally baked into the syntax of the language!)
+%
+It's not too hard to see that the derivative of a union of joins is itself a union of joins, and each component join will depend on at least one changing relation.
+%
+So the question reduces to whether relational joins can be incrementalized efficiently without caching intermediate results.
+%
+In the case of binary joins, at least, the answer is yes.
+%
+Pursuing this conjecture further we leave to future work.
+
+%% Returning to our pipeline example, let us suppose that $h$ is self-maintainable.
+%% In this case we no longer need its original input, and can remove $g$ from our
+%% derivative program: \todo{MAKE DIAGRAM.}
+%% %
+%% Similarly, if we suppose that both $g$ and $h$ are self-maintainable then we can avoid recomputing both $f$ and $g$.
+%% %
+%% On its own this strategy only lets us avoid recomputing a self-maintainable
+%% ``tail end'' of our program. If $g$ is self-maintainable but $h$ is not,
+%% although we can remove some edges in our dataflow graph, we cannot remove any
+%% nodes: \todo{MAKE DIAGRAM.}
+%% %
+%% If we combine self-maintainability with selective caching, however, we get
+%% something greater than the sum of its parts. Let's return to our pipeline but
+%% imagine it as part of a larger program, where the original output of $h$ may be
+%% required, in addition to the change to it: \todo{MAKE DIAGRAM.} Now, assume $h$
+%% is self-maintainable, and suppose we cache the previous output of $h$:
+%% \todo{MAKE DIAGRAM.}
+%% %
+%% In this case we no longer need to recompute either $g$ or $h$; the output of $g$
+%% is not needed by $h'$ and the new output of $h$ can be computed by applying the
+%% change $h'$ produces to the old output.
+%% %
+%% The longer the chain of self-maintainable functions, the better: if both $g$ and
+%% $h$ are self-maintainable we can avoid computing $f$ as well.
+
+%% The upshot of this is that by exploiting self-maintainable fragments of a
+%% program, finite differencing approaches can afford to remember and recompute
+%% less intermediate state than with dependency tracking alone.
+%% %
+%% Still, some state must be remembered -- at minimum, the previous input to the
+%% incrementalized program and (if we wish to produce the updated output) its
+%% previous output.
+
+
+
+\subsection{The monoidal approach to change}
+\todo{discuss Mario Alvarez-Picallo's work}
+
+\Citet{DBLP:conf/esop/Alvarez-Picallo19,mario-thesis} offer an alternative
+formulation of change structures, by requiring changes to form a
+monoid, and representing the change itself with a monoid action. They
+use change actions to prove the correctness of semi\naive\ evaluation
+for Datalog, and express the hope that it could apply to Datafun.
+Unfortunately, it does not seem to -- the natural notion of function
+change in their setting is pointwise, which does not seem to lead to
+the derivatives we want in the examples we considered.
+
+
+\subsection{\todo{UNUSED FRAGMENTS, PLEASE IGNORE}}
+
+In fact, it is folklore in the database community that semi\naive\ evaluation
+can be thought of as ``taking the derivative'' of Datalog rules~\todo{cite}.\todo{we've already described how we use this insight}, but it turns out to be robust enough to have another interpretation \todo{describe the work of Mario Alvarez-Picallo}
+
+\todo{taken from discussion of incremental \fn-calculus in POPL paper}
+%
+The motivating example of this line of work was to optimize bulk collection
+operations. However, all of the intuitions were phrased in terms of calculus --
+a change structure can be thought of as a space paired with its tangent space, a
+zero change on functions is a derivative, and so on. However, the idea of a
+derivative as a linear approximation is taken most seriously in the work on the
+differential lambda calculus~\citep{dlc}. These calculi have the beautiful
+property that the \emph{syntactic} linearity in the lambda calculus corresponds
+to the \emph{semantic} notion of linear transformation.
+
+Unfortunately, the intuition of a derivative has its limits. A function's
+derivative is \emph{unique}, a property which models of differential lambda
+calculi have gone to considerable length to
+enforce~\citep{differential-categories}. This is problematic from the point of
+view of semi\naive\ evaluation, since we make use of the freedom to
+overapproximate.
+%
+In \cref{section-semilattice-delta-phi}, we followed common practice from
+Datalog and took the derivative $\delta(e \vee f)$ to be $\delta(e) \vee
+\delta(f)$, which may overapproximate the change to $e \vee f$.
+%
+This spares us from having to do certain recomputations to construct set
+differences; it is not clear to what extent semi\naive\ evaluation's practical
+utility depends on this approximation.
+
+\vspace{10pt}
+examples: inc lambda calculus, Semmle/MPJ/Mario Picallo paper, (briefly
+mention differential lambda-calc), IncAL/DRedL~\citep{incal}, diff datalog~\citep{DBLP:conf/cidr/McSherryMII13}
+
+neel sez: spend time comparing w inc lambda calc \& semmle/picallo/mpeytonjones paper\\
+2nd most imporant: mario's thesis \& flix
+
+\todo{I have some stuff in my Neel meeting notes about this}
+
+\vspace{10pt}
+\noindent
+\textbf{specific systems and how we differ from them}\nopagebreak[4]
+\begin{enumerate}[nosep]
+
+\item DBToaster: not sure. uses rings. recursive queries? don't think so.
+
+\item Differential dataflow (\& datalog): no concern with monotonicity, no
+  guarantee of convergence, uses groups. Impressive performance.
+
+\item BloomL: tracks semilattice-distributivity, which makes seminaive eval easy because distributive fns are their own derivative.
+
+\item IncAL/DRedL: ???
+
+\item Semmle/Mario: no higher-order-ness, they handle decreasing changes. both simplify the categorical approach - him discarding multiobjectness, us discarding composition. In particular I speculate that you would need to use an arrow centred presentation of categories where there is a relation specifying source and destination of an arrow rather than a function.
+\end{enumerate}
+
+
+\subsection{Summary / Monotonic change and higher-order functions}
+
+\todo{I think this section should either be scrapped, or its contents put in a ``summary section'' at the end of the chapter.}
+%
+The most unique aspects Datafun's approach to incrementalization comes from its
+combination of Datalog and higher-order programming. From Datalog we inherit a
+concern with monotonicity: our goal is to incrementalize fixed points that increase monotonically, so we only need handle \emph{increasing} changes.
+%
+This considerably simplifies many of our derivative translations, and in
+particular prompted the use of the $\iso$ comonad, which \emph{prevents change}
+-- to our knowledge, the use of types to limit change is a unique capability of
+Datafun.
+
+Because Datafun is higher-order we must also handle the possibility that \emph{functions} may change. As we have seen, monotonicity and function changes interact in interesting ways: \XXX
+
+As in \cref{section-datafun-relatives}, there are other systems that have some of these features. \XXX. Incremental \fn-calc handles change + higher-order. Bloom + IncAL(?) handle change + monotonicity. Flix has all three \emph{but} the incremental bit (seminaive eval) \& the higher-order bit are arranged to avoid interacting.
+
+
+\section{\todo{TAKEN FROM ICFP16 PAPER}}
+
+\paragraph{Aggregation}
+Aggregation of values --- for example, taking the sum $\sum_{x \in A} f \;x$ of
+a function $f$ across a set $A$ --- is a useful and ubiquitous database
+operation. Datafun naturally supports \emph{semilattice} aggregation via
+$\bigvee$, but many natural operations such as summation do not form
+semilattices on their underlying type. There are several potential ways to add
+support for aggregations to Datafun:
+\begin{itemize}
+\item Common aggregations can be provided as primitive functions, for example
+  $\name{size} : \tseteq{A} \to \N$ or $\name{sum} : \iso(\eqt{A} \to \N) \to
+  \tset{\eqt{A}} \to \N$.
+
+\item In the style of Machiavelli~\citep{machiavelli}, one could add a general
+  operator $\name{hom} : B \to \iso (\iso A \to \iso B \to B) \to \iso\tset{A}
+  \to B$, which effectively linearizes a set in an unspecified order. The
+  semantics of \name{hom} are, alas, necessarily nondeterministic.
+
+  \newcommand\tbag[1]{\XXX}
+\item One could augment Datafun with a type of bags (multisets) $\tbag{A}$; bags
+  naturally support a much broader class of aggregation --- commutative monoids
+  --- than sets. See, for example, \citet{multilinear-bigdata} and
+  \citet{reladj}.
 \end{itemize}
+
+\paragraph{Optimization} Because Datalog is so strongly constrained,
+there has been a lot of very successful work on optimizing it, ranging
+from compilation into binary decision diagrams~\citep{bdd} by
+\citeauthor{whaley-lam}, to the famous ``magic sets''~\citep{magicsets}
+algorithm.
+
+From our perspective, magic sets are a natural next step for
+investigation into how to optimize Datafun. Intuitively, the magic
+sets algorithm exploits the fact that Datalog (as a total logic
+language) has both a top-down and bottom-up reading, and rewrites the
+program so that it does bottom-up search, while using top-down
+reasoning to strategically avoid adding useless facts to the
+database. Transplanting this analysis to Datafun would essentially
+give us optimized implementations of fixed points, but extending the
+magic sets algorithm is likely to be very subtle, since Datafun has
+higher-order functions and Datalog does not. As a result, our goal is
+to first see if magic sets can be applied to first-order Datafun programs,
+and then use defunctionalization~\citep{defunctionalization} to
+extend it to full Datafun.
+
+Very recently, \citet{flix} have introduced the Flix language, which
+extends the semantics of Datalog to support defining relations valued
+in arbitrary lattices (rather than just the powerset of atoms). Like
+Datafun, this lets Flix support using monotone functions (on suitable
+lattices) in program expressions. Unlike Datafun, Flix does not yet
+have monotonicity checking for programmer-defined operators. However,
+because Flix does not extend Datalog to higher order, efficient
+Datalog implementation strategies (such as semi-naive evaluation)
+continue to apply.
+
+\paragraph{Deletion} \citet{logical-algorithms} showed how
+forward-chaining logic programming permits concise and elegant
+expression of a wide variety of algorithms, including a natural cost
+semantics. However, they noted that there were some algorithms (such
+as union-find and greedy algorithms) which could be formulated in this
+style, \emph{if} there were additionally support for deleting facts
+from a database. Later, \citet{linear-logical-algorithms} went on to
+show how deletion could be given a logical interpretation by
+formulating in terms of linear logic programming.
+
+This naturally raises the question of whether we could identify a
+``linear Datafun'' corresponding to this style of programming, where
+we might linear types to model features like deletion. There are many
+nontrivial semantic issues (e.g., how to define monotonicity), but
+it seems a promising question for future work.
+
+\paragraph{Termination}
+
+Datafun as presented is Turing-incomplete. This is advantageous for
+optimization; for example, one powerful optimization technique is \emph{loop
+  reordering} (in SQL terminology, \emph{join reordering}), that is, taking
+advantage of the equation
+\begin{eqnarray*}
+  \efor{x \in e_1} \efor{y \in e_2} e
+  &=& \efor{y \in e_2} \efor{x \in e_1} e
+\end{eqnarray*}
+when $x,y \notin \name{FV}(e_1) \cup \name{FV}(e_2)$. But this equation does not
+always hold in the presence of nontermination; for example, if $e_1 = ()$ and
+$e_2$ diverges.
+
+Nonetheless, without adding advanced facilities for termination
+checking, there are many functions it is difficult to implement
+without use of general recursion. So a natural direction for future
+work is to study how to add support for general recursion to Datafun.
+Because domains~\citep{domain-theory} can be understood as partial
+orders with directed joins, there are likely many interesting
+categorical structures connecting the category of domains to the
+category of posets, some of which will hopefully lead to a principled
+type-theoretic integration of partial functions into Datafun.
+
+\paragraph{User-Defined Posets and Semilattices}
+The two fundamental semilattice types Datafun provides are booleans and sets;
+products and functions merely preserve semilattice structure where they find it.
+One might contemplate allowing the programmer to define their own semilattice
+structures using something like Haskell's \texttt{newtype}/\texttt{instance}. In
+general, this is a difficult problem, because we may need to do serious
+mathematical reasoning to prove that a comparison function implements a partial
+ordering, or that a datatype can be equipped with a semilattice structure
+obeying this partial ordering which is commutative, associative and idempotent.
+
+One example of such a family of types are the \emph{lexicographic sum
+  types}. Given two posets $P$ and $Q$, their disjoint union $P + Q$
+is also a poset, with left values compared by the $P$-ordering, and
+right values compared by the $Q$-ordering, and no ordering between
+left and right values. However, this is not the only way that the
+disjoint union could be equipped with an order structure.
+
+For example, we could define the \emph{lexicographic} sum $P +_< Q$,
+which has the same elements as the sum, but extending the coproduct order
+relation with the additional facts that $\name{in}_1(p) \leq \name{in}_2(q)$.
+Indeed, we already have a special case of this: as we noted earlier, our boolean
+type is not $1 + 1$, but it \emph{is} $1 +_< 1$.
+
+But as our Booleans already show, giving good syntax for their
+eliminators is difficult, because we have to show that not just a term
+is monotone, but that the different branches of a lexicographic case
+expression are ordered with respect to \emph{each other}. For the case
+of ordered Booleans, we were able to give a special eliminator which
+guaranteed it, but in general it requires proof.
+
+One natural direction for future work is to extend the syntax of
+Datafun with support for these kinds of proofs, perhaps taking
+inspiration from dependent type theory.

@@ -1,13 +1,13 @@
 % draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,draft,]{report}
+\documentclass[12pt,]{report}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
 % NB. rntzabstract not compatible with book.cls.
 \usepackage[a4,hratio=1:1,]{rntzgeometry}
 \usepackage{rntztitle,rntzsection,rntzfootnotes,rntzref,rntzthm}
-% Make section name references use \S.
+% Make section name references use \S.2
 \makeatletter\crefname{section}{\S\@gobble}{\S\@gobble}\makeatother
 
 %% TODO: fiddle with page formatting, might want headers
@@ -62,13 +62,13 @@
 
 \includeonly{
   0-abstract,
-  1-introduction,
-  2-datafun,
-  3-seminaive,
-  4-implementation,
-  5-extensions,
-  6-related-work,
-  appendix-proofs,
+  %% 1-introduction,
+  %% 2-datafun,
+  %% 3-seminaive,
+  %% 4-implementation,
+  %% 5-extensions,
+  %% 6-related-work,
+  %% appendix-proofs,
 }
 \begin{document}
 

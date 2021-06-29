@@ -58,13 +58,11 @@
 \let\bincap\cap
 \let\binvee\vee
 \let\binwedge\wedge
-\let\binbullet\bullet
 \let\bingets\gets
 \renewcommand\cup{\mathrel{\bincup}}
 \renewcommand\cap{\mathrel{\bincap}}
 \renewcommand\vee{\mathrel{\binvee}} % TODO
 \renewcommand\wedge{\,\binwedge\,}
-\renewcommand\bullet{\mathrel{\binbullet}}
 %% \renewcommand\gets{\,\bingets\,}
 
 
@@ -209,6 +207,7 @@
 \newcommand\fnspace{\;}
 \newcommand\fnof[1]{\fn{#1}.\fnspace}
 \newcommand\setfor[2]{\ensuremath{\{#1 \mathrel{|} #2\}}}
+\newcommand\relcomp{\mathrel{\bullet}}
 
 \newcommand\quantifierspace{\ }
 \newcommand\quantify[1]{({#1})\quantifierspace}
@@ -241,6 +240,7 @@
 \newcommand\catC{\ensuremath{\mathcal{C}}}
 \newcommand\id{\name{id}}
 \newcommand\then\cdot
+\newcommand\compose\circ
 
 \newcommand\morph\name
 \newcommand\fork[1]{\langle{#1}\rangle}
@@ -430,13 +430,17 @@
 \newcommand\changes[3]{{#1} \changescolon {#2} \changesto {#3}}
 %\renewcommand\changesat[4]{\changes{#2}{#3}{#4} : {#1}}
 
-\DeclareMathOperator\Deriv{\mathscr{Derive}}
+\DeclareMathOperator\Derive{\mathscr{Derive}}
 
 %% The logical relation
 \newcommand\impls{\mathbin{\lightning}}
 \newcommand\weird[5]{{#1} \changescolon #2 \impls #3 \shortrightarrow #4 \impls #4}
 \newcommand\weirdat[6]{{#2} \changescolon_{#1} #3 \impls #4 \shortrightarrow #5 \impls #6}
 %\renewcommand\weirdat[6]{\weird{#2}{#3}{#4}{#5}{#6} : #1}
+
+%% Giarrusso's validity relation notation
+\newcommand\gvalid[4]{%
+  {#2} \mathrel{\rhd} {#3} \hookrightarrow {#4} : {#1}}
 
 
 %% Kerning adjustments

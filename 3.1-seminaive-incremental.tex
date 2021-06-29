@@ -135,7 +135,7 @@ function's output given a change to its input.
 %
 This is a problem of \emph{incremental computation}, and since Datafun is a
 functional language, we turn to the \emph{incremental
-  \fn-calculus}~\citep{incremental,DBLP:conf/esop/GiarrussoRS19}.
+  \fn-calculus}~\citep{incremental,DBLP:conf/esop/GiarrussoRS19,DBLP:phd/dnb/Giarrusso20}.
 
 
 \subsection{Change structures}
@@ -146,8 +146,8 @@ every type $A$ with a \emph{change structure}, consisting of:%
 %
 \footnote{Our notion of change structure differs significantly from that of
   \citet{incremental}, although it is similar to the logical relation given in
-  \citet{DBLP:conf/esop/GiarrussoRS19}; \todo{we discuss this in
-    \cref{section-differences-from-incremental}}. Although we do not use change
+  \citet{DBLP:conf/esop/GiarrussoRS19}; we discuss this in
+    \cref{section-incremental-lambda-calculus}. Although we do not use change
   structures \emph{per se} in the proof of correctness sketched in
   \cref{section-seminaive-logical-relation}, they are an important source of
   intuition.}
@@ -392,9 +392,10 @@ some finite number of iterations $i$ such that $x_i = x_{i+1}$.
 
 This leads directly to our strategy for semi\naive\ Datafun.
 %
-The original incremental \fn-calculus~\citep{incremental} defines a static
-transformation $\Deriv e$ which computes the change in $e$ given the change in
-its free variables; it \emph{incrementalizes} $e$.
+The original incremental
+\fn-calculus~\citep{incremental}
+defines a static transformation $\Derive e$ which computes the change in $e$
+given the change in its free variables; it \emph{incrementalizes} $e$.
 %
 Our goal is not to incrementalize Datafun \emph{per se}, but to find fixed
 points faster.

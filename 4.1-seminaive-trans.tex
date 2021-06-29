@@ -9,9 +9,9 @@ transitive closure function \name{trans} from
 
 \begin{code}
   \name{trans} \< \pbox{\dvarlong{edge}}
-  = \efixis{r}{\dvarlong{edge} \cup (\dvarlong{edge} \bullet \mvar r)}
+  = \efixis{r}{\dvarlong{edge} \cup (\dvarlong{edge} \relcomp \mvar r)}
   \\
-  \mvar s \bullet \mvar t =
+  \mvar s \relcomp \mvar t =
   \efor{\etuple{\dvar x, \yone} \in \mvar s,\,
         \etuple{\ytwo , \dvar z} \in \mvar t}
   \ewhen{\eeq{\yone}{\ytwo}} \eset{\etuple{\dvar x, \dvar z}}
@@ -24,7 +24,7 @@ propagate $\bot$ expressions.
 
 In our experience, performing $\phi$ and $\delta$ by hand is easiest when you
 work inside-out. At the core of transitive closure is a relation composition,
-$(\dvar e \bullet p)$, and at the core of relation composition is a
+$(\dvar e \relcomp p)$, and at the core of relation composition is a
 \kw{when}-expression. Let's take a look at its $\phi$ and $\delta$ translations:
 
 %% Avoid overfull hboxes in this section
@@ -125,31 +125,31 @@ translation is again a no-op.
   \efor{\etuple{\ytwo, \dvar z} \in \dt}
   \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
   \\
-  &= (\ds \bullet t) \cup ((s \cup \ds) \bullet \dt)
-  && \text{rewriting in terms of ${\bullet}$}
+  &= (\ds \relcomp t) \cup ((s \cup \ds) \relcomp \dt)
+  && \text{rewriting in terms of ${\relcomp}$}
 \end{flail}
 
 \noindent
-This, then, is the derivative $\delta(s \bullet t)$ of relation composition.
-With a bit of rewriting, this is equivalent to $(\ds \bullet t) \cup (s \bullet
-\dt) \cup (\ds \bullet \dt)$, which is perhaps the derivative a human would
+This, then, is the derivative $\delta(s \relcomp t)$ of relation composition.
+With a bit of rewriting, this is equivalent to $(\ds \relcomp t) \cup (s \relcomp
+\dt) \cup (\ds \relcomp \dt)$, which is perhaps the derivative a human would
 give.
 
 Let's use this to figure out $\phi(\name{trans}\<\eboxvar{e})$. Working inside
 out, we start with the derivative of the loop body, $\delta(\dvar e \cup (\dvar
-e \bullet p))$:
+e \relcomp p))$:
 
 \begin{flail}
-  \delta({\dvar e \cup (\dvar e \bullet p)})
-  &= \delta\dvar e \cup \delta(\dvar e \bullet p)\\
+  \delta({\dvar e \cup (\dvar e \relcomp p)})
+  &= \delta\dvar e \cup \delta(\dvar e \relcomp p)\\
   &= \delta\dvar e
-  \cup (\delta\dvar e \bullet p)
-  \cup ((\dvar e \cup \delta\dvar e) \bullet \deep)
+  \cup (\delta\dvar e \relcomp p)
+  \cup ((\dvar e \cup \delta\dvar e) \relcomp \deep)
   \\
-  &= \bot \cup (\bot \bullet p) \cup ((\dvar e \cup \bot) \bullet \deep)
+  &= \bot \cup (\bot \relcomp p) \cup ((\dvar e \cup \bot) \relcomp \deep)
   && \delta\dvar e ~\text{is a zero change; insert }\bot
   \\
-  &= \dvar e \bullet \deep
+  &= \dvar e \relcomp \deep
   && \text{propagate}~\bot
 \end{flail}
 
@@ -162,18 +162,18 @@ know $\dvar{de}$ is a zero change, so we may safely replace it by $\bot$.
 Putting everything together, we have:
 
 \begin{flail}
-  \phi(\efixis{p}{\dvar e \cup (\dvar e \bullet p)}
-  &= \phi(\efix \ebox{\fnof{p} \dvar e \cup (\dvar e \bullet p)})
+  \phi(\efixis{p}{\dvar e \cup (\dvar e \relcomp p)}
+  &= \phi(\efix \ebox{\fnof{p} \dvar e \cup (\dvar e \relcomp p)})
   && \text{desugaring}
   \\
-  &= \fastfix\< \phi\ebox{\fnof{p} \dvar e \cup (\dvar e \bullet p)}
+  &= \fastfix\< \phi\ebox{\fnof{p} \dvar e \cup (\dvar e \relcomp p)}
   \\
-  &= \fastfix\<\bigeboxtuple{\phi({\fnof{p} \dvar e \cup (\dvar e \bullet p)}),\
-  \delta({\fnof{p} \dvar e \cup (\dvar e \bullet p)})}
+  &= \fastfix\<\bigeboxtuple{\phi({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}),\
+  \delta({\fnof{p} \dvar e \cup (\dvar e \relcomp p)})}
   \\
   &= \fastfix\<\bigeboxtuple{
-      ({\fnof{p} \dvar e \cup (\dvar e \bullet p)}),\
-      ({\fnof{\pboxvar p} \fnof{\deep} \dvar e \bullet \deep})}
+      ({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}),\
+      ({\fnof{\pboxvar p} \fnof{\deep} \dvar e \relcomp \deep})}
   && \text{previous work}
 \end{flail}
 
@@ -185,13 +185,13 @@ semi\naive\ transitive closure algorithm from
 \nopagebreak[4]
 \begin{align*}
   x_0 &= \bot & x_{i+1} &= x_i \cup \dx_i\\
-  \dx_0 &= ({\fnof{p} \dvar e \cup (\dvar e \bullet p)}) \<\bot
+  \dx_0 &= ({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}) \<\bot
   = \dvar e
   &
   \dx_{i+1} &=
-  ({\fnof{\pboxvar p} \fnof{\dx} \dvar e \bullet \deep})
+  ({\fnof{\pboxvar p} \fnof{\dx} \dvar e \relcomp \deep})
   \<\ebox{x_i} \<\dx_i
-  = \dvar e \bullet \dx_i
+  = \dvar e \relcomp \dx_i
 \end{align*}
 
 \setlength\codeoffset{20pt}     %restore.

@@ -124,8 +124,6 @@ semilattice join, $x \cup y = x \vee y$, while intersection is definable using
 \mem, by taking the union of every singleton $\esetraw{\dvar x}$ such that
 $\dvar x$ is in both $s$ and $t$:
 
-\newcommand\compose\bullet
-
 \begin{code}
   \pwild \cap \pwild \isa \tseteq A \to \tseteq A \to \tseteq A\\
   %% NB. \kern -.5pt to get "member" closer to open paren.
@@ -151,11 +149,11 @@ Using comprehensions, this could alternately be written as:
   \mvar s \x \mvar t =
   \esetfor{\etuple{\dvar x, \dvar y}}{\dvar x \in \mvar s,\, \dvar y \in \mvar t}
   \\[\betweenfunctionskip]
-  \pwild \compose \pwild \isa
+  \pwild \relcomp \pwild \isa
   \tset{\eqt A \x \eqt B}
   \to \tset{\eqt B \x \eqt C}
   \to \tset{\eqt A \x \eqt C}\\
-  \mvar s \compose \mvar t = \esetfor{\etuple{\dvar a, \dvar c}}{
+  \mvar s \relcomp \mvar t = \esetfor{\etuple{\dvar a, \dvar c}}{
     \ptuple{\dvar a, \bone} \in \mvar s,\,
     \ptuple{\btwo, \dvar c} \in \mvar t,\,
     \eeq \bone \btwo}
@@ -239,7 +237,7 @@ Finally, generalizing the \name{ancestor} relation from the Datalog program in
 \begin{code}
   \name{trans} \isa \iso \tset{\eqt A \x \eqt A} \to \tset{\eqt A \x \eqt A}\\
   \name{trans} \<\pboxvarlong{edge} =
-  \efixis{R}{\dvarlong{edge} \vee (\dvarlong{edge} \compose \mvar R)}
+  \efixis{R}{\dvarlong{edge} \vee (\dvarlong{edge} \relcomp \mvar R)}
 \end{code}
 
 \noindent
@@ -333,7 +331,7 @@ respectively:
 \nopagebreak[2]
 \begin{code}
   \name{seq} \isa \tre \to \tre \to \tre\\
-  \name{seq} \<\mvar r_1 \<\mvar r_2 \<\mvar s = \mvar r_1 \<\mvar s \compose \mvar r_2 \<\mvar s
+  \name{seq} \<\mvar r_1 \<\mvar r_2 \<\mvar s = \mvar r_1 \<\mvar s \relcomp \mvar r_2 \<\mvar s
 \end{code}
 
 \noindent
@@ -375,6 +373,8 @@ to compute a fixed point.\footnote{Technically the inclusion order on sets of
 
 \newcommand\kernj{\kern1pt j}
 \renewcommand\kernj{j}
+
+\todo{remark on similarity of this to performing magic sets on previous combinator?}
 
 %% TODO: edit/rewrite this section, especially the bit about left recursion, it
 %% needs to be clearer

@@ -2,11 +2,12 @@
 
   \noindent
 The deductive query language Datalog has found a wide array of uses, including
-static analysis, business analytics, and distributed
-programming~\todo{citation}. Datalog is high-level and declarative, but simple
-and well-studied enough to admit efficient implementation strategies. For
-example, \citeauthor{DBLP:conf/aplas/WhaleyACL05} found they could replace a
-hand-tuned C implementation of context-sensitive pointer analysis with a
+static analysis~\citep{DBLP:conf/datalog/SmaragdakisB10}, business
+analytics~\citep{logicblox}, and distributed programming~\citep{dedalus,bloom}.
+Datalog is high-level and declarative, but simple and well-studied enough to
+admit efficient implementation strategies. For example,
+\citeauthor{DBLP:conf/aplas/WhaleyACL05} found they could replace a hand-tuned C
+implementation of context-sensitive pointer analysis with a
 comparably-performing Datalog program that was 100x
 smaller~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}.
 
@@ -48,8 +49,10 @@ In particular, this thesis makes the following contributions:
   Datalog. We extend this transformation to handle higher-order programs written
   in Datafun.
 
-\item In the process of generalizing semi\naive\ evaluation, we uncover a
-  theory of incremental, monotone, higher-order computation. \XXX
+\item In the process of generalizing semi\naive\ evaluation, we uncover a theory
+  of incremental, monotone, higher-order computation, in which values change
+  over time by growing larger, and programs respond incrementally to these
+  increases.
 \end{enumerate}
 
 
