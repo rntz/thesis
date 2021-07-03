@@ -1,6 +1,8 @@
 \chapter{Related work}
 
-Our goal is to give the reader a mental map of the surrounding areas, rather than merely a laundry list of related research.
+Over and above a laundry list of related papers and theses, our goal in this chapter is to give the reader a mental map of the surrounding research terrain and the many choices and trade-offs \XXX.
+
+%% Our goal is to give the reader a mental map of the surrounding areas, rather than merely a laundry list of related research.
 
 \noindent\todo{More stuff to include?:}
 \begin{enumerate}[nosep]
@@ -36,15 +38,45 @@ Our goal is to give the reader a mental map of the surrounding areas, rather tha
 \section{Logic, higher-order abstraction, and semilattices}
 \label{section-datafun-relatives}
 
-Datafun's value proposition is to extend bottom-up logic programming \`a la
-Datalog with two additional features: higher-order functional abstraction and
-support for semilattices other than finite sets. In this section we'll consider
-related work that fits the same mould, seeking to enhance logic programming with
-either higher-order features~(\cref{section-logic+abstraction}),
-semilattices~(\cref{section-logic+semilattices}), or both~(\cref{section-flix}).
+Datafun's value proposition is to extend bottom up logic programming \`a la Datalog with two additional features: higher-order functional abstraction and support for semilattices other than finite sets. 
+%% %
+%% Datafun's value proposition is in its combination of three features:
+%% %
+%% (1) bottom-up logic programming \`a la Datalog; 
+%% %
+%% (2) higher-order functional abstraction; and
+%% %
+%% (3) support for semilattices other than finite sets.
+%% %
+There is a good deal of work on combining logic programming with one or the other of these features, and at least one other system -- \flix\ -- which, like Datafun, proposes to combine all three.
+%
+We'll first briefly consider the systems which feature one or the other and then move on to a detailed comparison with \flix.
 
-\subsection{Logic + higher-order abstraction}
+%% In this section we'll consider related work that fits the same mould, seeking to
+%% enhance logic programming with either higher-order
+%% features~(\cref{section-logic+abstraction}),
+%% semilattices~(\cref{section-logic+semilattices}), or both~(\cref{section-flix}).
+
+\subsubsection{Logic + higher-order abstraction}
 \label{section-logic+abstraction}
+
+There are many possible approaches to combining the power of logic programming and of higher-order abstractions.
+%
+The most direct approach would be to directly extend logic programming with support for higher-order relations.
+%
+Unfortunately, this quickly entangles one with thorny problems of decidability and even thornier ones of efficiency.
+%
+Nonetheless, a line of work starting with \citet{DBLP:conf/slp/Wadge91} has explored this approach.
+%
+\Citet{extensional-higher-order-datalog} investigate extending Datalog's bottom-up approach with higher-order relations, an approach very close to Datafun's; however, while they present a prototype implementation, they remark that it can be impractically slow for significantly higher-order programs because it needs to generate many large relations.
+%
+Later approaches move from a bottom-up to a top-down approach, becoming less Datalog and more Prolog~\citep{DBLP:journals/tocl/CharalambidisHRW13}.
+%
+By contrast, Datafun attempts to reduce implementation difficulties by narrowing the scope of higher-order computation to functions, leaving relations first-order and decidable -- higher-order functional programming and decidable first-order relational programming being both well-trodden areas.
+
+%% Many Prolog implementations are in some sense capable of higher-order programming, simply by virtue of being able to pass predicate names as arguments to other predicates and then use reflection primitives to apply these reified predicates to arguments. However, this sacrifices both semantics -- these predicates being passed are not being treated extensionally as relations, but as names; this approach is akin to using \name{eval} and quoting in Lisp in place of \name{lambda} and closures -- as well as the core promise of relational programming: that relations, unlike functions, do not divide their arguments into ``input'' and ``output'' but can be run symmetrically in either direction -- but, as a reflection primitive for applying a predicate cannot reasonably synthesize the predicate name if it is not given, this input-output symmetry is lost.
+
+
 
 \begin{enumerate}[nosep]
 \item modulog (Bob Atkey)
@@ -56,31 +88,30 @@ semilattices~(\cref{section-logic+semilattices}), or both~(\cref{section-flix}).
 \vspace{10pt}
 \noindent
 \todo{taken from ICFP 16}
-Datalog has sometimes been described
-as ``relational algebra plus fixed points'', and there is a long line
-of work on embedding database query languages into general-purpose
-languages, including pioneering efforts such as
-Machiavelli~\citep{machiavelli} and Kleisli~\citep{kleisli}, as well as
-more recent systems such as Ferry~\citep{ferry} and LINQ in C\#~\citep{linq-wadler}.
+%
+Finally, Datalog has sometimes been described as ``relational algebra plus fixed
+points'', and there is a long line of work on embedding database query languages
+into general-purpose languages, including pioneering efforts such as
+Machiavelli~\citep{machiavelli} and Kleisli~\citep{kleisli}, as well as more
+recent systems such as Ferry~\citep{ferry} and LINQ in C\#~\citep{linq-wadler}.
 %
 The focus of this work has been on embedding query languages based
 on relational algebra into general purpose languages, with an emphasis
 on statically compiling higher-order queries into the first-order
 queries supported by existing database systems (\citet{query-shredding} is a
 representative example).
+%
+Datafun's approach is different: rather than embed Datalog into a general
+purpose language, Datafun is \emph{also} a ``little language'', albeit one that
+happens to be a higher-order functional language. We have not attempted to embed
+Datafun into an existing language, as this would greatly complicate the
+context-management operations needed to ensure monotonicity.
 
-Our approach is a little bit different. Instead of embedding Datalog
-into a general purpose language, Datafun is \emph{also} a ``little
-language'', albeit one that happens to be a higher-order
-functional language. We very deliberately did not try to embed Datafun
-into an existing language, because that would have greatly complicated
-the context-management operations needed to ensure monotonicity.
+%% In fact, from a language designer's perspective, Datafun can be seen
+%% as an argument in favor of extending functional languages to support
+%% programming with user-defined, non-strong comonads.
 
-In fact, from a language designer's perspective, Datafun can be seen
-as an argument in favor of extending functional languages to support
-programming with user-defined, non-strong comonads.
-
-\subsection{Logic + semilattices}
+\subsubsection{Logic + semilattices}
 \label{section-logic+semilattices}
 
 IncAL, bloomL
@@ -153,7 +184,7 @@ Perhaps even more ubiquitously, this strategy is used by spreadsheet software su
 A long line of work starting with self-adjusting
 computation~\citep{DBLP:conf/popl/AcarBH02,umut-acar-thesis} and descendant
 systems such as Adapton~\citep{DBLP:conf/pldi/HammerKHF14} apply dependency
-tracking general-purpose programming languages by tracing execution to
+tracking to general-purpose programming languages by tracing execution to
 construct a dynamic dependency graph.
 
 It would be an intriguing line of future work to examine whether a dependency
@@ -672,16 +703,83 @@ Pursuing this conjecture further we leave to future work.
 
 
 \subsection{The monoidal approach to change}
-\todo{discuss Mario Alvarez-Picallo's work}
 
-\Citet{DBLP:conf/esop/Alvarez-Picallo19,mario-thesis} offer an alternative
-formulation of change structures, by requiring changes to form a
-monoid, and representing the change itself with a monoid action. They
-use change actions to prove the correctness of semi\naive\ evaluation
-for Datalog, and express the hope that it could apply to Datafun.
-Unfortunately, it does not seem to -- the natural notion of function
-change in their setting is pointwise, which does not seem to lead to
-the derivatives we want in the examples we considered.
+The incremental \fn-calculus has its notion of a change structure; Datafun has another; but these do not exhaust the space of possibilities. A line of work starting with \citet{DBLP:conf/esop/Alvarez-Picallo19}, and most thoroughly expounded in Mario Alvarez-Picallo's thesis~\citeyearpar{mario-thesis} has explored representing change structures using monoid actions, which they call \emph{change actions}. 
+A change action on a set $A$ consists of a monoid $(\Delta A, +_A, 0_A)$ and a monoid action $\oplus_A : A \x \Delta A \to A$.
+%
+As before we interpret $\oplus$ as applying a change to a base value.
+%
+The monoid action law $x \oplus (dx + dy) = (x \oplus dx) \oplus dy$ says that $+$ composes changes (corresponding to $\circledcirc$ in the incremental \fn-calculus); and the other law $x \oplus 0 = x$ makes $0$ a zero change to any value.
+%
+The primary differences from the incremental \fn-calculus are:
+
+\begin{enumerate}
+\item The lack of a $\ominus$ operator, thus allowing for incomplete change structures, where it may not be possible to find a change from one value to any other.
+  
+\item The requirement that there exists a single value $0 : \Delta A$ which acts as a \emph{universal} zero change, rather than an operator $\zero : A \to \Delta A$ that finds a zero change to a particular value.
+
+\item Change actions lack a validity relation: every change must be valid for every base point.
+\end{enumerate}
+
+\noindent
+Tantalizingly, \citet{DBLP:conf/esop/Alvarez-Picallo19} explicitly use this notion of change action to give a differentiation/incrementalization transformation for Datalog programs.
+%
+Might this monoidal approach work in Datafun as well?
+%
+At first it seems as though it might: many of Datafun's change structures, in particular those on semilattice types more generally, fit into this structure neatly: for instance, on finite set types $\tseteq{A}$ the change action is simply sets $\Delta\tseteq{A} = \tseteq{A}$ with ${+} = {\oplus} = {\cup}$ and $0 = \varnothing$.
+
+However, points (2) and (3) above produce problems when considering the change structure for functions.
+%
+The incremental \fn-calculus and Datafun both take function changes to be generalizations of function derivatives, such that the zero-change to a function is its derivative.
+%
+But this is incompatible with requiring a universal zero-change $0 : \Delta (A \to B)$; there is no ``universal derivative''.
+%
+%% \todo{explain in more detail?}
+%
+For this reason both \citet{DBLP:conf/esop/Alvarez-Picallo19} and \citet{mario-thesis} use pointwise function changes $\Delta(A \to B) = A \to \Delta B$, letting $(f \oplus df)\<x = f\<x \oplus df\<x$.
+%
+%% \todo{footnote: even then the picture is more complicated, only sometimes is there a change structure that has all the structure mario requries}
+%
+This fundamental divergence from the incremental \fn-calculus would require
+redesigning the $\phi/\delta$ transformations -- neither the 2019 paper nor
+Alvarez-Picallo's thesis give an explicit derivative transformation for a
+higher-order language.
+
+However, there is a deeper issue: in a monotonicity-aware context like Datafun, we must choose whether the pointwise change functions are required to be monotone, $\Delta(A \to B) = A \to \Delta B$, or allowed to be non-monotone, $\Delta(A \to B) = \iso A \to \Delta B$.
+%
+Both choices have serious problems:
+
+\begin{description}
+\item[Non-monotone changes] If we allow function changes to be non-monotone we have an immediate problem: the updated function $f \oplus df = x \mapsto f\<x \oplus df\<x$ is not guaranteed to be monotone. The only way to repair this without requiring that the change itself be monotone would seem to be to re-introduce the incremental \fn-calculus's notion of validity, and say that $df$ is only a valid change to $f$ if $f \oplus df$ remains monotone. This would require a considerable elaboration of the theory of change actions.
+  
+\item[Monotone changes] Unfortunately, insisting that pointwise function changes be monotone makes it impossible to differentiate some perfectly reasonable functions. For example, take the integers $\Z$ equipped with the natural change action $\Delta\Z = \Z$, ${\oplus}_\Z = {+}_\Z = +, 0_\Z = 0$, and consider the function expression $\fnof{y} \max(x, y) : \Z \to \Z$. Now suppose $x$ increases from $0$ to $1$; how does this function change in response? In other words, what is the change between $\max(0, \pwild)$ and $\max(1, \pwild)$? Tabulating its values for $y = 0,1,2, ...$ we can clearly see it is not monotone:
+
+  \nopagebreak[4]
+  \[
+    \begin{array}{r@{\quad}|@{\quad}llllll}
+      y & 0 & 1 & 2 & \cdots\\%\midrule
+      \max(0, y) & 0 & 1 & 2 & \cdots\\
+      \max(1, y) & 1 & 1 & 2 & \cdots\\
+      \max(1, y) - \max(0, y) & 1 & 0 & 0 & \cdots
+    \end{array}
+  \]
+
+  \noindent
+  Thus, forcing function changes to be monotone with respect to the base point is a very limiting approach.
+  %
+  %\todo{discuss how for semilattices we can actually force increasing changes to be monotone but it comes at the cost of making these changes large, which is exactly what we want to avoid for seminaive evaluation}
+\end{description}
+
+\noindent
+It is possible that by combining change actions with a validity relation, thus allowing the monoid action to be partial, one could achieve a synthesis of the change action approach and Datafun's higher-order monotonicity. We leave this to future work.
+
+\vspace{10pt}\noindent
+\todo{more things to discuss if I have more time:}
+\begin{enumerate}[nosep]
+\item he points out that his notion can be seen as working with categories and functors but forgetting some crucial stuff so you get monoid actions and differentiable maps instead. Our approach can also be seen as starting with categories but forgetting stuff so that we get posets and monotone maps!
+
+\item they actually give an incrementalization with respect to both increasing and decreasing change and allow incrementalizing fixed points with respect to changes from the outside world, not just speeding up fixed points -- which is the motivation to try and combine these approaches. Unfortunately, it doesn't seem to work (because of the stuff to do with higher-order functions)
+\end{enumerate}
 
 
 \subsection{\todo{UNUSED FRAGMENTS, PLEASE IGNORE}}

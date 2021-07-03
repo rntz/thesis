@@ -1,6 +1,6 @@
 % draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,]{report}
+\documentclass[12pt,draft,]{report}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
@@ -61,14 +61,14 @@
 
 
 \includeonly{
-  0-abstract,
+  %% 0-abstract,
   %% 1-introduction,
-  %% 2-datafun,
-  %% 3-seminaive,
+  2-datafun,
+  3-seminaive,
   %% 4-implementation,
   %% 5-extensions,
-  %% 6-related-work,
-  %% appendix-proofs,
+  6-related-work,
+  appendix-proofs,
 }
 \begin{document}
 
