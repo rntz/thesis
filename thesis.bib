@@ -1,3 +1,73 @@
+@inproceedings{DBLP:conf/cloud/ConwayMAHM12,
+  author    = {Neil Conway and
+               William R. Marczak and
+               Peter Alvaro and
+               Joseph M. Hellerstein and
+               David Maier},
+  editor    = {Michael J. Carey and
+               Steven Hand},
+  title     = {Logic and lattices for distributed programming},
+  booktitle = {{ACM} Symposium on Cloud Computing, {SOCC} '12, San Jose, CA, USA,
+               October 14-17, 2012},
+  pages     = {1},
+  publisher = {{ACM}},
+  year      = {2012},
+  url       = {https://doi.org/10.1145/2391229.2391230},
+  doi       = {10.1145/2391229.2391230},
+  timestamp = {Tue, 06 Nov 2018 11:07:34 +0100},
+  biburl    = {https://dblp.org/rec/conf/cloud/ConwayMAHM12.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/pacmpl/SzaboBEV18,
+  author    = {Tam{\'{a}}s Szab{\'{o}} and
+               G{\'{a}}bor Bergmann and
+               Sebastian Erdweg and
+               Markus Voelter},
+  title     = {Incrementalizing lattice-based program analyses in Datalog},
+  journal   = {Proc. {ACM} Program. Lang.},
+  volume    = {2},
+  number    = {{OOPSLA}},
+  pages     = {139:1--139:29},
+  year      = {2018},
+  url       = {https://doi.org/10.1145/3276509},
+  doi       = {10.1145/3276509},
+  timestamp = {Wed, 17 Feb 2021 08:54:07 +0100},
+  biburl    = {https://dblp.org/rec/journals/pacmpl/SzaboBEV18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+% FIXME: empty 'journal'
+@article{Koch:183766,
+      title = {Incremental Query Evaluation in a Ring of Databases},
+      author = {Koch, Christoph},
+      pages = {29},
+      year = {2013},
+      note = {Revised version of PODS 2010 paper},
+      abstract = {This article approaches the incremental view maintenance  problem from an algebraic perspective. The algebraic  structure of a ring of databases is constructed and  extended to form a powerful aggregate query calculus. The  query calculus inherits the key properties of rings, such  as distributivity and the existence of an additive inverse.  As a consequence, the calculus has a normal form of  polynomials and is closed under a universal difference  operator. This difference operator allows to express the  so-called delta queries of the incremental view maintenance  literature, but also deltas to the deltas (second deltas),  deltas to second deltas (third deltas), and so on. The k-th  delta of a query of polynomial degree k is purely a  function of the update, not of the database. This gives  rise to a multi-layered incremental view maintenance scheme  in which a view is maintained using a hierarchy of  auxiliary materialized views of k-th deltas. What is gained  by this hierarchy is that the work required to keep all  views fresh given an update is extremely simple. &lt;p/&gt; The  method allows to eliminate expensive query operators such  as joins and aggregate sums entirely from programs that  perform incremental view maintenance. The main result is  that, for non-nested queries, each individual aggregate  value can be incrementally maintained using a constant  amount of work. This is not possible for nonincremental  evaluation and provides a complexity separation between the  incremental and nonincremental query evaluation problems.  &lt;p/&gt; As a byproduct, we obtain a query language that is  significant in its own right. It is an algebraic language  in which queries, like in relational calculus, are built up  from base objects (generalized relations) using an  extremely small set of connectives -- addition,  multiplication, and aggregation. It is based on a family of  algebraic structures developed in this article -- called  avalanche (semi)rings -- which algebraizes  range-restriction. Thus these structures guarantee finite  query results in the presence of inequalities, without  making use of an explicit selection operation. The entire  language behaves like a polynomial ring of relations and  thus makes algebraic manipulation very easy. As a simple  algebraic language of interesting expressive power --  relational algebra with SQL-style aggregation and unlimited  nesting -- it is a natural internal representation language  for query processors and compilers.},
+      url = {http://infoscience.epfl.ch/record/183766},
+}
+
+
+@inproceedings{DBLP:conf/pods/Koch10,
+  author    = {Christoph Koch},
+  editor    = {Jan Paredaens and
+               Dirk Van Gucht},
+  title     = {Incremental query evaluation in a ring of databases},
+  booktitle = {Proceedings of the Twenty-Ninth {ACM} {SIGMOD-SIGACT-SIGART} Symposium
+               on Principles of Database Systems, {PODS} 2010, June 6-11, 2010, Indianapolis,
+               Indiana, {USA}},
+  pages     = {87--98},
+  publisher = {{ACM}},
+  year      = {2010},
+  url       = {https://doi.org/10.1145/1807085.1807100},
+  doi       = {10.1145/1807085.1807100},
+  timestamp = {Tue, 06 Nov 2018 16:58:02 +0100},
+  biburl    = {https://dblp.org/rec/conf/pods/Koch10.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
 @article{DBLP:journals/tocl/CharalambidisHRW13,
   author    = {Angelos Charalambidis and
                Konstantinos Handjopoulos and
@@ -994,6 +1064,42 @@ or, Static differentiation of monotone fixed points},
  address = {New York, NY, USA},
 }
 
+
+@inproceedings{DBLP:conf/issta/MadsenL18,
+  author    = {Magnus Madsen and
+               Ondrej Lhot{\'{a}}k},
+  editor    = {Frank Tip and
+               Eric Bodden},
+  title     = {Safe and sound program analysis with Flix},
+  booktitle = {Proceedings of the 27th {ACM} {SIGSOFT} International Symposium on
+               Software Testing and Analysis, {ISSTA} 2018, Amsterdam, The Netherlands,
+               July 16-21, 2018},
+  pages     = {38--48},
+  publisher = {{ACM}},
+  year      = {2018},
+  url       = {https://doi.org/10.1145/3213846.3213847},
+  doi       = {10.1145/3213846.3213847},
+  timestamp = {Wed, 21 Nov 2018 12:44:15 +0100},
+  biburl    = {https://dblp.org/rec/conf/issta/MadsenL18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/pacmpl/MadsenL20,
+  author    = {Magnus Madsen and
+               Ondrej Lhot{\'{a}}k},
+  title     = {Fixpoints for the masses: programming with first-class Datalog constraints},
+  journal   = {Proc. {ACM} Program. Lang.},
+  volume    = {4},
+  number    = {{OOPSLA}},
+  pages     = {125:1--125:28},
+  year      = {2020},
+  url       = {https://doi.org/10.1145/3428193},
+  doi       = {10.1145/3428193},
+  timestamp = {Wed, 17 Feb 2021 08:54:04 +0100},
+  biburl    = {https://dblp.org/rec/journals/pacmpl/MadsenL20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
 @inproceedings{flix,
   author    = {Magnus Madsen and
                Ming{-}Ho Yee and
@@ -1158,42 +1264,6 @@ or, Static differentiation of monotone fixed points},
 }
 
 
-@inproceedings{mercury,
-  author    = {Zoltan Somogyi and
-               Fergus Henderson and
-               Thomas C. Conway},
-  title     = {The Implementation of Mercury, an Efficient Purely Declarative Logic
-               Programming Language},
-  booktitle = {{ILPS} 1994, Workshop 4: Implementation Techniques for Logic Programming
-               Languages, Ithaca, New York, USA, November 17, 1994},
-  year      = {1994},
-  timestamp = {Wed, 04 Dec 2013 14:42:59 +0100},
-  biburl    = {http://dblp.uni-trier.de/rec/bib/conf/slp/SomogyiHC94},
-  bibsource = {dblp computer science bibliography, http://dblp.org}
-}
-
-@article{curry,
- author = {Antoy, Sergio and Hanus, Michael},
- title = {Functional Logic Programming},
- journal = {Communications of the ACM},
- issue_date = {April 2010},
- volume = {53},
- number = {4},
- month = apr,
- year = {2010},
- issn = {0001-0782},
- pages = {74--85},
- numpages = {12},
- acmid = {1721675},
- publisher = {ACM},
- address = {New York, NY, USA},
-}
-
-
-
-
-
-
 @proceedings{datalog,
   editor    = {Herv{\'{e}} Gallaire and
                Jack Minker},
@@ -1221,9 +1291,6 @@ or, Static differentiation of monotone fixed points},
   biburl    = {http://dblp.uni-trier.de/rec/bib/conf/iclp/GanzingerM02},
   bibsource = {dblp computer science bibliography, http://dblp.org}
 }
-
-
-
 
 @inproceedings{linear-logical-algorithms,
   author    = {Robert J. Simmons and

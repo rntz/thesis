@@ -50,25 +50,27 @@ Datafun's value proposition is to extend bottom up logic programming \`a la Data
 %% %
 There is a good deal of work on combining logic programming with one or the other of these features, and at least one other system -- \flix\ -- which, like Datafun, proposes to combine all three.
 %
-We'll first briefly consider the systems which feature one or the other and then move on to a detailed comparison with \flix.
+We'll first briefly consider the systems which feature one or the other and then move on to a more detailed comparison with \flix.
 
 %% In this section we'll consider related work that fits the same mould, seeking to
 %% enhance logic programming with either higher-order
 %% features~(\cref{section-logic+abstraction}),
 %% semilattices~(\cref{section-logic+semilattices}), or both~(\cref{section-flix}).
 
-\subsubsection{Logic + higher-order abstraction}
-\label{section-logic+abstraction}
+%% \subsubsection{Logic + higher-order abstraction}
+%% \label{section-logic+abstraction}
+
+\paragraph{Higher-order extensional logic programming}
 
 There are many possible approaches to combining the power of logic programming and of higher-order abstractions.
 %
 The most direct approach would be to directly extend logic programming with support for higher-order relations.
 %
-Unfortunately, this quickly entangles one with thorny problems of decidability and even thornier ones of efficiency.
+Unfortunately, this quickly entangles one with thorny problems of decidability and efficiency.
 %
 Nonetheless, a line of work starting with \citet{DBLP:conf/slp/Wadge91} has explored this approach.
 %
-\Citet{extensional-higher-order-datalog} investigate extending Datalog's bottom-up approach with higher-order relations, an approach very close to Datafun's; however, while they present a prototype implementation, they remark that it can be impractically slow for significantly higher-order programs because it needs to generate many large relations.
+\Citet{extensional-higher-order-datalog} investigate extending Datalog's bottom-up approach with higher-order relations, an approach very close to Datafun's; however, while they present a prototype implementation, they remark that it can be impractically slow for significantly higher-order programs because it needs to synthesize many large relations.
 %
 Later approaches move from a bottom-up to a top-down approach, becoming less Datalog and more Prolog~\citep{DBLP:journals/tocl/CharalambidisHRW13}.
 %
@@ -76,20 +78,16 @@ By contrast, Datafun attempts to reduce implementation difficulties by narrowing
 
 %% Many Prolog implementations are in some sense capable of higher-order programming, simply by virtue of being able to pass predicate names as arguments to other predicates and then use reflection primitives to apply these reified predicates to arguments. However, this sacrifices both semantics -- these predicates being passed are not being treated extensionally as relations, but as names; this approach is akin to using \name{eval} and quoting in Lisp in place of \name{lambda} and closures -- as well as the core promise of relational programming: that relations, unlike functions, do not divide their arguments into ``input'' and ``output'' but can be run symmetrically in either direction -- but, as a reflection primitive for applying a predicate cannot reasonably synthesize the predicate name if it is not given, this input-output symmetry is lost.
 
+\paragraph{Higher-order functional + top-down logic programming}
 
+Of course, Datafun is not the first language to attempt to add higher-order features to logic programming by combining it with functional programming: Mercury~\citep{mercury} integrates higher-order functional programming into a logical paradigm, while Curry~\citep{curry} cleanly combines the lazy functional language Haskell with top-down logic programming. The main difference is that Mercury and Curry's logical features are inspired by Prolog, employing top-down search and unification, while Datafun is inspired by Datalog, uses bottom-up enumeration, and imposes deliberate restrictions to ensure termination and avoid Turing-completeness. \todo{maybe say a little more about the consequences of these decisions? impact on semilattice features?}
 
-\begin{enumerate}[nosep]
-\item modulog (Bob Atkey)
-\item functional + top-down: Curry, Kleisli
-\item functional + database: Ferry
-\item directly tackle the problem of higher-order logic programming: HOPES
-\end{enumerate}
+\paragraph{Modulog}
+\todo{doesn't appear to have any papers about it? Maybe I can just leave this out for now}
 
-\vspace{10pt}
-\noindent
-\todo{taken from ICFP 16}
-%
-Finally, Datalog has sometimes been described as ``relational algebra plus fixed
+\paragraph{Embedding database queries in functional languages}
+
+Datalog has sometimes been described as ``relational algebra plus fixed
 points'', and there is a long line of work on embedding database query languages
 into general-purpose languages, including pioneering efforts such as
 Machiavelli~\citep{machiavelli} and Kleisli~\citep{kleisli}, as well as more
@@ -111,43 +109,52 @@ context-management operations needed to ensure monotonicity.
 %% as an argument in favor of extending functional languages to support
 %% programming with user-defined, non-strong comonads.
 
-\subsubsection{Logic + semilattices}
-\label{section-logic+semilattices}
 
-IncAL, bloomL
+%\subsubsection{Logic + semilattices}
+\paragraph{Logic with semilattices}  We know of two systems which extend Datalog with support for semilattices without incorporating higher-order abstraction.
+%
+IncA\textsubscript{L}~\citep{DBLP:journals/pacmpl/SzaboBEV18} is an incremental Datalog engine with support for custom semilattices, aimed at static analysis.
+%
+Bloom\textsuperscript{$L$}~\citep{DBLP:conf/cloud/ConwayMAHM12} is a Datalog-inspired language aimed at distributed computing, where monotonicity is used to ensure eventual consistency~\citep{bloom} and custom semilattices are used to extend the range of types to which monotonicity analysis can be fruitfully applied.
+%
+Although both of these are clearly related to Datafun's goals, neither includes the crucial ingredient of higher-order abstraction that leads to most of Datafun's unique capacities, as well as its unique design and implementation challenges.
+
+\todo{mention that the key inside of DRed\textsubscript{L} makes use of monotonicity?}
 
 
 \subsection{Flix}
 \label{section-flix}
 
-\todo{pull in previous related work on Flix, also possibly from thesis proposal}
+\todo{cite the more recent flix work on first-class datalog rules}
 
-Higher-order + logic + semilattices: Flix -- same goals, different method.
-No monotonicity types, instead classic Datalog embedded in functional
-programming; use liquidhaskell-style smt to check monotonicity and other
-properties.
+%% \Flix~\citep{flix} and Datafun have similar goals. 
+\Flix~\citep{flix} and Datafun both augment Datalog with higher-order functional programming and semilattice types,  but they go about this merger of logic and functional programming in different ways. Datafun embeds Datalog's semantics into a functional language by adding first-class support for finite sets and monotone fixed points, ensuring monotonicity via a custom type system. \Flix, however, is really two languages in a trenchcoat -- one logical and Datalog-inspired, the other functional -- which interoperate closely: the logic fragment can use semilattices whose merge functions are defined in the functional fragment, and with a recent extension~\citep{DBLP:journals/pacmpl/MadsenL20} the functional fragment can manipulate first-class values representing groups of logic-fragment rules (``Datalog constraints'') which can be composed and evaluated at run-time.
 
-Flix's advantages over datafun: IT SUPPORTS CUSTOM SEMILATTICES. Can prove
-more than just monotonicity. More advanced implementation, can take advantage
-of existing techniques for Datalog impl without reinventing.
+Our main contribution compared to \flix\ is that this separation between
+functional and logic layers is unnecessary; they can be smoothly integrated by
+paying close attention to semantics, and standard Datalog optimizations such as
+semi\naive\ evaluation can be generalized to operate on functional languages,
+with the unexpected side-benefit of revealing a theory of higher-order
+incremental monotone computation.
+%
+The practical flip side of this theoretical contribution is that \flix, because it separates functional from logic, can reuse existing techniques for implementing and optimizing Datalog \emph{without} needing to reinvent them in a higher-order setting.
 
-Apart from this the main difference between the two is their approach to
-combining functional and relational features. Flix possibly more familiar or
-concise compared to combining both functional \& relational features into the
-same language. OTOH, Datafun approach arguably cleaner \& involves less
-duplication of features and no ceremony required when navigating between the
-two languages.
+\Flix\ and Datafun also have different approaches to monotonicity: \flix\ does not check monotonicity via types, but monotonicity is nonetheless important for the interoperation of the logical and functional fragments; functions invoked in certain positions in the logic fragment must be monotone to ensure that a fixed point exists.
+%
+To this end, a verification toolchain has been developed for \flix\ which employs SMT solving and symbolic execution to check properties including monotonicity, but also safety and soundness of static analyses~\citep{DBLP:conf/issta/MadsenL18}.
 
-Our main contribution compared to Flix is that the separation between
-functional and relational layers is unnecessary from the perspective of
-semantics and monotonicity; and a higher-order seminaive transform that also
-incidentally incrementalizes the monotone fragment of the language.
+The advantage of checking these properties with such high-powered machinery is
+that it better supports user-defined posets and semilattices: in Datafun, adding
+a new datatype with a custom ordering is a matter for the language designer, but
+a \flix\ programmer may do it for themself, if they can convince the verification machinery.
+%
+The disadvantage is that these verification techniques have behavior which is less predictable and reliable (in terms of resource usage, error message quality, and code accepted) than a compositional type-system.
+%
+Nonetheless, for certain applications such a static analysis, the use of user-defined semilattice types is highly desirable.
+%
+We believe a fruitful direction for future research would be to hybridize Datafun's monotonicity type system with lightweight verification techniques. In our ideal language, types with custom orderings would be defined in a modular, encapsulated fashion. Verification would take place inside the module, to ensure the interface it exposes has the properties (such as monotonicity) it claims, but a compositional type-system would handle code external to the module, which acts as a client of this verified interface.
 
-The flip side of this is that the separation is practically useful BECAUSE it 
-allows one to re use a good deal of work that has gone into optimizing Datalog
-evaluation, such a seminaive evaluation, without reinventing it to handle
-higher-order functions; instead, the application of user to find functions is
-limited to relatively small parts of the Datalog programs.
+\todo{discuss the wacky-cool type system they use for composing these Datalog fragments}
 
 
 \section{Incremental computation}
@@ -239,12 +246,13 @@ dx + \sum_i x_i = \sum_i
 In contrast to the dependency-graph strategy, which is fairly generic, finding
 efficient derivatives often requires taking advantage of such algebraic laws.
 %
-For instance, DBToaster \todo{does what?} using rings~\citep{dbtoaster-rings};
-Differential Dataflow uses groups~\citep{DBLP:conf/cidr/McSherryMII13}; Mario
-Alvarez-Picallo's thesis work \todo{and Semmle! sort of?} uses monoids and
-monoid actions~\citep{mario-picallo-thesis,semmle-changes}; and Datafun uses
-semilattices. \todo{I should probably cite some older database work on view
-  maintenance}
+For instance, DBToaster incrementally maintains SQL queries using
+rings~\citep{DBLP:conf/pods/Koch10,Koch:183766}; Differential Dataflow uses
+groups~\citep{DBLP:conf/cidr/McSherryMII13}; recent work on incremental Datalog
+uses monoid actions~\citep{DBLP:conf/esop/Alvarez-Picallo19}; and Datafun uses
+semilattices.
+%
+\todo{I should probably cite some older database work on view maintenance}
 
 Since finite differencing is advantageous for operations over large collections,
 but requires algebraic insight that makes it non-obvious how to apply it to
@@ -510,7 +518,6 @@ The general strategy is to rerun the original function if any of its arguments c
 %%   \name{pair}' \<(\pwild, \ctor{new}\<a) \<(\pwild, \ctor{new}\<b) = \ctor{new}\<(a, b)
 %% \end{code}
 
-
 
 \subsubsection{Caching intermediate results}
 \label{section-caching}
@@ -621,8 +628,8 @@ Recall that, to compute the fixed point of a function $f$, \fastfix\ computes th
 
 \nopagebreak[2]
 \begin{align*}
-  x_0 &= \varnothing &
-  x_{i + 1} &= x_i \cup dx_i\\
+  x_0 &= \bot &
+  x_{i + 1} &= x_i \vee dx_i\\
   dx_0 &= f \<\bot &
   dx_{i + 1} &= f' \<x_i \<dx_i
 \end{align*}
@@ -782,208 +789,208 @@ It is possible that by combining change actions with a validity relation, thus a
 \end{enumerate}
 
 
-\subsection{\todo{UNUSED FRAGMENTS, PLEASE IGNORE}}
+%% \subsection{\todo{UNUSED FRAGMENTS, PLEASE IGNORE}}
 
-In fact, it is folklore in the database community that semi\naive\ evaluation
-can be thought of as ``taking the derivative'' of Datalog rules~\todo{cite}.\todo{we've already described how we use this insight}, but it turns out to be robust enough to have another interpretation \todo{describe the work of Mario Alvarez-Picallo}
+%% In fact, it is folklore in the database community that semi\naive\ evaluation
+%% can be thought of as ``taking the derivative'' of Datalog rules~\todo{cite}.\todo{we've already described how we use this insight}, but it turns out to be robust enough to have another interpretation \todo{describe the work of Mario Alvarez-Picallo}
 
-\todo{taken from discussion of incremental \fn-calculus in POPL paper}
-%
-The motivating example of this line of work was to optimize bulk collection
-operations. However, all of the intuitions were phrased in terms of calculus --
-a change structure can be thought of as a space paired with its tangent space, a
-zero change on functions is a derivative, and so on. However, the idea of a
-derivative as a linear approximation is taken most seriously in the work on the
-differential lambda calculus~\citep{dlc}. These calculi have the beautiful
-property that the \emph{syntactic} linearity in the lambda calculus corresponds
-to the \emph{semantic} notion of linear transformation.
+%% \todo{taken from discussion of incremental \fn-calculus in POPL paper}
+%% %
+%% The motivating example of this line of work was to optimize bulk collection
+%% operations. However, all of the intuitions were phrased in terms of calculus --
+%% a change structure can be thought of as a space paired with its tangent space, a
+%% zero change on functions is a derivative, and so on. However, the idea of a
+%% derivative as a linear approximation is taken most seriously in the work on the
+%% differential lambda calculus~\citep{dlc}. These calculi have the beautiful
+%% property that the \emph{syntactic} linearity in the lambda calculus corresponds
+%% to the \emph{semantic} notion of linear transformation.
 
-Unfortunately, the intuition of a derivative has its limits. A function's
-derivative is \emph{unique}, a property which models of differential lambda
-calculi have gone to considerable length to
-enforce~\citep{differential-categories}. This is problematic from the point of
-view of semi\naive\ evaluation, since we make use of the freedom to
-overapproximate.
-%
-In \cref{section-semilattice-delta-phi}, we followed common practice from
-Datalog and took the derivative $\delta(e \vee f)$ to be $\delta(e) \vee
-\delta(f)$, which may overapproximate the change to $e \vee f$.
-%
-This spares us from having to do certain recomputations to construct set
-differences; it is not clear to what extent semi\naive\ evaluation's practical
-utility depends on this approximation.
+%% Unfortunately, the intuition of a derivative has its limits. A function's
+%% derivative is \emph{unique}, a property which models of differential lambda
+%% calculi have gone to considerable length to
+%% enforce~\citep{differential-categories}. This is problematic from the point of
+%% view of semi\naive\ evaluation, since we make use of the freedom to
+%% overapproximate.
+%% %
+%% In \cref{section-semilattice-delta-phi}, we followed common practice from
+%% Datalog and took the derivative $\delta(e \vee f)$ to be $\delta(e) \vee
+%% \delta(f)$, which may overapproximate the change to $e \vee f$.
+%% %
+%% This spares us from having to do certain recomputations to construct set
+%% differences; it is not clear to what extent semi\naive\ evaluation's practical
+%% utility depends on this approximation.
 
-\vspace{10pt}
-examples: inc lambda calculus, Semmle/MPJ/Mario Picallo paper, (briefly
-mention differential lambda-calc), IncAL/DRedL~\citep{incal}, diff datalog~\citep{DBLP:conf/cidr/McSherryMII13}
+%% \vspace{10pt}
+%% examples: inc lambda calculus, Semmle/MPJ/Mario Picallo paper, (briefly
+%% mention differential lambda-calc), IncAL/DRedL~\citep{incal}, diff datalog~\citep{DBLP:conf/cidr/McSherryMII13}
 
-neel sez: spend time comparing w inc lambda calc \& semmle/picallo/mpeytonjones paper\\
-2nd most imporant: mario's thesis \& flix
+%% neel sez: spend time comparing w inc lambda calc \& semmle/picallo/mpeytonjones paper\\
+%% 2nd most imporant: mario's thesis \& flix
 
-\todo{I have some stuff in my Neel meeting notes about this}
+%% \todo{I have some stuff in my Neel meeting notes about this}
 
-\vspace{10pt}
-\noindent
-\textbf{specific systems and how we differ from them}\nopagebreak[4]
-\begin{enumerate}[nosep]
+%% \vspace{10pt}
+%% \noindent
+%% \textbf{specific systems and how we differ from them}\nopagebreak[4]
+%% \begin{enumerate}[nosep]
 
-\item DBToaster: not sure. uses rings. recursive queries? don't think so.
+%% \item DBToaster: not sure. uses rings. recursive queries? don't think so.
 
-\item Differential dataflow (\& datalog): no concern with monotonicity, no
-  guarantee of convergence, uses groups. Impressive performance.
+%% \item Differential dataflow (\& datalog): no concern with monotonicity, no
+%%   guarantee of convergence, uses groups. Impressive performance.
 
-\item BloomL: tracks semilattice-distributivity, which makes seminaive eval easy because distributive fns are their own derivative.
+%% \item BloomL: tracks semilattice-distributivity, which makes seminaive eval easy because distributive fns are their own derivative.
 
-\item IncAL/DRedL: ???
+%% \item IncAL/DRedL: ???
 
-\item Semmle/Mario: no higher-order-ness, they handle decreasing changes. both simplify the categorical approach - him discarding multiobjectness, us discarding composition. In particular I speculate that you would need to use an arrow centred presentation of categories where there is a relation specifying source and destination of an arrow rather than a function.
-\end{enumerate}
-
-
-\subsection{Summary / Monotonic change and higher-order functions}
-
-\todo{I think this section should either be scrapped, or its contents put in a ``summary section'' at the end of the chapter.}
-%
-The most unique aspects Datafun's approach to incrementalization comes from its
-combination of Datalog and higher-order programming. From Datalog we inherit a
-concern with monotonicity: our goal is to incrementalize fixed points that increase monotonically, so we only need handle \emph{increasing} changes.
-%
-This considerably simplifies many of our derivative translations, and in
-particular prompted the use of the $\iso$ comonad, which \emph{prevents change}
--- to our knowledge, the use of types to limit change is a unique capability of
-Datafun.
-
-Because Datafun is higher-order we must also handle the possibility that \emph{functions} may change. As we have seen, monotonicity and function changes interact in interesting ways: \XXX
-
-As in \cref{section-datafun-relatives}, there are other systems that have some of these features. \XXX. Incremental \fn-calc handles change + higher-order. Bloom + IncAL(?) handle change + monotonicity. Flix has all three \emph{but} the incremental bit (seminaive eval) \& the higher-order bit are arranged to avoid interacting.
+%% \item Semmle/Mario: no higher-order-ness, they handle decreasing changes. both simplify the categorical approach - him discarding multiobjectness, us discarding composition. In particular I speculate that you would need to use an arrow centred presentation of categories where there is a relation specifying source and destination of an arrow rather than a function.
+%% \end{enumerate}
 
 
-\section{\todo{TAKEN FROM ICFP16 PAPER}}
+%% \subsection{Summary / Monotonic change and higher-order functions}
 
-\paragraph{Aggregation}
-Aggregation of values --- for example, taking the sum $\sum_{x \in A} f \;x$ of
-a function $f$ across a set $A$ --- is a useful and ubiquitous database
-operation. Datafun naturally supports \emph{semilattice} aggregation via
-$\bigvee$, but many natural operations such as summation do not form
-semilattices on their underlying type. There are several potential ways to add
-support for aggregations to Datafun:
-\begin{itemize}
-\item Common aggregations can be provided as primitive functions, for example
-  $\name{size} : \tseteq{A} \to \N$ or $\name{sum} : \iso(\eqt{A} \to \N) \to
-  \tset{\eqt{A}} \to \N$.
+%% \todo{I think this section should either be scrapped, or its contents put in a ``summary section'' at the end of the chapter.}
+%% %
+%% The most unique aspects Datafun's approach to incrementalization comes from its
+%% combination of Datalog and higher-order programming. From Datalog we inherit a
+%% concern with monotonicity: our goal is to incrementalize fixed points that increase monotonically, so we only need handle \emph{increasing} changes.
+%% %
+%% This considerably simplifies many of our derivative translations, and in
+%% particular prompted the use of the $\iso$ comonad, which \emph{prevents change}
+%% -- to our knowledge, the use of types to limit change is a unique capability of
+%% Datafun.
 
-\item In the style of Machiavelli~\citep{machiavelli}, one could add a general
-  operator $\name{hom} : B \to \iso (\iso A \to \iso B \to B) \to \iso\tset{A}
-  \to B$, which effectively linearizes a set in an unspecified order. The
-  semantics of \name{hom} are, alas, necessarily nondeterministic.
+%% Because Datafun is higher-order we must also handle the possibility that \emph{functions} may change. As we have seen, monotonicity and function changes interact in interesting ways: \XXX
 
-  \newcommand\tbag[1]{\XXX}
-\item One could augment Datafun with a type of bags (multisets) $\tbag{A}$; bags
-  naturally support a much broader class of aggregation --- commutative monoids
-  --- than sets. See, for example, \citet{multilinear-bigdata} and
-  \citet{reladj}.
-\end{itemize}
+%% %% As in \cref{section-datafun-relatives}, there are other systems that have some of these features. \XXX. Incremental \fn-calc handles change + higher-order. Bloom + IncAL(?) handle change + monotonicity. Flix has all three \emph{but} the incremental bit (seminaive eval) \& the higher-order bit are arranged to avoid interacting.
 
-\paragraph{Optimization} Because Datalog is so strongly constrained,
-there has been a lot of very successful work on optimizing it, ranging
-from compilation into binary decision diagrams~\citep{bdd} by
-\citeauthor{whaley-lam}, to the famous ``magic sets''~\citep{magicsets}
-algorithm.
+
+%% \section{\todo{TAKEN FROM ICFP16 PAPER}}
 
-From our perspective, magic sets are a natural next step for
-investigation into how to optimize Datafun. Intuitively, the magic
-sets algorithm exploits the fact that Datalog (as a total logic
-language) has both a top-down and bottom-up reading, and rewrites the
-program so that it does bottom-up search, while using top-down
-reasoning to strategically avoid adding useless facts to the
-database. Transplanting this analysis to Datafun would essentially
-give us optimized implementations of fixed points, but extending the
-magic sets algorithm is likely to be very subtle, since Datafun has
-higher-order functions and Datalog does not. As a result, our goal is
-to first see if magic sets can be applied to first-order Datafun programs,
-and then use defunctionalization~\citep{defunctionalization} to
-extend it to full Datafun.
+%% \paragraph{Aggregation}
+%% Aggregation of values --- for example, taking the sum $\sum_{x \in A} f \;x$ of
+%% a function $f$ across a set $A$ --- is a useful and ubiquitous database
+%% operation. Datafun naturally supports \emph{semilattice} aggregation via
+%% $\bigvee$, but many natural operations such as summation do not form
+%% semilattices on their underlying type. There are several potential ways to add
+%% support for aggregations to Datafun:
+%% \begin{itemize}
+%% \item Common aggregations can be provided as primitive functions, for example
+%%   $\name{size} : \tseteq{A} \to \N$ or $\name{sum} : \iso(\eqt{A} \to \N) \to
+%%   \tset{\eqt{A}} \to \N$.
 
-Very recently, \citet{flix} have introduced the Flix language, which
-extends the semantics of Datalog to support defining relations valued
-in arbitrary lattices (rather than just the powerset of atoms). Like
-Datafun, this lets Flix support using monotone functions (on suitable
-lattices) in program expressions. Unlike Datafun, Flix does not yet
-have monotonicity checking for programmer-defined operators. However,
-because Flix does not extend Datalog to higher order, efficient
-Datalog implementation strategies (such as semi-naive evaluation)
-continue to apply.
+%% \item In the style of Machiavelli~\citep{machiavelli}, one could add a general
+%%   operator $\name{hom} : B \to \iso (\iso A \to \iso B \to B) \to \iso\tset{A}
+%%   \to B$, which effectively linearizes a set in an unspecified order. The
+%%   semantics of \name{hom} are, alas, necessarily nondeterministic.
 
-\paragraph{Deletion} \citet{logical-algorithms} showed how
-forward-chaining logic programming permits concise and elegant
-expression of a wide variety of algorithms, including a natural cost
-semantics. However, they noted that there were some algorithms (such
-as union-find and greedy algorithms) which could be formulated in this
-style, \emph{if} there were additionally support for deleting facts
-from a database. Later, \citet{linear-logical-algorithms} went on to
-show how deletion could be given a logical interpretation by
-formulating in terms of linear logic programming.
+%%   \newcommand\tbag[1]{\XXX}
+%% \item One could augment Datafun with a type of bags (multisets) $\tbag{A}$; bags
+%%   naturally support a much broader class of aggregation --- commutative monoids
+%%   --- than sets. See, for example, \citet{multilinear-bigdata} and
+%%   \citet{reladj}.
+%% \end{itemize}
 
-This naturally raises the question of whether we could identify a
-``linear Datafun'' corresponding to this style of programming, where
-we might linear types to model features like deletion. There are many
-nontrivial semantic issues (e.g., how to define monotonicity), but
-it seems a promising question for future work.
+%% \paragraph{Optimization} Because Datalog is so strongly constrained,
+%% there has been a lot of very successful work on optimizing it, ranging
+%% from compilation into binary decision diagrams~\citep{bdd} by
+%% \citeauthor{whaley-lam}, to the famous ``magic sets''~\citep{magicsets}
+%% algorithm.
 
-\paragraph{Termination}
+%% From our perspective, magic sets are a natural next step for
+%% investigation into how to optimize Datafun. Intuitively, the magic
+%% sets algorithm exploits the fact that Datalog (as a total logic
+%% language) has both a top-down and bottom-up reading, and rewrites the
+%% program so that it does bottom-up search, while using top-down
+%% reasoning to strategically avoid adding useless facts to the
+%% database. Transplanting this analysis to Datafun would essentially
+%% give us optimized implementations of fixed points, but extending the
+%% magic sets algorithm is likely to be very subtle, since Datafun has
+%% higher-order functions and Datalog does not. As a result, our goal is
+%% to first see if magic sets can be applied to first-order Datafun programs,
+%% and then use defunctionalization~\citep{defunctionalization} to
+%% extend it to full Datafun.
 
-Datafun as presented is Turing-incomplete. This is advantageous for
-optimization; for example, one powerful optimization technique is \emph{loop
-  reordering} (in SQL terminology, \emph{join reordering}), that is, taking
-advantage of the equation
-\begin{eqnarray*}
-  \efor{x \in e_1} \efor{y \in e_2} e
-  &=& \efor{y \in e_2} \efor{x \in e_1} e
-\end{eqnarray*}
-when $x,y \notin \name{FV}(e_1) \cup \name{FV}(e_2)$. But this equation does not
-always hold in the presence of nontermination; for example, if $e_1 = ()$ and
-$e_2$ diverges.
+%% Very recently, \citet{flix} have introduced the Flix language, which
+%% extends the semantics of Datalog to support defining relations valued
+%% in arbitrary lattices (rather than just the powerset of atoms). Like
+%% Datafun, this lets Flix support using monotone functions (on suitable
+%% lattices) in program expressions. Unlike Datafun, Flix does not yet
+%% have monotonicity checking for programmer-defined operators. However,
+%% because Flix does not extend Datalog to higher order, efficient
+%% Datalog implementation strategies (such as semi-naive evaluation)
+%% continue to apply.
 
-Nonetheless, without adding advanced facilities for termination
-checking, there are many functions it is difficult to implement
-without use of general recursion. So a natural direction for future
-work is to study how to add support for general recursion to Datafun.
-Because domains~\citep{domain-theory} can be understood as partial
-orders with directed joins, there are likely many interesting
-categorical structures connecting the category of domains to the
-category of posets, some of which will hopefully lead to a principled
-type-theoretic integration of partial functions into Datafun.
+%% \paragraph{Deletion} \citet{logical-algorithms} showed how
+%% forward-chaining logic programming permits concise and elegant
+%% expression of a wide variety of algorithms, including a natural cost
+%% semantics. However, they noted that there were some algorithms (such
+%% as union-find and greedy algorithms) which could be formulated in this
+%% style, \emph{if} there were additionally support for deleting facts
+%% from a database. Later, \citet{linear-logical-algorithms} went on to
+%% show how deletion could be given a logical interpretation by
+%% formulating in terms of linear logic programming.
 
-\paragraph{User-Defined Posets and Semilattices}
-The two fundamental semilattice types Datafun provides are booleans and sets;
-products and functions merely preserve semilattice structure where they find it.
-One might contemplate allowing the programmer to define their own semilattice
-structures using something like Haskell's \texttt{newtype}/\texttt{instance}. In
-general, this is a difficult problem, because we may need to do serious
-mathematical reasoning to prove that a comparison function implements a partial
-ordering, or that a datatype can be equipped with a semilattice structure
-obeying this partial ordering which is commutative, associative and idempotent.
+%% This naturally raises the question of whether we could identify a
+%% ``linear Datafun'' corresponding to this style of programming, where
+%% we might linear types to model features like deletion. There are many
+%% nontrivial semantic issues (e.g., how to define monotonicity), but
+%% it seems a promising question for future work.
 
-One example of such a family of types are the \emph{lexicographic sum
-  types}. Given two posets $P$ and $Q$, their disjoint union $P + Q$
-is also a poset, with left values compared by the $P$-ordering, and
-right values compared by the $Q$-ordering, and no ordering between
-left and right values. However, this is not the only way that the
-disjoint union could be equipped with an order structure.
+%% \paragraph{Termination}
 
-For example, we could define the \emph{lexicographic} sum $P +_< Q$,
-which has the same elements as the sum, but extending the coproduct order
-relation with the additional facts that $\name{in}_1(p) \leq \name{in}_2(q)$.
-Indeed, we already have a special case of this: as we noted earlier, our boolean
-type is not $1 + 1$, but it \emph{is} $1 +_< 1$.
+%% Datafun as presented is Turing-incomplete. This is advantageous for
+%% optimization; for example, one powerful optimization technique is \emph{loop
+%%   reordering} (in SQL terminology, \emph{join reordering}), that is, taking
+%% advantage of the equation
+%% \begin{eqnarray*}
+%%   \efor{x \in e_1} \efor{y \in e_2} e
+%%   &=& \efor{y \in e_2} \efor{x \in e_1} e
+%% \end{eqnarray*}
+%% when $x,y \notin \name{FV}(e_1) \cup \name{FV}(e_2)$. But this equation does not
+%% always hold in the presence of nontermination; for example, if $e_1 = ()$ and
+%% $e_2$ diverges.
 
-But as our Booleans already show, giving good syntax for their
-eliminators is difficult, because we have to show that not just a term
-is monotone, but that the different branches of a lexicographic case
-expression are ordered with respect to \emph{each other}. For the case
-of ordered Booleans, we were able to give a special eliminator which
-guaranteed it, but in general it requires proof.
+%% Nonetheless, without adding advanced facilities for termination
+%% checking, there are many functions it is difficult to implement
+%% without use of general recursion. So a natural direction for future
+%% work is to study how to add support for general recursion to Datafun.
+%% Because domains~\citep{domain-theory} can be understood as partial
+%% orders with directed joins, there are likely many interesting
+%% categorical structures connecting the category of domains to the
+%% category of posets, some of which will hopefully lead to a principled
+%% type-theoretic integration of partial functions into Datafun.
 
-One natural direction for future work is to extend the syntax of
-Datafun with support for these kinds of proofs, perhaps taking
-inspiration from dependent type theory.
+%% \paragraph{User-Defined Posets and Semilattices}
+%% The two fundamental semilattice types Datafun provides are booleans and sets;
+%% products and functions merely preserve semilattice structure where they find it.
+%% One might contemplate allowing the programmer to define their own semilattice
+%% structures using something like Haskell's \texttt{newtype}/\texttt{instance}. In
+%% general, this is a difficult problem, because we may need to do serious
+%% mathematical reasoning to prove that a comparison function implements a partial
+%% ordering, or that a datatype can be equipped with a semilattice structure
+%% obeying this partial ordering which is commutative, associative and idempotent.
+
+%% One example of such a family of types are the \emph{lexicographic sum
+%%   types}. Given two posets $P$ and $Q$, their disjoint union $P + Q$
+%% is also a poset, with left values compared by the $P$-ordering, and
+%% right values compared by the $Q$-ordering, and no ordering between
+%% left and right values. However, this is not the only way that the
+%% disjoint union could be equipped with an order structure.
+
+%% For example, we could define the \emph{lexicographic} sum $P +_< Q$,
+%% which has the same elements as the sum, but extending the coproduct order
+%% relation with the additional facts that $\name{in}_1(p) \leq \name{in}_2(q)$.
+%% Indeed, we already have a special case of this: as we noted earlier, our boolean
+%% type is not $1 + 1$, but it \emph{is} $1 +_< 1$.
+
+%% But as our Booleans already show, giving good syntax for their
+%% eliminators is difficult, because we have to show that not just a term
+%% is monotone, but that the different branches of a lexicographic case
+%% expression are ordered with respect to \emph{each other}. For the case
+%% of ordered Booleans, we were able to give a special eliminator which
+%% guaranteed it, but in general it requires proof.
+
+%% One natural direction for future work is to extend the syntax of
+%% Datafun with support for these kinds of proofs, perhaps taking
+%% inspiration from dependent type theory.
