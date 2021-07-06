@@ -1,14 +1,17 @@
 \chapter{Related work}
 
-Over and above a laundry list of related papers and theses, our goal in this chapter is to give the reader a mental map of the surrounding research terrain and the many choices and trade-offs \XXX.
+\todo{maybe include some sort of intro here?}
 
-%% Our goal is to give the reader a mental map of the surrounding areas, rather than merely a laundry list of related research.
-
-\noindent\todo{More stuff to include?:}
+\noindent\todo{More stuff to include if I have time:}
 \begin{enumerate}[nosep]
 \item tabling in Prolog -- connects to incremental \& semilattice stuff? if i find the right papers?
 \item miscellany: miniKanren, formulog
+\item comparison with Dyna
 \end{enumerate}
+
+%% Over and above a laundry list of related papers and theses, our goal in this chapter is to give the reader a mental map of the surrounding research terrain and the many choices and trade-offs \XXX.
+
+%% Our goal is to give the reader a mental map of the surrounding areas, rather than merely a laundry list of related research.
 
 %% \vspace{10pt}\noindent
 %% \textbf{Computational pattern:} fixed points of monotone maps on semilattices satisfying the ascending chain condition.
@@ -125,10 +128,7 @@ Although both of these are clearly related to Datafun's goals, neither includes 
 \subsection{Flix}
 \label{section-flix}
 
-\todo{cite the more recent flix work on first-class datalog rules}
-
-%% \Flix~\citep{flix} and Datafun have similar goals. 
-\Flix~\citep{flix} and Datafun both augment Datalog with higher-order functional programming and semilattice types,  but they go about this merger of logic and functional programming in different ways. Datafun embeds Datalog's semantics into a functional language by adding first-class support for finite sets and monotone fixed points, ensuring monotonicity via a custom type system. \Flix, however, is really two languages in a trenchcoat -- one logical and Datalog-inspired, the other functional -- which interoperate closely: the logic fragment can use semilattices whose merge functions are defined in the functional fragment, and with a recent extension~\citep{DBLP:journals/pacmpl/MadsenL20} the functional fragment can manipulate first-class values representing groups of logic-fragment rules (``Datalog constraints'') which can be composed and evaluated at run-time.
+\Flix~\citep{flix} and Datafun both augment Datalog with higher-order functional programming and semilattice types,  but they go about this merger of logic and functional programming in different ways. Datafun embeds Datalog's semantics into a functional language by adding first-class support for finite sets and monotone fixed points, ensuring monotonicity via a custom type system. \Flix, however, is really two languages in a trenchcoat -- one logical and Datalog-inspired, the other functional. These language halves interoperate closely: the logic fragment can use semilattices whose merge functions are defined in the functional fragment, and with a recent extension~\citep{DBLP:journals/pacmpl/MadsenL20} the functional fragment can manipulate first-class values representing groups of logic-fragment rules (``Datalog constraints'') which can be composed and evaluated at run-time.
 
 Our main contribution compared to \flix\ is that this separation between
 functional and logic layers is unnecessary; they can be smoothly integrated by
@@ -141,16 +141,16 @@ The practical flip side of this theoretical contribution is that \flix, because 
 
 \Flix\ and Datafun also have different approaches to monotonicity: \flix\ does not check monotonicity via types, but monotonicity is nonetheless important for the interoperation of the logical and functional fragments; functions invoked in certain positions in the logic fragment must be monotone to ensure that a fixed point exists.
 %
-To this end, a verification toolchain has been developed for \flix\ which employs SMT solving and symbolic execution to check properties including monotonicity, but also safety and soundness of static analyses~\citep{DBLP:conf/issta/MadsenL18}.
+To this end, a verification toolchain has been developed for \flix\ which employs SMT solving and symbolic execution to check properties, including monotonicity but also safety and soundness of static analyses~\citep{DBLP:conf/issta/MadsenL18}.
 
 The advantage of checking these properties with such high-powered machinery is
 that it better supports user-defined posets and semilattices: in Datafun, adding
 a new datatype with a custom ordering is a matter for the language designer, but
 a \flix\ programmer may do it for themself, if they can convince the verification machinery.
 %
-The disadvantage is that these verification techniques have behavior which is less predictable and reliable (in terms of resource usage, error message quality, and code accepted) than a compositional type-system.
+The disadvantage is that these verification techniques have more ``black-box'' behavior; they are less predictable and reliable (in terms of resource usage, error message quality, and code accepted) than a compositional type-system.
 %
-Nonetheless, for certain applications such a static analysis, the use of user-defined semilattice types is highly desirable.
+Nonetheless, for certain applications such as static analysis, the use of user-defined semilattice types is highly desirable.
 %
 We believe a fruitful direction for future research would be to hybridize Datafun's monotonicity type system with lightweight verification techniques. In our ideal language, types with custom orderings would be defined in a modular, encapsulated fashion. Verification would take place inside the module, to ensure the interface it exposes has the properties (such as monotonicity) it claims, but a compositional type-system would handle code external to the module, which acts as a client of this verified interface.
 
