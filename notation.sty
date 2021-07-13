@@ -19,9 +19,10 @@
 \usepackage{calc}               % \widthof
 \usepackage[inline]{enumitem}   % \setlist, [inline] -> enumerate*
 \usepackage{pifont}             % \ding{55}
+\usepackage[final]{pdfpages}
 %% \usepackage{subcaption}        % for complex figures with subfigures/subcaptions
 % \usepackage{printlen}           % \printlength, DEBUGGING ONLY
-\usepackage{lipsum}             % \lipsum, DEBUGGING ONLY
+% \usepackage{lipsum}             % \lipsum, DEBUGGING ONLY
 
 \hyphenation{semi-na\"ive} % TODO necessary? does it work?
 \hyphenation{hypo-the-ses}
@@ -68,14 +69,21 @@
 
 %% ---------- todo commands ----------
 \newcommand\todocolor{\color{OrangeRed}}
-%\newcommand\todowarn[1]{\PackageWarning{notation}{TODO}{\todocolor #1}}
 \newcommand\warntodo[2]{%
-  %\PackageWarning{notation}{TODO: #1}% TODO fix TODOs
+  \PackageWarning{todo}{#1}% TODO fix TODOs
   {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
 \newcommand\todo[1]{\warntodo{#1}{#1}}
 %\newcommand\XXX{\PackageWarning{notation}{XXX}\textsf{\bfseries\todocolor XXX}}
 \newcommand\XXX{\warntodo{XXX}{XXX}}
+
+\newcommand\todolater[1]{%
+  {\color{Lavender}\ensuretext{\bfseries\sffamily[{#1}]}}}
+\newcommand\footnotelater[1]{%
+  \footnote{\color{Lavender}\bfseries\sffamily{#1}}}
+
+%% \renewcommand\todolater[1]{}
+%% \renewcommand\footnotelater[1]{}
 
 
 %% ---------- Environments ----------
@@ -394,15 +402,15 @@
 %% more surface syntax
 \newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
 \renewcommand\ewhen[1]{%\PackageWarning{notation}{don't use ewhen}{}%
-\todo{\kw{when}}}
+\warntodo{don't use ewhen}{\kw{when}}}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}
 
 %% deprecated syntax
 \newcommand\efix{%\PackageWarning{notation}{don't use efix}{}
-  \todo{\prim{fix}}\<}
+  \warntodo{don't use efix}{\prim{fix}}\<}
 \newcommand\isofixLtoL{%\PackageWarning{notation}{don't use isofixLtoL}%
-  \todo{$\iso(\kernfixtL \to \fixtLkern)$}}
+  \warntodo{don't use isofixLtoL}{$\iso(\kernfixtL \to \fixtLkern)$}}
 
 
 %% ===== Contexts and typing judgments =====

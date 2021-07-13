@@ -161,6 +161,7 @@ send substitutions to themselves, recalling that $\stripcx{\G}$ contains only th
 discrete variables from $\G$.
 
 \begin{restatable}[Discrete contexts don't change]{lemma}{DiscreteContexts}
+  \label{lemma-discrete-contexts}
   If $\weirdat{\stripcx{\G}}{\tuple{}}{\gamma}{\rho}{\gamma'}{\rho'}$ then
   $\gamma = \gamma'$ and $\rho = \rho'$.
 \end{restatable}
@@ -176,6 +177,7 @@ We use this lemma in combination with the next, which says that any valid
 context change gives rise to a valid change on a stripped context:
 
 \begin{restatable}[Context stripping]{lemma}{ContextStripping}
+  \label{lemma-context-stripping}
   If $\weirdat{\G}{\dgamma}{\gamma}{\rho}{\gamma'}{\rho'}$
   then
 
@@ -194,7 +196,7 @@ context change gives rise to a valid change on a stripped context:
 \end{restatable}
 
 \begin{restatable}{proof}{ContextStrippingProof}
-  Immediate from the definitions. \todo{shouldn't I be a little more explicit?}
+  Immediate from the definitions. \todolater{be more explicit in the proof of context stripping}
 \end{restatable}
 
 \noindent

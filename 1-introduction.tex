@@ -51,7 +51,7 @@ are exactly the checked nodes.
 
 \begin{figure}[pth]
   \centering
-  \XXX
+  \todo{graph reachability figure}
   \caption{Graph reachability}
   \label{figure-reachability}
 \end{figure}
@@ -93,7 +93,7 @@ Once no shortening edges exist, the annotations $d_v$ cannot change, and we are 
 
 \begin{figure}[pth]
   \centering
-  \XXX
+  \todo{shortest paths figure}
   \caption{Shortest paths}
   \label{figure-shortest-paths}
 \end{figure}
@@ -408,7 +408,8 @@ hold -- perhaps there are infinitely many deducible facts? To answer this
 question, we must consider what differentiates Datalog from other logic
 programming languages.
 
-\todo{INCLUDE DATALOG BY EXAMPLE SECTION?}
+\todolater{include datalog by example section?}
+
 
 %% \subsection{Datalog by example}
 
@@ -582,7 +583,7 @@ for unknown $X_3$, and so on and on interminably.%
 Datalog takes a different tack: rather than fix a proof search strategy, it
 imposes limitations that keep proof search decidable. In particular, ignoring
 for now the issue of negation, it imposes two restrictions which keep all
-\todo{haven't explained the word relation} relations finite:
+\todo{haven't explained what relation means} relations finite:
 
 \begin{enumerate}
 \item Clauses are \emph{range-restricted:} all variables in the conclusion of a
@@ -629,7 +630,7 @@ predicates are finite, we guarantee forward-chaining deduction terminates.%
 %
 \footnote{\todo{talk about tabling, as a mixture of forward- and backward-chaining}}
 
-\todo{missing a segue here}
+\todolater{missing a segue here}
 
 
 \subsection{Stratified negation}
@@ -679,7 +680,7 @@ The symmetry of our program makes answering either
 \emph{Rochester} or \emph{St John} unprincipled, and \emph{both} is simply
 not deriveable from the given rules.%
 %
-\footnote{\todo{talk about answer-set programming?}}
+\footnotelater{talk about answer-set programming?}
 
 Thus, unlike the preceding restrictions, stratified negation is not about
 finiteness or decidability; rather, it is motivated by interpreting a program
@@ -760,7 +761,9 @@ But this violates the condition that our state -- the set of derived atoms -- gr
 %% general Datalog is a natural fit for graph-oriented questions.
 %% %
 
-Datalog has been successfully applied in various domains: for business analytics~\todo{cite: LogicBlox}, as a general purpose database query language~\todo{datomic, datascript}, in network protocols~\todo{OverLog, ???}, and for implementing distributed systems algorithms~\todo{dedalus,bloom}.
+\todolater{mine https://flix.dev/paper/oopsla2020a.pdf intro for more examples of uses of Datalog. overlog/ndlog?}
+
+Datalog has been successfully applied in various domains: for business analytics~\citep{logicblox}, as a general purpose database query language~\citep{datomic}, in network protocols~\citep{DBLP:journals/cacm/LooCGGHMRRS09,dedalus}, and for implementing distributed systems algorithms~\citep{bloom,DBLP:conf/cloud/ConwayMAHM12}.
 %
 But probably Datalog's most significant real-world adoption has been as a tool for scalable static analysis.
 
@@ -784,18 +787,20 @@ If $\atom{flows}{L_1, L_2}$ means that line $L_1$ may transfer control to $L_2$,
 and $\atom{assigns}{L, V}$ means that line $L$ assigns to variable $V$, the
 above defines $\atom{reaches}{L_{\textsf{dest}}, V, L_{\textsf{src}}}$
 to mean that the assignment to $V$ at line $L_{\textsf{src}}$ may reach
-$L_{\textsf{dest}}$. \todo{maybe also use points-to analysis as an example?}
+$L_{\textsf{dest}}$. \todolater{maybe also use points-to analysis as an example?}
 
 Datalog's fluency at defining static analyses is not limited to toy examples.
 %
 For instance, it has been successfully commercialized by Semmle, a company which
-uses a custom in-house Datalog dialect \& engine \todo{citation} to do static
+uses a custom in-house Datalog dialect \& engine~\citep{DBLP:conf/ecoop/AvgustinovMJS16} to do static
 analysis on large codebases to find potential security vulnerabilities -- in
 particular variant analysis, which searches for variants of previously
 discovered issues.
 %
 Their system has been used on NASA's Curiosity Rover, at Microsoft, and at the
-Nasdaq stock exchange company, among others\todo{citations}.
+Nasdaq stock exchange company, among others.
+%
+\todolater{provide some citations for semmle's use cases~\citep{semmle-nasdaq}. Use footnotes with links instead of putting it in the bibliography.}
 %
 %% Freely available to open source projects on github -- evidence for scalability
 
@@ -805,11 +810,11 @@ Nasdaq stock exchange company, among others\todo{citations}.
 %% https://semmle.com/case-studies/semmle-microsoft-vulnerability-hunting 
 %% https://msrc-blog.microsoft.com/2018/08/16/vulnerability-hunting-with-semmle-ql-part-1/
 
-On the academic side, \todo{explain}
-bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}.
+On the academic side, \todo{explain
+bddbddb}~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}.
 
 Building on this, the \textsc{Doop} project implements a state-of-the-art
-points-to analysis for Java code entirely in Datalog~\todo{citations}.
+points-to analysis for Java code entirely in Datalog~\citep{DBLP:conf/oopsla/BravenboerS09}.
 %
 In a testimonial of sorts for the application of Datalog to static analysis,
 \citet{DBLP:conf/datalog/SmaragdakisB10} give several reasons why they found
@@ -907,10 +912,10 @@ drawbacks. As mentioned previously, one weakness of forward chaining is that it
 is undirected, deducing everything it can. If all we care about is the result of
 a fairly narrow query, this can waste a lot of effort. Although various
 optimizations and alternative evaluation strategies such as magic sets, tabling,
-and QSQR~\todo{citations} exist to address this problem, in static analysis this
-eager approach is par for the course: we generally do wish to analyse the whole
-program, whether for optimization or for bug-finding purposes. \todo{this is not
-  entirely convincing.}
+and QSQR~\todo{citations for magic sets, tabling, QSQR} exist to address this
+problem, in static analysis this eager approach is par for the course: we
+generally do wish to analyse the whole program, whether for optimization or for
+bug-finding purposes. \todolater{this is not entirely convincing.}
 
 %% \todo{I should also mention that static analysis blunts one of forward chaining's primary drawbacks: it computes everything. But in static analysis this is par for the course, analyzing the whole program is the point.}
 
@@ -918,12 +923,11 @@ program, whether for optimization or for bug-finding purposes. \todo{this is not
 \section{What Datalog can't do}
 
 In \cref{section-datalog} we discussed Datalog's semantics and the deliberate
-restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider five things which Datalog does not support and why you might want them:
+restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider four things which Datalog does not support and why you might want them:
 \begin{enumerate*}[label=({\arabic*})]
   \item functional abstraction,
   \item semilattices other than set union,
-  \item aggregations,
-  \item arithmetic and other functions, and
+  \item arithmetic and aggregations, and
   \item compound data.
 \end{enumerate*}
 
@@ -976,7 +980,7 @@ We have shown how to define reachability and reaching-definitions in Datalog.
 What about our second example, single-source shortest paths? A naive approach at
 expressing this in Datalog might look like this:
 
-\todo{maybe rename this pathWithDistance and talk about how we can't make it find just shortest paths; mention the distance semilattice from the example again here}
+\todolater{maybe rename this pathWithDistance and talk about how we can't make it find just shortest paths; mention the distance semilattice from the example again here}
 
 \begin{datalog}
   \atom{shortest}{\datum{start}, 0}.\\
@@ -991,7 +995,8 @@ The immediate issue here is the use of the infinite relation $D_1 + D_2 = D_3$;
 recall that infinite relations can cause a problem for a forward-chaining
 evaluator. However, in this case $D_1$ and $D_2$ are supplied by the first two
 premises, and together these allow computing $D_3$.%
-\footnote{\splittodo{Cite Mistral Contrastin's work}{ on dataflow/mode systems for Datalog?}}
+%
+\footnotelater{Cite Mistral Contrastin's work on dataflow/mode systems for Datalog?}
 %
 The deeper problem is that, despite its name, $\atom{shortest}{X, D}$ finds
 \emph{all} distances $D$ from \datum{start} to $X$ rather than only the
@@ -1004,23 +1009,30 @@ distance $D$ in $\atom{shortest}{X,D}$, should be combined using a different
 strategy. This puts any computation using a custom semilattice out of reach.
 This particularly impacts Datalog's application to static analysis, where custom
 semilattices are frequently used to represent carefully-chosen approximations of
-the full set of values an expressions or variables may take on -- e.g. numeric
-intervals under approximate union, polyhedra, \todo{more! cite!}.
-%% \todo{abstract interpretation, other semilattices}.
-
-\todo{maybe use constant analysis as an example?}
-
-
-\subsection{Aggregations}
-
-\splittodo{aggregations.}{First, point out that minimum is a form of aggregation, so aggregations might also put shortest paths in reach. However, not all aggregations are semilattice joins. In particular, aggregations in general may or may not be monotone. So this raises both syntactic, semantic, and operational concerns.}
+the full set of values an expressions or variables may take on -- for instance,
+``flat'' lattices for constant propagation, or numeric intervals (or for
+multiple variables, convex polyhedra) under convex hull and intersection.
+%
+\todolater{more examples and citations? maybe use constant analysis as an example?}
 
 
-\subsection{Arithmetic and other functions}
+\subsection{Arithmetic, user-defined functions, and aggregation}
 
-\todo{arithmetic.}{ Although adding these things to Datalog is not a difficult extension to implement in a forward-chaining evaluator, and consequently almost everybody does it, it does seem to give up our semantics, as we saw with shortest paths: adding arithmetic invalidated our termination guarantee}
+Pure Datalog does not permit using arithmetic or other functions.
+%
+Although it is not difficult to extend a forward-chaining Datalog evaluator with support for these, and consequently almost everybody does so, this sacrifices Datalog's termination guarantee, as we saw with shortest paths.
+%
+Even more problematic is support for aggregations, without which arithmetic by itself is of limited use.
+%
+We also saw the need for aggregation in our shortest paths example: after calculating the lengths of various paths to the same node, we need to aggregate them and keep only their minimum.
 
-\XXX
+In this example, our desired aggregation forms a semilattice; when we speak of adding support for other semilattices to Datalog, in some sense what we mean is adding support for semilattice aggregations.
+%
+Semilattice aggregations are particularly well-behaved: they are automatically monotone, and thus the ascending chain condition provides sufficient conditions for their termination.
+%
+However, not all useful aggregations form semilattices; for instance summing or averaging do not.
+%
+Aggregations like this may or may not be monotone depending upon the order involved. Thus adding aggregations without careful restrictions can invalidate Datalog's least-fixed-point semantics.
 
 
 \subsection{Compound data}

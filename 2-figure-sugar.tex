@@ -54,11 +54,14 @@
     \\
     \elet{\pboxtuple{x, y} = e} f
     &\desugars
+    %% \eletbox{\color{fresh} z}{e}
+    %% \sub{f}{
+    %%   \subto{\dvar x}{\eiso{\pi_1\<\dvar z}},\,
+    %%   \subto{\dvar y}{\eiso{\pi_2\<\dvar z}}
     \eletbox{\color{fresh} z}{e}
-    \sub{f}{
-      \subto{\dvar x}{\eiso{\pi_1\<\dvar z}},\,
-      \subto{\dvar y}{\eiso{\pi_2\<\dvar z}}
-    }
+    \eletbox x {\ebox{\pi_1\<z}}
+    \eletbox \dx {\ebox{\pi_2\<z}}
+    f
     \\
   %% \end{align*}
   %% \begin{align*}

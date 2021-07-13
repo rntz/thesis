@@ -915,8 +915,221 @@ in the text. \todo{But maybe it should be?}
 
 
 \nextlemma
+\begin{lemma}[Applying box]
+  \label{lemma-applying-box}
+  %
+  Given $\J e {\stripcx\Gamma} A$ and $\gamma : \den{\Gamma}$,
+  \[
+  \den{\ebox{e}} \<\gamma
+  = \mkbox_\Gamma(\den{e})(\gamma)
+  = \den{e} \<(\morphstrip_\Gamma(\gamma))
+  \]
+\end{lemma}
+
+\begin{proof}
+  Recall that the box comonad \iso's functorial action, duplication map $\delta_A : \iso A \to \iso\iso A$, and distribution $\isox : \prod_i\iso A_i \to \iso\prod_i A_i$ are all no-ops. Then:
+  
+  \begin{align*}
+    \den{\ebox{e}} \<\gamma
+    &= \mkbox_\Gamma(\den{e})(\gamma)
+    && \textsf{definition of}~\den{\ebox{e}}\\
+    &= \iso\den{e}(\isox(\delta_A(\gamma_{\dvar x})_{\hd x A \in \Gamma}))
+    && \textsf{definition of}~\mkbox\\
+    &= \den{e}(\gamma_{\dvar x})_{\hd x A \in \Gamma}
+    && \textsf{no-ops}\\
+    &= \den{e}(\morphstrip_\Gamma(\gamma))
+    && \textsf{definition of \morphstrip}
+  \end{align*}
+\end{proof}
+
+
+\nextlemma
 \SeminaiveFundamental*
 \begin{proof}
   \label{proof-seminaive-fundamental}
-  \todo{prove fundamental property for phi and delta}
+  By induction on the derivation of $\J e \Gamma A$.
+  %
+  We will refer to the other premise $\weirdat\Gamma\dgamma\gamma\rho{\gamma'}{\rho'}$ as simply ``the assumption''.
+  %
+  I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
+
+  \begin{description}
+
+    %% CASE: FIX
+  \item[Case $\infer{
+      \J e {\Gamma, \hm x {\fixt L}} {\fixt L}
+    }{
+      \J{\efixis x e}\Gamma {\fixt L}
+    }$]
+      Recall that
+      \begin{align*}
+        \phi(\efixis x e)
+        &= \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
+        \\
+        \delta(\efixis x e) &= \bot
+        \\
+        \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
+        \\
+        \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+      \end{align*}
+
+      \XXX
+
+    %% CASE: BOX INTRODUCTION
+  \item[Case $\infer{
+      \J e {\stripcx{\Gamma}} A
+    }{
+      \J{\ebox{e}}{\Gamma}{\iso A}
+    }$,\, 
+    $\phi \ebox e = \ebox{\etuple{\phi e, \delta e}}$,\, 
+    $\delta \ebox e = \etuple{}$.
+  ]~\\
+
+    \noindent
+    For brevity, let
+    \begin{align*}
+       \gamma_s &= \morphstrip_{\Phi\Gamma}(\gamma) &
+       \gamma_s' &= \morphstrip_\Gamma(\gamma') &
+       \rho_s &= \morphstrip_{\Phi\Gamma}(\rho) &
+       \rho_s' &= \morphstrip_\Gamma(\rho')
+    \end{align*}
+
+    By applying \cref{lemma-context-stripping} to our assumption, we have
+%
+    \begin{equation}\label{equation-strip-valid}
+    \weirdat{\Gamma}{()}{\gamma_s}{\rho_s}{\gamma_s'}{\rho_s'}
+    \end{equation}
+
+    \noindent
+    By applying \cref{lemma-discrete-contexts} we further know
+
+    \begin{equation}\label{equation-strip-equal}
+      \gamma_s = \gamma_s' \quad\text{and}\quad \rho_s = \rho_s'
+    \end{equation}
+
+    \noindent
+    We wish to show:
+%
+    \[
+    \weirdat{\iso A}
+            {\den{\etuple{}} \<(\gamma, \dgamma)}
+            {\den{\ebox{\etuple{\phi e, \delta e}}} \<\gamma}
+            {\den{\ebox e} \<\rho}
+            {\den{\ebox{\etuple{\phi e, \delta e}}} \<\gamma'}
+            {\den{\ebox e} \<\rho'}
+    \]
+
+    Applying \cref{lemma-applying-box} and further simplifying, this is equivalent to:
+%
+    \begin{equation*}
+    \weirdat{\iso A}
+            {()}
+            {(\den{\phi e} \<\gamma_s,\, \den{\delta e} \<\gamma_s)}
+            {\den{e} \<\rho_s}
+            {(\den{\phi e} \<\gamma_s,\, \den{\delta e} \<\gamma_s)}
+            {\den{e} \<\rho_s}
+    \end{equation*}
+
+    \noindent
+    Applying the definition of the logical relation at $\iso A$, this requires that $\den{e}\<\rho_s = \den{e}\<\rho_s'$ and $\den{\phi e}\<\gamma_s = \den{\phi e}\<\gamma_s'$ and $\den{\delta e}\<\gamma_s = \den{\delta e}\<\gamma_s'$, which hold by \cref{equation-strip-equal}, and that:
+%
+    \[
+    \weirdat{A}
+            {\den{\delta e}\<\gamma_s}
+            {\den{\phi e}\<\gamma_s}
+            {\den{e}\<\rho_s}
+            {\den{\phi e}\<\gamma_s'}
+            {\den{e}\<\rho_s'}
+    \]
+%
+    which follows from our inductive hypothesis applied to \cref{equation-strip-valid}.
+
+    %% CASE LET BOX
+  \item[Case $\infer{
+      \J e \Gamma {\iso A}\\
+      \J f {\Gamma, \hd x A} B
+    }{
+      \J{\eletbox x e f} \Gamma B
+    }$.]
+    Observe that
+    \begin{align*}
+    \phi(\eletbox x e f) &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f\\
+    \delta(\eletbox x e f) &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
+    \end{align*}
+
+    Further observe that
+
+    \begin{equation*}
+      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f} \<\gamma
+      =
+      \den{\phi f} \<(\gamma,\, x,\, dx)
+    \end{equation*}
+
+    \noindent
+    and likewise for $\delta f$ in place of $\phi f$ and/or $\gamma'$ in place of $\gamma$.
+%
+    For brevity, let
+    \begin{align*}
+      x, dx &= \den{\phi e}\<\gamma &
+      x', dx' &= \den{\phi e}\<\gamma'\\
+      a &= \den{e}\<\rho &
+      a' &= \den{e}\<\rho'
+    \end{align*}
+
+    Using this observation and these abbreviations, we have
+%
+    \begin{align*}
+      \den{\eletbox x e f} \<\rho &= \den{f}\<(\rho, a)
+      \\
+      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f} \<\gamma
+      &= \den{\phi f}\<(\gamma, x, dx)
+      \\
+      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f} \<\gamma
+      &= \den{\delta f}\<(\gamma, x, dx)
+    \end{align*}
+%
+    and likewise for $\gamma', \rho'$. Then what we wish to show is that
+%
+    \[
+    \weirdat B
+             {\den{\delta f}\<(\gamma, x, dx)}
+             {\den{\phi f}\<(\gamma, x, dx)}
+             {\den{f}\<(\rho, a)}
+             {\den{\phi f}\<(\gamma', x', dx')}
+             {\den{f}\<(\rho', a')}
+    \]
+
+    \noindent
+    By our inductive hypothesis for $f$, it suffices to show that
+%
+    \[\weirdat{\Gamma, \hd x A}
+              {\dgamma}
+              {(\gamma, x, dx)}
+              {(\rho, a)}
+              {(\gamma', x', dx')}
+              {(\rho', a')}
+    \]
+
+    \noindent
+    Since our assumption tells us that
+%
+    \(
+    \weirdat{\Gamma}\dgamma\gamma\rho{\gamma'}{\rho'}
+    \),
+%
+    it suffices to show that
+%
+    \(
+    \weirdat{\iso A}{()}{(x, dx)}{a}{(x', dx')}{a'}
+    \),
+%
+    which follows directly from our inductive hypothesis for $e$.
+
+    %% CASE: REMAINING
+  \item[Remaining cases] I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
+    
+  \end{description}
+
+  %% THE REST OF THE CASES
+  \includepdf[pages=2-]{remarkable-seminaive-proof}
 \end{proof}
