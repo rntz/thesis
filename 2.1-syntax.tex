@@ -80,32 +80,28 @@ f$, giving access to a discrete variable $\dvar{x}$.
 %% TODO: should we note that we really definitely mean □(L → L) and
 %% not (□L → L)? Reader may be confused.
 
-Finally, to express Datalog's recursive queries, Datafun includes bottom-up
-recursion, $\efixis x e$, which finds the least fixed point of the function
-$\efn x e$. On this we impose two restrictions to ensure
-well-definedness and termination.
+Finally, to express Datalog's recursive queries, Datafun includes fixed points, $\efix f$. The \prim{fix} combinator takes a function $f : \isofixLtoL$ and returns its least fixed point.
 %
-First, the ``loop body'' $e$ must be monotone in the ``loop variable'' $\mvar
-x$; i.e.\ the function whose fixed point we are finding is monotone. Second,
-recursion can only occur at \emph{semilattice types with decidable equality and
-  no infinite ascending chains}, $\fixtLkern$.
+To ensure termination, besides monotonicity of $f$ we also require that recursion occur at \emph{semilattice types with decidable equality and no infinite ascending chains}, $\fixtLkern$.
 %
 For our purposes, a semilattice is a partial order with a least element $\bot$ and a least upper bound operation $\vee$ (``join'').
 %
 Finite sets (with the empty set as least element, and union as join) are an example, as are tuples of semilattices.
 %
-As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \cdots$, iteration from the bottom element is guaranteed to find the least fixed point; decidable equality ensures we can tell when this fixed point is reached.\footnotemark
+As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \cdots$, iteration from the bottom element is guaranteed to find the least fixed point; decidable equality ensures we can tell when this fixed point is reached.%
+%
+\footnote{We are sweeping a few technical details under the rug here. First, by requiring the function $f$ in $\efix f$ to have type $\isofixLtoL$ and not simply $\fixt L \to \fixt L$ we are effectively treating \prim{fix} as a non-monotone operator. This restriction is unnecessary for the moment -- \prim{fix} is semantically monotone -- but its purpose will become apparent in \cref{chapter-seminaive}.
+
+  \label{note-finite-eqtypes}
+  Second, observe that the finite set type $\tseteq{A}$ will possess infinite
+  ascending chains if $\eqt A$ has infinitely many inhabitants. Thus we need to
+  distinguish a class of \emph{finite} eqtypes $\fint A$. Although their
+  grammars in \cref{figure-syntax} are identical, their intent is different. For
+  example, if we extended Datafun with integers, they would form an eqtype, but
+  not a finite one.}
 
 \todo{mention split and empty, with forward reference to their occurrences in
   examples and full explanation in \cref{section-typing-and-semantics}}
-
-\footnotetext{\label{note-finite-eqtypes}As a technical detail, the finite set
-  type $\tseteq{A}$ will possess infinite ascending chains if $\eqt A$ has
-  infinitely many inhabitants. Thus we need to distinguish a class of
-  \emph{finite} eqtypes $\fint A$. Although their grammars in
-  \cref{figure-syntax} are identical, their intent is different. For example, if
-  we extended Datafun with integers, they would form an eqtype, but not a finite
-  one.}
 
 %% \item \todo{it might be better ignore this point for now and only discuss it
 %%   when it becomes relevant.} The entire expression $\efixis x e$ is regarded as

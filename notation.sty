@@ -351,12 +351,16 @@
 \newcommand\ematchif[2]{\kw{if}\; {#1} \shortleftarrow \eiso{#2} \;}
 \newcommand\ematchthen{\kw{then}\;}
 \newcommand\ematchelse{\kw{else}\;}
-% TODO: remove \efix.
+\newcommand\efix{\prim{fix}\<}
+\newcommand\isofixLtoL{\ensuremath{\iso(\kernfixtL \to \fixtLkern)}}
 \newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
 \newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}
 \newcommand\esplit{\prim{split}\<}
 \newcommand\eisemptyraw[1]{\prim{empty?}\<#1}
-\newcommand\fastfix{\prim{semifix}}
+%% %% fastfix is obsolete, use semifix
+%% \newcommand\fastfix{\PackageWarning{notation}{replace fastfix with semifix}%
+%%   \warntodo{replace fastfix with semifix}{\prim{semifix}}}
+\newcommand\semifix{\prim{semifix}}
 \newcommand\eboxvar[1]{\ebox{\dvar{#1}}}
 \newcommand\eboxvarlong[1]{\ebox{\dvarlong{#1}}}
 
@@ -405,12 +409,6 @@
 \warntodo{don't use ewhen}{\kw{when}}}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}
-
-%% deprecated syntax
-\newcommand\efix{%\PackageWarning{notation}{don't use efix}{}
-  \warntodo{don't use efix}{\prim{fix}}\<}
-\newcommand\isofixLtoL{%\PackageWarning{notation}{don't use isofixLtoL}%
-  \warntodo{don't use isofixLtoL}{$\iso(\kernfixtL \to \fixtLkern)$}}
 
 
 %% ===== Contexts and typing judgments =====

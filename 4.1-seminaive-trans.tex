@@ -1,7 +1,7 @@
 \section{Applying the semi\naive\ transformation to transitive closure}
 \label{section-seminaive-trans}
 
-\todo{rewrite this with new efix \& fastfix}
+\todo{rewrite this to avoid ewhen}
 
 Let's try applying the semi\naive\ transform to a simple Datafun program: the
 transitive closure function \name{trans} from
@@ -166,19 +166,19 @@ Putting everything together, we have:
   &= \phi(\efix \ebox{\fnof{p} \dvar e \cup (\dvar e \relcomp p)})
   && \text{desugaring}
   \\
-  &= \fastfix\< \phi\ebox{\fnof{p} \dvar e \cup (\dvar e \relcomp p)}
+  &= \semifix\< \phi\ebox{\fnof{p} \dvar e \cup (\dvar e \relcomp p)}
   \\
-  &= \fastfix\<\bigeboxtuple{\phi({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}),\
+  &= \semifix\<\bigeboxtuple{\phi({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}),\
   \delta({\fnof{p} \dvar e \cup (\dvar e \relcomp p)})}
   \\
-  &= \fastfix\<\bigeboxtuple{
+  &= \semifix\<\bigeboxtuple{
       ({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}),\
       ({\fnof{\pboxvar p} \fnof{\deep} \dvar e \relcomp \deep})}
   && \text{previous work}
 \end{flail}
 
 \noindent
-Examining the recurrence produced by this use of \fastfix, we recover the
+Examining the recurrence produced by this use of \semifix, we recover the
 semi\naive\ transitive closure algorithm from
 \cref{section-seminaive-tc-in-datafun}:
 

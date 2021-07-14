@@ -726,24 +726,21 @@ in the text. \todo{But maybe it should be?}
 
       Recall that
       \begin{align*}
-        \phi(\efixis x e)
-        &= \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
+        \phi(\efix e)
+        &= \semifix\<(\phi e,\; \delta e)
+        & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
         \\
-        \delta(\efixis x e) &= \bot
-        \\
-        \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
-        \\
-        \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+        \delta(\efix e) &= \bot
+        & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
       \end{align*}
 
       This justifies the case for $\delta$ immediately. As for $\phi$, recall
-      the typing rule for $\fastfix$: \todo{oops, this is going to be different
-        if we keep fix different}
+      the typing rule for $\semifix$:
 
       \[
       \infer{
         \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
-      }{\J{\fastfix\<e}{\G}{\fixt L}}
+      }{\J{\semifix\<e}{\G}{\fixt L}}
       \]
 
       \todo{prove this case}
@@ -950,30 +947,26 @@ in the text. \todo{But maybe it should be?}
   By induction on the derivation of $\J e \Gamma A$.
   %
   We will refer to the other premise $\weirdat\Gamma\dgamma\gamma\rho{\gamma'}{\rho'}$ as simply ``the assumption''.
-  %
-  I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
 
-  \begin{description}
+  \begin{description}[itemsep=1\baselineskip]
 
     %% CASE: FIX
   \item[Case $\infer{
-      \J e {\Gamma, \hm x {\fixt L}} {\fixt L}
+      \J e \Gamma \isofixLtoL
     }{
-      \J{\efixis x e}\Gamma {\fixt L}
-    }$]
+      \J{\efix e}\Gamma {\fixt L}
+    }$.]
       Recall that
+%
       \begin{align*}
-        \phi(\efixis x e)
-        &= \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
+        \phi(\efix e) &= \semifix\<\phi e
+        & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
         \\
         \delta(\efixis x e) &= \bot
-        \\
-        \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
-        \\
-        \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+        & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
       \end{align*}
 
-      \XXX
+      \todo{finish fix case}
 
     %% CASE: BOX INTRODUCTION
   \item[Case $\infer{
@@ -1125,8 +1118,8 @@ in the text. \todo{But maybe it should be?}
 %
     which follows directly from our inductive hypothesis for $e$.
 
-    %% CASE: REMAINING
-  \item[Remaining cases] I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
+    %% CASES REMAINING
+  \item[Remaining cases.] I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
     
   \end{description}
 

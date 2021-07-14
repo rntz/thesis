@@ -8,7 +8,7 @@ We use two static transformations, $\phi$ and $\delta$, defined in
 details immediately, we first build some intuition.
 
 The speed-up transform $\phi$ computes fixed points semi\naive{}ly by
-replacing $\efixis x e$ by $\fastfix\<({f\<\bot,\, f'})$ where $f = \efn x e$.
+replacing $\efixis x e$ by $\semifix\<({f,\, f'})$ where $f = \efn x e$.
 %
 To find this derivative $f'$ we'll need a second transform, $\delta$.
 %
@@ -27,7 +27,7 @@ So, modelled on the incremental \fn-calculus' $\Derive$ \citep{incremental},
 $\delta e$ will compute how $\phi e$ changes as its free variables change.
 
 In generalizing from zero changes to changes, however, we seem to have
-jettisoned our original goal: \fastfix\ doesn't need the change to $f$, it needs its derivative.
+jettisoned our original goal: \semifix\ doesn't need the change to $f$, it needs its derivative.
 %to speed up $\efixis x e$ we don't want the change to $\efn x e$; we want its derivative.
 %
 Since derivatives are zero changes, function changes and derivatives coincide if
@@ -231,8 +231,6 @@ examine the most interesting and important parts of these definitions in detail.
 
 \subsection{Fixed points}
 
-\todo{NEEDS REWRITTEN}
-
 The whole purpose of $\phi$ and $\delta$ is to speed up fixed points, so let's
 start there.
 %
@@ -255,20 +253,20 @@ In a fixed point expression $\efix e$, we know $e : \isofixLtoL$. Consequently t
 \noindent
 The behavior of $\phi e$ is to compute a boxed pair $\eboxtupleraw{f,f'}$, where
 $f : \fixt L \to \fixt L$ is a sped-up function and $f' : \iso\fixt L \to \fixt
-L \to \fixt L$ is its derivative. This is exactly what we need to call \fastfix.
-Therefore $\phi(\efix e) = \fastfix\<\phi e$.
+L \to \fixt L$ is its derivative. This is exactly what we need to call \semifix.
+Therefore $\phi(\efix e) = \semifix\<\phi e$.
 %
-However, if we're going to use \fastfix\ in the output of $\phi$, we ought to
+However, if we're going to use \semifix\ in the output of $\phi$, we ought to
 give it a typing rule and semantics:
 
 \nopagebreak[4]
 \begin{align*}
   \infer{
     \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
-  }{\J{\fastfix\<e}{\G}{\fixt L}}
+  }{\J{\semifix\<e}{\G}{\fixt L}}
   &&
   \begin{aligned}
-    \den{\fastfix\<e}\<\g &= \fastfix \<(f, f')
+    \den{\semifix\<e}\<\g &= \semifix \<(f, f')
     \\
     \text{where}~ & (f,f') = \den{e}\<\g
   \end{aligned}
@@ -276,7 +274,7 @@ give it a typing rule and semantics:
 
 \noindent
 As for $\delta(\efix e)$, since $e$ can't change (having $\iso$ type), neither
-can $\efix e$ (or $\fastfix\<\phi e$). All we need is a zero change at type
+can $\efix e$ (or $\semifix\<\phi e$). All we need is a zero change at type
 $\fixtLkern$; by \cref{lemma-delta-lattice}, $\bot$ suffices.
 
 

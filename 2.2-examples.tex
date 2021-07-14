@@ -53,34 +53,28 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
   looping/comprehending over only those elements of a set which match a certain
   pattern.
 
-\item We permit ourselves a top-level surface syntax similar to Haskell or SML. In particular, we allow:
+\item We express fixed points as a binding form, $\efixis x e$, instead of explicitly supplying a boxed lambda to the \prim{fix} combinator, $\efix\ebox{\efn x e}$.
 
-  \begin{enumerate}
-  \item Function definitions, including currying:
+\item We permit ourselves a top-level surface syntax similar to Haskell or SML.
+  In particular, we allow curried function definitions, type aliases, and
+  algebraic datatype definitions:
 
-    \begin{code}
-      \name{disjunction} \isa \tbool \to \tbool \to \tbool\\
-      \name{disjunction} \<\mvar x \<\mvar y = \mvar x \vee \mvar y
-    \end{code}
-
-  \item Type aliases:
-
-    \todo{describe type aliases}
-
-  \item Algebraic datatype definitions, introduced by the syntax \kw{data}:
-
-    \begin{code}
-      \kw{data}~\typename{color} =
+  \begin{code}
+    \name{disjunction} \isa \tbool \to \tbool \to \tbool\\
+    \name{disjunction} \<\mvar x \<\mvar y = \mvar x \vee \mvar y
+    \\
+    \kw{type}~\typename{colorname} = \typename{string}
+    \\
+    \kw{data}~\typename{color} =
       \ctor{black}
-      ~|~ \ctor{named} \<\typename{string}
+      ~|~ \ctor{named} \<\typename{colorname}
       ~|~ \ctor{rgb} \<\typename{int} \<\typename{int} \<\typename{int}
-    \end{code}
+  \end{code}
 
-    We do not allow these types to be defined recursively, so they can be easily
-    desugared into sums of products in the standard way. Similarly, we allow
-    ourselves $n$-ary tuples, since they can easily be desugared into nested
-    binary tuples.
-  \end{enumerate}
+  We do not allow \kw{data}-types to be defined recursively, so they can be
+  easily desugared into sums of products in the standard way. Similarly, we
+  allow ourselves n-ary tuples, which are easily desugared into nested binary
+  tuples.
 
 \end{enumerate}
 

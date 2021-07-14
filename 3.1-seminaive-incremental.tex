@@ -379,10 +379,10 @@ Observe that the function $f$ itself is only used once, to calculate $\dx_0 = f
 Given this initial ``kickoff'' change, the remaining $x_i$ are calculated
 entirely using the derivative $f'$.
 %
-Let $\fastfix\<(\dx_0,\, f') = \bigvee_i x_i$ be the limit of this sequence.
+Let $\semifix\<(f,\, f') = \bigvee_i x_i$ be the limit of this sequence.
 %
 By induction and the derivative property, we have $\changes{\dx_i}{x_i}{f\<x_i}$
-and so $x_i = f^i\<x$, and therefore $\fastfix\<(f\<\bot,\, f')$ is the least
+and so $x_i = f^i\<x$, and therefore $\semifix\<(f,\, f')$ is the least
 fixed point of $f$.
 %
 And if $L$ has no infinite ascending chains, we will reach this fixed point in
@@ -401,6 +401,6 @@ Our goal is not to incrementalize Datafun \emph{per se}, but to find fixed
 points faster.
 %
 Consequently, we define two mutually recursive transformations: $\phi e$, which
-computes $e$ faster by replacing fixed points with calls to \fastfix; and
+computes $e$ faster by replacing fixed points with calls to \semifix; and
 $\delta e$, which incrementalizes $\phi e$ just enough that we can compute
 the derivative of fixed point functions.

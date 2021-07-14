@@ -11,6 +11,8 @@
     %\edcase{e} (p_i \caseto e_i)_i
 %    \edcase{e} p \caseto f_1 \casebar \pwild \caseto f_2
     \ematch{p}{e}{f_1}{f_2}
+    \\&&&
+    \efixis x e
     \\[\bnfskip]
     \text{discrete patterns} & p &\bnfeq&
     \dvar x \bnfor \pwild \bnfor \peq{e}
@@ -48,6 +50,8 @@
   \end{align*}
 
   \begin{align*}
+    \efixis x e &\desugars \efix\ebox{\efn x e}
+    \\
     \fnof{\pboxvar{p}} e
     &\desugars
     \fnof{\color{fresh} \mvar y} \eletbox p {\color{fresh}\mvar y} e

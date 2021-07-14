@@ -47,20 +47,21 @@
     %% \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
     %% \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
     %% \)}
-  \end{align*}
-
-  \begin{align*}
-    \phi(\efixis x e) &=
-    \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
     \\
-    %% split
+  %% \end{align*}
+  %% \begin{align*}
+    \phi(\efix e) &= \semifix\<\phi e
+    %% \\
+    %% \phi(\efixis x e) &=
+    %% \fastfix\<(\subone{\phi e}{\mvar x}{\bot},\; \delta(\efn{x}{e}))
+    %% \\
+    &
     \phi(\esplit e) &\stareq \emcase{\phi e}
-    \\
-    &\qquad
+    \\ &&&\qquad
     \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
     \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
     \\
-    &\qquad
+    &&&\qquad
     \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
     \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
   \end{align*}
@@ -76,7 +77,9 @@
   \textsc{derivative translation $\delta$}
 
   \[ \delta\bot = \delta\esetsub{e_i}{i} = \delta(\eeq e f)
-  = \delta(\efixis x e) = \bot \]
+  %% = \delta(\efixis x e)
+  = \delta(\efix e)
+  = \bot \]
 
   \begin{align*}
     \delta \mvar x &= \mvar\dx &

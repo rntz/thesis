@@ -393,7 +393,7 @@ These simplifications are fortuitous, because the interaction of the fully gener
   be possible to prove that $f \oplus \df$ is monotone so long as
   $\df$ is a valid change to $f$.
 %
-  This would make $\oplus$, like \fastfix, a ``trusted primitive'' whose implementation cannot be expressed in Datafun itself.
+  This would make $\oplus$, like \semifix, a ``trusted primitive'' whose implementation cannot be expressed in Datafun itself.
 }
 
 
@@ -622,9 +622,9 @@ translation to cache intermediate results.
 
 Datafun takes a simpler approach.
 %
-We cache intermediate results in exactly one place: the implementation of \fastfix.
+We cache intermediate results in exactly one place: the implementation of \semifix.
 %
-Recall that, to compute the fixed point of a function $f$, \fastfix\ computes the sequences $x_i$, $dx_i$ defined by:
+Recall that, to compute the fixed point of a function $f$, \semifix\ computes the sequences $x_i$, $dx_i$ defined by:
 
 \nopagebreak[2]
 \begin{align*}
