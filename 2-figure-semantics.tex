@@ -50,12 +50,16 @@
       \den{\J {\eeq{e_1}{e_2}} \G {\tbool}} &=&
           \fork{\mkbox_\Gamma(\den{\J {e_1} {\stripcx \G} {\eqt A}}),\,
                 \mkbox_\Gamma(\den{\J {e_2} {\stripcx \G} {\eqt A}})}
-          \then \morph{eq} \\
-      \den{\J {\efixis x e} \G {\fixt L \kern 1pt}} &=&
-        \mkbox_\G(\lambda_{\mvar x}
-          \den{\J e {\stripcx{\G}, \hm x {\fixt L}} {\fixt L \kern1pt}})
-        \then \morph{fix}
+          \then \morph{eq}
       \\
+      \den{\J {\efix e} \G {\fixt L \kern 1pt}} &=&
+        \den{\J e \G \isofixLtoL} \then \morph{fix}
+      \\
+      %% \den{\J {\efixis x e} \G {\fixt L \kern 1pt}} &=&
+      %%   \mkbox_\G(\lambda_{\mvar x}
+      %%     \den{\J e {\stripcx{\G}, \hm x {\fixt L}} {\fixt L \kern1pt}})
+      %%   \then \morph{fix}
+      %% \\
       \den{\J {\esetsub{e_i}{i}} \G {\tseteq A}}
       &=& \fork{\mkbox_\Gamma(\den{\J {e_i} {\stripcx \G} {\eqt A}}) \then \morph{singleton}}_i \then \morphjoin{\pfinof{\den{\eqt A}}}
       \\

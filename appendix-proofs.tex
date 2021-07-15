@@ -11,7 +11,7 @@
 
 We state these lemmas and theorems in dependency order, so that nothing is used
 before it has been proven. This is not always the order in which they are stated
-in the text. \todo{But maybe it should be?}
+in the text. \todolater{But maybe it should be?}
 
 
 \section{Datafun}
@@ -941,6 +941,67 @@ in the text. \todo{But maybe it should be?}
 
 
 \nextlemma
+\begin{lemma}[Correctness of \semifix]
+  \label{lemma-semifix}
+  %
+  If $\weirdat{\fixt L \to \fixt L}{g'}{g}{f}{g}{f}$, then $\semifix\<(g,g') = \morph{fix}\<f$.
+\end{lemma}
+
+\begin{proof}
+  First, let's expand our assumption:
+  \begin{align*}
+    \fa{\weirdat{\fixt L}{dx} x a y b}
+    \weirdat{\fixt L}
+            {g'\<x\<dx}
+            {g\<x}
+            {f\<a}
+            {g\<y}
+            {f\<b}
+  \end{align*}
+
+  \noindent
+  If we apply \cref{lemma-semilattice-changes} and simplify slightly, this is equivalent to:
+%
+  \begin{equation}\label{fix-assumption}
+    \fa{x,dx : \fixt L}
+    g\<x = f\<x ~\textsf{and}~ g\<(x \vee dx) = f\<(x \vee dx) = g\<x \vee g'\<x\<dx
+  \end{equation}
+
+  \noindent
+  This in particular implies that $f = g$.
+  
+  Now, recall that $\morph{fix}\<f$ is defined as the limit $\bigvee_i f^i\<\bot$ of the iterations of $f$, while $\semifix\<(g, g')$ is the limit $\bigvee_i x_i$ of the sequence $x_i$ given by:
+  %
+  \begin{align*}
+    x_0 &= \bot & x_{i+1} &= x_i \vee dx_i\\
+    dx_0 &= g\<\bot & dx_{i+1} &= g'\<x_i\<dx_i
+  \end{align*}
+
+  \noindent
+  Thus it suffices to show that $x_i = f^i\<\bot$, which we will show
+  inductively, along with $x_i \vee dx_i = f\<x_i$. To establish the base case,
+  $x_0 = \bot = f^0\<\bot$ by definition and $x_0 \vee dx_0 = \bot \vee
+  g\<\bot = f\<\bot$ because $g = f$. Inductively assuming that $x_i =
+  f^i\<\bot$ and $x_i \vee dx_i = f\<x_i$, we have that $x_{i+1} = x_i \vee dx_i
+  = f\<x_i = f\<(f^i\<\bot) = f^{i+1}\<\bot$ as desired, and finally:
+  %
+  \begin{align*}
+    x_{i+1} \vee dx_{i+1}
+    &= (x_i \vee dx_i) \vee g'\<x_i\<dx_i
+    && \text{expanding definitions}\\
+    &= f\<x_i \vee g'\<x_i\<dx_i
+    && \text{inductive hypothesis}\\
+    &= g\<x_i \vee g'\<x_i\<dx_i
+    && \text{because}~f = g\\
+    &= f\<(x_i \vee dx_i)
+    && \text{by \cref{fix-assumption}}\\
+    &= f\<x_{i+1}
+    && \text{definition of }x_{i+1}
+  \end{align*}
+\end{proof}
+
+
+\nextlemma
 \SeminaiveFundamental*
 \begin{proof}
   \label{proof-seminaive-fundamental}
@@ -956,17 +1017,269 @@ in the text. \todo{But maybe it should be?}
     }{
       \J{\efix e}\Gamma {\fixt L}
     }$.]
-      Recall that
-%
-      \begin{align*}
-        \phi(\efix e) &= \semifix\<\phi e
-        & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
-        \\
-        \delta(\efixis x e) &= \bot
-        & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
-      \end{align*}
+    Recall that
+    %
+    \begin{align*}
+      \phi(\efix e) &= \semifix\<\phi e
+      & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
+      \\
+      \delta(\efix e) &= \bot
+      & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+    \end{align*}
 
-      \todo{finish fix case}
+    \noindent
+    For brevity, let
+    \begin{align*}
+      f &= \den{e}\<\rho & f' &= \den{e}\<\rho'\\
+      (g_1, g_2) &= \den{\phi e}\<\gamma
+      & (g_1', g_2') &= \den{\phi e}\<\gamma'
+    \end{align*}
+
+    What we wish to show is:
+%
+    \begin{align*}
+    &\weirdat{\fixt L}
+             {\den{\bot}\<(\gamma,\dgamma)}
+             {\den{\semifix\<\phi e}\<\gamma}
+             {\den{\efix e}\<\rho}
+             {\den{\semifix\<\phi e}\<\gamma'}
+             {\den{\efix e}\<\rho'}\\
+    \iff&
+    \weirdat{\fixt L}
+            {\bot}
+            {\semifix\<(\den{\phi e}\<\gamma)}
+            {\morph{fix}\<(\den{e}\<\rho)}
+            {\semifix\<(\den{\phi e}\<\gamma')}
+            {\morph{fix}\<(\den{e}\<\rho')}\\
+    \iff&
+    \weirdat{\fixt L}
+            {\bot}
+            {\semifix \<(g_1, g_2)}
+            {\morph{fix} \<f}
+            {\semifix \<(g_1', g_2')}
+            {\morph{fix} \<f'}\\
+    \iff&
+    \semifix\<(g_1, g_2) = \morph{fix}\<f
+    = \semifix\<(g_1', g_2') = \morph{fix}\<f'
+    \qquad \textsf{(applying \cref{lemma-semilattice-changes})}
+    \end{align*}
+
+    By our inductive hypothesis we have
+%
+    \(
+    \weirdat{\isofixLtoL}
+               {\den{\delta e}\<(\gamma,\dgamma)}
+               {(g_1, g_2)}
+               {f}
+               {(g_1', g_2')}
+               {f'}
+    \)
+%
+    and expanding gives us:
+    \begin{gather}
+      \label{fix-eqn}
+      f = f' ~\text{and}~ g_1 = g_1' ~\text{and}~ g_2 = g_2'
+      \\
+      \label{fix-gf}
+      \weirdat{\fixt L \to \fixt L}{g_2}{g_1}{f}{g_1'}{f'}
+    \end{gather}
+
+    Applying \cref{fix-eqn} reduces our goal to showing $\semifix\<(g_1, g_2)
+    = \morph{fix}\<f$, which holds by \cref{lemma-semifix} applied to \cref{fix-gf,fix-eqn}.
+
+    %% CASE: FOR LOOPS
+  \item[Case $\infer{
+      \J e \Gamma {\tseteq A}\\
+      \J f {\Gamma, \hd x {\eqt A}} {\eqt L}
+    }{
+      \J{\eforvar x e f} \Gamma {\eqt L}
+    }$.] Recall that:
+%
+    \begin{align*}
+      \phi(\eforvar x e f) &=
+      \eforvar x {\phi e}{\eletbox{\dx}{\ebox{\zero\<\dvar x}} \phi f}
+      \\
+      \delta(\eforvar x e f)
+      &= (\eforvar x {\delta e}
+      \eletbox \dx {\ebox{\zero\<\dvar x}} \phi f) \\
+      &\vee (\eforvar x {\phi e \vee \delta e}
+      \eletbox{\dx}{\ebox{\zero\<\dvar x}} \delta f)
+    \end{align*}
+
+    This case of the proof is quite complex; it will help to have a few abbreviations. First, we will be considering various definitons which differ only in whether they use the primed or un-primed versions of $\gamma,\rho$, so it will help to refer to these by subscript: $\gamma_1 = \gamma$ and $\gamma_2 = \gamma' $ and $\rho_1 = \rho$ and $\rho_2 = \rho'$.
+
+    With this in mind, apply \cref{lemma-semilattice-changes} to our inductive hypothesis for $e$:
+%
+    \begin{align}
+      &\weirdat{\tseteq A}
+            {\den{\delta e}\<(\gamma_1,\dgamma)}
+            {\den{\phi e}\<\gamma_1}
+            {\den{e}\<\rho_1}
+            {\den{\phi e}\<\gamma_2}
+            {\den{e}\<\rho_2}
+      \\\label{for-ih1}
+      \iff&
+      \den{\phi e}\<\gamma_1 = \den{e}\<\rho_1
+      ~\text{and}~
+      \den{\phi e}\<\gamma_2 = \den{e}\<\rho_2 = \den{\phi e}\<\gamma_1 \vee \den{\delta e}\<(\gamma_1,\dgamma)
+    \end{align}
+
+    Moving to our inductive hypothesis for $f$, for any $x \in \den{\eqt A}$, let:
+%
+    \begin{align*}
+      \rho_i^x &= (\rho_i, \dvar x \mapsto x)
+      &
+      \gamma_i^x &= (\gamma_i, \dvar x \mapsto x, \dvar\dx \mapsto \dummy\<x)
+      &
+      \dgamma^x &= (\gamma_1^x, \dgamma)
+    \end{align*}
+%
+    By our assumption and \cref{lemma-equality-dummy} we have
+%
+    $\weirdat{\Gamma, \hd x {\eqt A}}{\dgamma^x}{\gamma_1^x}{\rho_1^x}{\gamma_2^x}{\rho_2^x}$. From this and our inductive hypothesis for $f$, applying \cref{lemma-semilattice-changes}:
+%
+    \begin{align}
+      &\weirdat{\eqt L}
+      {\den{\delta f}\<\dgamma^x}
+      {\den{\phi f}\<\gamma_1^x}
+      {\den{f}\<\rho_1^x}
+      {\den{\phi f}\<\gamma_2^x}
+      {\den{f}\<\rho_2^x}
+      \\\label{for-ih2}
+      \iff&
+      \den{\phi f}\<\gamma_1^x = \den{f}\<\rho_1^x
+      ~\text{and}~
+      \den{\phi f}\<\gamma_2^x = \den{f}\<\rho_2^x
+      = \den{\phi f}\<\gamma_1^x \vee \den{\delta f}\<\dgamma^x
+    \end{align}
+%
+
+    We summarize \cref{for-ih1,for-ih2} as follows, introducing variables $s_i, ds, F_i, dF$:
+%
+    \begin{align}
+      \label{for-sF}
+      s_i &= \den{e}\<\rho_i = \den{\phi e}\<\gamma_i
+      &
+      F_i(x) &= \den{f}\<\rho_i^x = \den{\phi f}\<\gamma_i^x
+      \\\label{for-dsF}
+      ds &= \den{\delta e}\<(\gamma_1,\dgamma)
+      &
+      dF(x) &= \den{\delta f}\<\dgamma^x
+      \\\label{for-crux}
+      s_1 \cup ds &= s_2 & F_1(x) \vee dF(x) &= F_2(x)
+    \end{align}
+
+    \noindent
+    Now let's give abbreviations to the denotations about which we are trying to prove something:
+%
+    \begin{align*}
+      l_i &= \den{\eforvar x e f}\<\rho_i
+      \\
+      m_i &= \den{\phi(\eforvar x e f)}\<\gamma_i
+      \\
+      dm &= \den{\delta(\eforvar x e f)}\<(\gamma_1, \dgamma)
+    \end{align*}
+%
+    Then what we wish to show is that
+    \(\weirdat{\eqt L}{dm}{m_1}{l_1}{m_2}{l_2}\), or equivalently by applying \cref{lemma-semilattice-changes}, that
+%
+    $m_1 = l_1$ and $m_2 = l_2 = m_1 \vee dm$.
+%
+    We will do this by showing that
+%
+    \begin{align}
+      \label{for-wts1}
+      l_i = m_i &= \bigvee_{x \in s_i} F_i(x)
+      \\\label{for-wts2}
+      dm &= \Big(\bigvee_{x \in ds} F_1(x)\Big)
+      \vee \Big(\bigvee_{x \in s_1 \cup ds} dF(x)\Big)
+    \end{align}
+%
+    from which our result follows because:
+
+    \begin{align*}
+      m_2 &= \bigvee_{x \in s_2} F_2(x)\\
+      &= \bigvee_{x \in s_1 \cup ds} (F_1(x) \vee dF(x))
+      && \text{\cref{for-crux}}\\
+      &= \Big(\bigvee_{x \in s_1} F_1(x)\Big)
+      \vee \Big(\bigvee_{x \in ds} F_1(x)\Big)
+      \vee \Big(\bigvee_{x \in s_1 \cup ds} dF(x)\Big)
+      && \text{reassociate}\\
+      &= m_1 \vee dm
+    \end{align*}
+
+    \noindent
+    So it suffices to show \cref{for-wts1,for-wts2}. This is mostly a matter of pushing through denotations. For instance, starting with $l_i$:
+%
+    \begin{align*}
+      l_i &= \den{\eforvar x e f}\<\rho_i\\
+      &= \morph{collect}(\den{f})(\rho_i, \den{e}\<\rho_i)
+      && \text{definition of }\den{\kw{for} ...}
+      \\
+      &= \bigvee_{x \in \den{e}\<\rho_i} \den{f}\<(\rho_i, \dvar x \mapsto x)
+      && \text{definition of \morph{collect}}
+      \\
+      &= \bigvee_{x \in s_i} F_i(x)
+      && \text{\cref{for-sF}}
+    \end{align*}
+
+    And $m_i$:
+%
+    \begin{align*}
+      m_i &=
+      \den{\eforvar x {\phi e} \eletbox\dx{\ebox{\zero\<\dvar x}} \phi f}
+      \<\gamma_i\\
+      &= \bigvee_{x \in \den{\phi e}\<\gamma_i}
+      \den{\eletbox\dx{\ebox{\zero\<\dvar x}} \phi f}
+      \<(\gamma_i, \dvar x \mapsto x)
+      \\
+      &= \bigvee_{x \in s_i}
+      \den{\phi f}\<(\gamma_i, \dvar x \mapsto x, \dvar\dx \mapsto
+      \den{\ebox{\zero\<\dvar x}}\<(\gamma_i, \dvar x \mapsto x))
+      && \text{\cref{for-sF}}
+      \\
+      &= \bigvee_{x \in s_i}
+      \den{\phi f}\<(\gamma_i, \dvar x \mapsto x, \dvar\dx \mapsto
+      \den{\zero\<\dvar x}\<(\morphstrip \<(\gamma_i, \dvar x \mapsto x)))
+      && \text{\cref{lemma-applying-box}}
+      \\
+      &= \bigvee_{x \in s_i}
+      \den{\phi f}\<(\gamma_i, \dvar x \mapsto x, \dvar\dx \mapsto
+      \dummy\<x)
+      && \text{pushing definitions}
+      \\
+      &= \bigvee_{x \in s_i} F_i(x)
+    \end{align*}
+
+    And finally, $dm$. By expanding in the same manner as directly above we have that:
+%
+    \begin{align*}
+      \den{\eforvar x {\delta e} \eletbox\dx{\ebox{\zero\<\dvar x}} \phi f}
+      \<(\gamma_1, \dgamma)
+      &= \bigvee_{x \in ds} F_1(x)
+      \\
+      \den{\eforvar x {\phi e \vee \delta e}
+        \eletbox\dx{\ebox{\zero\<\dvar x}} \delta f}
+      \<(\gamma_1, \dgamma)
+      &= \bigvee_{x \in s_1 \cup ds} dF(x)
+    \end{align*}
+
+    And therefore:
+    \begin{align*}
+      dm &= \den{\delta(\eforvar x e f)}\<(\gamma_1, \dgamma)\\
+      &=
+      \den{\eforvar x {\delta e} \eletbox\dx{\ebox{\zero\<\dvar x}} \phi f}
+      \<(\gamma_1, \dgamma)
+      \\
+      &\vee \den{\eforvar x {\phi e \vee \delta e}
+        \eletbox\dx{\ebox{\zero\<\dvar x}} \delta f}
+      \<(\gamma_1, \dgamma)
+      \\
+      &= \Big(\bigvee_{x \in ds} F_1(x)\Big) \vee
+      \Big(\bigvee_{x \in s_1 \cup ds} dF(x)\Big)
+    \end{align*}
+%
+    Which is what we wished to show.
 
     %% CASE: BOX INTRODUCTION
   \item[Case $\infer{

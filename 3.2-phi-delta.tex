@@ -1,5 +1,6 @@
 \section{The \boldphi\ and \bolddelta\ transforms}
 \label{section-phi-delta}
+\label{why-is-fix-discrete}
 
 \splittodo{explain syntax sugar in phi and delta}{, forward referencing the appendix}
 
@@ -8,7 +9,7 @@ We use two static transformations, $\phi$ and $\delta$, defined in
 details immediately, we first build some intuition.
 
 The speed-up transform $\phi$ computes fixed points semi\naive{}ly by
-replacing $\efixis x e$ by $\semifix\<({f,\, f'})$ where $f = \efn x e$.
+replacing $\efix f$ by $\semifix\<({f,\, f'})$.
 %
 To find this derivative $f'$ we'll need a second transform, $\delta$.
 %
@@ -17,7 +18,7 @@ $e$?
 %
 Unfortunately, this is not strong enough.
 %
-For example, the zero change to (derivative of) $\efn x e$ depends not on the
+For example, the zero change to (the derivative of) $\efn x e$ depends not on the
 \emph{zero} change to $e$, but on how $e$ changes in response to changes in $x$.
 %
 To compute derivatives, we need to solve the general problem of computing and
@@ -28,13 +29,11 @@ $\delta e$ will compute how $\phi e$ changes as its free variables change.
 
 In generalizing from zero changes to changes, however, we seem to have
 jettisoned our original goal: \semifix\ doesn't need the change to $f$, it needs its derivative.
-%to speed up $\efixis x e$ we don't want the change to $\efn x e$; we want its derivative.
 %
 Since derivatives are zero changes, function changes and derivatives coincide if
 \emph{the function cannot change}.
 %
-This is why the typing rule for $\efixis x e$ wipes the monotone context (apart
-from $\mvar x$): to prevent $f = \efn x e$ from changing!
+This is why the typing rule for $\efix f$ requires $f : \isofixLtoL$ to be boxed: not because \prim{fix} is non-monotone, but to prevent its argument from changing!
 %
 So the key strategy of our speed-up transformation $\phi$ is to
 {\bfseries\boldmath decorate expressions of type ${\iso A}$ with their zero

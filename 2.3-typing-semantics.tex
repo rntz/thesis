@@ -94,19 +94,17 @@ This is, however, not monotone, because while booleans are ordered $\efalse <
 \etrue$, sum types are ordered disjointly; $\inj 1 ()$ and $\inj 2 ()$ are
 incomparable.
 
-Finally, the rule \rn{fix} for fixed points $\efixis x e$ permits a recursive expression $e : \fixt{L}$ which refers to its own result as $\mvar x$.
+Finally, the rule \rn{fix} for fixed points $\efix f$ \splittodo{rewrite explanation of fix typing rule}{also, for why fix is discrete see \cref{why-is-fix-discrete}, has to do with our strategy for evaluating Datafun efficiently} a recursive expression $e : \fixt{L}$ which refers to its own result as $\mvar x$.
 %
 The restriction to ``fixtypes'' ensures $\fixt L$ has no infinite ascending
 chains, guaranteeing the recursion will terminate.
-%
-\todo{but why the context stripping?}
 
 
 \subsection{The category \Poset\ and its structures}
 \label{section-poset-structures}
 
-\splittodo{rewrite from here on.}{Talk about the intuition more. check
-  seminaive.pdf and first paper}
+\todolater{rewrite from here on? Explain intuition more. check seminaive.pdf and
+  first paper}
 
 An object of $\Poset$ is a pair $(A, \le_A)$ consisting of a set $A$ and a
 reflexive, transitive, antisymmetric relation $\le_A \subseteq A \times A$. For
@@ -248,7 +246,7 @@ monad in $\Poset$.
 \end{align*}
 
 \noindent
-The domain must be discrete, since $x = y$ and $y \le z$ certainly doesn't imply $x = z$. \todo{explain we only use equality where it is decidable}
+The domain must be discrete, since $x = y$ and $y \le z$ certainly doesn't imply $x = z$. Although in principle every object $A \in \Poset$ admits \morph{eq}, in practice our semantics only uses it when equality is decidable.
 
 
 \subsubsection{Fixed points}
@@ -264,7 +262,7 @@ as follows:
 \noindent
 A routine inductive argument shows this must yield a least fixed point.
 \todo{make a lemma for this, label lemma-fixed-point} 
-\todo{explain why fix is discrete}
+\todolater{explain why fix is discrete}
 
 
 \subsection{Interpretation of Datafun in \Poset}
