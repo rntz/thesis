@@ -1,17 +1,21 @@
 \begin{figure}
-  \todo{typing rules for syntax sugar}
-  \begin{mathpar}
-    \infer*{
-      \J{e}{\Gamma}{\iso(A \x B)}\\
-      \J{f}{\Gamma,\,\hd x A,\,\hd y B}{C}
-    }{
-      \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}
-        {\Gamma}
-        {C}
-    }
-  \end{mathpar}
+  \centering
 
-  \todo{extra desugarings}
+  \todolater{typing rules for syntax sugar used in phi/delta}
+  %% \textsc{typing rules for syntax sugar used in $\phi$/$\delta$}
+  %% \begin{mathpar}
+  %%   \infer*{
+  %%     \J{e}{\Gamma}{\iso(A \x B)}\\
+  %%     \J{f}{\Gamma,\,\hd x A,\,\hd y B}{C}
+  %%   }{
+  %%     \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}
+  %%       {\Gamma}
+  %%       {C}
+  %%   }
+  %% \end{mathpar}
+  %% \vspace{0pt}
+
+  \textsc{additional desugarings}
 
   \begin{align*}
     % φ(split e)

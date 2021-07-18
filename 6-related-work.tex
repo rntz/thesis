@@ -1,13 +1,14 @@
 \chapter{Related work}
 
-\todo{maybe include some sort of intro here?}
+\todolater{maybe include some sort of intro here?}
 
-\noindent\todo{More stuff to include if I have time:}
+\todolater{More stuff to include if I have time:
 \begin{enumerate}[nosep]
 \item tabling in Prolog -- connects to incremental \& semilattice stuff? if i find the right papers?
 \item miscellany: miniKanren, formulog
 \item comparison with Dyna
 \end{enumerate}
+}
 
 %% Over and above a laundry list of related papers and theses, our goal in this chapter is to give the reader a mental map of the surrounding research terrain and the many choices and trade-offs \XXX.
 
@@ -83,10 +84,10 @@ By contrast, Datafun attempts to reduce implementation difficulties by narrowing
 
 \paragraph{Higher-order functional + top-down logic programming}
 
-Of course, Datafun is not the first language to attempt to add higher-order features to logic programming by combining it with functional programming: Mercury~\citep{mercury} integrates higher-order functional programming into a logical paradigm, while Curry~\citep{curry} cleanly combines the lazy functional language Haskell with top-down logic programming. The main difference is that Mercury and Curry's logical features are inspired by Prolog, employing top-down search and unification, while Datafun is inspired by Datalog, uses bottom-up enumeration, and imposes deliberate restrictions to ensure termination and avoid Turing-completeness. \todo{maybe say a little more about the consequences of these decisions? impact on semilattice features?}
+Of course, Datafun is not the first language to attempt to add higher-order features to logic programming by combining it with functional programming: Mercury~\citep{mercury} integrates higher-order functional programming into a logical paradigm, while Curry~\citep{curry} cleanly combines the lazy functional language Haskell with top-down logic programming. The main difference is that Mercury and Curry's logical features are inspired by Prolog, employing top-down search and unification, while Datafun is inspired by Datalog, uses bottom-up enumeration, and imposes deliberate restrictions to ensure termination and avoid Turing-completeness. \todolater{maybe say a little more about the consequences of these decisions? impact on semilattice features?}
 
-\paragraph{Modulog}
-\todo{doesn't appear to have any papers about it? Maybe I can just leave this out for now}
+\todolater{\paragraph{Modulog}
+doesn't appear to have any papers about it? Maybe I can just leave this out for now}
 
 \paragraph{Embedding database queries in functional languages}
 
@@ -122,7 +123,7 @@ Bloom\textsuperscript{$L$}~\citep{DBLP:conf/cloud/ConwayMAHM12} is a Datalog-ins
 %
 Although both of these are clearly related to Datafun's goals, neither includes the crucial ingredient of higher-order abstraction that leads to most of Datafun's unique capacities, as well as its unique design and implementation challenges.
 
-\todo{mention that the key inside of DRed\textsubscript{L} makes use of monotonicity?}
+\todolater{mention that the key inside of DRed\textsubscript{L} makes use of monotonicity?}
 
 
 \subsection{Flix}
@@ -154,7 +155,7 @@ Nonetheless, for certain applications such as static analysis, the use of user-d
 %
 We believe a fruitful direction for future research would be to hybridize Datafun's monotonicity type system with lightweight verification techniques. In our ideal language, types with custom orderings would be defined in a modular, encapsulated fashion. Verification would take place inside the module, to ensure the interface it exposes has the properties (such as monotonicity) it claims, but a compositional type-system would handle code external to the module, which acts as a client of this verified interface.
 
-\todo{discuss the wacky-cool type system they use for composing these Datalog fragments}
+\todolater{discuss the wacky-cool type system they use for composing these Datalog fragments}
 
 
 \section{Incremental computation}
@@ -252,7 +253,7 @@ groups~\citep{DBLP:conf/cidr/McSherryMII13}; recent work on incremental Datalog
 uses monoid actions~\citep{DBLP:conf/esop/Alvarez-Picallo19}; and Datafun uses
 semilattices.
 %
-\todo{I should probably cite some older database work on view maintenance}
+\todomaybe{cite older database work on view maintenance}{}
 
 Since finite differencing is advantageous for operations over large collections,
 but requires algebraic insight that makes it non-obvious how to apply it to
@@ -646,7 +647,7 @@ For instance, consider implementing transitive closure as the fixed point of eit
 %
 We have already observed that \name{consing} is self-maintainable.%
 %
-\footnote{In fact, it is an exemplar of a large class of self-maintainable functions: join-distributive maps. \todo{say a little more about this}
+\footnote{In fact, it is an exemplar of a large class of self-maintainable functions: join-distributive maps. \todomaybe{more about join-distributive = self-maintainable}{}
 %
 %% Any function $f$ on a semilattice $L$ such that $f\<(x \vee y) = f\<x \vee f\<y$ is self-maintainable, because we can let $f' \<x \<dx = f\<dx$.
 %% %
@@ -780,13 +781,13 @@ Both choices have serious problems:
 \noindent
 It is possible that by combining change actions with a validity relation, thus allowing the monoid action to be partial, one could achieve a synthesis of the change action approach and Datafun's higher-order monotonicity. We leave this to future work.
 
-\vspace{10pt}\noindent
-\todo{more things to discuss if I have more time:}
+\todomaybe{more Mario things to discuss}{ if I have time:
 \begin{enumerate}[nosep]
 \item he points out that his notion can be seen as working with categories and functors but forgetting some crucial stuff so you get monoid actions and differentiable maps instead. Our approach can also be seen as starting with categories but forgetting stuff so that we get posets and monotone maps!
 
 \item they actually give an incrementalization with respect to both increasing and decreasing change and allow incrementalizing fixed points with respect to changes from the outside world, not just speeding up fixed points -- which is the motivation to try and combine these approaches. Unfortunately, it doesn't seem to work (because of the stuff to do with higher-order functions)
 \end{enumerate}
+}
 
 
 %% \subsection{\todo{UNUSED FRAGMENTS, PLEASE IGNORE}}

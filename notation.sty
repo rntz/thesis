@@ -77,13 +77,17 @@
 %\newcommand\XXX{\PackageWarning{notation}{XXX}\textsf{\bfseries\todocolor XXX}}
 \newcommand\XXX{\warntodo{XXX}{XXX}}
 
+\newcommand\todomaybe[2]{%
+  \PackageWarning{todomaybe}{#1}
+  {\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#1}{#2}]}}}
+
 \newcommand\todolater[1]{%
   {\color{Lavender}\ensuretext{\bfseries\sffamily[{#1}]}}}
 \newcommand\footnotelater[1]{%
   \footnote{\color{Lavender}\bfseries\sffamily{#1}}}
 
-%% \renewcommand\todolater[1]{}
-%% \renewcommand\footnotelater[1]{}
+\renewcommand\todolater[1]{}
+\renewcommand\footnotelater[1]{}
 
 
 %% ---------- Environments ----------
