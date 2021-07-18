@@ -45,22 +45,25 @@ corresponding equality test $v = u : \eqt A$. We define these using
 inference rules, but they are easily seen to be decidable by induction on $\eqt
 A$.
 
-\subsection{Computing fixed points by iteration}
+%\subsection{Computing fixed points by iteration}
 
-Our implementation strategy for $\efixisraw{x}{e}$ is suggested by the proof of
-\cref{lemma-fixed-point}: starting from $\bot$, iteratively apply $\fnof x e$
-until quiescence. To model this process, we introduce the form
-$\eiter{f_1}{f_2}{x}{e}$, which evaluates two successive function iterations
-$f_1,f_2$.
+\todo{need reference for lemma-fixed-point!}
+
+Our implementation strategy for $\efix f$ is suggested by the proof of
+\cref{lemma-fixed-point}: starting from $\bot$, iteratively apply $f$
+until quiescence.
 %
-For example, the expression $\efixisraw{x}{e}$ immediately steps to
-$\eiter{\bot}{\subone{e}{x}{\bot}}{x}{e}$, which kicks off the first two
-iterations.
+To model this process, we introduce the form
+$\eiter{f}{e_1}{e_2}$, which evaluates two successive function iterations
+$e_1,e_2$.
 %
-Once these have reduced to values, $\eiter v u x e$ tests $v = u$ to determine
-if a fixed point has been reached. If so, its value $v$ is returned; otherwise
-we step to $\eiter{u}{\subone e x u}{x}{e}$ to evaluate the next iteration, and
-so on.
+The fixed point expression$\efix f$, after evaluating $f$, steps to
+$\eiter{f}{\bot}{f\<e}$, which kicks off the first two iterations.
+%
+Once these have reduced to values, $\eiter f {u_1}{u_2}$ tests $u_1 = u_2$ to
+determine if a fixed point has been reached. If so, its value $u_1$ is returned;
+otherwise we step to $\eiter{f}{u_2}{f\<u_2}$ to evaluate the next iteration,
+and so on.
 
 %% \subsection{A logical relation for termination}
 

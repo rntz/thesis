@@ -46,7 +46,10 @@
   \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
         B}}$.]
 
-  \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
-    \J{\efixis x e} \G {\fixt L}}$.]
+  \item[Case\quad $\infer{\J e \G \isofixLtoL}{%
+    \J{\efix e} \G {\fixt L}}$.]
+
+  %% \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
+  %%   \J{\efixis x e} \G {\fixt L}}$.]
 
 \end{description}

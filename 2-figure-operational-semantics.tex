@@ -7,8 +7,8 @@
       \text{expressions} & e,f,g &\bnfeq&
       ... \bnfor \eeqraw[\eqt A]{e}{f}
       \bnfor \bot_L \bnfor e \vee_L f \bnfor \efor[L]{x \in e} f
-      \bnfor \efixisraw[\fixt L]{x}{e}\\
-      &&& \eiter[\eqt A]{e}{f}{x}{g} %\bnfor \eitercmp[\eqt A]{e}{e}{x}{e}
+      \bnfor \prim{fix}_{\fixt L} \<e\\
+      &&& \eiter[\eqt A]{v}{e}{f}
       \\[\bnfskip]
       \text{values} & v,u &\bnfeq&
       \fnof{x} e \bnfor \etuple{} \bnfor \etuple{v, u} \bnfor \inj i v
@@ -23,7 +23,8 @@
       \bnfor E \vee_L e \bnfor v \vee_L E \bnfor \efor[L]{x \in E} e\\
       &&& \eeqraw[A]{E}{e} \bnfor \eeqraw[A]{v}{E}
       \bnfor \esplit E \bnfor \eisemptyraw E\\
-      &&& \eiter[A]{E}{e}{x}{f} \bnfor \eiter[A]{v}{E}{x}{e}
+      &&& \prim{fix}_{\fixt L} \<E
+      \bnfor \eiter[A]{v}{E}{f} \bnfor \eiter[A]{v}{u}{E}
     \end{array}
   \end{displaymath}
   \vspace{0pt}
@@ -90,16 +91,16 @@
       \efalse & \text{otherwise}
     \end{cases}
     \\
-    \efixisraw[\fixt L]{x}{e}
+    \prim{fix}_{\fixt L} \<v
     &\omit\rlap{$~\stepsto~
-    \eiter[\fixt L]{\bot_{\fixt L}}{\subone{e}{x}{\bot_{\fixt L}}}{x}{e}
+      \eiter[\fixt L]{v}{\bot_{\fixt L}}{v \<\bot_{\fixt L}}
     $}
     \\
-    \eiter[\eqt A]{v}{u}{x}{e}
+    \eiter[\eqt A]{v}{u_1}{u_2}
     &\omit\rlap{$~\stepsto~
     \begin{cases}
-      v & \text{if}~ v = u : \eqt A\\
-      \eiter[\eqt A]{u}{\subone{e}{x}{u}}{x}{e} & \text{otherwise}
+      u_1 & \text{if}~ u_1 = u_2 : \eqt A\\
+      \eiter[\eqt A]{v}{u_2}{v\<u_2} & \text{otherwise}
     \end{cases}$}
   \end{align*}
 
