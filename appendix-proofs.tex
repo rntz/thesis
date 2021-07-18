@@ -111,6 +111,8 @@ in the text. \todolater{But maybe it should be?}
         \infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}
 
         \infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso B}}
+
+        \infer{\J e \Gamma \isofixLtoL}{\J{\efix e} \Gamma {\fixt L}}
       \end{mathpar}
 
       Apply the same typing rule to our inductive hypotheses.
@@ -157,12 +159,12 @@ in the text. \todolater{But maybe it should be?}
       \cref{lemma-weakening-strip-context}, so we apply the inductive
       hypotheses.
 
-    \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
-      \J{\efixis x e} \G {\fixt L}}$.]\
+    %% \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
+    %%   \J{\efixis x e} \G {\fixt L}}$.]\
 
-      Then by combining \cref{lemma-weakening-strip-context} and \rn{cons} we
-      have $\stripcx{\Delta}, \hm x {\fixt L} \stronger \stripcx{\Gamma}, \hm x
-      {\fixt L}$ and we apply our inductive hypothesis.
+    %%   Then by combining \cref{lemma-weakening-strip-context} and \rn{cons} we
+    %%   have $\stripcx{\Delta}, \hm x {\fixt L} \stronger \stripcx{\Gamma}, \hm x
+    %%   {\fixt L}$ and we apply our inductive hypothesis.
 
   \end{description}
 \end{proof}
@@ -173,91 +175,7 @@ in the text. \todolater{But maybe it should be?}
 
 \emph{Theorems and lemmas from \cref{chapter-seminaive}.}
 
-\begin{figure}
-  \todo{typing rules for syntax sugar}
-  \begin{mathpar}
-    \infer*{
-      \J{e}{\Gamma}{\iso(A \x B)}\\
-      \J{f}{\Gamma,\,\hd x A,\,\hd y B}{C}
-    }{
-      \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}
-        {\Gamma}
-        {C}
-    }
-  \end{mathpar}
-
-  \todo{extra desugarings}
-
-  \begin{align*}
-    % φ(split e)
-    \phi(\esplit e) &\stareq \emcase{\phi e}
-    \\
-    &\qquad
-    \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
-    \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
-    \\
-    &\qquad
-    \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
-    \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
-    \\
-    &=
-    \elet{\pboxtuple{{\color{fresh}\dvar x},{\color{fresh}\dvar\dx}} = \phi e}
-    \\
-    &\phantom{{}={}}
-    \emcase{\esplit{\eboxvar{\color{fresh}x}}}
-    (\inj i \mvar y \caseto 
-    )_i
-    \\[.5\baselineskip]
-    % δ(split e)
-    \delta(\esplit e) &\stareq \emcase{\phi e}
-    (\pboxtuple{\inj i \pwild, \pwild}
-    \caseto \inj i {\etuple{}} )_i
-    \\
-    &= \eletbox{\color{fresh} y}{\phi e}
-    \emcase{\pi_1\<{\color{fresh}\dvar y}}
-    (\inj i \pwild \caseto \inj i \ptuple{})_{i \in \{1,2\}}
-    \\[.5\baselineskip]
-    % δ(case e of ...)
-    \delta(\emcase e (\inj i \mvar x \caseto f_i)_i)
-    &\stareq
-    \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
-    &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
-    &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
-    %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
-    \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
-    \\
-    &=
-    \emcase{\esplit{\ebox{\phi e}}}\\
-    &\qquad
-    (
-    \inj i {\color{fresh}\mvar y} \caseto
-    \eletbox{x}{\color{fresh}\mvar y}
-    \\
-    &\qquad\phantom{(\inj i {\mvar y} \caseto {}}
-    (\efn{\dx} \delta f_i)
-    \<(\emcase{\delta e}
-    \inj i \mvar\dx \caseto \mvar\dx
-    \\
-    &\qquad\phantom{(\inj i {\mvar y} \caseto {} (\efn{\dx} \delta f_i) \<(\emcase{\delta e}}
-    \inj{i+1 \bmod 2} \pwild \caseto \dummy\<\dvar x
-    ))_i
-    %% \\
-    %% &\qquad\phantom{(\inj i {\mvar y} \caseto {}}
-    %% \emcase{\delta e}
-    %% \\
-    %% &\qquad\phantom{(\inj i {\mvar y} \caseto {}}\quad
-    %% \inj i {\mvar\dx} \caseto \delta f_i\\
-    %% &\qquad\phantom{(\inj i {\mvar y} \caseto {}}\quad
-    %% \inj{i+1 \bmod 2} \pwild \caseto 
-    %% )_{i \in \{1,2\}}
-  \end{align*}
-
-  \centering\itshape
-  Fresh variables introduced by desugaring are colored {\color{fresh}\freshname}.
-
-  \caption{Syntax sugar in $\phi$ and $\delta$ transformations}
-  \label{appendix-seminaive-syntax-sugar}
-\end{figure}
+\input{a-figure-phi-delta-sugar}
 
 %% \begin{definition}[Syntax sugar in $\phi$ and $\delta$ transformations]
 %%   \label{appendix-seminaive-syntax-sugar}
@@ -275,478 +193,483 @@ in the text. \todolater{But maybe it should be?}
 
 \nextlemma
 \PhiDeltaWellTyped*
-
-\begin{proof}\label{proof-phi-delta-well-typed}
-  By induction on the typing derivation $\J e \Gamma A$.
-
-  \begin{description}[topsep=1em,itemsep=1em]
-    \item[Case\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$,\quad $\phi\mvar{x} =
-      \mvar{x}$,\quad $\delta\mvar{x} = \mvar\dx$.]\
-
-      Then $\phi \mvar x = \mvar{x}$ and $\delta\mvar x = \mvar\dx$, so we
-      need to show that $\J{\mvar{x}}{\Phi\Gamma}{\Phi A}$ and
-      $\J{\mvar\dx}{\iso\Phi\Gamma, \Delta\Phi\Gamma}{\Delta\Phi A}$. We know
-      that $\Phi$ and $\Delta$ distribute over contexts, so since $\hm x A \in
-      \Gamma$ we know that $\Phi(\hm x A) = \hm x {\Phi A} \in \Phi\Gamma$ and
-      $\Delta\Phi(\hm x A) = \hm{\dx}{\Delta\Phi A} \in \Delta\Phi\Gamma$, which
-      suffices by \rn{var}.
-
-    \item[Case\quad $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$,\quad
-      $\phi\dvar{x} = \dvar{x}$,\quad $\delta\dvar{x} = \dvar\dx$.]\
-
-      Then $\phi\dvar{x} = \dvar{x}$ and $\delta\dvar{x} = \dvar\dx$. By the
-      same argument as the previous case, it suffices to show that $\hd{x}{\Phi
-        A} \in \Phi\Gamma$ and $\hd{\dx}{\Delta\Phi A} \in \Delta\Phi\Gamma$,
-      which is true by distributing $\Phi$ and $\Delta$.
-
-    \item[Case\quad $\infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}$,\quad
-      $\phi(\efn x e) = \efn x \phi e$,\quad
-      $\delta(\efn x e) = \fnof{\pboxvar x}\efn\dx \delta e$.]\
-
-      Then by our inductive hypothesis,
-      \[
-      \infer{
-        \J{\phi e}{\Phi\Gamma,\, \hm x {\Phi A}}{\Phi B}
-      }{\J{\efn x \phi e}{\Phi\Gamma}{\Phi A \to \Phi B}}
-      \]
-      which handles the case for $\phi$.
-
-      The case for $\delta$ is complicated by the use of syntax sugar,
-      $(\fnof{\pboxvar x} ...) \desugars (\efn y \eletbox x {\mvar y} ...)$. For
-      simplicity's sake we first derive a typing rule for this sugared syntax:
-
-      \[
-      \infer{
-        \J{f}{\Gamma,\, \hd x A}{B}
-      }{
-        \J{\fnof{\pboxvar x} f}{\Gamma}{\iso A \to B}
-      }
-      \]
-
-      \noindent
-      which is justified by the following expansion and
-      weakening~(\cref{theorem-weakening}):
-
-      \[
-      \infer*{
-        \infer*{
-          \infer*{
-            \infer*{~}{
-              {\hm y {\iso A}} \in {\Gamma, \hm y {\iso A}}
-          }}{\J{\mvar{y}}{\Gamma, \hm y {\iso A}}{\iso A}}
-          \\
-          \infer*[right={weakening}]{
-            \J{f}{\Gamma,\, \hd x A}{B}
-          }{\J{f}{\Gamma, \hm y {\iso A}, \hd x A}{B}}
-        }{
-          \J{\eletbox x {\mvar y} f}{\Gamma, \hm y {\iso A}}{B}
-      }}{
-        \J{\efn y \eletbox x {\mvar y} f}{\Gamma}{\iso A \to B}
-      }
-      \]
-
-      \noindent
-      Putting this syntactic sugar to work, we have:
-
-      \[
-      \infer*[right=sugar]{
-        \infer*{
-          \J{\delta e}
-            {\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso A},\,
-              \hm{\dx}{\Delta\Phi A}}
-            {\Delta\Phi B}
-        }{
-          \J{\efn\dx \delta e}
-            {\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso\Phi A}}
-            {\Delta\Phi A  \to \Delta\Phi B}
-        }
-      }{
-        \J{\fnof{\pboxvar x} \efn\dx \delta e}
-          {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
-          {\iso \Phi A \to \Delta\Phi A \to \Delta\Phi B}
-      }
-      \]
-
-      and if we rearrange the typing context of the premise at the top, we see
-      that it matches our inductive hypothesis:
-%
-      \begin{align*}
-        &\phantom{{}={}}\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso A},\,
-        \hm{\dx}{\Delta\Phi A}\\
-        &=
-        \iso\Phi\Gamma,\, \hd x {\iso A},\:
-        \Delta\Phi\Gamma,\, \hm{\dx}{\Delta\Phi A}\\
-        &=
-        \iso\Phi(\Gamma,\, \hm x A),\, \Delta\Phi(\Gamma,\, \hm x A)
-      \end{align*}
-%
-      which finishes the case for $\delta$.
-
-    \item[Case\quad $\infer{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}$,\quad
-      $\phi(e\<f) = \phi e\<\phi f$,\quad
-      $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$.]\
-
-      The $\phi$ case fairly straightforward: by our inductive hypotheses,
-
-      \[
-      \infer*{
-        \J{\phi e}{\Phi\Gamma}{\Phi A \to \Phi B}\\
-        \J{\phi f}{\Phi\Gamma}{\Phi A}
-      }{
-        \J{\phi e\<\phi f}{\Phi\Gamma}{\Phi B}
-      }
-      \]
-
-      The $\delta$ case is not more complex, but the types get larger, so it
-      does not fit easily in one derivation. Applying \rn{app} it suffices to
-      show that, in the context ${\iso\Phi\Gamma,\, \Delta\Phi\Gamma}$, we have
-      $\delta e \isa {\iso\Phi A \to \Delta\Phi A \to \Delta\Phi B}$ and
-      ${\ebox{\phi f}} \isa {\iso\Phi A}$ and $\delta f \isa {\Delta\Phi B}$.
-      The first and last of these are supplied directly by our inductive
-      hypotheses, while the last needs a use of weakening, observing that
-      $
-      \stripcx{\iso\Phi\Gamma, \Delta\Phi\Gamma}
-      \stronger
-      \stripcx{\iso\Phi\Gamma}
-      =
-      \iso\Phi\Gamma
-      \stronger
-      \Phi\Gamma
-      $ (using \cref{lemma-weakening-strip-context}).
-
-      \[
-      \infer*{
-        \infer*[right=weakening]{
-          \J{\phi f}{\Phi\Gamma}{\Phi A}
-        }{
-          \J{\phi f}
-            {\stripcx{\iso\Phi\Gamma,\, \Delta\Phi\Gamma}}
-            {\Phi A}
-      }}{
-        \J{\ebox{\phi f}}{\iso\Phi\Gamma,\, \Delta\Phi\Gamma}{\iso\Phi A}
-      }
-      \]
-
-    \item[Case\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$,\quad
-      $\phi() = ()$,\quad $\delta() = ()$.]\
-
-      Trivial.
-
-    \item[Case\quad
-      $\infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}$,\quad
-      $\phi(e_1, e_2) = (\phi e_1, \phi e_2)$,\quad
-      $\delta(e_1, e_2) = (\delta e_1, \delta e_2)$.]\
-
-      Immediate.
-
-    \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$,\quad
-      $\phi(\pi_i\<e) = \pi_i\<\phi e$,\quad
-      $\delta(\pi_i\<e) = \pi_i\<\delta e$.]\
-
-      Immediate.
-
-    \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
-        (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
-      }{
-        \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
-      }$.]\
-
-      Recall that
-      \begin{align*}
-        \phi(\emcase e (\inj i \mvar x \caseto f_i)_i)
-        &= \emcase{\phi e} (\inj i \mvar x \caseto \phi f_i)_i
-        \\
-        \delta({\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i})
-        &=
-        \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
-        &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
-        &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
-        %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
-        \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
-      \end{align*}
-
-      The $\phi$ case is straightforward, observing that $\Phi(A_1 + A_2) = \Phi
-      A_1 + \Phi A_2$:
-%
-      \[
-      \infer*{
-        \infer*[right=ih]{~}{\J{\phi e}{\Phi\Gamma}{\Phi A_1 + \Phi A_2}}
-        \and
-        \Big(
-        \infer*[right=ih]{~}
-               {\J{\phi f_i}{\Phi\Gamma,\, \hm x \Phi A_i}{\Phi B}}
-        \Big)_i
-      }{
-        \J{\emcase{\phi e} (\inj i \dvar x \caseto \phi f_i)_i}{\Phi\Gamma}{\Phi B}
-      }
-      \]
-
-      The $\delta$ case is more interesting, as it uses syntax sugar. First we
-      give a rule for this syntax sugar and establish its deriveability:
-
-      \[
-      \infer{
-        \J{e}{\Omega}{\iso (A_1 + A_2) \x (B_1 + B_2)}\\
-        (\J{f_{i,j}}{\Omega,\, \hd x A_i,\, \hm y B_j}{C})_{i,j}
-      }{
-        \J{\emcase{e} (\inj i \pboxvar{x},\, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
-          {\Omega}
-          {C}
-      }
-      \]
-
-      This is derivable as follows:
-
-      \[
-      \infer*{
-        \XXX
-      }{
-        \J{\emcase{e} (\inj i \pboxvar{x},\, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
-          {\Omega}
-          {C}
-      }
-      \]
-
-      We can use this to type the $\delta$-translation as follows:
-
-      \[
-      \infer*{
-        \J{(\esplit{\ebox{\phi e}},\, \delta e)}
-          {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
-          {?}
-        \and
-        ...
-      }{
-        \J{\emcase{\esplit{\ebox{\phi e}},\, \delta e} \text{...}}
-          {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
-          {\Delta\Phi B}
-      }
-      \]
-
-      \todo{prove this case}
-
-    \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$,\quad
-      $\phi\ebox{e} = \ebox{(\phi e, \delta e)}$,\quad
-      $\delta\ebox{e} = ()$.]\label{case-well-typed-box}\
-
-      Observe that
-      \begin{align*}
-        \Phi\iso A &= \iso(\Phi A \x \Delta\Phi A)
-        & \Delta\Phi\iso A &= \tunit
-      \end{align*}
-
-      Thus the $\delta$ case is trivial, and the $\phi$ case follows by
-      weakening our inductive hypotheses:
-
-      \[
-      \infer*{
-        \infer*{
-          \infer*[right=ih]{~}{
-            \J{\phi e}{\stripcx{\Phi\Gamma}}{\Phi A}
-          }
-          \\
-          \infer*[right=ih]{~}{
-            \J{\delta e}{\stripcx{\Phi\Gamma}}{\Delta\Phi A}
-          }
-        }{
-          \J{(\phi e, \delta e)}{\stripcx{\Phi\Gamma}}{\Phi A \x \Delta\Phi A}
-        }
-      }{
-        \J{\ebox{(\phi e, \delta e)}}{\Phi\Gamma}{\iso(\Phi A \x \Delta\Phi A)}
-      }
-      \]
-
-      To justify the typing of our inductive hypotheses, observe that
-      $\Phi\stripcx{\Gamma} = \stripcx{\Phi\Gamma}$ because $\Phi$ preserves the
-      mode (discrete or monotone) of hypotheses. Justifying
-      $\stripcx{\Phi\Gamma} = \iso\Phi\stripcx{\Gamma},\,
-      \Delta\Phi\stripcx{\Gamma}$ requires a little more footwork:
-
-      \begin{align*}
-        &\phantom{{}={}}\iso\Phi\stripcx{\Gamma},\, \Delta\Phi\stripcx{\Gamma}\\
-        &= \iso\stripcx{\Phi\Gamma},\, \Delta\stripcx{\Phi\Gamma}
-        &&\text{because }\Phi\stripcx{\Gamma} = \stripcx{\Phi\Gamma}\\
-        &= \iso\stripcx{\Phi\Gamma}
-        &&\text{$\stripcx{\Phi\Gamma}$ has only discrete hypotheses, which $\Delta$ drops}\\
-        &= \stripcx{\Phi\Gamma}
-        &&\text{$\stripcx{\Phi\Gamma}$ has only discrete hypotheses, which $\iso$ leaves alone}
-      \end{align*}
-
-    \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
-      \J {\eletbox x e f} \G B}$.]\
-
-      Recall that
-      \begin{align*}
-        \phi(\eletbox{x} e f) &= \elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi
-        \\
-        \delta(\eletbox{x} e f) &=
-        \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
-      \end{align*}
-
-      This involves some syntax sugar, so let us first derive the following
-      typing rule:
-
-      \[
-      \infer{
-        \J{e}{\Gamma}{\iso(A \times B)}\\
-        \J{f}{\Gamma,\, \hd x A,\, \hd y B}{C}
-      }{
-        \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}{\Gamma}{C}
-      }
-      \]
-
-      Expanding our syntax sugar, we have
-
-      \[
-      \elet{\pboxtuple{\dvar x, \dvar y} = e} f
-      \desugars
-      \elet{y = e} \XXX
-      \]
-
-      \todo{what does this desugar to?}
-
-      Putting this syntax sugar to work, we have:
-      \[
-      \infer*{
-        \infer*[right=ih]{~}{
-          \J{\phi e}{\Phi\Gamma}{\iso(\Phi A \x \Delta\Phi A)}
-        }
-        \\
-        \infer*[right=ih]{~}{
-          \J{\phi f}{\Phi\Gamma, \hd x {\Phi A}, \hd\dx{\Delta\Phi A}}{\Phi B}
-        }
-      }{
-        \J{\elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi f}
-          {\Phi\Gamma}
-          {\Phi B}
-      }
-      \]
-
-      And similarly:
-      \[
-      \infer*{
-        \J{\phi e}
-          {\iso\Phi\Gamma, \Delta\Phi\Gamma}
-          {\iso(\Phi A \x \Delta\Phi A)}
-        \\
-        \J{\delta f}
-          {\iso\Phi\Gamma, \Delta\Phi\Gamma, \hd x {\Phi A}, \hd\dx{\Delta\Phi A}}
-          {\Delta\Phi B}
-      }{
-        \J{\elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \delta f}
-          {\iso\Phi\Gamma, \Delta\Phi\Gamma}
-          {\Phi B}
-      }
-      \]
-      where the two premises come from our induction hypotheses, the
-      latter directly, and the former by way of weakening: \todo{finish proving
-        this case}
-
-    \item[Case\quad $\infer{\quad}{\J\bot\G {\eqt L}}$,\quad $\phi\bot = \bot$,
-      \quad $\delta\bot = \bot$.]\
-
-      Trivial, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
-      and $\Delta\Phi\eqt{L} = \eqt{L}$ by
-      \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
-      types as required.
-
-    \item[Case\quad $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}$,\quad
-      $\phi(e_1 \vee e_2) = \phi e_1 \vee \phi e_2$,\quad
-      $\delta(e_1 \vee e_2) = \delta e_1 \vee \delta e_2$.]\
-
-      Immediate, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
-      and $\Delta\Phi\eqt{L} = \eqt{L}$ by
-      \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
-      types as required.
-
-    \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
-      \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$,\quad
-      $\phi(\esetsub{e_i}{i}) = \esetsub{\phi e_i}{i}$,\quad
-      $\delta\esetsub{e_i}{i} = \bot$.]\
-
-      Immediate.
-
-    \item[Case\quad $\infer{
-        \J e \G {\tset A} \\
-        \J f {\G,\, \hd x A} {\eqt L}
-      }{\J {\eforvar x e f} \G {\eqt L}}$.]\
-
-      Recall that
-      \begin{align*}
-        \phi(\eforvar x e f)
-        &= \eforvar x {\phi e}{\eletbox{\dx}{\ebox{\zero\<\dvar x}} \phi f}\\
-        \delta(\eforvar x e f)
-        &= (\eforvar x {\delta e}
-        %\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}) \\
-        \eletbox \dx {\zero\<\dvar x} \phi f) \\
-        &\vee (\eforvar x {\phi e \vee \delta e}
-        %\substd{\delta f}{\dvar\dx \substo \zero\<\dvar x})
-        \eletbox{\dx}{\zero\<\dvar x} \delta f)
-      \end{align*}
-
-      \todo{prove this case}
-
-    \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
-          {\J {\eeq{e_1}{e_2}} \G \tbool}$,\quad
-          $\phi(\eeq e f) = \eeq{\phi e}{\phi f}$,\quad
-          $\delta(\eeq e f) = \bot$.]\
-
-      The $\phi$ case requires only that $\Phi \eqt{A}$ be an equality type,
-      which it is by \cref{lemma-phi-eqt}; the $\delta$ case type checks because
-      $\Delta\Phi\tbool = \tbool$.
-
-    \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
-      \J {\eisempty e} \G {\tunit + \tunit}}$,\quad
-      $\phi(\eisempty e) = \eisempty{\phi e}$,\quad
-      $\delta(\eisempty e) = \eisempty{\phi e}$.]\
-
-      Immediate, observing that $\Phi\tset{\tunit} = \tset{\tunit}$ and
-      $\Phi(\tunit + \tunit) = \Delta\Phi(\tunit + \tunit) = \tunit + \tunit$.
-
-    \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
-          B}}$.]\
-
-      Recall that
-      \begin{align*}
-        \phi(\esplit e) &= \emcase{\phi e}
-        \\
-        &\phantom{{}={}}\
-        \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
-        \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
-        \\
-        &\phantom{{}={}}\
-        \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
-        \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
-      \end{align*}
-
-      \todo{prove this case}
-
-    \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
-      \J{\efixis x e} \G {\fixt L}}$.]\
-
-      Recall that
-      \begin{align*}
-        \phi(\efix e)
-        &= \semifix\<(\phi e,\; \delta e)
-        & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
-        \\
-        \delta(\efix e) &= \bot
-        & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
-      \end{align*}
-
-      This justifies the case for $\delta$ immediately. As for $\phi$, recall
-      the typing rule for $\semifix$:
-
-      \[
-      \infer{
-        \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
-      }{\J{\semifix\<e}{\G}{\fixt L}}
-      \]
-
-      \todo{prove this case}
-
-  \end{description}
-\end{proof}
+\PhiDeltaWellTypedProof*
+
+%% \begin{proof}\label{proof-phi-delta-well-typed}
+%%   By induction on the typing derivation $\J e \Gamma A$. The proof is utterly
+%%   mechanical.
+
+%%   \begin{description}[topsep=1em,itemsep=1em]
+%%     \item[Case\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$,\quad $\phi\mvar{x} =
+%%       \mvar{x}$,\quad $\delta\mvar{x} = \mvar\dx$.]\
+
+%%       Then $\phi \mvar x = \mvar{x}$ and $\delta\mvar x = \mvar\dx$, so we
+%%       need to show that $\J{\mvar{x}}{\Phi\Gamma}{\Phi A}$ and
+%%       $\J{\mvar\dx}{\iso\Phi\Gamma, \Delta\Phi\Gamma}{\Delta\Phi A}$. We know
+%%       that $\Phi$ and $\Delta$ distribute over contexts, so since $\hm x A \in
+%%       \Gamma$ we know that $\Phi(\hm x A) = \hm x {\Phi A} \in \Phi\Gamma$ and
+%%       $\Delta\Phi(\hm x A) = \hm{\dx}{\Delta\Phi A} \in \Delta\Phi\Gamma$, which
+%%       suffices by \rn{var}.
+
+%%     \item[Case\quad $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$,\quad
+%%       $\phi\dvar{x} = \dvar{x}$,\quad $\delta\dvar{x} = \dvar\dx$.]\
+
+%%       Then $\phi\dvar{x} = \dvar{x}$ and $\delta\dvar{x} = \dvar\dx$. By the
+%%       same argument as the previous case, it suffices to show that $\hd{x}{\Phi
+%%         A} \in \Phi\Gamma$ and $\hd{\dx}{\Delta\Phi A} \in \Delta\Phi\Gamma$,
+%%       which is true by distributing $\Phi$ and $\Delta$.
+
+%%     \item[Case\quad $\infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}$,\quad
+%%       $\phi(\efn x e) = \efn x \phi e$,\quad
+%%       $\delta(\efn x e) = \fnof{\pboxvar x}\efn\dx \delta e$.]\
+
+%%       Then by our inductive hypothesis,
+%%       \[
+%%       \infer{
+%%         \J{\phi e}{\Phi\Gamma,\, \hm x {\Phi A}}{\Phi B}
+%%       }{\J{\efn x \phi e}{\Phi\Gamma}{\Phi A \to \Phi B}}
+%%       \]
+%%       which handles the case for $\phi$.
+
+%%       The case for $\delta$ is complicated by the use of syntax sugar,
+%%       $(\fnof{\pboxvar x} ...) \desugars (\efn y \eletbox x {\mvar y} ...)$. For
+%%       simplicity's sake we first derive a typing rule for this sugared syntax:
+
+%%       \[
+%%       \infer{
+%%         \J{f}{\Gamma,\, \hd x A}{B}
+%%       }{
+%%         \J{\fnof{\pboxvar x} f}{\Gamma}{\iso A \to B}
+%%       }
+%%       \]
+
+%%       \noindent
+%%       which is justified by the following expansion and
+%%       weakening~(\cref{theorem-weakening}):
+
+%%       \[
+%%       \infer*{
+%%         \infer*{
+%%           \infer*{
+%%             \infer*{~}{
+%%               {\hm y {\iso A}} \in {\Gamma, \hm y {\iso A}}
+%%           }}{\J{\mvar{y}}{\Gamma, \hm y {\iso A}}{\iso A}}
+%%           \\
+%%           \infer*[right={weakening}]{
+%%             \J{f}{\Gamma,\, \hd x A}{B}
+%%           }{\J{f}{\Gamma, \hm y {\iso A}, \hd x A}{B}}
+%%         }{
+%%           \J{\eletbox x {\mvar y} f}{\Gamma, \hm y {\iso A}}{B}
+%%       }}{
+%%         \J{\efn y \eletbox x {\mvar y} f}{\Gamma}{\iso A \to B}
+%%       }
+%%       \]
+
+%%       \noindent
+%%       Putting this syntactic sugar to work, we have:
+
+%%       \[
+%%       \infer*[right=sugar]{
+%%         \infer*{
+%%           \J{\delta e}
+%%             {\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso A},\,
+%%               \hm{\dx}{\Delta\Phi A}}
+%%             {\Delta\Phi B}
+%%         }{
+%%           \J{\efn\dx \delta e}
+%%             {\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso\Phi A}}
+%%             {\Delta\Phi A  \to \Delta\Phi B}
+%%         }
+%%       }{
+%%         \J{\fnof{\pboxvar x} \efn\dx \delta e}
+%%           {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
+%%           {\iso \Phi A \to \Delta\Phi A \to \Delta\Phi B}
+%%       }
+%%       \]
+
+%%       and if we rearrange the typing context of the premise at the top, we see
+%%       that it matches our inductive hypothesis:
+%% %
+%%       \begin{align*}
+%%         &\phantom{{}={}}\iso\Phi\Gamma,\, \Delta\Phi\Gamma,\, \hd x {\iso A},\,
+%%         \hm{\dx}{\Delta\Phi A}\\
+%%         &=
+%%         \iso\Phi\Gamma,\, \hd x {\iso A},\:
+%%         \Delta\Phi\Gamma,\, \hm{\dx}{\Delta\Phi A}\\
+%%         &=
+%%         \iso\Phi(\Gamma,\, \hm x A),\, \Delta\Phi(\Gamma,\, \hm x A)
+%%       \end{align*}
+%% %
+%%       which finishes the case for $\delta$.
+
+%%     \item[Case\quad $\infer{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}$,\quad
+%%       $\phi(e\<f) = \phi e\<\phi f$,\quad
+%%       $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$.]\
+
+%%       The $\phi$ case fairly straightforward: by our inductive hypotheses,
+
+%%       \[
+%%       \infer*{
+%%         \J{\phi e}{\Phi\Gamma}{\Phi A \to \Phi B}\\
+%%         \J{\phi f}{\Phi\Gamma}{\Phi A}
+%%       }{
+%%         \J{\phi e\<\phi f}{\Phi\Gamma}{\Phi B}
+%%       }
+%%       \]
+
+%%       The $\delta$ case is not more complex, but the types get larger, so it
+%%       does not fit easily in one derivation. Applying \rn{app} it suffices to
+%%       show that, in the context ${\iso\Phi\Gamma,\, \Delta\Phi\Gamma}$, we have
+%%       $\delta e \isa {\iso\Phi A \to \Delta\Phi A \to \Delta\Phi B}$ and
+%%       ${\ebox{\phi f}} \isa {\iso\Phi A}$ and $\delta f \isa {\Delta\Phi B}$.
+%%       The first and last of these are supplied directly by our inductive
+%%       hypotheses, while the last needs a use of weakening, observing that
+%%       $
+%%       \stripcx{\iso\Phi\Gamma, \Delta\Phi\Gamma}
+%%       \stronger
+%%       \stripcx{\iso\Phi\Gamma}
+%%       =
+%%       \iso\Phi\Gamma
+%%       \stronger
+%%       \Phi\Gamma
+%%       $ (using \cref{lemma-weakening-strip-context}).
+
+%%       \[
+%%       \infer*{
+%%         \infer*[right=weakening]{
+%%           \J{\phi f}{\Phi\Gamma}{\Phi A}
+%%         }{
+%%           \J{\phi f}
+%%             {\stripcx{\iso\Phi\Gamma,\, \Delta\Phi\Gamma}}
+%%             {\Phi A}
+%%       }}{
+%%         \J{\ebox{\phi f}}{\iso\Phi\Gamma,\, \Delta\Phi\Gamma}{\iso\Phi A}
+%%       }
+%%       \]
+
+%%     \item[Case\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$,\quad
+%%       $\phi() = ()$,\quad $\delta() = ()$.]\
+
+%%       Trivial.
+
+%%     \item[Case\quad
+%%       $\infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}$,\quad
+%%       $\phi(e_1, e_2) = (\phi e_1, \phi e_2)$,\quad
+%%       $\delta(e_1, e_2) = (\delta e_1, \delta e_2)$.]\
+
+%%       Immediate.
+
+%%     \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$,\quad
+%%       $\phi(\pi_i\<e) = \pi_i\<\phi e$,\quad
+%%       $\delta(\pi_i\<e) = \pi_i\<\delta e$.]\
+
+%%       Immediate.
+
+%%     \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
+%%         (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
+%%       }{
+%%         \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
+%%       }$.]\
+
+%%       Recall that
+%%       \begin{align*}
+%%         \phi(\emcase e (\inj i \mvar x \caseto f_i)_i)
+%%         &= \emcase{\phi e} (\inj i \mvar x \caseto \phi f_i)_i
+%%         \\
+%%         \delta({\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i})
+%%         &=
+%%         \emcase{\esplit{\ebox{\phi e}},\, \delta e}\\
+%%         &\qquad ({\inj i {\pboxvar x},\, \inj i \mvar\dx} \caseto \delta f_i)_{i}\\
+%%         &\qquad ({\inj i {\pboxvar x},\, \inj j \pwild}
+%%         %\caseto \subst{\delta f_i}{\dx \substo \dummy\<\dvar x})_{i\ne j}
+%%         \caseto \elet{\mvar\dx = \dummy\<\dvar x} \delta f_i)_{i\ne j}
+%%       \end{align*}
+
+%%       The $\phi$ case is straightforward, observing that $\Phi(A_1 + A_2) = \Phi
+%%       A_1 + \Phi A_2$:
+%% %
+%%       \[
+%%       \infer*{
+%%         \infer*[right=ih]{~}{\J{\phi e}{\Phi\Gamma}{\Phi A_1 + \Phi A_2}}
+%%         \and
+%%         \Big(
+%%         \infer*[right=ih]{~}
+%%                {\J{\phi f_i}{\Phi\Gamma,\, \hm x \Phi A_i}{\Phi B}}
+%%         \Big)_i
+%%       }{
+%%         \J{\emcase{\phi e} (\inj i \dvar x \caseto \phi f_i)_i}{\Phi\Gamma}{\Phi B}
+%%       }
+%%       \]
+
+%%       The $\delta$ case is more interesting, as it uses syntax sugar. First we
+%%       give a rule for this syntax sugar and establish its deriveability:
+
+%%       \[
+%%       \infer{
+%%         \J{e}{\Omega}{\iso (A_1 + A_2) \x (B_1 + B_2)}\\
+%%         (\J{f_{i,j}}{\Omega,\, \hd x A_i,\, \hm y B_j}{C})_{i,j}
+%%       }{
+%%         \J{\emcase{e} (\inj i \pboxvar{x},\, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
+%%           {\Omega}
+%%           {C}
+%%       }
+%%       \]
+
+%%       This is derivable as follows:
+
+%%       \[
+%%       \infer*{
+%%         \XXX
+%%       }{
+%%         \J{\emcase{e} (\inj i \pboxvar{x},\, \inj j \mvar{y} \caseto f_{i,j})_{i,j}}
+%%           {\Omega}
+%%           {C}
+%%       }
+%%       \]
+
+%%       We can use this to type the $\delta$-translation as follows:
+
+%%       \[
+%%       \infer*{
+%%         \J{(\esplit{\ebox{\phi e}},\, \delta e)}
+%%           {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
+%%           {?}
+%%         \and
+%%         ...
+%%       }{
+%%         \J{\emcase{\esplit{\ebox{\phi e}},\, \delta e} \text{...}}
+%%           {\iso\Phi\Gamma,\, \Delta\Phi\Gamma}
+%%           {\Delta\Phi B}
+%%       }
+%%       \]
+
+%%       \todolater{prove this case}
+
+%%     \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$,\quad
+%%       $\phi\ebox{e} = \ebox{(\phi e, \delta e)}$,\quad
+%%       $\delta\ebox{e} = ()$.]\label{case-well-typed-box}\
+
+%%       Observe that
+%%       \begin{align*}
+%%         \Phi\iso A &= \iso(\Phi A \x \Delta\Phi A)
+%%         & \Delta\Phi\iso A &= \tunit
+%%       \end{align*}
+
+%%       Thus the $\delta$ case is trivial, and the $\phi$ case follows by
+%%       weakening our inductive hypotheses:
+
+%%       \[
+%%       \infer*{
+%%         \infer*{
+%%           \infer*[right=ih]{~}{
+%%             \J{\phi e}{\stripcx{\Phi\Gamma}}{\Phi A}
+%%           }
+%%           \\
+%%           \infer*[right=ih]{~}{
+%%             \J{\delta e}{\stripcx{\Phi\Gamma}}{\Delta\Phi A}
+%%           }
+%%         }{
+%%           \J{(\phi e, \delta e)}{\stripcx{\Phi\Gamma}}{\Phi A \x \Delta\Phi A}
+%%         }
+%%       }{
+%%         \J{\ebox{(\phi e, \delta e)}}{\Phi\Gamma}{\iso(\Phi A \x \Delta\Phi A)}
+%%       }
+%%       \]
+
+%%       To justify the typing of our inductive hypotheses, observe that
+%%       $\Phi\stripcx{\Gamma} = \stripcx{\Phi\Gamma}$ because $\Phi$ preserves the
+%%       mode (discrete or monotone) of hypotheses. Justifying
+%%       $\stripcx{\Phi\Gamma} = \iso\Phi\stripcx{\Gamma},\,
+%%       \Delta\Phi\stripcx{\Gamma}$ requires a little more footwork:
+
+%%       \begin{align*}
+%%         &\phantom{{}={}}\iso\Phi\stripcx{\Gamma},\, \Delta\Phi\stripcx{\Gamma}\\
+%%         &= \iso\stripcx{\Phi\Gamma},\, \Delta\stripcx{\Phi\Gamma}
+%%         &&\text{because }\Phi\stripcx{\Gamma} = \stripcx{\Phi\Gamma}\\
+%%         &= \iso\stripcx{\Phi\Gamma}
+%%         &&\text{$\stripcx{\Phi\Gamma}$ has only discrete hypotheses, which $\Delta$ drops}\\
+%%         &= \stripcx{\Phi\Gamma}
+%%         &&\text{$\stripcx{\Phi\Gamma}$ has only discrete hypotheses, which $\iso$ leaves alone}
+%%       \end{align*}
+
+%%     \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
+%%       \J {\eletbox x e f} \G B}$.]\
+
+%%       Recall that
+%%       \begin{align*}
+%%         \phi(\eletbox{x} e f) &= \elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi
+%%         \\
+%%         \delta(\eletbox{x} e f) &=
+%%         \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
+%%       \end{align*}
+
+%%       This involves some syntax sugar, so let us first derive the following
+%%       typing rule:
+
+%%       \[
+%%       \infer{
+%%         \J{e}{\Gamma}{\iso(A \times B)}\\
+%%         \J{f}{\Gamma,\, \hd x A,\, \hd y B}{C}
+%%       }{
+%%         \J{\elet{\pboxtuple{\dvar x, \dvar y} = e} f}{\Gamma}{C}
+%%       }
+%%       \]
+
+%%       Expanding our syntax sugar, we have
+
+%%       \[
+%%       \elet{\pboxtuple{\dvar x, \dvar y} = e} f
+%%       \desugars
+%%       \elet{y = e} \XXX
+%%       \]
+
+%%       \todolater{what does this desugar to?}
+
+%%       Putting this syntax sugar to work, we have:
+%%       \[
+%%       \infer*{
+%%         \infer*[right=ih]{~}{
+%%           \J{\phi e}{\Phi\Gamma}{\iso(\Phi A \x \Delta\Phi A)}
+%%         }
+%%         \\
+%%         \infer*[right=ih]{~}{
+%%           \J{\phi f}{\Phi\Gamma, \hd x {\Phi A}, \hd\dx{\Delta\Phi A}}{\Phi B}
+%%         }
+%%       }{
+%%         \J{\elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \phi f}
+%%           {\Phi\Gamma}
+%%           {\Phi B}
+%%       }
+%%       \]
+
+%%       And similarly:
+%%       \[
+%%       \infer*{
+%%         \J{\phi e}
+%%           {\iso\Phi\Gamma, \Delta\Phi\Gamma}
+%%           {\iso(\Phi A \x \Delta\Phi A)}
+%%         \\
+%%         \J{\delta f}
+%%           {\iso\Phi\Gamma, \Delta\Phi\Gamma, \hd x {\Phi A}, \hd\dx{\Delta\Phi A}}
+%%           {\Delta\Phi B}
+%%       }{
+%%         \J{\elet{\pboxtuple{\dvar x,\dvar\dx} = \phi e} \delta f}
+%%           {\iso\Phi\Gamma, \Delta\Phi\Gamma}
+%%           {\Phi B}
+%%       }
+%%       \]
+%%       where the two premises come from our induction hypotheses, the latter
+%%       directly, and the former by way of weakening: \todolater{finish proving
+%%         this case}
+
+%%     \item[Case\quad $\infer{\quad}{\J\bot\G {\eqt L}}$,\quad $\phi\bot = \bot$,
+%%       \quad $\delta\bot = \bot$.]\
+
+%%       Trivial, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
+%%       and $\Delta\Phi\eqt{L} = \eqt{L}$ by
+%%       \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
+%%       types as required.
+
+%%     \item[Case\quad $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}$,\quad
+%%       $\phi(e_1 \vee e_2) = \phi e_1 \vee \phi e_2$,\quad
+%%       $\delta(e_1 \vee e_2) = \delta e_1 \vee \delta e_2$.]\
+
+%%       Immediate, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
+%%       and $\Delta\Phi\eqt{L} = \eqt{L}$ by
+%%       \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
+%%       types as required.
+
+%%     \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
+%%       \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$,\quad
+%%       $\phi(\esetsub{e_i}{i}) = \esetsub{\phi e_i}{i}$,\quad
+%%       $\delta\esetsub{e_i}{i} = \bot$.]\
+
+%%       Immediate.
+
+%%     \item[Case\quad $\infer{
+%%         \J e \G {\tset A} \\
+%%         \J f {\G,\, \hd x A} {\eqt L}
+%%       }{\J {\eforvar x e f} \G {\eqt L}}$.]\
+
+%%       Recall that
+%%       \begin{align*}
+%%         \phi(\eforvar x e f)
+%%         &= \eforvar x {\phi e}{\eletbox{\dx}{\ebox{\zero\<\dvar x}} \phi f}\\
+%%         \delta(\eforvar x e f)
+%%         &= (\eforvar x {\delta e}
+%%         %\substd{\phi f}{\dvar\dx \substo \zero\<\dvar x}) \\
+%%         \eletbox \dx {\zero\<\dvar x} \phi f) \\
+%%         &\vee (\eforvar x {\phi e \vee \delta e}
+%%         %\substd{\delta f}{\dvar\dx \substo \zero\<\dvar x})
+%%         \eletbox{\dx}{\zero\<\dvar x} \delta f)
+%%       \end{align*}
+
+%%       \todolater{prove this case}
+
+%%     \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+%%           {\J {\eeq{e_1}{e_2}} \G \tbool}$,\quad
+%%           $\phi(\eeq e f) = \eeq{\phi e}{\phi f}$,\quad
+%%           $\delta(\eeq e f) = \bot$.]\
+
+%%       The $\phi$ case requires only that $\Phi \eqt{A}$ be an equality type,
+%%       which it is by \cref{lemma-phi-eqt}; the $\delta$ case type checks because
+%%       $\Delta\Phi\tbool = \tbool$.
+
+%%     \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
+%%       \J {\eisempty e} \G {\tunit + \tunit}}$,\quad
+%%       $\phi(\eisempty e) = \eisempty{\phi e}$,\quad
+%%       $\delta(\eisempty e) = \eisempty{\phi e}$.]\
+
+%%       Immediate, observing that $\Phi\tset{\tunit} = \tset{\tunit}$ and
+%%       $\Phi(\tunit + \tunit) = \Delta\Phi(\tunit + \tunit) = \tunit + \tunit$.
+
+%%     \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
+%%           B}}$.]\
+
+%%       Recall that
+%%       \begin{align*}
+%%         \phi(\esplit e) &= \emcase{\phi e}
+%%         \\
+%%         &\phantom{{}={}}\
+%%         \left(\pboxtuple{\inj i \dvar x, \inj i \dvar \dx}
+%%         \caseto \inj i {\eboxtuple{\dvar x,\dvar\dx}}\right)_{i}
+%%         \\
+%%         &\phantom{{}={}}\
+%%         \left(\pboxtuple{\inj i \dvar x, \inj j \pwild}
+%%         \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
+%%       \end{align*}
+
+%%       \todolater{prove this case}
+
+%%     \item[Case\quad
+%%       $\infer{\J e \Gamma \isofixLtoL}{\J{\efix e} \Gamma {\fixt L}}$
+%%       %% $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
+%%       %% \J{\efixis x e} \G {\fixt L}}$.
+%%     ]\
+
+%%       Recall that
+%%       \begin{align*}
+%%         \phi(\efix e)
+%%         &= \semifix\<(\phi e,\; \delta e)
+%%         & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
+%%         \\
+%%         \delta(\efix e) &= \bot
+%%         & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+%%       \end{align*}
+
+%%       This justifies the case for $\delta$ immediately. As for $\phi$, recall
+%%       the typing rule for $\semifix$:
+
+%%       \[
+%%       \infer{
+%%         \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
+%%       }{\J{\semifix\<e}{\G}{\fixt L}}
+%%       \]
+
+%%       \todolater{prove this case}
+
+%%   \end{description}
+%% \end{proof}
 
 
 \nextlemma
@@ -1009,83 +932,326 @@ in the text. \todolater{But maybe it should be?}
   %
   We will refer to the other premise $\weirdat\Gamma\dgamma\gamma\rho{\gamma'}{\rho'}$ as simply ``the assumption''.
 
-  \begin{description}[itemsep=1\baselineskip]
+  \begin{description}[topsep=\baselineskip,itemsep=\baselineskip]
 
-    %% CASE: FIX
+    %% CASE: CASE ANALYSIS
   \item[Case $\infer{
-      \J e \Gamma \isofixLtoL
+      \J e \G {A_1 + A_2} \\
+      (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
     }{
-      \J{\efix e}\Gamma {\fixt L}
-    }$.]
-    Recall that
-    %
+      \J{\emcase e (\inj i \mvar x \caseto f_i)_i} \Gamma B
+    }$] Recall that
+%
     \begin{align*}
-      \phi(\efix e) &= \semifix\<\phi e
-      & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
+      \phi(\emcase e (\inj i \mvar x \caseto f_i)_i)
+      &= \emcase{\phi e} (\inj i \mvar x \caseto \phi f_i)_i
       \\
-      \delta(\efix e) &= \bot
-      & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
+      \delta(\emcase e (\inj i \mvar x \caseto f_i)_i)
+      &=
+    \emcase{\esplit{\ebox{\phi e}}}\\
+    &\qquad
+    (
+    \inj i {\color{fresh}\mvar y} \caseto
+    \eletbox{x}{\color{fresh}\mvar y}
+    \\
+    &\qquad\phantom{(\inj i {\mvar y} \caseto {}}
+    (\efn{\dx} \delta f_i)
+    \\
+    &\qquad\phantom{(\inj i {\mvar y} \caseto {}}
+    (\emcase{\delta e}
+    \inj i \mvar\dx \caseto \mvar\dx
+    \\
+    &\qquad\phantom{(\inj i {\mvar y} \caseto {} (\emcase{\delta e}}
+    \inj{i+1 \bmod 2} \pwild \caseto \dummy\<\dvar x
+    ))_i
     \end{align*}
+
+    \noindent
+    Let $\rho_1 = \rho$, $\rho_2 = \rho'$, $\gamma_1 = \gamma$, $\gamma_2 = \gamma'$.
+%
+    By our inductive hypothesis for $e$ there must be some $k \in \{1,2\}$ and some $dx, x_i, a_i$ such that $\weirdat{A_k}{dx}{x_1}{a_1}{x_2}{a_2}$ and:
+%
+    \begin{align*}
+      \den{e}\<\rho_i &= \inj k a_i
+      &
+      \den{\phi e}\<\gamma_i &= \inj k x_i
+      & \den{\delta e}\<(\gamma, \dgamma) &= \inj k dx
+    \end{align*}
+
+    \noindent
+    Applying this and our inductive hypothesis for $f_k$ it will suffice to show that:
+%
+    \begin{align}\label{case-a}
+      \den{\emcase e (\inj i \mvar x \caseto f_i)_i} \<\rho_i
+      &= \den{f_k}\<(\rho_i, \mvar x \mapsto a_i)
+      \\\label{case-b}
+      \den{\phi(\emcase e (\inj i \mvar x \caseto f_i)_i)} \<\gamma_i
+      &= \den{\phi f_k}\<(\gamma_i, \mvar x \mapsto x_i)
+      \\\label{case-c}
+      \den{\delta(\emcase e (\inj i \mvar x \caseto f_i)_i)}
+      \<(\gamma, \dgamma)
+      &= \den{\delta f_k}
+      \<(\gamma, \dgamma, \dvar x \mapsto x_1, \mvar\dx \mapsto dx)
+    \end{align}
+
+    \noindent
+    Showing this is a matter of calculation. \Cref{case-a,case-b} are fairly straightforward to calculate, so we only show \cref{case-c} in detail. Before starting, it will be useful to give some abbreviations for subterms of $\delta(\emcase e (\inj i \mvar x \caseto f_i)_i)$:
+
+    \nopagebreak[2]
+    \begin{align*}
+      h_i &= \emcase{\delta e}
+      \inj i \mvar\dx \caseto \mvar\dx;\;
+      \inj{i+1 \bmod 2} \pwild \caseto \dummy\<\dvar x
+      \\
+      g_i &= \eletbox{x}{\color{fresh}\mvar y}
+      (\efn{\dx} \delta f_i) \<h_i
+    \end{align*}
+
+    \noindent
+    It will also be useful to note the type of $\phi e$ as it occurs in the sub-expression $\esplit \ebox{\phi e}$ being immediately analyzed by $\delta(\emcase e (\inj i \mvar x \caseto f_i)_i)$; it has been \emph{weakened} to the type $\J{\phi e}{\iso\Phi\Gamma}{\Phi A_1 + \Phi A_2}$.
+
+    \nopagebreak[2]
+    \begin{align*}
+      &\phantom{{}={}}
+      \den{\delta(\emcase e (\inj i \mvar x \caseto f_i)_i)}
+      \<(\gamma, \dgamma)
+      \\
+      &=
+      \krof{\den{g_i}}_i
+      \<(\morph{dist}^\x_+
+      ((\gamma, \dgamma),\, \den{\esplit \ebox{\phi e}}\<(\gamma, \dgamma)))
+      \\
+      &=
+      \krof{\den{g_i}}_i
+      \<(\morph{dist}^\x_+
+      ((\gamma, \dgamma),\,
+      \morph{dist}^\iso_+ (\den{\ebox{\phi e}}\<(\gamma, \dgamma))))
+      \\
+      &=
+      \krof{\den{g_i}}_i
+      \<(\morph{dist}^\x_+
+      ((\gamma, \dgamma),\,
+      \den{\ebox{\phi e}}\<(\gamma, \dgamma)))
+      && \morph{dist}^\iso_+~\text{is the identity}
+      \\
+      &=
+      \krof{\den{g_i}}_i
+      \<(\morph{dist}^\x_+
+      ((\gamma, \dgamma),\,
+      \den{\phi e}\<(\morphstrip_{\iso\Phi\Gamma} \<(\gamma, \dgamma))))
+      && \text{\cref{lemma-applying-box}}
+      \\
+      &=
+      \krof{\den{g_i}}_i
+      \<(\morph{dist}^\x_+ ((\gamma, \dgamma),\, \den{e} \<\gamma))
+      \\
+      &=
+      \krof{\den{g_i}}_i
+      \<(\morph{dist}^\x_+ ((\gamma, \dgamma),\, \inj k x_1))
+      \\
+      &=
+      \krof{\den{g_i}}_i \<(\inj k (\gamma, \dgamma, \mvar y \mapsto x_1))
+      \\
+      &= \den{g_k} \<(\gamma, \dgamma, \mvar y \mapsto x_1)
+      \\
+      &= \den{\eletbox{x}{\color{fresh}\mvar y}
+        (\efn{\dx} \delta f_k) \<h_k}
+      \<(\gamma, \dgamma, \mvar y \mapsto x_1)
+      \\
+      &= \den{(\efn{\dx} \delta f_k) \<h_k}
+      \<(\gamma, \dgamma, \dvar x \mapsto x_1)
+      \\
+      &= \den{(\efn{\dx} \delta f_k)}\<(\gamma, \dgamma, \dvar x \mapsto x_1)
+      \<(\den{h_k} \<(\gamma, \dgamma, \dvar x \mapsto x_1))
+      \\
+      &= (dx \mapsto \den{\delta f_k}\<(\gamma, \dgamma, \dvar x \mapsto x_1, \mvar\dx \mapsto dx))
+      \\
+      &\phantom{{}={}} \<(\den{h_k} \<(\gamma, \dgamma, \dvar x \mapsto x_1))
+      \\
+      &= \den{\delta f_k}\<(\gamma, \dgamma, \dvar x \mapsto x_1, \mvar\dx \mapsto (\den{h_k} \<(\gamma, \dgamma, \dvar x \mapsto x_1)))
+    \end{align*}
+
+    \noindent
+    And therefore it suffices to show that $\den{h_k} \<(\gamma, \dgamma, \dvar x \mapsto x_1) = dx$. Without loss of generality, assume $k = 1$:
+
+    \nopagebreak[2]
+    \begin{align*}
+      &\phantom{{}={}}
+      \den{h_1} \<(\gamma, \dgamma, \dvar x \mapsto x_1)
+      \\
+      &= \den{\emcase{\delta e}
+      \inj 1 \mvar\dx \caseto \mvar\dx;\;
+      \inj 2 \pwild \caseto \dummy\<\dvar x}
+      \<(\gamma, \dgamma, \dvar x \mapsto x_1)
+      \\
+      &= \krof{\den{\mvar\dx}, \den{\dummy\<\dvar x}}
+      \<(\morph{dist}^x_+
+      ((\gamma, \dgamma, \dvar x \mapsto x_1),\,
+      \den{\delta e}\<(\gamma, \dgamma, \dvar x \mapsto x_1)))
+      \\
+      &= \krof{\den{\mvar\dx}, \den{\dummy\<\dvar x}}
+      \<((\gamma, \dgamma, \dvar x \mapsto x_1),\, (\inj 1 dx))
+      \\
+      &= \krof{\den{\mvar\dx}, \den{\dummy\<\dvar x}}
+      \<(\inj 1 (\gamma, \dgamma, \dvar x \mapsto x_1, \mvar\dx \mapsto dx))
+      \\
+      &= \den{\mvar\dx}
+      \<(\gamma, \dgamma, \dvar x \mapsto x_1, \mvar\dx \mapsto dx)
+      \\
+      &= dx
+    \end{align*}
+
+    Which is what we wished to show.
+
+    %% CASE: BOX INTRODUCTION
+  \item[Case $\infer{
+      \J e {\stripcx{\Gamma}} A
+    }{
+      \J{\ebox{e}}{\Gamma}{\iso A}
+    }$,\, 
+    $\phi \ebox e = \ebox{\etuple{\phi e, \delta e}}$,\, 
+    $\delta \ebox e = \etuple{}$.
+  ]~\\
 
     \noindent
     For brevity, let
     \begin{align*}
-      f &= \den{e}\<\rho & f' &= \den{e}\<\rho'\\
-      (g_1, g_2) &= \den{\phi e}\<\gamma
-      & (g_1', g_2') &= \den{\phi e}\<\gamma'
+       \gamma_s &= \morphstrip_{\Phi\Gamma}(\gamma) &
+       \gamma_s' &= \morphstrip_\Gamma(\gamma') &
+       \rho_s &= \morphstrip_{\Phi\Gamma}(\rho) &
+       \rho_s' &= \morphstrip_\Gamma(\rho')
     \end{align*}
 
-    What we wish to show is:
+    By applying \cref{lemma-context-stripping} to our assumption, we have
+%
+    \begin{equation}\label{equation-strip-valid}
+    \weirdat{\Gamma}{()}{\gamma_s}{\rho_s}{\gamma_s'}{\rho_s'}
+    \end{equation}
+
+    \noindent
+    By applying \cref{lemma-discrete-contexts} we further know
+
+    \begin{equation}\label{equation-strip-equal}
+      \gamma_s = \gamma_s' \quad\text{and}\quad \rho_s = \rho_s'
+    \end{equation}
+
+    \noindent
+    We wish to show:
+%
+    \[
+    \weirdat{\iso A}
+            {\den{\etuple{}} \<(\gamma, \dgamma)}
+            {\den{\ebox{\etuple{\phi e, \delta e}}} \<\gamma}
+            {\den{\ebox e} \<\rho}
+            {\den{\ebox{\etuple{\phi e, \delta e}}} \<\gamma'}
+            {\den{\ebox e} \<\rho'}
+    \]
+
+    Applying \cref{lemma-applying-box} and further simplifying, this is equivalent to:
+%
+    \begin{equation*}
+    \weirdat{\iso A}
+            {()}
+            {(\den{\phi e} \<\gamma_s,\, \den{\delta e} \<\gamma_s)}
+            {\den{e} \<\rho_s}
+            {(\den{\phi e} \<\gamma_s,\, \den{\delta e} \<\gamma_s)}
+            {\den{e} \<\rho_s}
+    \end{equation*}
+
+    \noindent
+    Applying the definition of the logical relation at $\iso A$, this requires that $\den{e}\<\rho_s = \den{e}\<\rho_s'$ and $\den{\phi e}\<\gamma_s = \den{\phi e}\<\gamma_s'$ and $\den{\delta e}\<\gamma_s = \den{\delta e}\<\gamma_s'$, which hold by \cref{equation-strip-equal}, and that:
+%
+    \[
+    \weirdat{A}
+            {\den{\delta e}\<\gamma_s}
+            {\den{\phi e}\<\gamma_s}
+            {\den{e}\<\rho_s}
+            {\den{\phi e}\<\gamma_s'}
+            {\den{e}\<\rho_s'}
+    \]
+%
+    which follows from our inductive hypothesis applied to \cref{equation-strip-valid}.
+
+    %% CASE LET BOX
+  \item[Case $\infer{
+      \J e \Gamma {\iso A}\\
+      \J f {\Gamma, \hd x A} B
+    }{
+      \J{\eletbox x e f} \Gamma B
+    }$.]
+    Observe that
+    \begin{align*}
+    \phi(\eletbox x e f) &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f\\
+    \delta(\eletbox x e f) &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
+    \end{align*}
+
+    Further observe that
+
+    \begin{equation*}
+      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f} \<\gamma
+      =
+      \den{\phi f} \<(\gamma,\, x,\, dx)
+    \end{equation*}
+
+    \noindent
+    and likewise for $\delta f$ in place of $\phi f$ and/or $\gamma'$ in place of $\gamma$.
+%
+    For brevity, let
+    \begin{align*}
+      x, dx &= \den{\phi e}\<\gamma &
+      x', dx' &= \den{\phi e}\<\gamma'\\
+      a &= \den{e}\<\rho &
+      a' &= \den{e}\<\rho'
+    \end{align*}
+
+    Using this observation and these abbreviations, we have
 %
     \begin{align*}
-    &\weirdat{\fixt L}
-             {\den{\bot}\<(\gamma,\dgamma)}
-             {\den{\semifix\<\phi e}\<\gamma}
-             {\den{\efix e}\<\rho}
-             {\den{\semifix\<\phi e}\<\gamma'}
-             {\den{\efix e}\<\rho'}\\
-    \iff&
-    \weirdat{\fixt L}
-            {\bot}
-            {\semifix\<(\den{\phi e}\<\gamma)}
-            {\morph{fix}\<(\den{e}\<\rho)}
-            {\semifix\<(\den{\phi e}\<\gamma')}
-            {\morph{fix}\<(\den{e}\<\rho')}\\
-    \iff&
-    \weirdat{\fixt L}
-            {\bot}
-            {\semifix \<(g_1, g_2)}
-            {\morph{fix} \<f}
-            {\semifix \<(g_1', g_2')}
-            {\morph{fix} \<f'}\\
-    \iff&
-    \semifix\<(g_1, g_2) = \morph{fix}\<f
-    = \semifix\<(g_1', g_2') = \morph{fix}\<f'
-    \qquad \textsf{(applying \cref{lemma-semilattice-changes})}
+      \den{\eletbox x e f} \<\rho &= \den{f}\<(\rho, a)
+      \\
+      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f} \<\gamma
+      &= \den{\phi f}\<(\gamma, x, dx)
+      \\
+      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f} \<\gamma
+      &= \den{\delta f}\<(\gamma, x, dx)
     \end{align*}
+%
+    and likewise for $\gamma', \rho'$. Then what we wish to show is that
+%
+    \[
+    \weirdat B
+             {\den{\delta f}\<(\gamma, x, dx)}
+             {\den{\phi f}\<(\gamma, x, dx)}
+             {\den{f}\<(\rho, a)}
+             {\den{\phi f}\<(\gamma', x', dx')}
+             {\den{f}\<(\rho', a')}
+    \]
 
-    By our inductive hypothesis we have
+    \noindent
+    By our inductive hypothesis for $f$, it suffices to show that
+%
+    \[\weirdat{\Gamma, \hd x A}
+              {\dgamma}
+              {(\gamma, x, dx)}
+              {(\rho, a)}
+              {(\gamma', x', dx')}
+              {(\rho', a')}
+    \]
+
+    \noindent
+    Since our assumption tells us that
 %
     \(
-    \weirdat{\isofixLtoL}
-               {\den{\delta e}\<(\gamma,\dgamma)}
-               {(g_1, g_2)}
-               {f}
-               {(g_1', g_2')}
-               {f'}
-    \)
+    \weirdat{\Gamma}\dgamma\gamma\rho{\gamma'}{\rho'}
+    \),
 %
-    and expanding gives us:
-    \begin{gather}
-      \label{fix-eqn}
-      f = f' ~\text{and}~ g_1 = g_1' ~\text{and}~ g_2 = g_2'
-      \\
-      \label{fix-gf}
-      \weirdat{\fixt L \to \fixt L}{g_2}{g_1}{f}{g_1'}{f'}
-    \end{gather}
-
-    Applying \cref{fix-eqn} reduces our goal to showing $\semifix\<(g_1, g_2)
-    = \morph{fix}\<f$, which holds by \cref{lemma-semifix} applied to \cref{fix-gf,fix-eqn}.
+    it suffices to show that
+%
+    \(
+    \weirdat{\iso A}{()}{(x, dx)}{a}{(x', dx')}{a'}
+    \),
+%
+    which follows directly from our inductive hypothesis for $e$.
 
     %% CASE: FOR LOOPS
   \item[Case $\infer{
@@ -1281,155 +1447,81 @@ in the text. \todolater{But maybe it should be?}
 %
     Which is what we wished to show.
 
-    %% CASE: BOX INTRODUCTION
+    %% CASE: FIX
   \item[Case $\infer{
-      \J e {\stripcx{\Gamma}} A
+      \J e \Gamma \isofixLtoL
     }{
-      \J{\ebox{e}}{\Gamma}{\iso A}
-    }$,\, 
-    $\phi \ebox e = \ebox{\etuple{\phi e, \delta e}}$,\, 
-    $\delta \ebox e = \etuple{}$.
-  ]~\\
-
-    \noindent
-    For brevity, let
-    \begin{align*}
-       \gamma_s &= \morphstrip_{\Phi\Gamma}(\gamma) &
-       \gamma_s' &= \morphstrip_\Gamma(\gamma') &
-       \rho_s &= \morphstrip_{\Phi\Gamma}(\rho) &
-       \rho_s' &= \morphstrip_\Gamma(\rho')
-    \end{align*}
-
-    By applying \cref{lemma-context-stripping} to our assumption, we have
-%
-    \begin{equation}\label{equation-strip-valid}
-    \weirdat{\Gamma}{()}{\gamma_s}{\rho_s}{\gamma_s'}{\rho_s'}
-    \end{equation}
-
-    \noindent
-    By applying \cref{lemma-discrete-contexts} we further know
-
-    \begin{equation}\label{equation-strip-equal}
-      \gamma_s = \gamma_s' \quad\text{and}\quad \rho_s = \rho_s'
-    \end{equation}
-
-    \noindent
-    We wish to show:
-%
-    \[
-    \weirdat{\iso A}
-            {\den{\etuple{}} \<(\gamma, \dgamma)}
-            {\den{\ebox{\etuple{\phi e, \delta e}}} \<\gamma}
-            {\den{\ebox e} \<\rho}
-            {\den{\ebox{\etuple{\phi e, \delta e}}} \<\gamma'}
-            {\den{\ebox e} \<\rho'}
-    \]
-
-    Applying \cref{lemma-applying-box} and further simplifying, this is equivalent to:
-%
-    \begin{equation*}
-    \weirdat{\iso A}
-            {()}
-            {(\den{\phi e} \<\gamma_s,\, \den{\delta e} \<\gamma_s)}
-            {\den{e} \<\rho_s}
-            {(\den{\phi e} \<\gamma_s,\, \den{\delta e} \<\gamma_s)}
-            {\den{e} \<\rho_s}
-    \end{equation*}
-
-    \noindent
-    Applying the definition of the logical relation at $\iso A$, this requires that $\den{e}\<\rho_s = \den{e}\<\rho_s'$ and $\den{\phi e}\<\gamma_s = \den{\phi e}\<\gamma_s'$ and $\den{\delta e}\<\gamma_s = \den{\delta e}\<\gamma_s'$, which hold by \cref{equation-strip-equal}, and that:
-%
-    \[
-    \weirdat{A}
-            {\den{\delta e}\<\gamma_s}
-            {\den{\phi e}\<\gamma_s}
-            {\den{e}\<\rho_s}
-            {\den{\phi e}\<\gamma_s'}
-            {\den{e}\<\rho_s'}
-    \]
-%
-    which follows from our inductive hypothesis applied to \cref{equation-strip-valid}.
-
-    %% CASE LET BOX
-  \item[Case $\infer{
-      \J e \Gamma {\iso A}\\
-      \J f {\Gamma, \hd x A} B
-    }{
-      \J{\eletbox x e f} \Gamma B
+      \J{\efix e}\Gamma {\fixt L}
     }$.]
-    Observe that
+    Recall that
+    %
     \begin{align*}
-    \phi(\eletbox x e f) &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f\\
-    \delta(\eletbox x e f) &= \elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f
+      \phi(\efix e) &= \semifix\<\phi e
+      & \Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-phi-eqt})}
+      \\
+      \delta(\efix e) &= \bot
+      & \Delta\Phi\fixt{L} &= \fixt{L} \quad\textsf{(\cref{lemma-delta-lattice,lemma-phi-eqt})}
     \end{align*}
 
-    Further observe that
-
-    \begin{equation*}
-      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f} \<\gamma
-      =
-      \den{\phi f} \<(\gamma,\, x,\, dx)
-    \end{equation*}
-
     \noindent
-    and likewise for $\delta f$ in place of $\phi f$ and/or $\gamma'$ in place of $\gamma$.
-%
     For brevity, let
     \begin{align*}
-      x, dx &= \den{\phi e}\<\gamma &
-      x', dx' &= \den{\phi e}\<\gamma'\\
-      a &= \den{e}\<\rho &
-      a' &= \den{e}\<\rho'
+      f &= \den{e}\<\rho & f' &= \den{e}\<\rho'\\
+      (g_1, g_2) &= \den{\phi e}\<\gamma
+      & (g_1', g_2') &= \den{\phi e}\<\gamma'
     \end{align*}
 
-    Using this observation and these abbreviations, we have
+    What we wish to show is:
 %
     \begin{align*}
-      \den{\eletbox x e f} \<\rho &= \den{f}\<(\rho, a)
-      \\
-      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \phi f} \<\gamma
-      &= \den{\phi f}\<(\gamma, x, dx)
-      \\
-      \den{\elet{\pboxtuple{\dvar x, \dvar\dx} = \phi e} \delta f} \<\gamma
-      &= \den{\delta f}\<(\gamma, x, dx)
+    &\weirdat{\fixt L}
+             {\den{\bot}\<(\gamma,\dgamma)}
+             {\den{\semifix\<\phi e}\<\gamma}
+             {\den{\efix e}\<\rho}
+             {\den{\semifix\<\phi e}\<\gamma'}
+             {\den{\efix e}\<\rho'}\\
+    \iff&
+    \weirdat{\fixt L}
+            {\bot}
+            {\semifix\<(\den{\phi e}\<\gamma)}
+            {\morph{fix}\<(\den{e}\<\rho)}
+            {\semifix\<(\den{\phi e}\<\gamma')}
+            {\morph{fix}\<(\den{e}\<\rho')}\\
+    \iff&
+    \weirdat{\fixt L}
+            {\bot}
+            {\semifix \<(g_1, g_2)}
+            {\morph{fix} \<f}
+            {\semifix \<(g_1', g_2')}
+            {\morph{fix} \<f'}\\
+    \iff&
+    \semifix\<(g_1, g_2) = \morph{fix}\<f
+    = \semifix\<(g_1', g_2') = \morph{fix}\<f'
+    \qquad \textsf{(applying \cref{lemma-semilattice-changes})}
     \end{align*}
-%
-    and likewise for $\gamma', \rho'$. Then what we wish to show is that
-%
-    \[
-    \weirdat B
-             {\den{\delta f}\<(\gamma, x, dx)}
-             {\den{\phi f}\<(\gamma, x, dx)}
-             {\den{f}\<(\rho, a)}
-             {\den{\phi f}\<(\gamma', x', dx')}
-             {\den{f}\<(\rho', a')}
-    \]
 
-    \noindent
-    By our inductive hypothesis for $f$, it suffices to show that
-%
-    \[\weirdat{\Gamma, \hd x A}
-              {\dgamma}
-              {(\gamma, x, dx)}
-              {(\rho, a)}
-              {(\gamma', x', dx')}
-              {(\rho', a')}
-    \]
-
-    \noindent
-    Since our assumption tells us that
+    By our inductive hypothesis we have
 %
     \(
-    \weirdat{\Gamma}\dgamma\gamma\rho{\gamma'}{\rho'}
-    \),
+    \weirdat{\isofixLtoL}
+               {\den{\delta e}\<(\gamma,\dgamma)}
+               {(g_1, g_2)}
+               {f}
+               {(g_1', g_2')}
+               {f'}
+    \)
 %
-    it suffices to show that
-%
-    \(
-    \weirdat{\iso A}{()}{(x, dx)}{a}{(x', dx')}{a'}
-    \),
-%
-    which follows directly from our inductive hypothesis for $e$.
+    and expanding gives us:
+    \begin{gather}
+      \label{fix-eqn}
+      f = f' ~\text{and}~ g_1 = g_1' ~\text{and}~ g_2 = g_2'
+      \\
+      \label{fix-gf}
+      \weirdat{\fixt L \to \fixt L}{g_2}{g_1}{f}{g_1'}{f'}
+    \end{gather}
+
+    Applying \cref{fix-eqn} reduces our goal to showing $\semifix\<(g_1, g_2)
+    = \morph{fix}\<f$, which holds by \cref{lemma-semifix} applied to \cref{fix-gf,fix-eqn}.
 
     %% CASES REMAINING
   \item[Remaining cases.] I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
