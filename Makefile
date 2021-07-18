@@ -36,7 +36,7 @@ PANDOC := pandoc --from markdown+raw_tex-latex_macros \
 watch: watch\:all
 watch\:%:
 	make --no-print-directory -j $^
-	@while inotifywait -e modify,move,create,delete -r . >/dev/null 2>&1; do \
+	@while inotifywait -e modify,move,delete -r . >/dev/null 2>&1; do \
 		echo; \
 		make --no-print-directory -j $^; \
 		make --no-print-directory -j $^; \

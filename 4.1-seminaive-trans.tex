@@ -1,8 +1,6 @@
 \section{Applying the semi\naive\ transformation to transitive closure}
 \label{section-seminaive-trans}
 
-\todo{rewrite this to avoid ewhen}
-
 Let's try applying the semi\naive\ transform to a simple Datafun program: the
 transitive closure function \name{trans} from
 \cref{section-datafun-transitive-closure}:
@@ -12,9 +10,10 @@ transitive closure function \name{trans} from
   = \efixis{r}{\dvarlong{edge} \cup (\dvarlong{edge} \relcomp \mvar r)}
   \\
   \mvar s \relcomp \mvar t =
-  \efor{\etuple{\dvar x, \yone} \in \mvar s,\,
-        \etuple{\ytwo , \dvar z} \in \mvar t}
-  \ewhen{\eeq{\yone}{\ytwo}} \eset{\etuple{\dvar x, \dvar z}}
+  \efor{\etuple{\dvar x, \yone} \in \mvar s}
+  \efor{\etuple{\ytwo , \dvar z} \in \mvar t}
+  \efor{\eeq{\yone}{\ytwo}}
+  \eset{\etuple{\dvar x, \dvar z}}
 \end{code}
 
 \noindent
@@ -22,50 +21,51 @@ In the process we'll discover that besides $\phi$ itself we need a few simple
 optimisations to actually speed up our program: most importantly, we need to
 propagate $\bot$ expressions.
 
-In our experience, performing $\phi$ and $\delta$ by hand is easiest when you
-work inside-out. At the core of transitive closure is a relation composition,
-$(\dvar e \relcomp p)$, and at the core of relation composition is a
-\kw{when}-expression. Let's take a look at its $\phi$ and $\delta$ translations:
+In our experience, performing $\phi$ and $\delta$ by hand is easiest when you work inside-out. At the core of transitive closure is a relation composition, $(\dvar e \relcomp p)$, and at the core of relation composition is a ``one-sided conditional'', $\efor{\eeq{\dvar y_1}{\dvar y_2}} \eset{\etuple{\dvar x, \dvar z}}$. Let's take a look at its $\phi$ and $\delta$ translations:
 
 %% Avoid overfull hboxes in this section
-\setlength\codeoffset{17.1pt}
+%% \setlength\codeoffset{10pt}
 
 \begin{flail}
-  \phi(\ewhen {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  &\phantom{{}={}}
+  \phi(\efor {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \\
   &= \phi(\efor {\etuple{} \in \eeq \yone \ytwo} \eset{\etuple{\dvar x,
       \dvar z}})
-  && \text{desugar \kw{when}}
+  && \text{desugar}
   \\
   &= \efor{\etuple{} \in \eeq \yone \ytwo}
   \phi{\eset{\etuple{\dvar x, \dvar z}}}
-  && \text{apply $\phi$, omitting an unused \kw{let}}\\
-  &= \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  && \text{apply $\phi$ and omit unused \kw{let}}\\
+  &= \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
   && \text{resugar}
 \end{flail}
 
 \noindent
 Frequently, as in this case, $\phi$ does nothing interesting. For brevity we'll
-skip such no-op translations.
+skip such no-op translations. Now for the $\delta$ translation:
 
 \begin{flail}
   &\mathrel{\hphantom{=}}
-  \delta(\ewhen {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \delta(\efor {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
   \\
   &= \delta(\efor{\etuple{} \in \eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
-  && \text{desugar \kw{when}}
+  && \text{desugar}
   \\
   &= \hphantom{{}\cup} \efor{\etuple{} \in \delta(\eeq \yone \ytwo)}
   \phi\eset{\etuple{\dvar x, \dvar z}}
   %% this generates two "Overfull \vbox" warnings. :(
-  && \multirow{2}{*}{\text{apply $\phi$, omitting unused \kw{let}s}}
+  && \multirow{2}{*}{\text{apply $\delta$ and omit unused \kw{let}s}}
   \\
   &\hphantom{={}} \cup
   \efor{\etuple{} \in \phi(\eeq \yone \ytwo) \cup \delta(\eeq \yone \ytwo)}
   \delta\eset{\etuple{\dvar x, \dvar z}}
   \\
-  &= \efor{\etuple{} \in \bot} \eset{\etuple{\dvar x, \dvar z}}
-  \cup \efor{\etuple{} \in \phi(\eeq \yone \ytwo) \cup \bot} \bot
-  && \text{apply $\phi(\eeq \yone \ytwo)$ and $\delta\eset{\etuple{\dvar x, \dvar z}}$}
+  &= \phantom{{}\cup}
+  \efor{\etuple{} \in \bot} \eset{\etuple{\dvar x, \dvar z}}
+  && \multirow{2}{*}{\text{apply $\phi/\delta$ to $\eeq \yone \ytwo$ and $\eset{\etuple{\dvar x, \dvar z}}$}}
+  \\
+  &\phantom{={}} \cup \efor{\etuple{} \in \phi(\eeq \yone \ytwo) \cup \bot} \bot
   \\
   &= \bot && \text{propagate }\bot
 \end{flail}
@@ -77,24 +77,24 @@ for example, rewriting $(\efor {...} \bot)$ to $\bot$ -- can simplify
 derivatives and eliminate expensive \kw{for}-loops.
 
 Now let's pull out and examine $\efor{\etuple{\ytwo, \dvar z} \in t}
-\ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}$. The $\phi$
-translation is again a no-op.
+\efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}$. The $\phi$
+translation is again a no-op, and the $\delta$ translation is:
 
 \begin{flail}
   &\mathrel{\hphantom{=}}
   \delta(\efor{\etuple{\ytwo, \dvar z} \in t}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
   \\
   &= \hphantom{{}\cup} \efor{\etuple{\ytwo, \dvar z} \in \dt}
-  \phi(\ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
-  && {\text{apply $\delta$, omitting some unused \kw{let}s}}
+  \phi(\efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  && {\text{apply $\delta$ and omit unused \kw{let}s}}
   \\
   &\hphantom{{}=} \cup \efor{\etuple{\ytwo, \dvar z} \in t \cup \dt}
-  \delta(\ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \delta(\efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
   \\
   &= \efor{\etuple{\ytwo, \dvar z} \in \dt}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
-  && \text{applying prior work, propagating }\bot
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  && \text{apply prior work, propagate }\bot
 \end{flail}
 
 \noindent Tackling the outermost \kw{for} loop:
@@ -104,29 +104,29 @@ translation is again a no-op.
   \delta(
   \efor{\etuple{\dvar x, \yone} \in s}
   \efor{\etuple{\ytwo, \dvar z} \in t}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
   \\
   &= \efor{\etuple{\dvar x, \yone} \in \ds}
   \phi(\efor{\etuple{\ytwo, \dvar z} \in t}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
-  && \text{definition of $\delta(\kw{for} \dots)$}
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  && \text{apply $\delta(\kw{for} \dots)$}
   \\
   &\cup \efor{\etuple{\dvar x, \yone} \in s \cup \ds}
   \delta(\efor{\etuple{\ytwo, \dvar z} \in t}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
   \\
   &= \efor{\etuple{\dvar x, \yone} \in \ds}
   \efor{\etuple{\ytwo, \dvar z} \in t}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
-  && \text{applying prior work}
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  && \text{apply prior work}
   \\
   &\cup
   \efor{\etuple{\dvar x, \yone} \in s \cup \ds}
   \efor{\etuple{\ytwo, \dvar z} \in \dt}
-  \ewhen{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
   \\
   &= (\ds \relcomp t) \cup ((s \cup \ds) \relcomp \dt)
-  && \text{rewriting in terms of ${\relcomp}$}
+  && \text{rewrite using ${\relcomp}$}
 \end{flail}
 
 \noindent
@@ -140,7 +140,8 @@ out, we start with the derivative of the loop body, $\delta(\dvar e \cup (\dvar
 e \relcomp p))$:
 
 \begin{flail}
-  \delta({\dvar e \cup (\dvar e \relcomp p)})
+  &\phantom{{}={}}
+  \delta({\dvar e \cup (\dvar e \relcomp p)})\\
   &= \delta\dvar e \cup \delta(\dvar e \relcomp p)\\
   &= \delta\dvar e
   \cup (\delta\dvar e \relcomp p)
@@ -162,7 +163,8 @@ know $\dvar{de}$ is a zero change, so we may safely replace it by $\bot$.
 Putting everything together, we have:
 
 \begin{flail}
-  \phi(\efixis{p}{\dvar e \cup (\dvar e \relcomp p)}
+  &\phantom{{}={}}
+  \phi(\efixis{p}{\dvar e \cup (\dvar e \relcomp p)}\\
   &= \phi(\efix \ebox{\fnof{p} \dvar e \cup (\dvar e \relcomp p)})
   && \text{desugaring}
   \\

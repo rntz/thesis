@@ -70,7 +70,7 @@
 %% ---------- todo commands ----------
 \newcommand\todocolor{\color{OrangeRed}}
 \newcommand\warntodo[2]{%
-  \PackageWarning{todo}{#1}% TODO fix TODOs
+  %% \PackageWarning{todo}{#1}% TODO fix TODOs
   {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
 \newcommand\todo[1]{\warntodo{#1}{#1}}
@@ -78,7 +78,7 @@
 \newcommand\XXX{\warntodo{XXX}{XXX}}
 
 \newcommand\todomaybe[2]{%
-  \PackageWarning{todomaybe}{#1}
+  %% \PackageWarning{todomaybe}{#1}
   {\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#1}{#2}]}}}
 
 \newcommand\todolater[1]{%
@@ -407,9 +407,9 @@
 \newcommand\pboxtuple[1]{\pbox{\ptuple{#1}}}
 
 %% more surface syntax
-\newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
-\renewcommand\ewhen[1]{%\PackageWarning{notation}{don't use ewhen}{}%
-\warntodo{don't use ewhen}{\kw{when}}}
+%% \newcommand\ewhen[1]{\kw{when}\:({#1})\fnspace}
+%% \renewcommand\ewhen[1]{%\PackageWarning{notation}{don't use ewhen}{}%
+%% \warntodo{don't use ewhen}{\kw{when}}}
 \newcommand\etrue{\prim{true}}
 \newcommand\efalse{\prim{false}}
 
