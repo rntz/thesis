@@ -4,8 +4,12 @@
 
 \subsection{Semi\naive\ evaluation as incremental computation}
 
-Let's return to our example Datalog program~\todo{cross reference Datalog
-  transitive closure example}, modified to consider graphs rather than ancestry:
+\todolater{replace this with single-source reachability?}
+
+Consider the following Datalog program:
+
+%% Let's return to our example Datalog program~\todo{cross reference Datalog
+%%   transitive closure example}, modified to consider graphs rather than ancestry:
 
 \begin{datalog}
   \atom{path}{X,Z} \gets \atom{edge}{X,Z}.
@@ -65,7 +69,6 @@ Now let's move from Datalog to Datafun.\footnote{In this section we do not
 of \name{edge} is the fixed point of the monotone function \name{step} defined
 by:
 
-\nopagebreak[2]
 \begin{code}
 \name{step} \<\name{path} = \name{edge} \cup
 \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path}}
@@ -83,7 +86,6 @@ iterations.
 %
 So consider $\name{step}'$ defined by:
 
-\nopagebreak[2]
 \begin{code}
 \name{step}' \<\name{dpath} =
 \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}}
@@ -95,7 +97,6 @@ So consider $\name{step}'$ defined by:
 \noindent
 Observe that
 
-\nopagebreak[4]
 \begin{align*}
   &\mathrel{\hphantom{=}} \name{step} \<(\name{path} \cup \name{dpath})
   \\

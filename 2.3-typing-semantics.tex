@@ -47,11 +47,7 @@ logic~\citep{jrml}. We get to Datafun by adding a handful of domain-specific
 types and operations.
 %
 First, \rn{split} provides an operator $\prim{split} : \iso(A + B) \to \iso A +
-\iso B$ to distribute box across sum types.\footnote{An alternative syntax,
-  pursued in \citet{datafun}, would be to give two rules for $\kw{case}$,
-  depending on whether or not the scrutinee could be typechecked in a stripped
-  context. \todo{here we provide this as syntax sugar, in order to simplify and
-    clarify our semantics.}}
+\iso B$ to distribute box across sum types.
 %
 The other direction, $\iso A + \iso B \to \iso (A + B)$, is already derivable,
 as is the isomorphism $\iso A \times \iso B \cong \iso (A \times B)$.
@@ -59,16 +55,20 @@ as is the isomorphism $\iso A \times \iso B \cong \iso (A \times B)$.
 This is used implicitly by box pattern-matching -- e.g., in the pattern
 $\pboxtuple{\inj 1 \dvar x, \inj 2 \dvar y}$, the variables $\dvar x$ and $\dvar
 y$ are both discrete, which is information we propagate via these conversions.
-\todo{example of box pattern desugaring? move later?}
+\todolater{example of box pattern desugaring?}
 %
 %% TODO: an example of desugaring pattern-matching here?
 %
 Semantically, all of these operations are the identity, as we
-shall see shortly.
+shall see shortly.%
+%
+\footnote{An alternative to box pattern-matching and \prim{split}, pursued in
+  \citet{datafun}, would be to give two rules for $\kw{case}$, depending on
+  whether or not the scrutinee can be typechecked in a stripped context.}
 
 This leaves only the rules for manipulating sets and other semilattices.
-\rn{bot} and \rn{join} tell us that $\bot$ and $\vee$ are valid at any
-semilattice type $L$, that is, at sets and products of semilattice types.
+\rn{bot} and \rn{join} tell us that $\bot$ and $\vee$ are valid at any first-order
+semilattice type $\eqt L$, that is, at sets and products of semilattice types.
 %
 The rule for set-elimination, \rn{for}, is almost a monadic bind.
 %
@@ -76,7 +76,9 @@ However, we generalize it by allowing $\eforvar x e f$ to eliminate into any
 semilattice type, not just sets, denoting a ``big semilattice join'' rather than
 a ``big union''.
 %
-\todo{explain why bot/join/for require an equality lattice.}
+\todomaybe{explain why bot/join/for require an equality lattice}{: it simplifies
+  the phi and delta transformations, and you can desugar these operations at
+  higher type, so no expressivity is lost.}
 
 The set-introduction rule \rn{set} gives $\esetsub{e_i}{i\in I}$ type $\tseteq
 A$ when each of the $e_i$ has type $\eqt A$.
@@ -94,10 +96,17 @@ This is, however, not monotone, because while booleans are ordered $\efalse <
 \etrue$, sum types are ordered disjointly; $\inj 1 ()$ and $\inj 2 ()$ are
 incomparable.
 
-Finally, the rule \rn{fix} for fixed points $\efix f$ \splittodo{rewrite explanation of fix typing rule}{also, for why fix is discrete see \cref{why-is-fix-discrete}, has to do with our strategy for evaluating Datafun efficiently} a recursive expression $e : \fixt{L}$ which refers to its own result as $\mvar x$.
+Finally, the rule \rn{fix} says that the fixed point \prim{fix} combinator
+accepts a boxed function $f : \isofixLtoL$ and returns a value of type $\fixt
+L$.
 %
 The restriction to ``fixtypes'' ensures $\fixt L$ has no infinite ascending
 chains, guaranteeing the recursion will terminate.
+%
+The restriction to boxed functions -- essentially treating \prim{fix} as a
+non-monotone operator -- is motivated not by our semantics but by our strategy
+for evaluating Datafun efficiently; it will be explained in
+\cref{why-is-fix-discrete}.
 
 
 \subsection{The category \Poset\ and its structures}
@@ -159,7 +168,6 @@ partial order to mere equality.
 %
 This forms a rather boring comonad whose functorial action $\iso(f)$, extraction $\varepsilon_A : \iso A \to A$, and duplication $\delta_A : \iso A \to \iso \iso A$ are all identities on the underlying sets:
 
-\nopagebreak[2]
 \begin{align*}
   \iso(f) &= f & \varepsilon_A &= a \mapsto a & \delta_A &= a \mapsto a
 \end{align*}
@@ -261,8 +269,8 @@ as follows:
 
 \noindent
 A routine inductive argument shows this must yield a least fixed point.
-\todo{make a lemma for this, label lemma-fixed-point} 
-\todolater{explain why fix is discrete}
+%
+\todolater{make a lemma for this, label lemma-fixed-point}
 
 
 \subsection{Interpretation of Datafun in \Poset}
@@ -297,5 +305,5 @@ In particular, $\fork{}$ is the map into the terminal object.
 Dually, if $g_i : A_i \to B$ we write $\krof{g_i}_i : \sum_i A_i \to B$ for the
 ``case-analysis map'' such that $\injc_j \then \krof{g_i}_i = g_j$.
 
-\todo{lemma that the interpretation of a semilattice type is a semilattice?}
+\todolater{lemma that the interpretation of a semilattice type is a semilattice?}
 

@@ -175,9 +175,6 @@ These defined, we can state the types of $\phi e$ and $\delta e$:
   %%; see \cref{proof-phi-delta-well-typed}.
 \end{restatable}
 
-\begin{proof}
-\end{proof}
-
 \noindent As expected, if we view expressions as functions of their free
 variables, and pretend $\G$ is a type, these correspond to $\Phi(\G \to A)$
 and $\DP(\G \to A)$ respectively:
@@ -192,7 +189,6 @@ and $\DP(\G \to A)$ respectively:
 To get the hang of these context and type transformations, suppose $\J
 e {\hd x A, \hm y B} C$. Then \cref{theorem-phi-delta-well-typed} tells us:
 
-\nopagebreak[1]
 \begin{align*}
   \Jalign{\phi e} {\hd x{\Phi A},\, \hd \dx {\DP A},\, \hm y {\Phi B}} {\Phi C}
   \\
@@ -261,7 +257,6 @@ Therefore $\phi(\efix e) = \semifix\<\phi e$.
 However, if we're going to use \semifix\ in the output of $\phi$, we ought to
 give it a typing rule and semantics:
 
-\nopagebreak[4]
 \begin{align*}
   \infer{
     \J{e}{\G}{\iso((\kernfixtL \to \fixtLkern) \x (\iso\fixt L \to \fixt L \to \fixtLkern)}
@@ -443,7 +438,7 @@ context supplying a discrete base point $\dvar x$ (the value $x$) and the change
 $\mvar\dx$.
 %
 To bind $\dvar x$ discretely, we need to use $\ebox{\phi e} : \iso(\Phi A + \Phi
-B)$; to pattern-match on this, we need \emph{split} to distribute the $\iso$.
+B)$; to pattern-match on this, we need \prim{split} to distribute the $\iso$.
 
 This handles the first two cases, $(\inj i {\pboxvar x},\, \inj i \mvar\dx
 \caseto \delta f_i)_i$. Since we know the tags on $\phi e$ and $\delta e$ agree,
@@ -455,7 +450,7 @@ a simple function $\dummy_A : A \to \D A$ (\cref{figure-dummy}).
 
 \input{3-figure-dummy}
 
-\splittodo{explain}{ that $\phi$, $\delta(\esplit e)$ are effectively book-keeping
+\todolater{explain that $\phi$, $\delta(\esplit e)$ are effectively book-keeping
   the decorations that the $\phi$ translation adds to $\iso$.}
 
 We also need \dummy\ in the definition of $\phi(\esplit e)$. In effect

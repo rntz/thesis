@@ -1,6 +1,16 @@
 % draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,draft,]{report}
+\documentclass[12pt,]{report}
+\includeonly{
+  0-abstract,
+  1-introduction,
+  2-datafun,
+  3-seminaive,
+  4-implementation,
+  5-extensions,
+  6-related-work,
+  appendix-proofs,
+}
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
 % interaction. Also must load rntzfootnotes before rntzref, because...?
@@ -59,17 +69,6 @@
 \bibliographystyle{plainnat}
 \usepackage{notation}
 
-
-\includeonly{
-  0-abstract,
-  1-introduction,
-  2-datafun,
-  3-seminaive,
-  4-implementation,
-  5-extensions,
-  6-related-work,
-  appendix-proofs,
-}
 \begin{document}
 
 %\input{unfinished-disclaimer}

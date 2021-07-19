@@ -335,7 +335,6 @@ Datalog may be seen either as a restricted logic programming language or an
 expressive database query language. To start with, we consider the former view,
 explaining Datalog in terms of deduction. Here is a simple Datalog program:
 
-\nopagebreak[2]
 \begin{datalog}
   \atom{parent}{\datum{alice}, \datum{bob}}.
   \\
@@ -532,7 +531,6 @@ it can mean that some logically sensible recursive programs fail to terminate.
 %
 For example:
 
-\nopagebreak[2]
 \label{datalog-reachable}
 \begin{datalog}
   \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.\\
@@ -598,7 +596,6 @@ for now the issue of negation, it imposes two restrictions which keep all
   relation; for example, the relation containing all digit-lists (the use of a
   `constructor' is {\color{Red}\underline{underlined and red}}):
 
-  \nopagebreak[3]
   \begin{datalog}
     \atom{digits}{\datum{nil}}.
     \\
@@ -628,7 +625,7 @@ is no rule whose application yields a new fact. This is the operational
 justification for range-restriction and constructor-freedom: by ensuring all
 predicates are finite, we guarantee forward-chaining deduction terminates.%
 %
-\footnote{\todo{talk about tabling, as a mixture of forward- and backward-chaining}}
+\footnotelater{talk about tabling, as a mixture of forward- and backward-chaining}
 
 \todolater{missing a segue here}
 
@@ -640,7 +637,6 @@ Negation and deduction have an interesting relationship.
 %
 Consider the following program:
 
-\nopagebreak[1]
 \begin{datalog}
   \atom{underiveable}{} \gets \neg \atom{underiveable}{}.
 \end{datalog}
@@ -662,7 +658,6 @@ recursive group of predicates) cannot use its own negation in its definition.
 This restriction also avoids the need to make arbitrary choices. For example,
 this is disallowed:
 
-\nopagebreak[1]
 \begin{datalog}
   \atom{marry-rochester}{} \gets \neg \atom{marry-st-john}{}.\\
   \atom{marry-st-john}{} \gets \neg \atom{marry-rochester}{}.
@@ -691,13 +686,11 @@ Following this principle, we regard anything not deriveable as false. This
 conforms with the programmer's expectation that anything not explicitly declared
 to be true is false. For example, returning to our graph reachability example:
 
-\nopagebreak[2]
 \begin{datalog}
   \atom{reachable}{Y} \gets \atom{reachable}{X} \conj \atom{edge}{X,Y}.\\
   \atom{reachable}{\datum{start}}.
 \end{datalog}
 
-%% \nopagebreak[1]
 %% \begin{datalogarray}
 %%   \atom{path}{X,Z} &\gets& \atom{path}{X,Y} \conj \atom{path}{Y,Z}.\\
 %%   \atom{path}{X,Y} &\gets& \atom{edge}{X,Y}.
@@ -830,7 +823,6 @@ in particular with a conventional language like Java or C++:
   conventional language involve rewriting your data-access code.
 %
   In their words:
-  \nopagebreak[1]
   \begin{quote}
     \emph{[W]e believe that our ability to efficiently optimize our
       implementation was largely due to the declarative specifications of
@@ -944,7 +936,6 @@ Consider our graph-reachability example again:
 \noindent
 Suppose we wish to compute reachability over multiple different graphs. One way is to repeat ourselves:
 
-\nopagebreak[2]
 \begin{datalog}
   \atom{reachable1}{\datum{start1}}.\\
   \atom{reachable1}{Y} \gets \atom{reachable}{X} \conj \atom{edge1}{X,Y}.

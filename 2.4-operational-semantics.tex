@@ -47,11 +47,9 @@ A$.
 
 %\subsection{Computing fixed points by iteration}
 
-\todo{need reference for lemma-fixed-point!}
-
-Our implementation strategy for $\efix f$ is suggested by the proof of
-\cref{lemma-fixed-point}: starting from $\bot$, iteratively apply $f$
-until quiescence.
+Our implementation strategy for $\efix f$ is
+% \todo{suggested by the proof of \cref{lemma-fixed-point}:}
+straightforward: starting from $\bot$, iteratively apply $f$ until quiescence.
 %
 To model this process, we introduce the form
 $\eiter{f}{e_1}{e_2}$, which evaluates two successive function iterations

@@ -1,5 +1,8 @@
+\newcommand\mem{\name{member}}
+
 \newcommand\notmember[2]{\neg \ebox{\mem \<\ebox{#1} \<{#2}}}
-\renewcommand\notmember[2]{\ebox{#1} \not \in \ebox{#2}}
+%% \renewcommand\notmember[2]{\ebox{#1} \not \in \ebox{#2}}
+%% \renewcommand\notmember[2]{\warntodo{don't use notmember}{notmember}}
 
 \section{Examples}
 \label{examples}
@@ -82,8 +85,6 @@ be fairly familiar.
 \label{set-operations-and-relational-algebra}
 
 \splittodo{consider how to reorder our examples}{want to introduce equality patterns, and the not-a-member function $\notmember x s$, it's used in dataflow examples, eg. in \name{live}.}
-
-\newcommand\mem{\name{member}}
 
 One of the main features of Datafun is that it permits manipulating
 relations as first class values.
@@ -186,18 +187,20 @@ Why is \name{filter} monotone in its function argument while \name{map} is not? 
   &=& \name{map} \<(\le 1) \<\esetraw{0,1}
 \end{array}\]
 
-\noindent
-\todo{explain why neither map nor filter requires function to be monotone}
+\todolater{explain why neither map nor filter requires function to be monotone}
 
+\noindent
 We can also define set difference, although we must first detour into boolean
 negation:
 
-\todo{use discrete case? Define not member function?}
+\todolater{use discrete case (would need to explain empty patterns?)}
+
 \begin{code}
   {\neg} \isa \iso\tbool \to \tbool\\
   \neg \pboxvar t = \emcase{\eisempty{\dvar t}}
   \inj 1 \ptuple{} \caseto \etrue\textsf \casebar \inj 2 \ptuple{} \caseto \efalse
   \\[\betweenfunctionskip]
+  {\neg} \isa \iso\tbool \to \tbool\\
   \pwild\setminus\pwild \isa \tseteq A \to \iso \tseteq A \to \tseteq A\\
   \mvar s \setminus \pboxvar t =
   \esetfor{\dvar x}{\dvar x \in \mvar s,\, \notmember{\dvar x}{\dvar t}}
@@ -220,7 +223,6 @@ This enforces stratification.
 Finally, generalizing the \name{ancestor} relation from the Datalog program in
 \cref{section-datalog}, we can define the transitive closure of a relation:
 
-\nopagebreak[2]
 \begin{code}
   \name{trans} \isa \iso \tset{\eqt A \x \eqt A} \to \tset{\eqt A \x \eqt A}\\
   \name{trans} \<\pboxvarlong{edge} =
@@ -313,7 +315,6 @@ we wish to find all substrings consisting of adjacent substrings $s_i \ldots
 s_{j-1}$ and $s_j \ldots s_{k-1}$ matching $\mvar r_1$ and $\mvar r_2$
 respectively:
 
-\nopagebreak[2]
 \begin{code}
   \name{seq} \isa \tre \to \tre \to \tre\\
   \name{seq} \<\mvar r_1 \<\mvar r_2 \<\mvar s = \mvar r_1 \<\mvar s \relcomp \mvar r_2 \<\mvar s
@@ -323,7 +324,6 @@ respectively:
 Similarly, regex alternation \texttt{r\textsubscript{1}|r\textsubscript{2}} is
 accomplished by unioning all matches of each:
 
-\nopagebreak[2]
 \begin{code}
   \name{alt} \isa \tre \to \tre \to \tre\\
   \name{alt} \<\mvar r_1 \<\mvar r_2  \<\mvar s = \mvar r_1 \<\mvar s \vee \mvar r_2 \<\mvar s
@@ -335,7 +335,6 @@ relationally, if we consider the set of pairs $(i,j)$ matching some regex
 \texttt{r}, then \texttt{r*} matches its \emph{reflexive, transitive closure}.
 This can be accomplished by combining \emph{nil} and \emph{trans}.
 
-\nopagebreak[2]
 \begin{code}
   \name{star} \isa \iso\tre \to \tre\\
   \name{star} \<\pboxvar r \<\pboxvar s =
@@ -384,7 +383,6 @@ $\dvar c$ occurs at the start position $\dvar i$, yielding $\esetraw{\dvar i+1}$
 if it does and the empty set otherwise, while \name{nil} simply returns the
 start position $\dvar i$.
 
-\nopagebreak[2]
 \begin{code}
   \name{sym} \isa \iso\tchar \to \tre\\
   \name{sym} \<\pboxvar{c} \<\pboxtuple{\dvar{s}, \dvar{i}}
@@ -401,7 +399,6 @@ start position $\dvar i$.
 Appending regexes $\name{seq}\<\mvar r_1\<\mvar r_2$ simply applies $\mvar r_2$ starting from
 every ending position that $\mvar r_1$ can find:
 
-\nopagebreak[2]
 \begin{code}
   \name{seq} \isa \tre \to \tre \to \tre\\
   \name{seq} \<\mvar r_1 \<\mvar r_2 \<\pboxtuple{\dvar{s}, \dvar{i}} =
@@ -412,7 +409,6 @@ every ending position that $\mvar r_1$ can find:
 \noindent
 Regex alternation \name{alt} is effectively unchanged:
 
-\nopagebreak[2]
 \begin{code}
   \name{alt} \isa \tre \to \tre \to \tre\\
   \name{alt} \<\mvar r_1 \<\mvar r_2 \<\mvar x = \mvar r_1\<\mvar x \vee \mvar r_2\<\mvar x
@@ -422,7 +418,6 @@ Regex alternation \name{alt} is effectively unchanged:
 Finally, Kleene star is implemented by recursively appending $\dvar r$ to a
 set $\mvar x$ of matches found so far:
 
-\nopagebreak[2]
 \begin{code}
   \name{star} \isa \iso\tre \to \tre\\
   \name{star} \<\pboxvar r \<\pboxtuple{\dvar{s}, \dvar{i}}
@@ -590,7 +585,6 @@ language like Datafun. %\todo{contextualize utility of compound data more.}
 In this section, we show how some simple dataflow analyses can be
 expressed in Datafun. We begin with the types in these programs.
 
-\nopagebreak[2]
 \begin{code}
   \kw{type}~\typename{var} = \tstring\\
   \kw{type}~\typename{label} = \tint\\
@@ -699,7 +693,6 @@ Next we give one of the classic forwards dataflow analyses: reaching
 definitions. This determines which program points the value assigned by a
 particular statement (a ``definition'') can reach.
 
-\nopagebreak[2]
 \begin{code}
   \name{reaching} \isa \iso\typename{program} \to \iso\typename{flow} \to
   \tset{\typename{var} \x \typename{label} \x \typename{label}}\\

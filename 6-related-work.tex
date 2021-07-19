@@ -234,7 +234,6 @@ However, this example works only because addition on the integers commutes and
 associates. This is what allows us to combine a sum $\sum_i x_i$ with a
 difference $dx$ to the $j$\textsuperscript{th} element and find the updated sum:
 
-\nopagebreak[2]
 \[
 dx + \sum_i x_i = \sum_i 
 \begin{cases}
@@ -455,7 +454,6 @@ which captures the question ``did it change?''. Allowing ourselves to dip into
 pseudocode for a moment, consider the parameterized type $\typename{update}~A$
 defined by:
 
-\nopagebreak[2]
 \begin{code}
   \kw{data}~\typename{update}~A
   = \ctor{old} ~|~ \ctor{new}~A
@@ -569,7 +567,6 @@ A simple example is summing a list of changing numbers: the change to the sum is
 %
 Or, for a natural example in the context of Datafun, fix a binary relation $\name{edge}$ and consider two different functions, \name{consing} and \name{appending}, defined as follows (recall that $R \relcomp S$ stands for relation composition):
 
-\nopagebreak[2]
 \begin{align*}
   \name{consing} \<\name{path}
   &= \name{edge} \cup (\name{edge} \relcomp \name{path})
@@ -627,7 +624,6 @@ We cache intermediate results in exactly one place: the implementation of \semif
 %
 Recall that, to compute the fixed point of a function $f$, \semifix\ computes the sequences $x_i$, $dx_i$ defined by:
 
-\nopagebreak[2]
 \begin{align*}
   x_0 &= \bot &
   x_{i + 1} &= x_i \vee dx_i\\
@@ -762,7 +758,6 @@ Both choices have serious problems:
   
 \item[Monotone changes] Unfortunately, insisting that pointwise function changes be monotone makes it impossible to differentiate some perfectly reasonable functions. For example, take the integers $\Z$ equipped with the natural change action $\Delta\Z = \Z$, ${\oplus}_\Z = {+}_\Z = +, 0_\Z = 0$, and consider the function expression $\fnof{y} \max(x, y) : \Z \to \Z$. Now suppose $x$ increases from $0$ to $1$; how does this function change in response? In other words, what is the change between $\max(0, \pwild)$ and $\max(1, \pwild)$? Tabulating its values for $y = 0,1,2, ...$ we can clearly see it is not monotone:
 
-  \nopagebreak[4]
   \[
     \begin{array}{r@{\quad}|@{\quad}llllll}
       y & 0 & 1 & 2 & \cdots\\%\midrule
@@ -832,7 +827,7 @@ It is possible that by combining change actions with a validity relation, thus a
 
 %% \vspace{10pt}
 %% \noindent
-%% \textbf{specific systems and how we differ from them}\nopagebreak[4]
+%% \textbf{specific systems and how we differ from them}
 %% \begin{enumerate}[nosep]
 
 %% \item DBToaster: not sure. uses rings. recursive queries? don't think so.
