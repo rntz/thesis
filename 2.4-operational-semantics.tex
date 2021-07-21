@@ -7,8 +7,7 @@ Datalog, any implementation technique is valid so long as it lines up with these
 semantics.
 %
 To show such an implementation is possible, we present a simple call-by-value
-structural operational semantics in \cref{figure-operational-semantics} and show
-that all well-typed terms terminate.
+structural operational semantics in \cref{figure-operational-semantics}\todo{ and show that all well-typed terms terminate}.
 %
 In our operational semantics we:
 
@@ -17,9 +16,9 @@ In our operational semantics we:
   in lowercase $x,y,z$, and cease using a \isobgname\ background for
   non-monotone expressions.
 \item Assume all equality tests and all semilattice operations ($\bot$, $\vee$,
-  $\kw{for}$, and $\kw{fix}$) are subscripted with their type.
+  $\kw{for}$, and $\prim{fix}$) are subscripted with their type.
 \item Add $\prim{iter}$ expressions, which occur as intermediate forms in the
-  evaluation of $\kw{fix}$.
+  evaluation of $\prim{fix}$.
 \end{enumerate}
 
 \noindent
@@ -63,6 +62,9 @@ determine if a fixed point has been reached. If so, its value $u_1$ is returned;
 otherwise we step to $\eiter{f}{u_2}{f\<u_2}$ to evaluate the next iteration,
 and so on.
 
+
 %% \subsection{A logical relation for termination}
 
-%% \todo{logical relation for termination and adequacy}
+%% \todo{logical relation for termination}
+
+%% \todolater{extend this to handle adequacy}

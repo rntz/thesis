@@ -1,37 +1,12 @@
-\section{Metatheory}
+%% \section{Metatheory}
 
-\todo{note that we regard contexts as being quotiented by order (and other things?)}
+%% \todo{note that we regard contexts as being quotiented by order (and other things?)}
 
-\label{section-weakening}
-\begin{restatable}[Weakening]{theorem}{Weakening}
-  \label{theorem-weakening}
-  If $\Delta \stronger \Gamma$ and $\J{e}{\Gamma} A$ then $\J{e}{\Delta} A$.
-\end{restatable}
-\begin{proof}
-  By induction on the derivation of $\J{e}{\Gamma} A$; see \cref{proof-weakening}.
-\end{proof}
-
-\begin{figure}
-  \begin{mathpar}
-    \infer[empty]{~}{\emptycx \weaker \emptycx}
-
-    \infer[cons]{\Gamma \weaker \Delta}{\Gamma, H \weaker \Delta, H}
-
-    \infer[drop]{\Gamma \weaker \Delta}{\Gamma \weaker \Delta, H}
-
-    \infer[disc]{\Gamma \weaker \Delta}
-          {\Gamma,\,\hm x A \weaker \Delta,\,\hd x A}
-  \end{mathpar}
-
-  \caption{Weakening relation}
-  \label{figure-weakening}  
-\end{figure}
-
-\splittodo{metatheory}{
-  \begin{itemize}
-  \item weakening, parallel substitution
-  \item ASK NEEL?
-  \item adequacy of operational semantics
-  \end{itemize}%
-}
+%% \splittodo{metatheory}{
+%%   \begin{itemize}
+%%   \item weakening, parallel substitution
+%%   \item ASK NEEL?
+%%   \item adequacy of operational semantics
+%%   \end{itemize}%
+%% }
 

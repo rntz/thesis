@@ -70,7 +70,7 @@
 %% ---------- todo commands ----------
 \newcommand\todocolor{\color{OrangeRed}}
 \newcommand\warntodo[2]{%
-  %% \PackageWarning{todo}{#1}% TODO fix TODOs
+  \PackageWarning{todo}{#1}% TODO fix TODOs
   {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
 \newcommand\todo[1]{\warntodo{#1}{#1}}
@@ -88,6 +88,8 @@
 
 \renewcommand\todolater[1]{}
 \renewcommand\footnotelater[1]{}
+\renewcommand\todomaybe[2]{}
+\renewcommand\warntodo[2]{\PackageWarning{todo}{#1}}
 
 
 %% ---------- Environments ----------

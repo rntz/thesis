@@ -34,7 +34,8 @@ imperative program (called ``reaching definitions'').
 \item[Reachability] % \strong{Reachability.}
 %
 Consider a graph and suppose we wish to find all nodes reachable from some
-designated start node~(\cref{figure-reachability}). We proceed as follows:
+designated start node%% ~(\cref{figure-reachability})
+. We proceed as follows:
 first, we put a check mark next to the start node; then, repeatedly, we pick a
 node and put a check next to it if any of its neighbors is checked. Once there
 are no nodes which we can mark this way -- in particular, when there are no
@@ -49,19 +50,22 @@ are exactly the checked nodes.
 %% and unmarked nodes -- and thus no possibility of any node becoming marked -- we
 %% are done.
 
+\splittodo{graph reachability figure}{
 \begin{figure}[pth]
   \centering
-  \todo{graph reachability figure}
+  \XXX
   \caption{Graph reachability}
   \label{figure-reachability}
 \end{figure}
+}
 
 
 \item[Shortest paths]
 %
 Now suppose each edge $e$ in the graph has an associated non-negative length
 $d_e$, and we wish to find the minimum distance to each reachable
-node~(\cref{figure-shortest-paths}). We use a small modification of the previous
+node%% ~(\cref{figure-shortest-paths})
+. We use a small modification of the previous
 procedure: instead of a check mark, we annotate nodes $v$ with the length $d_v$
 of the shortest path to them we've discovered so far. Initially we mark the
 start node with 0 and every other node with $\infty$ (representing ``no known
@@ -91,12 +95,14 @@ Once no shortening edges exist, the annotations $d_v$ cannot change, and we are 
   a crucial optimization: it prioritizes which edges to consider next in a
   way that guarantees it never needs to revisit a node.}
 
+\splittodo{shortest paths figure}{
 \begin{figure}[pth]
   \centering
-  \todo{shortest paths figure}
+  \XXX
   \caption{Shortest paths}
   \label{figure-shortest-paths}
 \end{figure}
+}
 
 
 \begin{figure}[pth]
@@ -581,7 +587,7 @@ for unknown $X_3$, and so on and on interminably.%
 Datalog takes a different tack: rather than fix a proof search strategy, it
 imposes limitations that keep proof search decidable. In particular, ignoring
 for now the issue of negation, it imposes two restrictions which keep all
-\todo{haven't explained what relation means} relations finite:
+relations\todo{haven't explained what relation means} finite:
 
 \begin{enumerate}
 \item Clauses are \emph{range-restricted:} all variables in the conclusion of a
@@ -803,11 +809,11 @@ Nasdaq stock exchange company, among others.
 %% https://semmle.com/case-studies/semmle-microsoft-vulnerability-hunting 
 %% https://msrc-blog.microsoft.com/2018/08/16/vulnerability-hunting-with-semmle-ql-part-1/
 
-On the academic side, \todo{explain
-bddbddb}~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}.
+\todo{explain bddbddb~\citep{whaley-lam,DBLP:conf/aplas/WhaleyACL05}.}
 
-Building on this, the \textsc{Doop} project implements a state-of-the-art
-points-to analysis for Java code entirely in Datalog~\citep{DBLP:conf/oopsla/BravenboerS09}.
+On the academic side, the \textsc{Doop} project implements a state-of-the-art
+points-to analysis for Java code entirely in
+Datalog~\citep{DBLP:conf/oopsla/BravenboerS09}.
 %
 In a testimonial of sorts for the application of Datalog to static analysis,
 \citet{DBLP:conf/datalog/SmaragdakisB10} give several reasons why they found
@@ -904,12 +910,10 @@ drawbacks. As mentioned previously, one weakness of forward chaining is that it
 is undirected, deducing everything it can. If all we care about is the result of
 a fairly narrow query, this can waste a lot of effort. Although various
 optimizations and alternative evaluation strategies such as magic sets, tabling,
-and QSQR~\todo{citations for magic sets, tabling, QSQR} exist to address this
+and QSQR\todo{citations for magic sets, tabling, QSQR} exist to address this
 problem, in static analysis this eager approach is par for the course: we
 generally do wish to analyse the whole program, whether for optimization or for
 bug-finding purposes. \todolater{this is not entirely convincing.}
-
-%% \todo{I should also mention that static analysis blunts one of forward chaining's primary drawbacks: it computes everything. But in static analysis this is par for the course, analyzing the whole program is the point.}
 
 
 \section{What Datalog can't do}

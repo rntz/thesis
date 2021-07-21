@@ -412,9 +412,9 @@ example, the derivative of function application is:
 \end{align*}
 
 \noindent
-Besides notation there are two differences here, which are indicative of the differences from the incremental \fn-calculus more generally: (1) Datafun is concerned with monotonicity, and so for reasons explained in \cref{section-} we need to allow function changes to treat their first argument discretely; and (2) besides $\delta$, Datafun has another term translation $\phi$ which speeds up execution by executing fixed points semi\naive{}ly, and for technical reasons these translations must be mutually-recursive; wherever $\Derive$ uses a part of the original term it is given, $\delta$ instead uses its $\phi$-translation.
+Besides notation there are two differences here, which are indicative of the differences from the incremental \fn-calculus more generally: (1) Datafun is concerned with monotonicity, and so since the function changes may be non-monotone in their first argument we need to box it; and (2) besides $\delta$, Datafun has another term translation $\phi$ which speeds up execution by executing fixed points semi\naive{}ly, and for technical reasons these translations must be mutually-recursive; wherever $\Derive$ uses a part of the original term it is given, $\delta$ instead uses its $\phi$-translation.
 
-While Datafun adds complications in the form of monotonicity typing and the semi\naive\ transformation, later work on the incremental \fn-calculus adds complications of its own: \todo{talk about the untyped lambda calculus and turing-completeness. step-indexed logical relation for proof of correctness. forward-reference caching. before that it will help to briefly revisit the idea of dependency tracking.}
+While Datafun adds complications in the form of monotonicity typing and the semi\naive\ transformation, later work on the incremental \fn-calculus adds complications of its own, extending it to handle the untyped \fn-calculus and therefore nontermination; to prove correctness, they use a \emph{step-indexed} logical relation~\citep{DBLP:conf/esop/GiarrussoRS19}. They also address the problem of caching intermediate results, but in order to explain this problem and its relevance to Datafun, it will help to briefly revisit the idea of dependency tracking.
 
 %% \todo{more things to mention?}
 %% \begin{itemize}[nosep]

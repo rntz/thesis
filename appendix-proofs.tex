@@ -16,6 +16,8 @@ in the text. \todolater{But maybe it should be?}
 
 \section{Datafun}
 
+\todomaybe{include the figure defining weakening relation here}{}
+
 \begin{lemma}\label{lemma-weakening-variables}
   If $\hm x A \in \Gamma$ or $\hd x A \in \Gamma$ and $\Gamma \weaker \Delta$
   then $\hm x A \in \Delta$ or $\hd x A \in \Delta$.
@@ -69,14 +71,17 @@ in the text. \todolater{But maybe it should be?}
     hypothesis. Depending upon whether $H$ is monotone or discrete, we have
     either $\stripcx{\Delta', H} = \stripcx{\Delta'}$ (in which case our
     inductive hypothesis suffices) or $\stripcx{\Delta', H} = \stripcx{\Delta'},
-    H$, in which case by \rn{cons} \todo{and transitivity} $\stripcx{\Gamma}
-    \weaker \stripcx{\Delta'}, H$.
+    H$, in which case by \rn{cons} and transitivity $\stripcx{\Gamma}
+    \weaker \stripcx{\Delta'}, H$. \todo{prove transitivity}
 
   \item[Case\, $\infer{\Gamma' \weaker \Delta'}{\Gamma',\,\hm x A \weaker
       \Delta',\hd x A}$.]\
 
     Then $\stripcx{\Gamma', \hm x A} = \stripcx{\Gamma'}$ while
-    $\stripcx{\Delta', \hd x A} = \stripcx{\Delta'}, \hd x A$ \XXX
+    $\stripcx{\Delta', \hd x A} = \stripcx{\Delta'}, \hd x A$. By our IH, we
+    have $\stripcx{\Gamma'} \weaker \stripcx{\Delta'}$, and therefore by
+    \rn{drop} we have $\stripcx{\Gamma'} \weaker \stripcx{\Delta'}, \hd x A$ as
+    desired.
   \end{description}
 \end{proof}
 

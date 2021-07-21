@@ -5,8 +5,8 @@
 \splittodo{explain syntax sugar in phi and delta}{, forward referencing the appendix}
 
 We use two static transformations, $\phi$ and $\delta$, defined in
-\cref{figure-phi,figure-delta} respectively. Rather than dive into the gory
-details immediately, we first build some intuition.
+\cref{figure-phi,figure-delta}. Rather than dive into the gory details
+immediately, we first build some intuition.
 
 The speed-up transform $\phi$ computes fixed points semi\naive{}ly by
 replacing $\efix f$ by $\semifix\<({f,\, f'})$.
@@ -39,7 +39,7 @@ So the key strategy of our speed-up transformation $\phi$ is to
 {\bfseries\boldmath decorate expressions of type ${\iso A}$ with their zero
   changes.}
 %
-This makes derivatives available exactly where we need them: at \kw{fix}
+This makes derivatives available exactly where we need them: at \prim{fix}
 expressions.
 
 
@@ -171,7 +171,8 @@ These defined, we can state the types of $\phi e$ and $\delta e$:
 \end{restatable}
 
 \begin{restatable}{proof}{PhiDeltaWellTypedProof}
-  By induction on the derivation of $\J e \G A$.
+  By induction on the derivation of $\J e \G A$, although as we'll see shortly
+  we will need weakening (\cref{theorem-weakening}) in some places.
   %%; see \cref{proof-phi-delta-well-typed}.
 \end{restatable}
 
@@ -331,7 +332,7 @@ $\mvar\dx$, and yields the change in the result of the function, $\delta e$.
 However, we are given an argument of type $\iso \Phi A$, but consulting
 \cref{theorem-phi-delta-well-typed} for the type of $\delta e$, we need a discrete variable
 $\hd x {\Phi A}$, so we use pattern-matching to unbox our argument.
-
+%
 The intuition behind $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$ is
 much the same: $\delta e$ needs two arguments, the original input $\phi f$ and
 its change $\delta f$, to return the change in the function's output. Moreover,
@@ -344,16 +345,53 @@ We're even boxing $\phi f$, hiding all monotone variables; consequently, it gets
 the context $\stripcx{\iso\Phi\G, \DP\G}$.
 %
 However, $\iso$ makes every variable discrete, and $\stripcx{-}$ leaves discrete
-variables alone, so this includes \emph{at least} $\iso\Phi\G$. The context
-$\phi f$ needs is $\Phi\G$. Since $\iso$ only makes a context stronger
-(recalling our definition of weakening from
-\cref{section-weakening,figure-weakening}), we're safe.
+variables alone, so this provides \emph{at least} $\iso\Phi\G$, while the
+context $\phi f$ needs is $\Phi\G$.
 %
-The same argument applies (all the more easily) when $\phi e$ is used in a
-monotone rather than a discrete position.
-%% %
-%% \todo{Simplify this explanation? We're basically establishing that $\Phi\G
-%%   \sqsubseteq \stripcx{\iso\Phi\G, \DP\G}$.}
+Thus really this is a question about the interaction of weakening and discreteness: can a discrete variable always substitute for a monotone one?
+
+Indeed it may: making a variable discrete only increases the number of places it can be used, because while some typing rules discard monotone variables, they never discard discrete variables.
+%
+We formalize this using a weakening relation $\Gamma \weaker \Delta$
+(\cref{figure-weakening}; note that $H$ for ``hypothesis'' ranges over all
+variable typings, monotone or discrete), which 
+%
+is standard except for the rule
+\rn{disc}, which says that a  discrete hypothesis is weaker than a monotone one.
+%
+We can then show that typing respects weakening:
+
+\begin{figure}
+  \begin{mathpar}
+    \infer[empty]{~}{\emptycx \weaker \emptycx}
+
+    \infer[cons]{\Gamma \weaker \Delta}{\Gamma, H \weaker \Delta, H}
+
+    \infer[drop]{\Gamma \weaker \Delta}{\Gamma \weaker \Delta, H}
+
+    \infer[disc]{\Gamma \weaker \Delta}
+          {\Gamma,\,\hm x A \weaker \Delta,\,\hd x A}
+  \end{mathpar}
+
+  \caption{Weakening relation}
+  \label{figure-weakening}  
+\end{figure}
+
+%% \label{section-weakening}
+
+\begin{restatable}[Weakening]{theorem}{Weakening}
+  \label{theorem-weakening}
+  If $\Delta \stronger \Gamma$ and $\J{e}{\Gamma} A$ then $\J{e}{\Delta} A$.
+\end{restatable}
+\begin{proof}
+  By induction on the derivation of $\J{e}{\Gamma} A$; see \cref{proof-weakening}.
+\end{proof}
+
+%% The same weakening argument applies (all the more easily) when $\phi e$ is used in a
+%% monotone rather than a discrete position.
+
+\noindent
+We use this without further note throughout the $\phi$ and $\delta$ transformations.
 
 
 \subsection{The discreteness comonad, \iso}
@@ -506,8 +544,8 @@ might contain some unnecessary elements, but we expect it to be cheaper to
 include these than to recompute $\phi e$ and $\phi f$. This overapproximation
 agrees with semi\naive\ evaluation in Datalog: Datalog implicitly unions the
 results of different rules for the same predicate (e.g. those for \name{path} in
-\cref{section-seminaive-and-ilc}), and the semi\naive\ translations of these rules
-do not include negated premises to compute a more precise difference.
+\cref{section-seminaive-incremental}), and the semi\naive\ translations of these
+rules do not include negated premises to compute a more precise difference.
 
 Now let's consider $\eforin x e f$.
 %
