@@ -1525,6 +1525,76 @@ in the text. \todolater{But maybe it should be?}
     Applying \cref{fix-eqn} reduces our goal to showing $\semifix\<(g_1, g_2)
     = \morph{fix}\<f$, which holds by \cref{lemma-semifix} applied to \cref{fix-gf,fix-eqn}.
 
+    %% CASE: SPLIT
+  \item[Case $\infer{\J e \G {\iso{(A_1 + A_2)}}}{
+      \J{\esplit e} \G {\iso A_1 + \iso A_2}}$.]
+%
+     Recall that
+    %
+    \begin{align*}
+      \phi(\esplit e)
+      &=
+      \eletbox{\color{fresh} \dvar z}{\phi e}
+      \\
+      &\phantom{{}={}}
+      \emcase{\esplit{\ebox{\pi_1\<\color{fresh} z}}}
+      \\
+      &\phantom{{}={}\quad}
+      (\inj i {\color{fresh}\mvar y} \caseto \eletbox{x}{\color{fresh}\mvar y}
+      \\
+      &\phantom{{}={}\quad (\inj i \mvar y \caseto {}}
+      \emcase{\esplit \ebox{\pi_2\<\color{fresh}\dvar z}}
+      \\
+      &\phantom{{}={}\quad (\inj i \mvar y \caseto {} \quad}
+      \inj i {\color{fresh}\mvar\dy}
+      \caseto
+      \eletbox{\dx}{\color{fresh}\mvar\dy}
+      \inj i \eboxraw{\etuple{\dvar x, \dvar\dx}}
+      \\
+      &\phantom{{}={}\quad (\inj i \mvar y \caseto {} \quad}
+      \inj{i+1 \bmod 2} \pwild \caseto
+      \inj i \ebox{\etuple{\dvar x, \dummy\<\dvar x}}
+      )_i
+      \\
+      \delta(\esplit e)
+      &= \eletbox{\color{fresh} y}{\phi e}
+      \\
+      &\phantom{{}={}}
+      \emcase{\pi_1\<{\color{fresh}\dvar y}}
+      (\inj i \pwild \caseto \inj i \ptuple{})_{i \in \{1,2\}}
+    \end{align*}
+
+    \noindent
+    By unpacking our inductive hypothesis there must be some $k \in \{1,2\}$ and some $dx, x, a$ such that $\weirdat{A_k}{dx} x a x a$ and:
+
+    \begin{align*}
+      \den{e} \<\rho = \den{e} \<\rho' &= \inj k a
+      &
+      \den{\phi e}\<\gamma = \den{\phi e}\<\gamma' &= (\inj k x,\, \inj k dx)
+      &
+      \den{\delta e}\<(\gamma,\dgamma) = ()
+    \end{align*}
+
+    \noindent
+    Applying the definition of what we wish to show, it therefore suffices to show that:
+
+    \begin{align}
+      \label{split-a}
+      \den{\esplit e}\<\rho = \den{\esplit e}\<\rho' &= \inj k a\\
+      \label{split-b}
+      \den{\phi(\esplit e)}\<\gamma = \den{\phi(\esplit e)}\<\gamma'
+      &= \inj k (x,\, dx)\\
+      \label{split-c}
+      \den{\delta(\esplit e)}\<(\gamma,\dgamma) &= \inj k ()
+    \end{align}
+
+    \noindent
+    Showing this is a matter of calculation. \Cref{split-a} is immediate upon
+    noting that $\isosum = \morph{id}$ and therefore $\den{\esplit e}\<\rho =
+    \den{e}\<\rho$. The other two are no more difficult but considerably more
+    tedious, so we omit the details of the calculations. \todolater{provide
+      calculations for at least one}
+    
     %% CASES REMAINING
   \item[Remaining cases.] I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
     

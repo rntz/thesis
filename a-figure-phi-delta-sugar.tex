@@ -30,11 +30,26 @@
     \caseto \inj i {\eboxtuple{\dvar x, \dummy\<\dvar x}} \right)_{i\ne j}
     \\
     &=
-    \elet{\pboxtuple{{\color{fresh}\dvar x},{\color{fresh}\dvar\dx}} = \phi e}
+    \eletbox{\color{fresh} \dvar z}{\phi e}
     \\
     &\phantom{{}={}}
-    \emcase{\esplit{\eboxvar{\color{fresh}x}}}
-    (\inj i \mvar y \caseto 
+    \emcase{\esplit{\ebox{\pi_1\<\color{fresh} z}}}
+    \\
+    &\phantom{{}={}\quad}
+    (\inj i {\color{fresh}\mvar y} \caseto \eletbox{x}{\color{fresh}\mvar y}
+    \\
+    &\phantom{{}={}\quad (\inj i \mvar y \caseto {}}
+    \emcase{\esplit \ebox{\pi_2\<\color{fresh}\dvar z}}
+    \\
+    &\phantom{{}={}\quad (\inj i \mvar y \caseto {} \quad}
+    \inj i {\color{fresh}\mvar\dy}
+    \caseto
+    \eletbox{\dx}{\color{fresh}\mvar\dy}
+    \inj i \eboxraw{\etuple{\dvar x, \dvar\dx}}
+    \\
+    &\phantom{{}={}\quad (\inj i \mvar y \caseto {} \quad}
+    \inj{i+1 \bmod 2} \pwild \caseto
+    \inj i \ebox{\etuple{\dvar x, \dummy\<\dvar x}}
     )_i
     \\[.5\baselineskip]
     % δ(split e)
