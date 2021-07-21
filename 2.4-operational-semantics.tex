@@ -63,8 +63,119 @@ otherwise we step to $\eiter{f}{u_2}{f\<u_2}$ to evaluate the next iteration,
 and so on.
 
 
-%% \subsection{A logical relation for termination}
+\subsection{A logical relation for termination}
 
-%% \todo{logical relation for termination}
+\todolater{extend this to handle adequacy}
 
-%% \todolater{extend this to handle adequacy}
+\newcommand\evalsto{\stepsto^*}
+
+\newcommand\oplr[3]{{#2} \prec {#3} : {#1}}
+\newcommand\opequiv[3]{{#2} \equiv {#3} : {#1}}
+\newcommand\oplrvalue[3]{\oplr{V(#1)}{#2}{#3}}
+\newcommand\oplrvalueequiv[3]{\opequiv{V(#1)}{#2}{#3}}
+\newcommand\oplrclosed[3]{\oplr{#1}{#2}{#3}}
+\newcommand\oplrclosedequiv[3]{\opequiv{#1}{#2}{#3}}
+
+To prove that all well-typed terms terminate according to our operational
+semantics, we use a logical relations argument.
+%
+As a matter of notation, we will let $v,u,w$ range over values, $a,b,c$ range over closed terms and $\gamma,\sigma$ range over closing substitutions.
+
+Our guiding intuition is that since we need an order structure in our
+denotational semantics to prove the definedness of fixed points, we likewise
+need an order structure on our syntax to prove the termination of fixed points.
+%
+To this end we interpret each type $A$ as a \emph{partial preorder}, $\oplr A x y$.
+%
+A partial preorder is a relation which is transitive and \emph{partially reflexive}, that is, $x \prec y \implies x \prec  x \wedge y \prec y$. While reflexivity may be glossed as ``every element is related to itself'', partial reflexivity glosses as ``if an element is related to anything, it is related to itself''; in other words, unlike reflexivity, it permits some elements to be ``outside the relation'' and unrelated to anything, even themselves.
+%
+Any partial preorder gives rise to a partial equivalence relation (PER), $x \equiv y \iff x \prec y \wedge y \prec x$, and a partial order over the equivalence classes of this PER; so our approach may also be considered to interpret types as partially-ordered PERs.
+
+As a matter of fact we define a mutually inductive collection of partial preorders, on values $\oplrvalue A v u$, on closed terms $\oplrclosed A a b$, on closing substitutions $\oplr \G \gamma \sigma$, on open terms $\oplr {\Gamma \vdash A} e f$, and on open terms paired with closing substitutions $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$. The rules for the value-relation are most complex, and we give them first:
+%
+\begin{mathpar}
+  \infer{~}{\oplrvalue{\tunit}{\etuple{}}{\etuple{}}}
+
+  \infer{
+    \oplrvalue A {v_1}{u_1} \\ \oplrvalue B {v_2} {u_2}
+  }{
+    \oplrvalue{A \x B}{\etuple{v_1,v_2}}{\etuple{u_1,u_2}}
+  }
+
+  \infer{
+    \oplrvalue{A_i} v u
+  }{
+    \oplrvalue{A_1 + A_2}{\inj i v}{\inj i u}
+  }
+
+  \infer{
+    \oplr{(\hm x A \vdash B)} e f
+  }{
+    \oplrvalue{A \to B}{\efn x e}{\efn x f}
+  }
+
+  \infer{\oplrvalueequiv A v u}{\oplrvalue{\iso A}{\eboxraw{v}}{\eboxraw{u}}}
+
+  \infer{
+    \faex{i}{j} \oplrvalueequiv A {v_i}{u_j}
+  }{
+    \oplrvalue{\tseteq A}{\esetraw{v_i}_i}{\esetraw{u_i}_i}
+  }
+\end{mathpar}
+
+\noindent
+We define the other relations as follows:
+
+\begin{align*}
+  \oplrclosed{A} a b
+  &\iff
+  a \evalsto v \wedge b \evalsto u \wedge \oplrvalue A v u
+  \\
+  \oplr{\Gamma} \gamma \sigma
+  &\iff
+  (\fa{\hm x A \in \G} \oplrclosed A {\gamma_x}{\sigma_x})
+  \wedge (\fa{\hd x A \in \G} \oplrclosedequiv A {\gamma_x}{\sigma_x})
+  \\
+  \oplr{\Gamma \vdash A}{e_1}{e_2}
+  &\iff
+  \fa{\oplr \Gamma {\gamma_1}{\gamma_2}}
+  \oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}
+  \\
+  \oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}
+  &\iff
+  \fa{i = 1,2}
+  \oplrclosed A {\gamma_i(e_1)}{\gamma_i(e_2)}
+  \wedge \oplrclosed A {\gamma_1(e_i)}{\gamma_2(e_i)}
+\end{align*}
+
+\newcommand{\precright}{%
+  \arrow[no line]{r}{\rotatebox[origin=c]{0}{\scalebox{1.4}{$\prec$}}}}
+\newcommand{\precdown}{%
+  \arrow[no line]{d}{\rotatebox[origin=c]{-90}{\scalebox{1.4}{$\prec$}}}}
+
+\noindent
+Note that $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$ may be seen as a transitive square:
+
+\begin{center}
+  \tikzset{
+    no line/.style={draw=none,
+      commutative diagrams/every label/.append style={/tikz/auto=false}}}
+  {\begin{tikzcd}
+      \gamma_1(e_1) \precright \precdown & \gamma_1(e_2) \precdown\\
+      \gamma_2(e_1) \precright & \gamma_2(e_2)
+    \end{tikzcd}}
+\end{center}
+
+\begin{theorem}[Fundamental theorem]
+  If $\J e \Gamma A$ then $\oplr{\Gamma \vdash A} e e$.
+\end{theorem}
+\begin{proof}
+  By induction on $\J e \Gamma A$.
+%
+  \todo{The key case is the fixed point rule, whose proof is a syntactic version
+    of the proof of definedness of fixed points in the denotational semantics.}
+\end{proof}
+
+\noindent
+It follows as immediate corollary (using the definition of $\oplrclosed A a b$)
+that every closed, well-typed program terminates.
