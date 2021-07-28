@@ -1,3 +1,4 @@
+%% TODO: use \boldmath to format section titles, but not in the table of contents
 \usepackage{accents}            % for \underaccent
 \usepackage{amssymb}           %\triangleq?
 \usepackage{anyfontsize}        % suppress warnings about stmaryrd font size
@@ -166,8 +167,8 @@
 \newcommand\Flix\flix % used at sentence start
 
 % used for names of functions, primitives, etc. in math mode
-\newcommand\name[1]{\text{\sffamily #1}} % why not \textsf?
-%\renewcommand\name[1]{\texorpdfstring{\TextOrMath{\textit{#1}}{\mathit{#1}}}{\textit{#1}}}
+%\newcommand\name[1]{\ensuretext{\sffamily #1}} % why not \textsf?
+\newcommand\name\textsf
 
 % derivative variables
 \newcommand\mathvar\ensuremath
@@ -204,7 +205,6 @@
 
 %% ===== General math & PL notation =====
 \newcommand\fn{\texorpdfstring{\ensuremath{\lambda}}{lambda}}
-\newcommand\boldfn{\texorpdfstring{\ensuremath{\boldsymbol\lambda}}{lambda}}
 %\ifdefined\G\renewcommand\G\Gamma\else\newcommand\G\Gamma\fi
 \newcommand\G\Gamma
 \newcommand\g\gamma
@@ -432,8 +432,6 @@
 
 
 %% ===== Change theory & seminaive translation stuff =====
-\newcommand\boldphi{\texorpdfstring{$\boldsymbol\phi$}{phi}}
-\newcommand\bolddelta{\texorpdfstring{$\boldsymbol\delta$}{delta}}
 \newcommand\dummy{\name{dummy}}
 \newcommand\zero{\ensuremath{\boldsymbol 0}}
 
@@ -467,3 +465,8 @@
 %% used in example code
 \newcommand\bone{\dvar b_{1}} \newcommand\btwo{\dvar b_{2}}
 \newcommand\yone{\dvar y_{1}} \newcommand\ytwo{\dvar y_{2}}
+
+%% Versions of commands used in section headers
+\newcommand\boldfn{\texorpdfstring{\ensuremath{\lambda}}{lambda}}
+\newcommand\boldphi{\texorpdfstring{$\phi$}{phi}}
+\newcommand\bolddelta{\texorpdfstring{$\delta$}{delta}}
