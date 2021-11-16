@@ -16,8 +16,7 @@ Since \Poset\ is cartesian closed, it can interpret the simply typed
 \fn-calculus, giving us a notation for writing monotone and higher-order
 functions.
 %
-This lets us \emph{abstract} over Datalog rules, something not
-possible in Datalog itself!
+This lets us \emph{abstract} over Datalog rules, something impossible in Datalog itself!
 %
 In this section we sketch the construction of Datafun hewing closely to this
 semantic intuition.
@@ -53,7 +52,7 @@ The elements of $\iso A$ are the same as those of $A$, but the partial order on
 $\iso A$ is discrete, $x \le y : \iso A \iff x = y$.
 %
 Monotonicity of a function $\iso A \to B$ is vacuous: $x = y$ implies $f(x) \le
-f(y)$ by reflexivity!
+f(y)$ by reflexivity.
 %
 In this way we represent ordinary, possibly non-monotone, functions $A \to B$ as
 monotone functions $\iso A \to B$.

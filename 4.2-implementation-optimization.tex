@@ -82,7 +82,7 @@ speedup.\footnote{We also tried following the $\phi$ transform with only
   all of them, the best possible runtime is $O(n^2)$. Moreover, our nested-loop
   joins are roughly a factor of $n$ slower than optimal, so we expect $O(n^3)$
   behavior or worse. This back-of-the-envelope estimation predicts a slowdown of
-  $2^3 = 8$, reasonably close to $7.42$. Phew!}
+  $2^3 = 8$, reasonably close to $7.42$.}
 
 We believe this is because both $\phi(\eforin x e ...)$ and $\delta(\eforin x e
 ...)$ produce loops that iterate over at least every $\dvar x \in \phi e$.

@@ -250,13 +250,13 @@ The essence of our computational pattern, then, is this: we follow rules which a
 %%   monotonicity + ACC to ensure termination (monotonicity -> direction, acc ->
 %%   can't go forever), semilattice to combine knowledge.}
 
-At this point an inquisitive or sceptical reader might ask: how broadly is this
+At this point an inquisitive reader might ask: how broadly is this
 pattern applicable -- were these three examples cherry-picked?
 %
 And, although we may now have an intuition for what our examples share in
 common, what precisely, \emph{mathematically}, is going on here?
 %
-For now, I hope only to have whetted your appetite.
+\fixme{informal}{For now, I hope only to have whetted your appetite.}
 %
 As this thesis progresses, we will see more examples of this pattern and develop a more precise mathematical understanding of what it consists in.
 %
@@ -919,7 +919,7 @@ bug-finding purposes. \todolater{this is not entirely convincing.}
 \section{What Datalog can't do}
 
 In \cref{section-datalog} we discussed Datalog's semantics and the deliberate
-restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider four things which Datalog does not support and why you might want them:
+restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider four things which Datalog does not support and \fixme{informal}{why you might want them:}
 \begin{enumerate*}[label=({\arabic*})]
   \item functional abstraction,
   \item semilattices other than set union,
@@ -954,9 +954,9 @@ Suppose we wish to compute reachability over multiple different graphs. One way 
 \end{datalog}
 
 \noindent
-This could quickly get out of hand if you want to do this more than a handful of
-times, especially if you want to repeat something more complex than a two-liner
-like graph reachability.
+This could quickly get out of hand \fixme{informal}{if you want} to do this more
+than a handful of times, especially if you want to repeat something more complex
+than a two-liner like graph reachability.
 %
 In any ordinary language, we would factor out this repeated code into a procedure or a function.
 

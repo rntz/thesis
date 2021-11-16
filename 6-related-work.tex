@@ -222,7 +222,7 @@ But for bulk operations over collection types, where changes can be much smaller
 than the original data, differencing is a more natural approach.
 
 For example, you \emph{could} incrementally sum a list of changing numbers using
-a dependency graph -- if you're clever, a balanced tree, so updates take $O(\log
+a dependency graph -- ideally a balanced tree, so updates take $O(\log
 n)$ steps.
 %
 But with direct access to the difference, when an element changes you can simply
@@ -376,7 +376,7 @@ These simplifications are fortuitous, because the interaction of the fully gener
   The natural definition of $\oplus_{A \to B}$ would seem to be:
 
   \begin{align*}
-    {\oplus}_{A \to B} &\isa (A \to B) \x (\iso A \to \delta A \to \delta B)
+    {\oplus}_{A \to B} &\isa (A \to B) \x (\iso A \to \Delta A \to \Delta B)
     \to (A \to B)
     \\
     (f \oplus \df) &=
@@ -389,8 +389,8 @@ These simplifications are fortuitous, because the interaction of the fully gener
 %
   Indeed, it is not hard to come up with functions $f, \df$ such that the result of $f \oplus \df$ as defined above is not a monotone function.
 
-  I suspect these difficulties are surmountable; for example, it should
-  be possible to prove that $f \oplus \df$ is monotone so long as
+  These difficulties might be overcome with further careful work; for example,
+  it should be possible to prove that $f \oplus \df$ is monotone so long as
   $\df$ is a valid change to $f$.
 %
   This would make $\oplus$, like \semifix, a ``trusted primitive'' whose implementation cannot be expressed in Datafun itself.
@@ -521,7 +521,7 @@ The general strategy is to rerun the original function if any of its arguments c
 \subsubsection{Caching intermediate results}
 \label{section-caching}
 
-I have claimed that dependency tracking can be seen as a special case of finite differencing.
+\fixme{informal}{I have} claimed that dependency tracking can be seen as a special case of finite differencing.
 %
 However, one thing all dependency tracking systems do is store intermediate results between runs so they can reuse them if they don't need to be recomputed because their dependencies haven't changed.
 %
@@ -548,7 +548,7 @@ recall the derivatives of function application in each system:
 \end{align*}
 
 \noindent
-As you can see, these recalculate the original argument $e_2$ (or in the case of Datafun, its sped-up version $\phi e_2$).
+\fixme{informal}{As you can see}, these recalculate the original argument $e_2$ (or in the case of Datafun, its sped-up version $\phi e_2$).
 %
 %% On its own, recomputation is a losing strategy. Suppose our program is a
 %% pipeline-style computation: \todo{boxes-and-wires diagram for $f \then g
