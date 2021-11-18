@@ -393,18 +393,18 @@ facts deducible from its clauses.
 %
 We access this set via \emph{queries} such as
 $\atom{grandparent}{\datum{alice},X}$, which asks for a list of all $X$ such
-that $\atom{grandparent}{\datum{alice},X}$ is deriveable. In general we allow
+that $\atom{grandparent}{\datum{alice},X}$ is derivable. In general we allow
 conjunctive queries: lists of atoms conjuncted together, for instance the
 unlikely query $\atom{parent}{X,Y} \conj \atom{parent}{Y,X}$, which asks for a
 pair of people each the parent of the other (or, in the case $X = Y$, a single
 person who is their own parent). Finally, a query without any variables, such as
 $\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
-yes-or-no question: is the query deriveable or not?
+yes-or-no question: is the query derivable or not?
 
 %% Although in principle the result of a Datalog program is the set of \emph{all}
-%% deriveable facts, in practice we use
+%% derivable facts, in practice we use
 
-Observe that ``the set of all deriveable facts'' fits neatly into our informal
+Observe that ``the set of all derivable facts'' fits neatly into our informal
 description of monotone fixed points: applying inference rules is a monotone
 process, adding but never removing knowledge; we desire the fixed point of this
 process, where everything that can be derived has been; our semilattice is sets
@@ -644,13 +644,13 @@ Negation and deduction have an interesting relationship.
 Consider the following program:
 
 \begin{datalog}
-  \atom{underiveable}{} \gets \neg \atom{underiveable}{}.
+  \atom{underivable}{} \gets \neg \atom{underivable}{}.
 \end{datalog}
 
 \noindent
 In classical logic, an implication $B \gets A$ is equivalent to $B \vee \neg A$.
-Applying this, the above is equivalent to $\atom{underiveable}{} \vee
-\neg\neg\atom{underiveable}{}$, and thus simply to $\atom{underiveable}{}$.
+Applying this, the above is equivalent to $\atom{underivable}{} \vee
+\neg\neg\atom{underivable}{}$, and thus simply to $\atom{underivable}{}$.
 %
 Regarded as a rule of inference, however -- as a strategy for deriving new facts
 from ones already known -- this clause makes little sense: we cannot invoke it
@@ -679,16 +679,16 @@ may consistently answer either \emph{Rochester} or \emph{St John} or
 %
 The symmetry of our program makes answering either
 \emph{Rochester} or \emph{St John} unprincipled, and \emph{both} is simply
-not deriveable from the given rules.%
+not derivable from the given rules.%
 %
 \footnotelater{talk about answer-set programming?}
 
 Thus, unlike the preceding restrictions, stratified negation is not about
 finiteness or decidability; rather, it is motivated by interpreting a program
 as a set of rules for deduction and not merely a set of propositions. In other
-words, in Datalog \emph{truth} is identified with \emph{deriveability}.
+words, in Datalog \emph{truth} is identified with \emph{derivability}.
 
-Following this principle, we regard anything not deriveable as false. This
+Following this principle, we regard anything not derivable as false. This
 conforms with the programmer's expectation that anything not explicitly declared
 to be true is false. For example, returning to our graph reachability example:
 
@@ -710,7 +710,7 @@ $\atom{reachable}{X}$ is true for all vertices $X$, regardless of the
 programmer's intent, which is to capture reachability: not every graph is
 completely connected!
 
-The principle of regarding anything not deriveable as false is known as
+The principle of regarding anything not derivable as false is known as
 \emph{negation as failure:} to derive $\neg \atom{reachable}{X}$ it suffices to
 attempt to derive $\atom{reachable}{X}$ and fail.
 %
@@ -741,7 +741,7 @@ decreases to falsehood.
 %
 This makes applying a rule with a negated premise $\neg P(...)$ dangerous: if as
 our knowledge grows we learn that $P(...)$ holds after all, we must retract our
-conclusion because it is not deriveable.
+conclusion because it is not derivable.
 %
 But this violates the condition that our state -- the set of derived atoms -- grows over time!
 
