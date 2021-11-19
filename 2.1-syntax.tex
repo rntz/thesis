@@ -27,11 +27,17 @@ and $\pi_i\<e$).
 %
 To represent relations, we add a type of finite sets $\tset{\eqt
   A}$,\footnote{To implement set types, their elements must support decidable
-  equality. In our core calculus, we use a subgrammar of ``eqtypes'', and in our
-  implementation (which compiles to Haskell) we use typeclass constraints to
-  pick out such types.} introduced with set literals $\eset{e_0, \ldots e_n}$,
-and eliminated using Moggi's monadic bind syntax, $\eforvar{x}{e_1}{e_2}$,
-signifying the union over all $\dvar x \in e_1$ of $e_2$.
+equality. In our core calculus, we use a subgrammar of ``eqtypes'', and in our
+implementation (which compiles to Haskell) we use typeclass constraints to pick
+out such types.} introduced with set literals $\eset{e_0, \ldots e_n}$, and
+eliminated using Moggi's monadic bind syntax, $\eforvar{x}{e_1}{e_2}$,
+%% %
+%% which
+%% binds $x$ in $e_2$ and signifies the union over each $x \in e_1$ of $e_2$; in
+%% other words, $\bigcup_{x \in e_1} e_2$.
+%% %
+which binds $x$ in $e_2$ successively to each element of $e_1$ and takes the
+union; in other words, $\bigcup_{x \in e_1} e_2$.
 %
 Since we are working in \Poset, each type comes with a partial order on it; sets
 are ordered by inclusion, $x \le y : \tseteq{A} \iff x \subseteq y$.
@@ -45,8 +51,7 @@ first argument increases to $\esetraw{1}$ it becomes false, a \emph{decrease}
 
 How can we express non-monotone operations if all functions are monotone?
 %
-We square this circle by introducing the \emph{discreteness} type constructor,
-$\iso A$.
+We cut this Gordian knot using a \emph{discreteness} type constructor, $\iso A$.
 %
 The elements of $\iso A$ are the same as those of $A$, but the partial order on
 $\iso A$ is discrete, $x \le y : \iso A \iff x = y$.

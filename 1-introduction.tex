@@ -711,7 +711,7 @@ programmer's intent, which is to capture reachability: not every graph is
 completely connected!
 
 The principle of regarding anything not deducible as false is known as
-\emph{negation as failure:} to deduce $\neg \atom{reachable}{X}$ it suffices to
+\emph{negation as failure:}\fixme{jeremy}{is negation-as-failure = closed-world assumption?} to deduce $\neg \atom{reachable}{X}$ it suffices to
 attempt to deduce $\atom{reachable}{X}$ and fail.
 %
 Forward-chaining provides a natural implementation strategy for
@@ -910,10 +910,11 @@ drawbacks. As mentioned previously, one weakness of forward chaining is that it
 is undirected, deducing everything it can. If all we care about is the result of
 a fairly narrow query, this can waste a lot of effort. Although various
 optimizations and alternative evaluation strategies such as magic sets, tabling,
-and QSQR\todo{citations for magic sets, tabling, QSQR} exist to address this
-problem, in static analysis this eager approach is par for the course: we
-generally do wish to analyse the whole program, whether for optimization or for
-bug-finding purposes. \todolater{this is not entirely convincing.}
+and QSQR\fixme{jeremy}{citations and brief explanations for magic sets, tabling,
+  QSQR} exist to address this problem, in static analysis this eager approach is
+sensible: we generally wish to analyse the whole program exhaustively, whether
+for optimization or for bug-finding purposes. \todolater{this is not entirely
+  convincing.}
 
 
 \section{What Datalog can't do}
@@ -1023,7 +1024,9 @@ We also saw the need for aggregation in our shortest paths example: after calcul
 
 In this example, our desired aggregation forms a semilattice; when we speak of adding support for other semilattices to Datalog, in some sense what we mean is adding support for semilattice aggregations.
 %
-Semilattice aggregations are particularly well-behaved: they are automatically monotone, and thus the ascending chain condition provides sufficient conditions for their termination.
+Semilattice aggregations are particularly well-behaved: they are automatically
+monotone\fixme{achim}{explain}, and thus the ascending chain condition provides
+sufficient conditions for their termination.
 %
 However, not all useful aggregations form semilattices; for instance summing or averaging do not.
 %
@@ -1077,7 +1080,7 @@ We've seen that Datalog can express and compute some, but not all, instances of
 this pattern. Datalog's limitations are both practical -- it is not obvious how
 to extend Datalog with higher-order abstraction -- and theoretical -- real world
 Datalog engines often support aggregation, arithmetic, and compound data, but in
-doing so raise the question of these feature's semantics.
+doing so raise the question of these features' semantics.
 
 %% \splittodo{ULTIMATE GOAL:}{move towards a language which directly expresses
 %%   the power of monotone fixed points. PROXIMATE GOAL: ease Datalog's
