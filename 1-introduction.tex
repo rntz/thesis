@@ -394,10 +394,10 @@ facts deducible from its clauses.
 We access this set via \emph{queries} such as
 $\atom{grandparent}{\datum{alice},X}$, which asks for a list of all $X$ such
 that $\atom{grandparent}{\datum{alice},X}$ is deducible. In general we allow
-conjunctive queries: lists of atoms conjuncted together, for instance the
-unlikely query $\atom{parent}{X,Y} \conj \atom{parent}{Y,X}$, which asks for a
-pair of people each the parent of the other (or, in the case $X = Y$, a single
-person who is their own parent). Finally, a query without any variables, such as
+conjunctive queries: lists of conjoined atoms, for instance the unlikely query
+$\atom{parent}{X,Y} \conj \atom{parent}{Y,X}$, which asks for a pair of people
+each the parent of the other (or, in the case $X = Y$, a single person who is
+their own parent). Finally, a query without any variables, such as
 $\atom{grandparent}{\datum{charlie}, \datum{alice}}$, amounts to asking a
 yes-or-no question: is the query deducible or not?
 
