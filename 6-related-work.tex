@@ -131,12 +131,12 @@ Although both of these are clearly related to Datafun's goals, neither includes 
 
 \Flix~\citep{flix} and Datafun both augment Datalog with higher-order functional programming and semilattice types,  but they go about this merger of logic and functional programming in different ways. Datafun embeds Datalog's semantics into a functional language by adding first-class support for finite sets and monotone fixed points, ensuring monotonicity via a custom type system. \Flix, however, is really two languages in a trenchcoat -- one logical and Datalog-inspired, the other functional. These language halves interoperate closely: the logic fragment can use semilattices whose merge functions are defined in the functional fragment, and with a recent extension~\citep{DBLP:journals/pacmpl/MadsenL20} the functional fragment can manipulate first-class values representing groups of logic-fragment rules (``Datalog constraints'') which can be composed and evaluated at run-time.
 
-Our main contribution compared to \flix\ is that this separation between
-functional and logic layers is unnecessary; they can be smoothly integrated by
-paying close attention to semantics, and standard Datalog optimizations such as
-semi\naive\ evaluation can be generalized to operate on functional languages,
-with the unexpected side-benefit of revealing a theory of higher-order
-incremental monotone computation.
+Our main contribution compared to \flix\ is to demonstrate that this separation
+between functional and logic layers is unnecessary; they can be smoothly
+integrated by paying close attention to semantics, and standard Datalog
+optimizations such as semi\naive\ evaluation can be generalized to operate on
+functional languages, with the unexpected side-benefit of revealing a theory of
+higher-order incremental monotone computation.
 %
 The practical flip side of this theoretical contribution is that \flix, because it separates functional from logic, can reuse existing techniques for implementing and optimizing Datalog \emph{without} needing to reinvent them in a higher-order setting.
 
@@ -149,7 +149,7 @@ that it better supports user-defined posets and semilattices: in Datafun, adding
 a new datatype with a custom ordering is a matter for the language designer, but
 a \flix\ programmer may do it for themself, if they can convince the verification machinery.
 %
-The disadvantage is that these verification techniques have more ``black-box'' behavior; they are less predictable and reliable (in terms of resource usage, error message quality, and code accepted) than a compositional type-system.
+The disadvantage is that these verification techniques have more ``black-box'' behavior; they are less predictable and reliable (in terms of resource usage, error message quality, and code accepted) than a compositional type system.
 %
 Nonetheless, for certain applications such as static analysis, the use of user-defined semilattice types is highly desirable.
 %
@@ -162,9 +162,9 @@ We believe a fruitful direction for future research would be to hybridize Datafu
 
 In \cref{chapter-seminaive} we presented seminaive evaluation in Datalog and
 Datafun as a matter of incrementalizing the inner loop of our fixed points to
-avoid useless recomputation. Our approach was to only compute the changes
-between iterations, to which end we used a static transformation to push changes
-through expressions in our language.
+avoid recomputation. Our approach was to only compute the changes between
+iterations, to which end we used a static transformation to push changes through
+expressions in our language.
 %
 However, this is only one of many approaches to incremental computation.
 %
@@ -203,6 +203,8 @@ Datalog's semi\naive\ evaluation. Instead, it uses \emph{finite differencing.}
 
 \paragraph{Finite differencing}
 
+\fixme{jeremy}{there's a lot of old work on finite differencing that I don't discuss, eg. Paige \& Koenig (1982).}
+
 Dependency tracking approaches incrementalization with a yes-or-no mindset: did
 our dependencies change?
 %
@@ -231,7 +233,7 @@ handle new or removed elements, and doesn't require balancing or rebalancing a
 tree.
 
 However, this example works only because addition on the integers commutes and
-associates. This is what allows us to combine a sum $\sum_i x_i$ with a
+associates.\fixme{jeremy}{This requires more than commutativity in associativity, as you'll discover if you try to do the same trick for maximum.} This is what allows us to combine a sum $\sum_i x_i$ with a
 difference $dx$ to the $j$\textsuperscript{th} element and find the updated sum:
 
 \[
@@ -296,7 +298,7 @@ $\gvalid{\N}{dx}{x_1}{x_2} \iff x_1 + dx = x_2$.
 To handle higher-order computation, we can endow function types $A \to B$ with a
 basic change structure as follows: let $\Delta(A \to B) = A \to \Delta A \to
 \Delta B$ and define the validity relation by saying that a valid function
-change $\gvalid{A \to B}{df}{f_1}{f_2}$ is one which takes valid input changes
+change $\gvalid{A \to B}{df}{f_1}{f_2}$ is one which takes \fixme{achim}{This doesn't mention the first argument of type A.} valid input changes
 $\gvalid{A}{dx}{x_1}{x_2}$ to valid output changes
 $\gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}$, that is, a change between the
 original function applied to its original argument $f_1\<x_1$ and the updated

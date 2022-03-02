@@ -45,13 +45,15 @@ gains we claim, we benchmark two example Datafun programs:
   highly visible.
 
 \item Finding all matches of the regular expression \texttt{/a*/} in the string
-  $\texttt{a}^n$, using the regex combinators from \cref{section-regex-combinators}.
-  Finding all matches for \texttt{/a*/} amounts to finding the reflexive,
-  transitive closure of the matches of \texttt{/a/}, and on $\texttt{a}^n$ these
-  form a linear graph. Thus it is a close computational analogue of our first
-  example, written in a higher-order style. We chose this example to test
-  whether our extension of semi\naive\ evaluation properly handles Datafun's
-  distinctive feature: higher-order programming.
+  $\texttt{a}^n$, using the regex combinators from
+  \cref{section-regex-combinators}. \fixme{jeremy}{remind me of a use of
+    higher-orderness in the regex example.} Finding all matches for
+  \texttt{/a*/} amounts to finding the reflexive, transitive closure of the
+  matches of \texttt{/a/}, and on $\texttt{a}^n$ these form a linear graph. Thus
+  it is a close computational analogue of our first example, written in a
+  higher-order style. We chose this example to test whether our extension of
+  semi\naive\ evaluation properly handles Datafun's distinctive feature:
+  higher-order programming.
 \end{enumerate}
 
 \noindent
