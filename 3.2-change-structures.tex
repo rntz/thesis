@@ -1,0 +1,405 @@
+\section{Change structures for Datafun}
+\label{section-change-structures}
+
+To make precise the notion of change, an incremental \fn-calculus associates every type $A$ with a \emph{change structure}. In our case, noting that Datafun types denote posets, we define change structures as follows:\footnote{%
+This is far from the only reasonable definition of change structure one might consider. \todo{cite mario and original paper and giarrusso's thesis}
+%
+However, as we will discover in \cref{why-is-fix-discrete}, change structures alone do not quite suffice to achieve our goal of speeding up fixed point computations.
+%
+Our eventual solution involves a pair of static transformations proved correct by a complex logical relation (\cref{section-phi-delta,section-seminaive-logical-relation}).
+%
+Explaining these transformations and logical relation without first developing familiarity with the simpler change structures which inspired them would, however, be difficult; hence this section.
+%
+But since these simpler change structures are not used in the logical relation or proof of correctness, our choice of properties to impose is somewhat arbitrary; we have chosen what seems the simplest definition which both supports the types of Datafun and provides appropriate intuition.%
+%
+%% For instance, if we drop our three properties and require only a poset $\D A$ and the relation $V_A$, this coincides with the \emph{basic change structures} defined by \citet[definition 12.1.1]{DBLP:phd/dnb/Giarrusso20}, save that we use posets where Giarrusso uses sets.
+%% %
+%% This definition is simple, but does not capture our intuition that all changes should be increasing (\emph{soundness}) or that a base point $x$ and a change $\dx$ uniquely determine the updated value $y$ (\emph{functionality}).
+%
+%% In the other direction, we could require more and insist on \emph{completeness}: if $x \le y : A$ then there exists some $\dx : \D A$ such that $\changesat A {\dx} x y$. Proving completeness of function spaces is problematic, however; we conjecture it can be done if we add even more structure, insisting that (1) completeness is \emph{monotone}, that is, there is a map $\name{diff} : \setfor{(x,y)}{x \le y : A} \to \D A$ such that $x_2 \le x_1 \wedge y_1 \le y_2 \implies \name{diff}(x_1, y_1) \le \name{diff}(x_2,y_2)$; and (2) there is a monotone change composition operator $\name{follow} : \D A \x \D A \to \D A$ such that if $\changesat A {\dx} x y$ and $\changesat A {\dy} y z$ then $\changesat A {\name{follow}(dx, dy)} x z$.
+%% %
+%% This begins to look like \todo{Giarrusso's ???}.
+}
+
+\begin{definition}
+  A \emph{change structure} on a poset $A$ consists of a poset $\D A$ and a
+  relation $V_A \subseteq \D A \x A \x A$. For $\dx : \D A$ and $x, y : A$, we will write $(\dx, x, y) \in V_A$ interchangeably as $\changesat A {\dx} x y$. This relation must satisfy three properties:
+
+  \newlength{\wubwubwub}
+  \setlength\wubwubwub{.25\baselineskip}
+  \vspace{2\wubwubwub}
+  \def\arraystretch{1}
+  \begin{tabular}{rp{30em}}
+    \emph{Functionality} & If $\changesat A {\dx} x y$ and $\changesat A {\dx} x z$ then $y = z$.
+    %% \\ & So $x$ and $\dx$ determine $y$ uniquely.
+    \\[\wubwubwub]
+    \emph{Soundness} & If $\changesat A {\dx} x y$ then $x \le_A y$.
+    %% \\ & In other words, all changes are increasing.
+    \\[\wubwubwub]
+    \emph{Zero changes} & If $x : A$ there is a $\dx : \D A$ such that $\changesat A {\dx} x x$.
+    %% There is a function $\zero_A : A \to \D A$ such that $\changesat A {\zero_A\<a} a a$.
+    %% (We do not require $\zero_A$ to be monotone.)
+  \end{tabular}
+\end{definition}
+
+
+\noindent
+Elements of $\D A$ represent ``deltas'' or ``diffs'', while $V_A$ says how these deltas affect elements of $A$.
+%
+Given a delta $\dx \in \D A$ and two values $x,y \in A$, one may read $(\dx, x, y) \in V_A$ as ``$\dx$ changes $x$ into $y$''; hence the suggestive notation $\changesat A {\dx} x y$.
+%
+(Visual similarity with the nonsensical type ascription $\dx : x \to y$ is an unfortunate coincidence.)
+%
+Although we use multi-letter variable names prefixed with ``d'' for values $\dx,\dy : \D A$ of delta types, this is merely a naming convention; we could instead use single-letter variables like $p,q : \D A$ with the same meaning.
+
+%% \XXX
+%% As for the properties, \emph{functionality} says that the validity relation $V_A
+%% \subseteq \D A \x A \x A$ is a partial function $\D A \x A \partialto A$. The
+%% intuition here is that a delta $\dx$ applied to a base value $x$ can only
+%% produce at most one updated value $y$ -- \emph{at most} because we do not
+%% require that every delta be applicable to every value. Second, since the
+%% iterations toward a fixed point grow monotonically, in Datafun we only need
+%% consider increasing changes; \emph{soundness} says that all changes are
+%% increasing changes.
+%% %
+%% Finally, \emph{zero changes} requires that every value have some way to remain the same.
+
+To motivate our three properties, it will help to tackle some examples of change
+structures on Datafun types. We'll start with finite sets. Recall that our goal
+is to speed up fixed point computation; and since the iterations toward a fixed
+point grow monotonically, in Datafun we only need consider \emph{increasing}
+changes. Therefore, we take a delta to a set to be a set of elements to union
+into it:
+
+\begin{align*}
+  \D\tseteq{A} &= \tseteq{A}
+  &
+  \infer{
+    x \cup \dx = y
+  }{
+    \changesat{\tseteq{A}}{\dx}{x}{y}
+  }
+\end{align*}
+
+\noindent
+\emph{Functionality} says that $\changesat{\tseteq A}{\dx} x y$ must be a
+partial function from $(\dx,x)$ to $y$. In this case, it's a total function: set
+union. (We'll see a example of a partial validity relation when we consider sum
+types.) \emph{Soundness} requires that all changes are increasing, which is true since $x \subseteq x \cup \dx$.
+%
+Finally, \emph{zero changes} holds since $x \cup \emptyset = x$; one can leave a set unchanged by adding nothing.%
+%
+\footnote{%
+Indeed, sets satisfy not just \emph{zero changes} but the stronger property of \emph{completeness} (the converse of soundness): for any $x \le y$ there is a $\dx$ such that $\changesat{\tseteq A}{\dx}{x}{y}$; for instance one may let $\dx = y \setminus x$, or indeed just $y$.
+%
+However, while our change structure for sets is complete, we will soon observe that completeness is troublesome at function types, so we do not insist on it in general.}
+
+\todo{Maybe introduce the notion of a derivative / differentiable map here?}
+
+Set changes are important since most of our motivating examples of fixed points
+are taken at set type, but to handle all of Datafun we need change structures
+for every type. For products, for instance, we use a pointwise change structure:
+
+\begin{center}
+  \setlength\tabcolsep{10pt}
+  \begin{tabular}{c@{\qquad}c}
+    $\D\tunit = \tunit$
+    &
+    \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
+    \\[\betweenfunctionskip]    % TODO: is this the right distance?
+    \(\D(A \x B) = \D A \x \D B\)
+    &
+    \(\infer{
+      \changesat{A}{\da}{a}{a'}
+      \\
+      \changesat{B}{\db}{b}{b'}
+    }{\changesat{A \x B}
+      {\tuple{\da,\db}}
+      {\tuple{a,b}}
+      {\tuple{a',b'}}
+    }\)
+  \end{tabular}
+\end{center}
+
+\noindent
+Here \emph{functionality}, \emph{soundness}, and \emph{zero changes} are trivial for the unit type $\tunit$, and for $A \x B$ they follow directly from the corresponding properties at $A$ and $B$ and the pointwise ordering on products: for instance, a zero change to $(a,b)$ is $(\da,\db)$ where $\da$ is a zero change to $a$ and $\db$ a zero change to $b$.\footnotemark
+
+\footnotetext{%
+One may ask why we let $\D(A \x B) = \D A \x \D B$ rather than $\D A + \D B$, letting $\changesat{A\x B}{\inj 1 \da}{(a,b)}{(a',b)}$ when $\changesat A{\da} a {a'}$ and symmetrically for $B$. This would satisfy our three properties, but recall that our goal is incrementalizing 
+%
+}
+
+\XXX \todo{sums, functions, box (and thus any discrete type)}
+
+\pagebreak
+
+\fixme{achim}{Achim is very unhappy with this section, check his notes.}
+
+%% To make precise the notion of change, an incremental \fn-calculus associates
+%% every type $A$ with a \emph{change structure}, consisting of:%
+%% %
+%% \footnote{Our notion of change structure differs significantly from that of
+%%   \citet{incremental}, although it is similar to the logical relation given in
+%%   \citet{DBLP:conf/esop/GiarrussoRS19}; we discuss this in
+%%     \cref{section-incremental-lambda-calculus}. Although we do not use change
+%%   structures \emph{per se} in the proof of correctness sketched in
+%%   \cref{section-seminaive-logical-relation}, they are an important source of
+%%   intuition.}
+
+%% \begin{enumerate}
+%% \item A type $\D A$ of possible changes to values of type $A$.
+%% \item A ternary relation $R_A \subseteq \D A \x A \x A$. As a suggestive
+%%   notation, we will generally write $(\dx, x, y) \in R_A$ as
+%%   $\changesat{A}{\dx}{x}{y}$, read as ``$\dx$ changes $x$ into $y$''.
+%% \end{enumerate}
+
+\noindent
+Since the iterations towards a fixed point grow monotonically, in Datafun we only
+need \emph{increasing} changes.
+%
+For example, sets change by gaining new elements:
+
+\begin{align*}
+  \D\tseteq{A} &= \tseteq{A}
+  &
+  \changesat{\tseteq{A}}{\dx}{x}{x \cup \dx}
+\end{align*}
+
+\noindent
+Set changes may be the most significant for fixed point purposes, but to handle
+all of Datafun we need a change structure for every type. For products and sums,
+for example, the change structure is pointwise:
+%
+\fixme{achim}{Why not $\Delta(A \x B) = \Delta A + \Delta B$?}
+%
+\nopagebreak
+
+\begin{center}
+  \setlength\tabcolsep{10pt}
+  \begin{tabular}{@{}ccc@{}}
+    $\D\tunit = \tunit$
+    &
+    \(\D(A \x B) = \D A \x \D B\)
+    &
+    \(\D(A + B) = \D A + \D B\)
+    \\[\betweenfunctionskip]    % TODO: is this the right distance?
+    \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
+    &
+    \(\infer{
+      \changesat{A}{\da}{a}{a'}
+      \\
+      \changesat{B}{\db}{b}{b'}
+    }{\changesat{A \x B}
+      {\tuple{\da,\db}}
+      {\tuple{a,b}}
+      {\tuple{a',b'}}
+    }\)
+    &
+    \(\infer{
+      \changesat{A_i}{\dx_i}{x}{x'}
+    }{
+      \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i x'}
+    }\)
+  \end{tabular}
+\end{center}
+
+%% \begin{align*}
+%%   \D\tunit &= \tunit
+%%   &
+%%   \D(A \x B) &= \D A \x \D B
+%%   &
+%%   \D(A + B) &= \D A + \D B
+%% \end{align*}
+%%
+%% \begin{align*}
+%%   \changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}
+%%   &&
+%%   %% \infer{
+%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
+%%   %% }{\changesat{A_1 \x A_2}
+%%   %%   {\tuple{\vec\dx}}
+%%   %%   {\tuple{\vec x}}
+%%   %%   {\tuple{\vec y}}
+%%   %% }
+%%   %
+%%   %% \infer{
+%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
+%%   %% }{\changesat{A_1 \x A_2}
+%%   %%   {\tuple{\dx_1,\dx_2}}
+%%   %%   {\tuple{x_1,x_2}}
+%%   %%   {\tuple{y_1,y_2}}
+%%   %% }
+%%   %
+%%   \infer{
+%%     \changesat{A}{\da}{a}{a'}
+%%     \\
+%%     \changesat{B}{\db}{b}{b'}
+%%   }{\changesat{A \x B}
+%%     {\tuple{\da,\db}}
+%%     {\tuple{a,b}}
+%%     {\tuple{a',b'}}
+%%   }
+%%   &&
+%%   \infer{
+%%     \changesat{A_i}{\dx}{x}{y}
+%%   }{
+%%     \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
+%%   }
+%% \end{align*}
+
+\noindent
+Since we only consider increasing changes, and $\iso A$ is ordered discretely,
+the only ``change'' permitted is to stay the same. Consequently, no information
+is necessary to indicate what changed:
+
+\begin{align*}
+  \D(\iso A) &= \tunit
+  &&
+  \changesat{\iso A}{\tuple{}}{x}{x}
+\end{align*}
+
+\noindent
+Finally we come to the most interesting case: functions.
+
+\begin{align*}
+  \D(A \to B) &= \iso A \to \D A \to \D B
+  &
+  \infer[fn~change]{
+    \fa{\changesat A \dx x y}
+    \changesat B {\df\<x\<\dx} {f\<x} {g\<y}
+  }{
+    \changesat{A \to B}{\df}{f}{g}
+  }
+\end{align*}
+
+\noindent
+Observe that a function change $\df$ takes two arguments: a base point $x : \iso A$ and a change $\dx : \D A$.
+%
+To understand why we need both, consider incrementalizing function application:
+we wish to know how $f\<x$ changes as both $f$ and $x$ change.
+%
+Supposing $\changes{\df}{f}{g}$ and $\changes{\dx}{x}{y}$, how do we find a
+change $f\<x \changesto g\<y$ that updates both function and argument?
+
+If changes were given pointwise, taking only a base point, we might take
+$\changes{\df}{f} g$ to mean that $\fa{x} \changes{\df\<x}{f\<x}{g\<x}$. But
+this only gets us to $g\<x$, not $g\<y$: we've accounted for the change in the
+function, but not the argument.
+%
+We can account for both by giving $\df$ an additional parameter: not just the
+base point $x$, but also the change to it $\dx$.
+%
+Then by inverting \rn{fn~change} we have $\changes{\df\<x\<\dx}{f\<x}{g\<y}$ as
+desired.
+
+%% This makes it easy to incrementalize function application, $f\<x$; given
+%% changes $\changes \df f g$ and $\changes \dx x y$ to the function and its
+%% argument, we want to compute the change that takes us to the updated
+%% application $g\<y$. By inverting \textsc{FnChange} we know that
+%% $\changes{\df\<x\<\dx}{f\<x}{g\<y}$, so $\df\<x\<\dx$ gives us the desired
+%% change.
+
+%% If instead changes were given pointwise, letting $\D(A \to B)= \iso A \to \D B$,
+%% then it'd be natural to let $\changes{\df}{f}{g} \iff \fa{x}
+%% \changes{\df\<x}{f\<x}{g\<x}$.
+
+Note also the mixture of monotonicity and non-monotonicity in the type $\iso A
+\to \D A \to \D B$. Since our functions are monotone (increasing inputs yield
+increasing outputs), function changes are monotone with respect to input changes
+$\D A$: a larger increase in the input yields a larger increase in the output.
+However, there's no reason to expect the change in the output to grow as the
+base point increases -- hence the base point argument is discrete, $\iso A$.
+
+
+\subsection{Zero changes, derivatives, and faster fixed points}
+\label{section-derivatives}
+
+If $\changesat A \dx x x$, we call $\dx$ a \emph{zero change} to $x$. Usually
+zero changes are boring -- for example, a zero change to a set $x :
+\tseteq{A}$ is any $\dx \subseteq x$, and so $\emptyset$ is always a zero
+change.
+%
+However, there is one very interesting exception: function zero changes. Suppose
+$\changesat{A \to B}{\df}{f}{f}$. Then inverting \rn{fn change} implies that
+
+\begin{equation*}
+  \changesat A \dx x y \implies \changesat B{\df\<x\<\dx}{f\<x}{f\<y}
+\end{equation*}
+
+\noindent
+In other words, $\df$ yields the change in the output of $f$ given a change to
+its input.
+%
+This is exactly the property of $\name{step}'$ that made it useful for
+semi\naive\ evaluation -- indeed, $\name{step}'$ is a zero change to
+\name{step}, modulo not taking the base point $x$ as an argument:
+
+\begin{align*}
+  \changesat{\tseteq A} \dx x y
+  &\implies
+  \changesat{\tseteq A}{\name{step}'\<\dx}{\name{step}\<x}{\name{step}\<y}
+  \\
+  % should make a box that is as wide as \implies here.
+  &\parbox[t]{\widthof{${}\implies{}$}}{\centering\emph{i.e.}}
+  \\[2.5pt]
+  x \cup \dx = y
+  &\implies
+  \name{step}\<x \cup \name{step}'\<\dx = \name{step}\<y
+\end{align*}
+
+\noindent
+Function zero changes are so important we give them a special name:
+\emph{derivatives}. We now have enough machinery to prove correct a
+general \emph{semi\naive\ fixed point strategy}. First, observe that:
+
+\begin{restatable}{lemma}{DeltaLattice}\label{lemma-delta-lattice}
+  At each semilattice type $L$ \fixme{achim}{Where are these defined? Refer to that, please.}, we have $\D L = L$ and
+  $\changesat{L}{\dx}{x}{y} \iff x \binvee \dx = y$.
+\end{restatable}
+
+\begin{restatable}{proof}{DeltaLatticeProof}
+  Induct on semilattice types $L$. \todolater{doesn't this need to be more detailed?}
+\end{restatable}
+
+\noindent
+Now, given a monotone map $f : L \to L$ and a derivative of it $f' : \iso L \to
+L \to L$, i.e. an $f'$ such that $\changesat{L \to L}{f'} f f$, we can find $f$'s
+fixed-point as the limit of the sequence $x_i$ defined:
+
+\begin{align*}
+  x_0 &= \bot & x_{i+1} &= x_i \vee \dx_i\\
+  \dx_0 &= f\<\bot & \dx_{i+1} &= f'\<x_i\<\dx_i
+\end{align*}
+
+\noindent
+Observe that the function $f$ itself is only used once, to calculate $\dx_0 = f
+\<\bot$.
+%
+Given this initial ``kickoff'' change, the remaining $x_i$ are calculated
+entirely using the derivative $f'$.
+%
+Let $\semifix\<(f,\, f') = \bigvee_i x_i$ be the limit of this sequence.
+%
+By induction and the derivative property, we have $\changes{\dx_i}{x_i}{f\<x_i}$
+and so $x_i = f^i\<x$, and therefore $\semifix\<(f,\, f')$ is the least
+fixed point of $f$.
+%
+And if $L$ has no infinite ascending chains, we will reach this fixed point in
+some finite number of iterations $i$ such that $x_i = x_{i+1}$.
+
+\label{section-seminaive-strategy}
+
+This leads directly to our strategy for semi\naive\ Datafun.
+%
+The original incremental
+\fn-calculus~\citep{incremental}
+defines a static transformation $\Derive e$ which computes the change in $e$
+given the change in its free variables; it \emph{incrementalizes} $e$.
+%
+Our goal is not to incrementalize Datafun \emph{per se}, but to find fixed
+points faster.
+%
+Consequently, we define two mutually recursive transformations: $\phi e$, which
+computes $e$ faster by replacing fixed points with calls to \semifix; and
+$\delta e$, which incrementalizes $\phi e$ just enough that we can compute
+the derivative of fixed point functions.

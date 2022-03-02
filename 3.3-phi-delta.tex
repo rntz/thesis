@@ -252,8 +252,8 @@ In a fixed point expression $\efix e$, we know $e : \isofixLtoL$. Consequently t
 \noindent
 The behavior of $\phi e$ is to compute a boxed pair $\eboxtupleraw{f,f'}$, where
 $f : \fixt L \to \fixt L$ is a sped-up function and $f' : \iso\fixt L \to \fixt
-L \to \fixt L$ is its derivative. This is exactly what we need to call \semifix.
-Therefore $\phi(\efix e) = \semifix\<\phi e$.
+L \to \fixt L$ is its derivative. This is exactly what we need in order to call
+\semifix. Therefore $\phi(\efix e) = \semifix\<\phi e$.
 %
 However, if we're going to use \semifix\ in the output of $\phi$, we ought to
 give it a typing rule and semantics:
@@ -276,13 +276,13 @@ can $\efix e$ (or $\semifix\<\phi e$). All we need is a zero change at type
 $\fixtLkern$; by \cref{lemma-delta-lattice}, $\bot$ suffices.
 
 
-\subsection{Variables, \boldfn, and application}
+\subsection{Variables, \boldfn-abstraction, and application}
 \label{section-var-fn-app}
 
-At the core of a functional language are variables, \fn, and application. The
-$\phi$ translation leaves these alone, simply distributing over subexpressions.
-On variables, $\delta$ yields the corresponding change variables. On functions
-and application, $\delta$ is more interesting:
+At the core of a functional language are variables, \fn-abstraction, and
+application. The $\phi$ translation leaves these alone, simply distributing over
+subexpressions. On variables, $\delta$ yields the corresponding change
+variables. On functions and application, $\delta$ is more interesting:
 
 %% \begin{align*}
 %%   \begin{aligned}
@@ -346,11 +346,11 @@ the context $\stripcx{\iso\Phi\G, \DP\G}$.
 %
 However, $\iso$ makes every variable discrete, and $\stripcx{-}$ leaves discrete
 variables alone, so this provides \emph{at least} $\iso\Phi\G$, while the
-context $\phi f$ needs is $\Phi\G$.
+context $\phi f$ needs $\Phi\G$.
 %
 Thus really this is a question about the interaction of weakening and discreteness: can a discrete variable always substitute for a monotone one?
 
-Indeed it may: making a variable discrete only increases the number of places it can be used, because while some typing rules discard monotone variables, they never discard discrete variables.
+Indeed it may: making a variable discrete only increases the number of places it can be used, because while some typing rules discard monotone variables, they never discard discrete ones.
 %
 We formalize this using a weakening relation $\Gamma \weaker \Delta$
 (\cref{figure-weakening}; note that $H$ for ``hypothesis'' ranges over all
@@ -480,7 +480,7 @@ B)$; to pattern-match on this, we need \prim{split} to distribute the $\iso$.
 
 This handles the first two cases, $(\inj i {\pboxvar x},\, \inj i \mvar\dx
 \caseto \delta f_i)_i$. Since we know the tags on $\phi e$ and $\delta e$ agree,
-these are the only possible cases. However, to appease our type-checker we must
+these are the only possible cases. However, to appease our type-checker \fixme{jeremy}{Why do you need dead code in order to appease your type checker? What is this type checker? Can't it have impossibility tests, like Idris?} we must
 handle the \emph{impossible} case that $i \ne j$. This case is dead code: it
 needs to typecheck, but is otherwise irrelevant. It suffices to generate a dummy
 change $\dx : \DP A_i$ from our base point $\hd{x}{\Phi A_i}$. We do this using

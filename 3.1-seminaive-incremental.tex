@@ -1,8 +1,8 @@
-\section{From semi\naive{} evaluation to the incremental \boldfn-calculus}
-\label{section-seminaive-incremental}
+%% \section{From semi\naive{} evaluation to the incremental \boldfn-calculus}
 
 
-\subsection{Semi\naive\ evaluation as incremental computation}
+\section{Semi\naive\ evaluation as incremental computation}
+\label{section-seminaive-incremental}
 
 \todolater{replace this with single-source reachability?}
 
@@ -19,17 +19,14 @@ Consider the following Datalog program:
 
 \noindent
 Suppose \name{edge} denotes a linear graph, $\{(1, 2),\, (2, 3),\, \dots,\,
-({n-1}, n)\}$. Then \name{path} should denote its reachability relation,
-$\setfor{(i, j)}{1 \le i < j \le n}$. How can we compute this? The simplest
-approach is to begin with nothing in the \name{path} relation and repeatedly
-apply its rules until nothing more is deducible. We can make this strategy
-explicit by time-indexing the \name{path} relation:
-
-\begin{datalog}
-  \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Z}.
-  \\
-  \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Y} \conj \name{path}_i(Y,Z).
-\end{datalog}
+({n-1}, n)\}$. Then \name{path} will denote reachability by a sequence of one or
+more edges, $\setfor{(i, j)}{1 \le i < j \le n}$, or the transitive closure of
+\name{edge}.
+%
+How can we compute this? The simplest approach is to begin with nothing
+in the \name{path} relation and repeatedly apply its rules until nothing more is
+deducible. We can make this strategy explicit by time-indexing the \name{path}
+relation:
 
 \begin{datalog}
   \name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Z}.
@@ -49,8 +46,8 @@ $\atom{edge}{{j-1}, j} \wedge \name{path}_i(j,k)$.
 But since $\name{path}_{i+1}(j, k)$ holds, we perform the same deduction at time
 $i+2$, and again at $i+3$, $i+4$, etc.
 
-Because we append edges one at a time, $\name{path}_i$ contains all paths of
-$i$ or fewer edges.
+Because we append edges one at a time, $\name{path}_i$ contains all nonempty
+paths of $i$ or fewer edges.
 %
 Therefore it takes $n$ steps until we reach our fixed point $\name{path}_{n-1} =
 \name{path}_n$.
@@ -63,345 +60,184 @@ wasteful; hence we term this \emph{\naive\ evaluation}.
 
 \label{section-seminaive-tc-in-datafun}
 
-Now let's move from Datalog to Datafun.\footnote{In this section we do not
-  bother distinguishing monotone variables $\mvar x$ or discrete expressions
-  $\eiso e$, as it muddies our examples to no benefit.} The transitive closure
-of \name{edge} is the fixed point of the monotone function \name{step} defined
-by:
+%% the least solution to the recursive equation:
 
-\begin{code}
-\name{step} \<\name{path} = \name{edge} \cup
-\setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path}}
-\end{code}
+%% \begin{code}
+%% \name{path} = \name{edge} \cup
+%% \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path}}
+%% \end{code}
+
+%% \noindent
+%% In other words, it is the
+
+Now let's move from Datalog to Datafun.\footnote{In this section we do not
+bother distinguishing monotone variables $\mvar x$ or discrete expressions
+$\eiso e$, as it muddies our examples to no benefit.} The transitive closure of
+\name{edge} is the least fixed point of the monotone function \name{step}
+defined by:
+
+%\begin{code}
+\[
+\name{step} \<s = \name{edge} \cup
+\setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in s}
+\]%\end{code}
 
 \noindent
-The \naive\ way to compute this is to iterate \name{step}: start from
-\(\name{path}_0 = \emptyset\) and compute successive \(\name{path}_{i+1} =
-\name{step}\<\name{path}_i\) until \(\name{path}_i = \name{path}_{i+1}\).
-%
+The \naive\ way to compute this is to simply iterate \name{step}, computing $\name{path}_i = \name{step}^i \<\emptyset$ inductively by letting:
+
+\begin{align*}
+  \name{path}_0 &= \emptyset
+  &
+  \name{path}_{i+1} &= \name{step} \<\name{path}_i
+\end{align*}
+
+\noindent
+%% start from
+%% \(\name{path}_0 = \emptyset\) and compute successive \(\name{path}_{i+1} =
+%% \name{step}\<\name{path}_i\) until \(\name{path}_i = \name{path}_{i+1}\).
+%% %
 But as before, $\name{path}_i \subseteq \name{step}\<\name{path}_i$; each iteration re-computes the paths found by its predecessor.
 %
-Following Datalog, we'd prefer to compute only the \emph{change} between
-iterations.
+We'd rather not compute the entire set, $\name{step} \< \name{path}_i$, but instead find a smaller subset of \emph{new} paths, let's call them $\name{dpath}_i$, such that $\name{path}_i \cup \name{dpath}_i = \name{step} \<\name{path}_i$.
 %
-So consider $\name{step}'$ defined by:
+The smallest such set is of course $\name{step}\<\name{path}_i \setminus \name{path}_i$, but we won't need this most-precise difference to prove our strategy correct, and the freedom to approximate can be useful for avoiding unnecessary work. \todolater{forward-reference implementation chapter where this becomes a problem}
+%
+Our iteration strategy then becomes:
+
+\begin{align*}
+  %% \name{path}_i &= \name{step}^i \<\emptyset
+  %% &
+  \name{path}_0 &= \emptyset
+  &
+  \name{path}_{i+1} &= \name{path}_i \cup \name{dpath}_i
+  \\
+  %% \name{path}_i \cup \name{dpath}_i &= \name{step}\<\name{path}_i
+  %% &
+  \name{dpath}_0 &= \textsf{\color{red}?} & \name{dpath}_{i+1} &= \textsf{\color{red}?}
+\end{align*}
+
+\noindent
+The base case is easily solved by letting $\name{dpath}_0 = \name{step}\<\emptyset$. This wastes no work since there are no previously-known paths to be rediscovered. In the inductive case, we need to compute $\name{dpath}_{i+1}$ from $\name{path}_i$ and $\name{dpath}_i$. Let's imagine we have a function that does this, called $\name{step}'$:
+
+\begin{align*}
+  \name{path}_0 &= \emptyset
+  &
+  \name{path}_{i+1} &= \name{path}_i \cup \name{dpath}_i\\
+  \name{dpath}_0 &= \name{step}\<\emptyset
+  &
+  \name{dpath}_{i+1} &= \name{step}' \<\name{path}_i \<\name{dpath}_i
+\end{align*}
+
+\noindent
+If we wish to prove this iteration strategy correct, what must $\name{step}'$ do?
+%
+We wish to show inductively that $\name{step}\<\name{path}_i = \name{path}_{i+1}$.
+%
+The base case is trivial. So assuming $\name{step}\<\name{path}_{i} = \name{path}_{i+1}$, let's look at what we wish to prove and simplify it:
+
+\begin{align*}
+  \name{step} \<\name{path}_{i+1}
+  &=
+  \name{path}_{i+2}
+  & \text{what we wish to show}
+  \\
+  \name{step} \<(\name{path}_i \cup \name{dpath}_i)
+  &=
+  \name{path}_{i+1} \cup \name{dpath}_{i+1}
+  & \text{apply definitions}
+  \\
+  \name{step} \<(\name{path}_i \cup \name{dpath}_i)
+  &=
+  \name{step} \<\name{path}_i \cup \name{step}' \<\name{path}_i \<\name{dpath}_i
+  & \text{apply IH and definitions}
+\end{align*}
+
+\noindent
+So it suffices for $\name{step}'$ to have the following property:
+
+\nopagebreak[1]
+\[
+\name{step}\<(s \cup \ds) = \name{step}\<s \cup \name{step}' \<s \<\ds 
+\]
+
+\noindent
+Intuitively speaking, $\name{step}' \<s \<\ds$ captures how $\name{step}$'s output changes in response to changing input: as $s$ grows to $s \cup \ds$, how does $\name{step}\<s$ grow to $\name{step}\<(s \cup \ds)$?
+
+The next question is: can we find a $\name{step}'$ with this property?
+%
+We can: for instance, \( \name{step}' \<s \<\ds = \name{step}\<(s
+\cup \ds) \setminus \name{step}\<s \), or the even simpler $\name{step}' \<s \<\ds = \name{step}\<(s \cup \ds)$.
+%
+But these trivial solutions do not help us avoid wasteful computation: they repeatedly call \name{step} on ever-growing inputs, taking us back to \naive\ iteration.
+%
+So let's examine the behavior of $\name{step} \<(s \cup \ds)$ to see if we can find something more efficient:
+
+\begin{align*}
+  &\mathrel{\hphantom{=}} \name{step} \<(s \cup \ds)
+  \\
+  &= \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in s \cup \ds}
+  \\
+  &= {\colorA \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in s}} \cup {\colorB \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \ds}}
+  \\
+  &= {\colorA\name{step}\<s} \cup {\colorB \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \ds}}
+\end{align*}
+
+\noindent
+Thus, a satisfactory definition of $\name{step}'$ is:
 
 \begin{code}
-\name{step}' \<\name{dpath} =
-\setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}}
+\name{step}' \<s \<\ds = \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \ds}
 \end{code}
 
-\newcommand\colorA{\color{ColorA}}
-\newcommand\colorB{\color{ColorB}}
+%% \XXX
+%% Instead, consider $\name{step}'$ defined by:
+
+%% \begin{code}
+%% \name{step}' \<s \<\ds = \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \ds}
+%% \end{code}
+
+%% \noindent
+%% This has the desired property:
+%% %
+
+%% \begin{align*}
+%%   &\mathrel{\hphantom{=}} \name{step} \<(s \cup \ds)
+%%   \\
+%%   &= \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in s \cup \ds}
+%%   \\
+%%   &= {\colorA \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in s}} \cup {\colorB \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \ds}}
+%%   \\
+%%   &= {\colorA\name{step}\<s} \cup {\colorB\name{step}' \<s \<\ds}
+%% \end{align*}
+
+%% \noindent
+%% %% In other words, $\name{step}'$ tells us how \name{step} changes as its input
+%% %% grows.
+%% %
+%% This lets us directly compute the changes $\name{dpath}_i$ between our
+%% iterations $\name{path}_i$:
+
+%% \begin{align*}
+%%   \name{dpath}_0
+%%   &= \name{step}\<\emptyset
+%%   = \name{edge}
+%%   \\
+%%   \name{dpath}_{i+1}
+%%   &= \name{step}'\<\name{dpath}_i
+%%   = \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}_i}
+%%   \\
+%%   \name{path}_{i+1}
+%%   &= \name{path}_i \cup \name{dpath}_i
+%% \end{align*}
+
+%% \noindent These exactly mirror the derivative and accumulator rules for
+%% \(\name{path}_i\) and \(\name{dpath}_i\) we gave earlier. \fixme{jeremy}{produce a cross reference or page number here} \fixme{achim}{What did you give earlier and where?}
 
 \noindent
-Observe that
-
-\begin{align*}
-  &\mathrel{\hphantom{=}} \name{step} \<(\name{path} \cup \name{dpath})
-  \\
-  &= \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path} \cup \name{dpath}}
-  \\
-  &= {\colorA \name{edge} \cup \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{path}}} \cup {\colorB \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}}}
-  \\
-  &= {\colorA\name{step}\<\name{path}} \cup {\colorB\name{step}'\<\name{dpath}}
-\end{align*}
-
-\noindent
-In other words, $\name{step}'$ tells us how \name{step} changes as its input
-grows.
+The problem of semi\naive\ evaluation for Datafun reduces to \emph{automatically} finding functions, like $\name{step}'$, that compute the change in a function's output given a change to its input.
 %
-This lets us directly compute the changes $\name{dpath}_i$ between our
-iterations $\name{path}_i$:
-
-\begin{align*}
-  \name{dpath}_0
-  &= \name{step}\<\emptyset
-  = \name{edge}
-  \\
-  \name{dpath}_{i+1}
-  &= \name{step}'\<\name{dpath}_i
-  = \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}_i}
-  \\
-  \name{path}_{i+1}
-  &= \name{path}_i \cup \name{dpath}_i
-\end{align*}
-
-\noindent These exactly mirror the derivative and accumulator rules for
-\(\name{path}_i\) and \(\name{dpath}_i\) we gave earlier.
-
-The problem of semi\naive\ evaluation for Datafun, then, reduces to the problem
-of finding functions, like $\name{step}'$, which compute the change in a
-function's output given a change to its input.
+\todo{Say a bit more about how we need to generalize the above process to many types.}
 %
 This is a problem of \emph{incremental computation}, and since Datafun is a
 functional language, we turn to the \emph{incremental
   \fn-calculus}~\citep{incremental,DBLP:conf/esop/GiarrussoRS19,DBLP:phd/dnb/Giarrusso20}.
-
-
-\subsection{Change structures}
-\label{section-change-structures}
-
-To make precise the notion of change, an incremental \fn-calculus associates
-every type $A$ with a \emph{change structure}, consisting of:%
-%
-\footnote{Our notion of change structure differs significantly from that of
-  \citet{incremental}, although it is similar to the logical relation given in
-  \citet{DBLP:conf/esop/GiarrussoRS19}; we discuss this in
-    \cref{section-incremental-lambda-calculus}. Although we do not use change
-  structures \emph{per se} in the proof of correctness sketched in
-  \cref{section-seminaive-logical-relation}, they are an important source of
-  intuition.}
-
-\begin{enumerate}
-\item A type $\D A$ of possible changes to values of type $A$.
-\item A relation $\changesat{A}{\dx}{x}{y}$ for $\dx : \D A$ and $x,y : A$,
-  read as ``$\dx$ changes $x$ into $y$''.
-\end{enumerate}
-
-\noindent
-Since the iterations of a fixed point grow monotonically, in Datafun we only
-need \emph{increasing} changes.
-%
-For example, sets change by gaining new elements:
-
-\begin{align*}
-  \D\tseteq{A} &= \tseteq{A}
-  &
-  \changesat{\tseteq{A}}{\dx}{x}{x \cup \dx}
-\end{align*}
-
-\noindent
-Set changes may be the most significant for fixed point purposes, but to handle
-all of Datafun we need a change structure for every type. For products and sums,
-for example, the change structure is pointwise:
-
-\begin{center}
-  \setlength\tabcolsep{10pt}
-  \begin{tabular}{@{}ccc@{}}
-    $\D\tunit = \tunit$
-    &
-    \(\D(A \x B) = \D A \x \D B\)
-    &
-    \(\D(A + B) = \D A + \D B\)
-    \\[\betweenfunctionskip]    % TODO: is this the right distance?
-    \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
-    &
-    \(\infer{
-      \changesat{A}{\da}{a}{a'}
-      \\
-      \changesat{B}{\db}{b}{b'}
-    }{\changesat{A \x B}
-      {\tuple{\da,\db}}
-      {\tuple{a,b}}
-      {\tuple{a',b'}}
-    }\)
-    &
-    \(\infer{
-      \changesat{A_i}{\dx_i}{x}{x'}
-    }{
-      \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i x'}
-    }\)
-  \end{tabular}
-\end{center}
-
-%% \begin{align*}
-%%   \D\tunit &= \tunit
-%%   &
-%%   \D(A \x B) &= \D A \x \D B
-%%   &
-%%   \D(A + B) &= \D A + \D B
-%% \end{align*}
-%%
-%% \begin{align*}
-%%   \changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}
-%%   &&
-%%   %% \infer{
-%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
-%%   %% }{\changesat{A_1 \x A_2}
-%%   %%   {\tuple{\vec\dx}}
-%%   %%   {\tuple{\vec x}}
-%%   %%   {\tuple{\vec y}}
-%%   %% }
-%%   %
-%%   %% \infer{
-%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
-%%   %% }{\changesat{A_1 \x A_2}
-%%   %%   {\tuple{\dx_1,\dx_2}}
-%%   %%   {\tuple{x_1,x_2}}
-%%   %%   {\tuple{y_1,y_2}}
-%%   %% }
-%%   %
-%%   \infer{
-%%     \changesat{A}{\da}{a}{a'}
-%%     \\
-%%     \changesat{B}{\db}{b}{b'}
-%%   }{\changesat{A \x B}
-%%     {\tuple{\da,\db}}
-%%     {\tuple{a,b}}
-%%     {\tuple{a',b'}}
-%%   }
-%%   &&
-%%   \infer{
-%%     \changesat{A_i}{\dx}{x}{y}
-%%   }{
-%%     \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
-%%   }
-%% \end{align*}
-
-\noindent
-Since we only consider increasing changes, and $\iso A$ is ordered discretely,
-the only ``change'' permitted is to stay the same. Consequently, no information
-is necessary to indicate what changed:
-
-\begin{align*}
-  \D(\iso A) &= \tunit
-  &&
-  \changesat{\iso A}{\tuple{}}{x}{x}
-\end{align*}
-
-\noindent
-Finally we come to the most interesting case: functions.
-
-\begin{align*}
-  \D(A \to B) &= \iso A \to \D A \to \D B
-  &
-  \infer[fn~change]{
-    \fa{\changesat A \dx x y}
-    \changesat B {\df\<x\<\dx} {f\<x} {g\<y}
-  }{
-    \changesat{A \to B}{\df}{f}{g}
-  }
-\end{align*}
-
-\noindent
-Observe that a function change $\df$ takes two arguments: a base point $x : \iso A$ and a change $\dx : \D A$.
-%
-To understand why we need both, consider incrementalizing function application:
-we wish to know how $f\<x$ changes as both $f$ and $x$ change.
-%
-Supposing $\changes{\df}{f}{g}$ and $\changes{\dx}{x}{y}$, how do we find a
-change $f\<x \changesto g\<y$ that updates both function and argument?
-
-If changes were given pointwise, taking only a base point, we might take
-$\changes{\df}{f} g$ to mean that $\fa{x} \changes{\df\<x}{f\<x}{g\<x}$. But
-this only gets us to $g\<x$, not $g\<y$: we've accounted for the change in the
-function, but not the argument.
-%
-We can account for both by giving $\df$ an additional parameter: not just the
-base point $x$, but also the change to it $\dx$.
-%
-Then by inverting \rn{fn~change} we have $\changes{\df\<x\<\dx}{f\<x}{g\<y}$ as
-desired.
-
-%% This makes it easy to incrementalize function application, $f\<x$; given
-%% changes $\changes \df f g$ and $\changes \dx x y$ to the function and its
-%% argument, we want to compute the change that takes us to the updated
-%% application $g\<y$. By inverting \textsc{FnChange} we know that
-%% $\changes{\df\<x\<\dx}{f\<x}{g\<y}$, so $\df\<x\<\dx$ gives us the desired
-%% change.
-
-%% If instead changes were given pointwise, letting $\D(A \to B)= \iso A \to \D B$,
-%% then it'd be natural to let $\changes{\df}{f}{g} \iff \fa{x}
-%% \changes{\df\<x}{f\<x}{g\<x}$.
-
-Note also the mixture of monotonicity and non-monotonicity in the type $\iso A
-\to \D A \to \D B$. Since our functions are monotone (increasing inputs yield
-increasing outputs), function changes are monotone with respect to input changes
-$\D A$: a larger increase in the input yields a larger increase in the output.
-However, there's no reason to expect the change in the output to grow as the
-base point increases -- hence the base point argument is discrete, $\iso A$.
-
-
-\subsection{Zero changes, derivatives, and faster fixed points}
-\label{section-derivatives}
-
-If $\changesat A \dx x x$, we call $\dx$ a \emph{zero change} to $x$. Usually
-zero changes are boring -- for example, a zero change to a set $x :
-\tseteq{A}$ is any $\dx \subseteq x$, and so $\emptyset$ is always a zero
-change.
-%
-However, there is one very interesting exception: function zero changes. Suppose
-$\changesat{A \to B}{\df}{f}{f}$. Then inverting \rn{fn change} implies that
-
-\begin{equation*}
-  \changesat A \dx x y \implies \changesat B{\df\<x\<\dx}{f\<x}{f\<y}
-\end{equation*}
-
-\noindent
-In other words, $\df$ yields the change in the output of $f$ given a change to
-its input.
-%
-This is exactly the property of $\name{step}'$ that made it useful for
-semi\naive\ evaluation -- indeed, $\name{step}'$ is a zero change to
-\name{step}, modulo not taking the base point $x$ as an argument:
-
-\begin{align*}
-  \changesat{\tseteq A} \dx x y
-  &\implies
-  \changesat{\tseteq A}{\name{step}'\<\dx}{\name{step}\<x}{\name{step}\<y}
-  \\
-  % should make a box that is as wide as \implies here.
-  &\parbox[t]{\widthof{${}\implies{}$}}{\centering\emph{i.e.}}
-  \\[2.5pt]
-  x \cup \dx = y
-  &\implies
-  \name{step}\<x \cup \name{step}'\<\dx = \name{step}\<y
-\end{align*}
-
-\noindent
-Function zero changes are so important we give them a special name:
-\emph{derivatives}. We now have enough machinery to prove correct a
-general \emph{semi\naive\ fixed point strategy}. First, observe that:
-
-\begin{restatable}{lemma}{DeltaLattice}\label{lemma-delta-lattice}
-  At each semilattice type $L$, we have $\D L = L$ and
-  $\changesat{L}{\dx}{x}{y} \iff x \binvee \dx = y$.
-\end{restatable}
-
-\begin{restatable}{proof}{DeltaLatticeProof}
-  Induct on semilattice types $L$. \todolater{doesn't this need to be more detailed?}
-\end{restatable}
-
-\noindent
-Now, given a monotone map $f : L \to L$ and its derivative $f' : \iso L \to L
-\to L$, we can find $f$'s fixed-point as the limit of the sequence $x_i$
-defined:
-
-\begin{align*}
-  x_0 &= \bot & x_{i+1} &= x_i \vee \dx_i\\
-  \dx_0 &= f\<\bot & \dx_{i+1} &= f'\<x_i\<\dx_i
-\end{align*}
-
-\noindent
-Observe that the function $f$ itself is only used once, to calculate $\dx_0 = f
-\<\bot$.
-%
-Given this initial ``kickoff'' change, the remaining $x_i$ are calculated
-entirely using the derivative $f'$.
-%
-Let $\semifix\<(f,\, f') = \bigvee_i x_i$ be the limit of this sequence.
-%
-By induction and the derivative property, we have $\changes{\dx_i}{x_i}{f\<x_i}$
-and so $x_i = f^i\<x$, and therefore $\semifix\<(f,\, f')$ is the least
-fixed point of $f$.
-%
-And if $L$ has no infinite ascending chains, we will reach this fixed point in
-some finite number of iterations $i$ such that $x_i = x_{i+1}$.
-
-\label{section-seminaive-strategy}
-
-This leads directly to our strategy for semi\naive\ Datafun.
-%
-The original incremental
-\fn-calculus~\citep{incremental}
-defines a static transformation $\Derive e$ which computes the change in $e$
-given the change in its free variables; it \emph{incrementalizes} $e$.
-%
-Our goal is not to incrementalize Datafun \emph{per se}, but to find fixed
-points faster.
-%
-Consequently, we define two mutually recursive transformations: $\phi e$, which
-computes $e$ faster by replacing fixed points with calls to \semifix; and
-$\delta e$, which incrementalizes $\phi e$ just enough that we can compute
-the derivative of fixed point functions.
