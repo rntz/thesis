@@ -174,6 +174,7 @@
 \newcommand\textsfit[1]{\textsf{\itshape #1}}
 \newcommand\flix{\textsc{\textls[40]{F\kern.25pt lix}}}
 \newcommand\Flix\flix % used at sentence start
+\newcommand\partialto\rightharpoonup
 
 % used for names of functions, primitives, etc. in math mode
 %\newcommand\name[1]{\ensuretext{\sffamily #1}} % why not \textsf?
@@ -267,6 +268,9 @@
 \newcommand\catC{\ensuremath{\mathcal{C}}}
 \newcommand\id{\name{id}}
 \newcommand\then\cdot
+\renewcommand\then{\mathbin{;}}
+%% \renewcommand\then{\mathrel{\bullet}}
+%% \renewcommand\then{\mathrel{\fatsemi}}
 \newcommand\compose\circ
 
 \newcommand\morph\name
@@ -392,8 +396,9 @@
 \newcommand\eforvar[2]{\eforin{\dvar #1}{#2}}
 
 \setlength\fboxsep{2.5pt}
-\newcommand\emptyhole{\fbox{\color{gray}\sffamily ?}\kern1pt}
-\renewcommand\emptyhole{\ensuremath{\Box}}
+\newcommand\emptyhole{\ensuretext{\textbigcircle}}
+%% \renewcommand\emptyhole{\fbox{\color{gray}\sffamily ?}\kern1pt}
+%% \renewcommand\emptyhole{\ensuremath{\Box}}
 \newcommand\fillhole[2]{\sub{#1}{#2}}
 \renewcommand\fillhole[2]{\subone{#1}{\emptyhole}{#2}}
 \newcommand\eiter[4][]{\prim{iter}_{#1}({#2},\, {#3},\, {#4})}
@@ -447,7 +452,7 @@
 \newcommand\changesto\leadsto
 \newcommand\changescolon\dblcolon
 %% \renewcommand\changesto\shortrightarrow
-%% \renewcommand\changescolon{:}
+%\renewcommand\changescolon{:}
 \newcommand\changesat[4]{{#2} \changescolon_{#1} {#3} \changesto {#4}}
 \newcommand\changes[3]{{#1} \changescolon {#2} \changesto {#3}}
 %\renewcommand\changesat[4]{\changes{#2}{#3}{#4} : {#1}}
