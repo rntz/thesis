@@ -41,6 +41,10 @@ union; in other words, $\bigcup_{x \in e_1} e_2$.
 %
 Since we are working in \Poset, each type comes with a partial order on it; sets
 are ordered by inclusion, $x \le y : \tseteq{A} \iff x \subseteq y$.
+%
+Finally, we add a type \typename{int} of integers, ordered as usual ($... < -1 < 0 < 1 < 2 < ...$), which will serve as an example base type.
+
+\todo{need to discuss the \typename{int} type below}
 
 As long as all primitives are monotone, every definable function is also
 monotone. This is necessary for defining fixed points, but may seem too
@@ -66,6 +70,8 @@ Semantically, $\iso$ is a monoidal comonad or necessity modality, and so we base
 our syntax on \citet{jrml}'s syntax for the necessity fragment of constructive
 S4 modal logic.
 %
+\fixme{achim}{This is crucial. Explain in more detail than the following.}
+%
 This involves distinguishing two kinds of variable: discrete variables are in lowercase ($\dvar x, \dvar y, \dvarlong{foo}, \dvarlong{bar}$), while monotone variables are capitals ($\mvar X, \mvar Y, \mvar Z$).
 %
 Discrete variables obey normal scoping rules, but monotone variables are hidden
@@ -88,21 +94,27 @@ Finally, to express Datalog's recursive queries, Datafun includes a fixed point 
 %
 To ensure termination, this map must be monotone and take a \emph{semilattice type with decidable equality and no infinite ascending chains}, $\fixtLkern$.
 %
+%% \fixme{achim}{Why semilattices? That's not needed for computing a fixed point.}
+%
 For our purposes, a semilattice is a partial order with a least element $\bot$ and a least upper bound operation $\vee$ (``join'').
 %
 Finite sets (with the empty set as least element, and union as join) are an example, as are tuples of semilattices.
 %
-As long as the semilattice has no infinite ascending chains $x_0 < x_1 < x_2 < \dots$, iteration from the bottom element is guaranteed to find the least fixed point; decidable equality ensures we can tell when this fixed point is reached.%
+As long as the semilattice has no infinite ascending chains, the chain of iterations $\bot \le f(\bot) \le f(f(\bot)) \le ...$ is guaranteed to stabilize at the least fixed point $f^i(\bot) = f^{i+1}(\bot)$ for some finite $i$.
+%
+Decidable equality ensures we can tell when this fixed point is reached.
+%
+While not used by fixed point iteration itself, semilattice join is used to define $f$ in all our motivating examples (following the ``pattern'' from \cref{section-monotone-fixed-points}), so we don't bother introducing ``posets with bottom'' as a concept separate from ``semilattices''.%
 %
 \footnote{We are sweeping a few technical details under the rug here. First, for reasons which will not be explained until \cref{why-is-fix-discrete} we treat \prim{fix} as a non-monotone operator.
 %
   \label{note-finite-eqtypes}
   Second, observe that the finite set type $\tseteq{A}$ will possess infinite
   ascending chains if $\eqt A$ has infinitely many inhabitants. Thus we need to
-  distinguish a class of \emph{finite} eqtypes $\fint A$. Although their
-  grammars in \cref{figure-syntax} are identical, their intent is different. For
-  example, if we extended Datafun with integers, they would form an eqtype, but
-  not a finite one.}
+  distinguish a class of \emph{finite} eqtypes $\fint A$. \todo{this is
+    inaccurate.} Although their grammars in \cref{figure-syntax} are identical,
+  their intent is different. For example, if we extended Datafun with integers,
+  they would form an eqtype, but not a finite one.}
 
 \todo{mention split and empty, with forward reference to their occurrences in
   examples and full explanation in \cref{section-typing-and-semantics}}

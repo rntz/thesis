@@ -244,25 +244,26 @@ How do these three examples fit into our proposed pattern: finding the least fix
 \noindent
 %
 The essence of our computational pattern, then, is this: we follow rules which accumulate information \emph{monotonically} until there is nothing left to learn (a \emph{fixed point}). We usually need a way to combine information from multiple sources (our \emph{semilattice}); and if we are to finish, we cannot keep learning forever (the \emph{ascending chain condition}).
-
-%% \splittodo{why these four properties?}{Answer: pattern is roughly ``learning
-%%   more until you know everything''. Fixed points for recursive definition,
-%%   monotonicity + ACC to ensure termination (monotonicity -> direction, acc ->
-%%   can't go forever), semilattice to combine knowledge.}
-
-At this point an inquisitive reader might ask: how broadly is this
-pattern applicable -- were these three examples cherry-picked?
 %
-And, although we may now have an intuition for what our examples share in
-common, what precisely, \emph{mathematically}, is going on here?
-%
-\fixme{informal}{For now, I hope only to have whetted your appetite.}
+%% At this point an inquisitive reader might ask: how broadly is this
+%% pattern applicable -- were these three examples cherry-picked?
+%% %
+%% And, although we may now have an intuition for what our examples share in
+%% common, what precisely, \emph{mathematically}, is going on here?
+%% %
+%% %% \fixme{informal}{For now, I hope only to have whetted your appetite.}
+%% For now we must delay giving a full answer to these questions;
 %
 As this thesis progresses, we will see more examples of this pattern and develop a more precise mathematical understanding of what it consists in.
 %
 To do this, it will help to examine a language which is at once an instance of
 this pattern for us to deconstruct and a vehicle for expressing further
 instances of it: Datalog.
+
+%% \splittodo{why these four properties?}{Answer: pattern is roughly ``learning
+%%   more until you know everything''. Fixed points for recursive definition,
+%%   monotonicity + ACC to ensure termination (monotonicity -> direction, acc ->
+%%   can't go forever), semilattice to combine knowledge.}
 
 %% Connection to Datalog: in order to discuss further examples it will help to have a notation that makes presenting this kind of algorithm easy and precise.
 
@@ -711,8 +712,9 @@ programmer's intent, which is to capture reachability: not every graph is
 completely connected!
 
 The principle of regarding anything not deducible as false is known as
-\emph{negation as failure:}\fixme{jeremy}{is negation-as-failure = closed-world assumption?} to deduce $\neg \atom{reachable}{X}$ it suffices to
-attempt to deduce $\atom{reachable}{X}$ and fail.
+\emph{negation as failure:} to deduce $\neg \atom{reachable}{X}$ it suffices to
+attempt to deduce $\atom{reachable}{X}$ and fail.%
+\footnote{The closely related \emph{closed-world assumption} states that whatever is true is known to be true; conversely, anything not known to be true is false. If we take ``known'' to mean ``deducible'', then the closed-world assumption justifies negation as failure.\todolater{Give a citation for the closed-world assumption.}}
 %
 Forward-chaining provides a natural implementation strategy for
 negation-as-failure: once we have deduced all facts of the form
@@ -920,7 +922,7 @@ for optimization or for bug-finding purposes. \todolater{this is not entirely
 \section{What Datalog can't do}
 
 In \cref{section-datalog} we discussed Datalog's semantics and the deliberate
-restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider four things which Datalog does not support and \fixme{informal}{why you might want them:}
+restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider four things which Datalog does not support and their use-cases:
 \begin{enumerate*}[label=({\arabic*})]
   \item functional abstraction,
   \item semilattices other than set union,
@@ -955,13 +957,11 @@ Suppose we wish to compute reachability over multiple different graphs. One way 
 \end{datalog}
 
 \noindent
-This could quickly get out of hand \fixme{informal}{if you want} to do this more
-than a handful of times, especially if you want to repeat something more complex
-than a two-liner like graph reachability.
+This quickly becomes obnoxious if we wish to repeat something more complex than a two-liner like graph reachability.
 %
-In any ordinary language, we would factor out this repeated code into a procedure or a function.
-
-Unfortunately, Datalog cannot do this.
+In an ordinary language, we would factor out this repeated code into a procedure or a function.
+%
+Unfortunately, Datalog cannot do this:
 %
 Datalog does not have functions, procedures, or modules, only relations; and
 relations are first-order, unable to manipulate or abstract over other relations,
@@ -1020,13 +1020,13 @@ Although it is not difficult to extend a forward-chaining Datalog evaluator with
 %
 Even more problematic is support for aggregations, without which arithmetic by itself is of limited use.
 %
-We also saw the need for aggregation in our shortest paths example: after calculating the lengths of various paths to the same node, we need to aggregate them and keep only their minimum.
+We also saw the need for aggregation in our shortest paths example: after calculating the lengths of multiple paths to the same node, we need to aggregate them and keep only their minimum.
 
-In this example, our desired aggregation forms a semilattice; when we speak of adding support for other semilattices to Datalog, in some sense what we mean is adding support for semilattice aggregations.
+In this example, our desired aggregation arises from a semilattice -- we are taking the least upper bound $\bigvee_{p \in s} \name{length}(p)$ over some set $s$ of paths $p$; to add support for other semilattices to Datalog, we need the ability to compute these semilattice aggregations.
 %
-Semilattice aggregations are particularly well-behaved: they are automatically
-monotone\fixme{achim}{explain}, and thus the ascending chain condition provides
-sufficient conditions for their termination.
+Semilattice aggregations are well-behaved because they are monotone: the value of $\bigvee_{x \in s} f(x)$ grows monotonically with respect to both the set $s$ and the function $f$.
+%
+Thus the ascending chain condition provides sufficient conditions for their termination when used as part of a fixed point computation.
 %
 However, not all useful aggregations form semilattices; for instance summing or averaging do not.
 %

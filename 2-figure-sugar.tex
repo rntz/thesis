@@ -64,7 +64,7 @@
     %%   \subto{\dvar y}{\eiso{\pi_2\<\dvar z}}
     \eletbox{\color{fresh} z}{e}
     \eletbox x {\ebox{\pi_1\<z}}
-    \eletbox \dx {\ebox{\pi_2\<z}}
+    \eletbox y {\ebox{\pi_2\<z}}
     f
     \\
   %% \end{align*}
@@ -78,6 +78,8 @@
     \inj 1 \pwild \caseto f_2
     \casebar \inj 2 \pwild \caseto f_1
     \\
+    &\fixme{jeremy}{explain reordering of $f_1,f_2$ above}
+    \\
     \ematch{\ptuple{p_1,p_2}}{e}{f_1}{f_2}
     &\desugars \ematch{p_1}{\pi_1\<e}{(\ematch{p_2}{\pi_2\<e}{f_1}{f_2})}{f_2}
     \\
@@ -90,7 +92,7 @@
     (\ematch{p}{\color{fresh}\dvar y}{f_1}{f_2})
     \\
     &\phantom{{}\desugars\quad}
-    \inj{(i+1 \bmod 2)} {\color{fresh} \mvar x} \caseto f_2
+    \inj{(3-i)} {\color{fresh} \mvar x} \caseto f_2
   \end{align*}
 
   \centering\itshape

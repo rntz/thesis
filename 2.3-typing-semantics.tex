@@ -106,7 +106,7 @@ chains, guaranteeing the recursion will terminate.
 The restriction to boxed functions -- essentially treating \prim{fix} as a
 non-monotone operator -- is motivated not by our semantics but by our strategy
 for evaluating Datafun efficiently; it will be explained in
-\cref{why-is-fix-discrete}.
+\cref{why-is-fix-discrete}. \fixme{achim}{Can you really not say more at this stage?}
 
 
 \subsection{The category \Poset\ and its structures}
@@ -199,6 +199,8 @@ subsets of $A$ ordered by subset inclusion.
 %
 Note that the subset ordering completely ignores the element ordering $\le_A$.
 %
+\fixme{achim}{Achim notes that it does not have to, because there are meaningful powerset orderings. Should I explain why I use this one?}
+%
 Finite sets admit a pair of useful morphisms:
 
 \begin{align*}
@@ -261,7 +263,7 @@ The domain must be discrete, since $x = y$ and $y \le z$ certainly doesn't imply
 
 Given a semilattice $L \in \Poset$ without infinite ascending chains, we can
 define a family of fixed point morphisms $\morph{fix} : \iso (L \expto L) \to L$
-as follows:
+as follows:\footnote{In fact, \morph{fix} is monotone and could be regarded as a map $(L \expto L) \to L$, but because the typing rule for $\efix$ boxes its argument, we do the same here.}
 
 \begin{displaymath}
   \morph{fix} = f \mapsto \bigvee_{n \in \mathbb{N}} f^n(\bot)
@@ -294,8 +296,10 @@ freely use $n$-ary products to represent our typing context, to avoid the
 book-keeping of reassociating binary products.
 
 Regarding notation, we write composition in diagrammatic or ``pipeline'' order
-with a centered dot, so $f \cdot g : A \to C$ means $f : A \to B$ followed by $g
+with a centered dot, so $f \then g : A \to C$ means $f : A \to B$ followed by $g
 : B \to C$.
+%
+\fixme{jeremy}{don't use center dot for forwards composition; use reverse compositions or else use semicolon.}
 %
 If $f_i : A \to B_i$ we write $\fork{f_i}_i : A \to \prod_i B_i$ for the
 ``tupling map'' such that $\fork{f_i}_i \then \pi_j = f_j$.

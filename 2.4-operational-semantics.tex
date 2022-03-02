@@ -3,7 +3,7 @@
 \input{2-figure-operational-semantics}
 
 We consider the denotational semantics to be primary in Datafun; as with
-Datalog, any implementation technique is valid so long as it lines up with these
+Datalog, any implementation technique is valid so long as it lines up with this
 semantics.
 %
 To show such an implementation is possible, we present a simple call-by-value
@@ -50,9 +50,9 @@ Our implementation strategy for $\efix f$ is
 % \todo{suggested by the proof of \cref{lemma-fixed-point}:}
 straightforward: starting from $\bot$, iteratively apply $f$ until quiescence.
 %
-To model this process, we introduce the form
-$\eiter{f}{e_1}{e_2}$, which evaluates two successive function iterations
-$e_1,e_2$.
+We introduce the form $\eiter{f}{e_1}{e_2}$ to represent these intermediate
+iterative steps. The intention is that $e_1,e_2$ shall be successive iterations
+of $f$, with $e_2 = f\<e_1$.
 %
 The fixed point expression $\efix f$, after evaluating $f$, steps to
 $\eiter{f}{\bot}{f\<e}$, which kicks off the first two iterations.
@@ -89,9 +89,9 @@ To this end we interpret each type $A$ as a \emph{partial preorder}, $\oplr A x 
 %
 A partial preorder is a relation which is transitive and \emph{partially reflexive}, that is, $x \prec y \implies x \prec  x \wedge y \prec y$. While reflexivity may be glossed as ``every element is related to itself'', partial reflexivity glosses as ``if an element is related to anything, it is related to itself''; in other words, unlike reflexivity, it permits some elements to be ``outside the relation'' and unrelated to anything, even themselves.
 %
-Any partial preorder gives rise to a partial equivalence relation (PER), $x \equiv y \iff x \prec y \wedge y \prec x$, and a partial order over the equivalence classes of this PER; so our approach may also be considered to interpret types as partially-ordered PERs.
+Any partial preorder gives rise to a partial equivalence relation (PER), $x \equiv y \iff x \prec y \wedge y \prec x$, and a partial order over the equivalence classes of this PER; so our approach may also be considered to interpret types as partially-ordered PERs. \fixme{achim}{What is partially ordered and how?}
 
-As a matter of fact we define a mutually inductive collection of partial preorders, on values $\oplrvalue A v u$, on closed terms $\oplrclosed A a b$, on closing substitutions $\oplr \G \gamma \sigma$, on open terms $\oplr {\Gamma \vdash A} e f$, and on open terms paired with closing substitutions $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$. The rules for the value-relation are most complex, and we give them first:
+As a matter of fact we define a mutually inductive collection of partial preorders, on values $\oplrvalue A v u$ \fixme{achim}{Where was V(A) defined?}, on closed terms $\oplrclosed A a b$, on closing substitutions $\oplr \G \gamma \sigma$, on open terms $\oplr {\Gamma \vdash A} e f$, and on open terms paired with closing substitutions $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$. The rules for the value-relation are most complex, and we give them first:
 %
 \begin{mathpar}
   \infer{~}{\oplrvalue{\tunit}{\etuple{}}{\etuple{}}}
@@ -172,10 +172,11 @@ Note that $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$ may be seen as a transit
 \begin{proof}
   By induction on $\J e \Gamma A$.
 %
-  \todo{The key case is the fixed point rule, whose proof is a syntactic version
-    of the proof of definedness of fixed points in the denotational semantics.}
+  The key case is the fixed point rule, whose proof is a syntactic version of
+  the proof of definedness of fixed points in the denotational semantics. We
+  therefore give this case here, and leave the other cases to the appendix: \fixme{jeremy,achim}{give the proof!}
 \end{proof}
 
 \noindent
 It follows as immediate corollary (using the definition of $\oplrclosed A a b$)
-that every closed, well-typed program terminates.
+that every closed, well-typed program terminates: \fixme{achim}{actually explain how this follows, it is non-obvious. Where does the ACC come into the argument?}

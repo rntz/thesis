@@ -26,7 +26,7 @@
   \todo{show control flow of program, and the active edges for each step}
   
   \reachstep{1}{The assignment on line 1 adds itself.}{
-    && \parbox[b]{.3\textwidth}{\linespread{0}\sffamily\itshape reaching assignments}
+    && \parbox[b]{.3\textwidth}{\raggedright\linespread{0}\sffamily\itshape reaching assignments}
     \\[.33ex]
     1 & \tt x := 0          & \updline (x,1)\\
     2 & \tt print x\\
@@ -35,7 +35,7 @@
     5 & \tt\quad x := x + 1}
   %
   \reachstep{2}{Information propagates to line 2.}{
-    && \parbox[b]{.3\textwidth}{\linespread{0}\sffamily\itshape reaching assignments}
+    && \parbox[b]{.3\textwidth}{\raggedright\linespread{0}\sffamily\itshape reaching assignments}
     \\[.33ex]
     1 & \tt x := 0          & (x,1)\\
     2 & \tt print x         & \updline (x,1)\\

@@ -15,11 +15,12 @@ For brevity and clarity, the examples that follow make use of some syntax sugar:
 
 \item We mentioned earlier that Datafun's boolean type \tbool\ is ordered
   $\efalse < \etrue$. This is because we encode booleans as sets of empty
-  tuples, $\tset{\tunit}$, with \etrue\ as the singleton $\esetraw{\etuple{}}$
-  and \efalse\ as the empty set $\esetraw{}$. In a loop over a boolean,
-  $\eforvar x e f$, the variable $\dvar x$ contains no useful information; if
-  for brevity we omit it, the condensed expression $\efor{e} f$ may be thought
-  of as a ``one-sided'' conditional:
+  tuples, or the type $\tset{\tunit}$, so written because $\tunit$ is the ``unit
+  type'' of empty tuples. We desugar \etrue\ to the singleton
+  $\esetraw{\etuple{}}$ and \efalse\ to the empty set $\esetraw{}$. In a loop
+  over a boolean, $\eforvar x e f$, the variable $\dvar x$ contains no useful
+  information; if for brevity we omit it, the condensed expression $\efor{e} f$
+  may be thought of as a ``one-sided'' conditional:
 
 %  so the expression becomes a ``one-sided'' conditional, which we abbreviate $\efor{e} f$:
 
@@ -105,7 +106,7 @@ argument $\dvar x$ is discrete because increasing $\dvar x$ might send it from
 being \emph{in} the set to being \emph{outside} the set: although $1 \le 2$ and
 $1 \in \esetraw{1}$, nonetheless $2 \notin \esetraw{1}$. Notice that here we're
 taking advantage of encoding booleans as sets of empty tuples -- unioning these
-sets implements logical \emph{or}.
+sets implements logical \emph{or}. \todomaybe{maybe say that unioning here is joining?}{}
 
 Next we turn to set union and intersection. Union is baked into Datafun as the
 semilattice join, $x \cup y = x \vee y$, while intersection is definable using
@@ -200,7 +201,6 @@ negation:
   \neg \pboxvar t = \emcase{\eisempty{\dvar t}}
   \inj 1 \ptuple{} \caseto \etrue\textsf \casebar \inj 2 \ptuple{} \caseto \efalse
   \\[\betweenfunctionskip]
-  {\neg} \isa \iso\tbool \to \tbool\\
   \pwild\setminus\pwild \isa \tseteq A \to \iso \tseteq A \to \tseteq A\\
   \mvar s \setminus \pboxvar t =
   \esetfor{\dvar x}{\dvar x \in \mvar s,\, \notmember{\dvar x}{\dvar t}}
@@ -220,7 +220,7 @@ $\dvar t$ is boxed, because the operation is not monotone in $\dvar t$.
 This enforces stratification.
 
 \label{section-datafun-transitive-closure}
-\todomaybe{path not used as an example in Datalog anymore -- do something different here?}
+\todomaybe{path not used as an example in Datalog anymore -- do something different here?}{}
 Finally, generalizing our Datalog graph reachability example in
 \cref{section-datalog}, we can define the transitive closure of a relation:
 
@@ -306,8 +306,17 @@ the one ``beyond the last character'':
 \begin{code}
   \name{nil} \isa \tre\\
   \name{nil} \<\pboxvar s =
-  \esetfor{\dvar i}{\ptuple{\dvar i, \pwild} \in \name{chars}\<\eboxvar s}
-  \vee \eset{\name{length}\<\eboxvar s}
+  \esetfor{\etuple{\dvar i, \dvar i}}
+          {\ptuple{\dvar i, \pwild} \in \name{chars}\<\eboxvar s}
+  \vee \eset{\etuple{\name{length}\<\eboxvar s, \name{length}\<\eboxvar s}}
+  %% \\
+  %% \name{nil} \<\pboxvar s =
+  %% \esetfor{\etuple{\dvar i, \dvar i}}{
+  %%   \dvar i \in
+  %%   \esetfor{\dvar i}{\ptuple{\dvar i, \pwild} \in \name{chars}\<\eboxvar s}
+  %%   \vee
+  %%   \eset{\etuple{\name{length}\<\eboxvar s}}
+  %% }
 \end{code}
 
 \noindent
@@ -486,14 +495,13 @@ almost directly into code. We begin by introducing a few basic types.
 \end{code}
 
 \noindent
-The $\tsymbol$ type is a type synonym representing nonterminal names
-with strings. The $\typename{rule}$ type is the type of the right-hand-sides
-of productions in Chomsky normal form -- either a string, or a pair of
-nonterminals. A $\tgrammar$ is just a set of productions -- a set
-of pairs of nonterminals paired with their rules. The type $\tfact$
-is the type representing the atomic facts deduced by the CYK inference
-system -- they are triples of the rulename, the start position, and
-the end position.
+The $\tsymbol$ type is a type synonym representing nonterminal names with
+strings. The $\typename{rule}$ type is the type of the right-hand-sides of
+productions in Chomsky normal form -- either a string, or a pair of
+nonterminals. A $\tgrammar$ is just a set of productions -- a set of pairs of
+nonterminals paired with their rules. The type $\tfact$ represents the atomic
+facts deduced by the CYK inference system -- they are triples of the rulename,
+the start position, and the end position.
 
 \todomaybe{explain helper functions}{}
 
