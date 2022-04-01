@@ -4,8 +4,6 @@
 \section{Semi\naive\ evaluation as incremental computation}
 \label{section-seminaive-incremental}
 
-\todolater{replace this with single-source reachability?}
-
 Consider the following Datalog program:
 
 %% Let's return to our example Datalog program~\todo{cross reference Datalog
@@ -129,7 +127,7 @@ The base case is easily solved by letting $\name{dpath}_0 = \name{step}\<\emptys
 \end{align*}
 
 \noindent
-If we wish to prove this iteration strategy correct, what must $\name{step}'$ do?
+What must $\name{step}'$ satisfy to prove this iteration strategy correct?
 %
 We wish to show inductively that $\name{step}\<\name{path}_i = \name{path}_{i+1}$.
 %
@@ -162,15 +160,19 @@ So it suffices for $\name{step}'$ to have the following property:
 
 \noindent
 Intuitively speaking, $\name{step}' \<s \<\ds$ captures how $\name{step}$'s output changes in response to changing input: as $s$ grows to $s \cup \ds$, how does $\name{step}\<s$ grow to $\name{step}\<(s \cup \ds)$?
+%
+This makes sense: our iterations are the outputs of \name{step} applied to increasing inputs. To compute the changes between them, we want to know how \name{step}'s output responds to growth in its input.
 
 The next question is: can we find a $\name{step}'$ with this property?
 %
 We can: for instance, \( \name{step}' \<s \<\ds = \name{step}\<(s
 \cup \ds) \setminus \name{step}\<s \), or the even simpler $\name{step}' \<s \<\ds = \name{step}\<(s \cup \ds)$.
 %
-But these trivial solutions do not help us avoid wasteful computation: they repeatedly call \name{step} on ever-growing inputs, taking us back to \naive\ iteration.
+While technically correct, these solutions are not efficient:
+%But these trivial solutions do not help us avoid wasteful computation:
+if we plug them into our revised iteration strategy, we find ourselves repeatedly calling \name{step} on ever-growing inputs, returning us to \naive\ iteration.
 %
-So let's examine the behavior of $\name{step} \<(s \cup \ds)$ to see if we can find something more efficient:
+So let's examine the behavior of $\name{step} \<(s \cup \ds)$ to see if we can find a better alternative:
 
 \begin{align*}
   &\mathrel{\hphantom{=}} \name{step} \<(s \cup \ds)
@@ -188,6 +190,51 @@ Thus, a satisfactory definition of $\name{step}'$ is:
 \begin{code}
 \name{step}' \<s \<\ds = \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \ds}
 \end{code}
+
+\noindent
+Is this efficient? Plugging this into our iteration strategy:
+
+%% \begin{align*}
+%%   \name{path}_0 &= \emptyset\\
+%%   \name{path}_{i+1} &= \name{path}_i \cup \name{dpath}_i\\
+%%   \name{dpath}_0 &= \name{step}\<\emptyset = \name{edge}\\
+%%   \name{dpath}_{i+1} &= \name{step}' \<\name{path}_i \<\name{dpath}_i
+%%   = \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}_i}
+%% \end{align*}
+
+\begin{align*}
+  \name{path}_0 &= \emptyset
+  &
+  \name{path}_{i+1} &= \name{path}_i \cup \name{dpath}_i\\
+  \name{dpath}_0 &= \name{step}\<\emptyset
+  &
+  \name{dpath}_{i+1} &= \name{step}' \<\name{path}_i \<\name{dpath}_i
+  \\
+  &= \name{edge}
+  &&= \setfor{(x,z)}{(x,y) \in \name{edge},\, (y,z) \in \name{dpath}_i}
+\end{align*}
+
+\noindent
+Applying this to our original linear graph example, $\name{edge} = \{(0,1),\, (1,2),\, \dots,\, ({n-1},n)\}$, we find:
+
+\begin{align*}
+  \name{dpath}_0 &= \setfor{(i,i+1)}{0 \le i < i+1 \le n}\\
+  \name{dpath}_1 &= \setfor{(i,i+2)}{0 \le i < i+2 \le n}\\
+  \name{dpath}_2 &= \setfor{(i,i+3)}{0 \le i < i+3 \le n}\\
+  &\vdots\\
+  \name{dpath}_k &= \setfor{(i,i+k+1)}{0 \le i < i+k+1 \le n}
+\end{align*}
+
+\noindent
+Thus $\name{dpath}_k$ captures exactly the paths of length $k$, so each path is discovered exactly once: we have avoided redundant work by computing only the change between iterations of our \name{step} function.
+
+The problem of semi\naive\ evaluation for Datafun reduces to \emph{automatically} finding functions, like $\name{step}'$, that efficiently compute the change in a function's output given a change to its input.
+%
+\todo{Say a bit more about how we need to generalize the above process to many types.}
+%
+This is a problem of \emph{incremental computation}, and since Datafun is a
+functional language, we turn to the \emph{incremental
+  \fn-calculus}~\citep{incremental,DBLP:conf/esop/GiarrussoRS19,DBLP:phd/dnb/Giarrusso20}.
 
 %% \XXX
 %% Instead, consider $\name{step}'$ defined by:
@@ -232,12 +279,3 @@ Thus, a satisfactory definition of $\name{step}'$ is:
 
 %% \noindent These exactly mirror the derivative and accumulator rules for
 %% \(\name{path}_i\) and \(\name{dpath}_i\) we gave earlier. \fixme{jeremy}{produce a cross reference or page number here} \fixme{achim}{What did you give earlier and where?}
-
-\noindent
-The problem of semi\naive\ evaluation for Datafun reduces to \emph{automatically} finding functions, like $\name{step}'$, that compute the change in a function's output given a change to its input.
-%
-\todo{Say a bit more about how we need to generalize the above process to many types.}
-%
-This is a problem of \emph{incremental computation}, and since Datafun is a
-functional language, we turn to the \emph{incremental
-  \fn-calculus}~\citep{incremental,DBLP:conf/esop/GiarrussoRS19,DBLP:phd/dnb/Giarrusso20}.

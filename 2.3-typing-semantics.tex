@@ -123,6 +123,8 @@ that $x \le_A y \implies f(x) \le_B f(y)$.
 
 \subsubsection{Bicartesian structure}
 
+\todo{Give initial \& terminal objects!}
+
 The bicartesian closed structure of $\Poset$ is largely the same as in $\Set$.
 %
 The product and sum sets are constructed the same way, and ordered pointwise:
@@ -176,7 +178,7 @@ This forms a rather boring comonad whose functorial action $\iso(f)$, extraction
 This makes the functor and comonad laws trivial. Monotonicity holds in each case because \emph{all} functions are monotone with respect to $\le_{\iso A}$.
 %
 It is also immediate that $\iso$ is monoidal with respect to \emph{both}
-products and coproducts. That is, $\iso (A \times B) \cong \iso A \times \iso B$
+products and sums. That is, $\iso (A \times B) \cong \iso A \times \iso B$
 and $\iso (A + B) \cong \iso A + \iso B$.
 %
 In both cases the isomorphism is witnessed by identity on the underlying
@@ -188,7 +190,7 @@ A_i \to \sum_i \iso A_i$.
 %% We will write $\isox : \prod_i \iso A_i \to \iso\prod_i A_i$ to name the map
 %% witnessing distributivity of products over $\iso$, and $\isosum : \iso \sum_i
 %% A_i \to \sum_i \iso A_i$ to name the map witnessing distributivity of $\iso$
-%% over coproducts.
+%% over sums.
 
 
 \subsubsection{Sets and semilattices}
@@ -296,10 +298,8 @@ freely use $n$-ary products to represent our typing context, to avoid the
 book-keeping of reassociating binary products.
 
 Regarding notation, we write composition in diagrammatic or ``pipeline'' order
-with a centered dot, so $f \then g : A \to C$ means $f : A \to B$ followed by $g
+with a semicolon, so $f \then g : A \to C$ means $f : A \to B$ followed by $g
 : B \to C$.
-%
-\fixme{jeremy}{don't use center dot for forwards composition; use reverse compositions or else use semicolon.}
 %
 If $f_i : A \to B_i$ we write $\fork{f_i}_i : A \to \prod_i B_i$ for the
 ``tupling map'' such that $\fork{f_i}_i \then \pi_j = f_j$.
@@ -310,4 +310,4 @@ Dually, if $g_i : A_i \to B$ we write $\krof{g_i}_i : \sum_i A_i \to B$ for the
 ``case-analysis map'' such that $\injc_j \then \krof{g_i}_i = g_j$.
 
 \todolater{lemma that the interpretation of a semilattice type is a semilattice?}
-
+\todolater{lemma that the interpretation of a fixed point type satisfies the ascending chain condition.}

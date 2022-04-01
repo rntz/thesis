@@ -1,10 +1,16 @@
 \section{Change structures for Datafun}
 \label{section-change-structures}
 
-To make precise the notion of change, an incremental \fn-calculus associates every type $A$ with a \emph{change structure}. In our case, noting that Datafun types denote posets, we define change structures as follows:\footnote{%
-This is far from the only reasonable definition of change structure one might consider. \todo{cite mario and original paper and giarrusso's thesis}
+To solve the problem of computing how a function's output changes in response to its input, we must first make precise the notion of \emph{change} for each type in our language.
 %
-However, as we will discover in \cref{why-is-fix-discrete}, change structures alone do not quite suffice to achieve our goal of speeding up fixed point computations.
+To do this, incremental \fn-calculi associate every type $A$ with a \emph{change structure}.
+%
+In our case, noting that Datafun types denote posets, we define change structures as follows:\footnote{%
+This is far from the only reasonable notion of change structure one might consider. For instance, \citet{DBLP:phd/dnb/Giarrusso20} defines both \emph{basic change structures} (definition 12.1.1), consisting only of a delta-set and a relation, and the more elaborate \emph{change structures} (definition 13.1.1) that have an update operator $\oplus : A \x \D A \to A$, a difference operator $\ominus : A \x A \to \D A$, and composition of changes $\circledcirc : \D A \x \D A \to \D A$; while \citet{mario-thesis} uses a definition based on monoid actions.
+%
+We will compare these with our approach in more detail in \cref{section-related-work-incremental-computation}.
+
+However, change structures alone will not suffice to achieve our goal of speeding up fixed point computations, as we will discover in \cref{why-is-fix-discrete}.
 %
 Our eventual solution involves a pair of static transformations proved correct by a complex logical relation (\cref{section-phi-delta,section-seminaive-logical-relation}).
 %
@@ -22,8 +28,12 @@ But since these simpler change structures are not used in the logical relation o
 }
 
 \begin{definition}
-  A \emph{change structure} on a poset $A$ consists of a poset $\D A$ and a
-  relation $V_A \subseteq \D A \x A \x A$. For $\dx : \D A$ and $x, y : A$, we will write $(\dx, x, y) \in V_A$ interchangeably as $\changesat A {\dx} x y$. This relation must satisfy three properties:
+  A \emph{change structure} $A$ consists of a poset $V A$ of ``values'', a poset
+  $\D A$ of ``changes'' or ``diffs'', and a ``validity'' relation $R_A \subseteq
+  \D A \x V A \x V A$. For $\dx : \D A$ and $x, y : V A$, we will write $(\dx,
+  x, y) \in R_A$ interchangeably as $\changesat A {\dx} x y$, glossed ``$\dx$
+  changes $x$ into $y$''. In this case we also say that $\dx$ is a \emph{valid}
+  change to $x$. This relation must satisfy three properties:
 
   \newlength{\wubwubwub}
   \setlength\wubwubwub{.25\baselineskip}
@@ -36,21 +46,20 @@ But since these simpler change structures are not used in the logical relation o
     \emph{Soundness} & If $\changesat A {\dx} x y$ then $x \le_A y$.
     %% \\ & In other words, all changes are increasing.
     \\[\wubwubwub]
-    \emph{Zero changes} & If $x : A$ there is a $\dx : \D A$ such that $\changesat A {\dx} x x$.
+    \emph{Zero changes} & If $x : V A$ there is some $\dx : \D A$ such that $\changesat A {\dx} x x$. (We call any such $\dx$ a ``zero change'' to $x$.)
     %% There is a function $\zero_A : A \to \D A$ such that $\changesat A {\zero_A\<a} a a$.
     %% (We do not require $\zero_A$ to be monotone.)
   \end{tabular}
 \end{definition}
 
-
 \noindent
-Elements of $\D A$ represent ``deltas'' or ``diffs'', while $V_A$ says how these deltas affect elements of $A$.
+%% Elements of $\D A$ represent ``deltas'' or ``diffs'', while $V_A$ says how these deltas affect elements of $A$.
+%% %
+%% Given a delta $\dx \in \D A$ and two values $x,y \in A$, one may read $(\dx, x, y) \in V_A$ as ``$\dx$ changes $x$ into $y$''; hence the suggestive notation $\changes {\dx} x y$.
 %
-Given a delta $\dx \in \D A$ and two values $x,y \in A$, one may read $(\dx, x, y) \in V_A$ as ``$\dx$ changes $x$ into $y$''; hence the suggestive notation $\changesat A {\dx} x y$.
+%(Visual similarity with the nonsensical type ascription $\dx : x \to y$ is an unfortunate coincidence.)
 %
-(Visual similarity with the nonsensical type ascription $\dx : x \to y$ is an unfortunate coincidence.)
-%
-Although we use multi-letter variable names prefixed with ``d'' for values $\dx,\dy : \D A$ of delta types, this is merely a naming convention; we could instead use single-letter variables like $p,q : \D A$ with the same meaning.
+Although we use multi-letter variable names prefixed with ``d'' for elements $\dx,\dy : \D A$ of delta posets, this is merely a naming convention; we could instead use single-letter variables like $p,q : \D A$ with the same meaning.
 
 %% \XXX
 %% As for the properties, \emph{functionality} says that the validity relation $V_A
@@ -64,14 +73,17 @@ Although we use multi-letter variable names prefixed with ``d'' for values $\dx,
 %% %
 %% Finally, \emph{zero changes} requires that every value have some way to remain the same.
 
-To motivate our three properties, it will help to tackle some examples of change
-structures on Datafun types. We'll start with finite sets. Recall that our goal
-is to speed up fixed point computation; and since the iterations toward a fixed
-point grow monotonically, in Datafun we only need consider \emph{increasing}
-changes. Therefore, we take a delta to a set to be a set of elements to union
-into it:
+To motivate our three properties, it will help to consider an example of a
+change structure corresponding to an important Datafun type: finite sets
+$\tseteq A$.
+%
+Recall that our goal is to speed up fixed point computation. Since
+iterations toward a fixed point grow monotonically, in Datafun we only need
+\emph{increasing} changes. Therefore, changes to sets are themselves sets, to be unioned in:
 
 \begin{align*}
+  V \tseteq A &= \tseteq A
+  &
   \D\tseteq{A} &= \tseteq{A}
   &
   \infer{
@@ -84,108 +96,130 @@ into it:
 \noindent
 \emph{Functionality} says that $\changesat{\tseteq A}{\dx} x y$ must be a
 partial function from $(\dx,x)$ to $y$. In this case, it's a total function: set
-union. (We'll see a example of a partial validity relation when we consider sum
-types.) \emph{Soundness} requires that all changes are increasing, which is true since $x \subseteq x \cup \dx$.
+union. \emph{Soundness} requires that all changes are increasing, which is true since $x \subseteq x \cup \dx$.
 %
 Finally, \emph{zero changes} holds since $x \cup \emptyset = x$; one can leave a set unchanged by adding nothing.%
 %
 \footnote{%
-Indeed, sets satisfy not just \emph{zero changes} but the stronger property of \emph{completeness} (the converse of soundness): for any $x \le y$ there is a $\dx$ such that $\changesat{\tseteq A}{\dx}{x}{y}$; for instance one may let $\dx = y \setminus x$, or indeed just $y$.
+Indeed, sets have not only zero changes but all increasing changes: for any $x \le y$ there is a $\dx$ such that $\changesat{\tseteq A}{\dx}{x}{y}$; for instance one may let $\dx = y \setminus x$, or indeed just $y$. We call this property \emph{completeness,} as it is the converse of soundness.
 %
 However, while our change structure for sets is complete, we will soon observe that completeness is troublesome at function types, so we do not insist on it in general.}
 
-\todo{Maybe introduce the notion of a derivative / differentiable map here?}
+We'll see more examples of change structures later, including ones where the validity relation is a partial rather than a total function, but first, let's revisit our transitive closure example from \cref{section-seminaive-incremental}.
+%
+Using change structures we can generalize the relation between \name{step} and $\name{step}'$. We call $\name{step}'$ a \emph{derivative}, because it tells us how \name{step}'s output changes in respond to its input changing:
 
-Set changes are important since most of our motivating examples of fixed points
-are taken at set type, but to handle all of Datafun we need change structures
-for every type. For products, for instance, we use a pointwise change structure:
+\begin{definition}
+  A \emph{derivative} of a monotone map $f : A \to B$ between change structures $A$, $B$ is a monotone map $f' : \iso V A \to \D A \to \D B$ satisfying the law:
 
-\begin{center}
-  \setlength\tabcolsep{10pt}
-  \begin{tabular}{c@{\qquad}c}
-    $\D\tunit = \tunit$
-    &
-    \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
-    \\[\betweenfunctionskip]    % TODO: is this the right distance?
-    \(\D(A \x B) = \D A \x \D B\)
-    &
-    \(\infer{
-      \changesat{A}{\da}{a}{a'}
-      \\
-      \changesat{B}{\db}{b}{b'}
-    }{\changesat{A \x B}
-      {\tuple{\da,\db}}
-      {\tuple{a,b}}
-      {\tuple{a',b'}}
-    }\)
-  \end{tabular}
-\end{center}
+  \[
+  \infer{\changesat A {\dx} x y}{\changesat B {f'\<x \<\dx} {f\<x} {f\<y}}
+  \]
+\end{definition}
+
+Applying this to our change structure for finite sets, we recover the relationship we needed between \name{step} and $\name{step}'$ in \cref{section-seminaive-incremental} for semi\naive\ evaluation:
+
+\begin{align*}
+  & \text{$f'$ is a derivative of $f : \tseteq A \to \tseteq A$}\\
+  \iff& \fa{\changesat{\tseteq A}{\dx} x y}\, \changesat{\tseteq A}{f' \<x\<\dx}{f\<x}{f\<y}\\
+  \iff& \fa{x \cup \dx = y}\, f\<x \cup f'\<x\<\dx = f\<y\\
+  \iff& \fa{x,\dx}\, f\<x \cup f'\<x\<\dx = f\<(x \cup \dx)
+\end{align*}
 
 \noindent
-Here \emph{functionality}, \emph{soundness}, and \emph{zero changes} are trivial for the unit type $\tunit$, and for $A \x B$ they follow directly from the corresponding properties at $A$ and $B$ and the pointwise ordering on products: for instance, a zero change to $(a,b)$ is $(\da,\db)$ where $\da$ is a zero change to $a$ and $\db$ a zero change to $b$.\footnotemark
+This generalization is useful because differentiable maps (that is, maps possessing a derivative in the above sense) \emph{compose;} in fact, they form a category:
 
-\footnotetext{%
-One may ask why we let $\D(A \x B) = \D A \x \D B$ rather than $\D A + \D B$, letting $\changesat{A\x B}{\inj 1 \da}{(a,b)}{(a',b)}$ when $\changesat A{\da} a {a'}$ and symmetrically for $B$. This would satisfy our three properties, but recall that our goal is incrementalizing 
-%
-}
+\newcommand\ChangePoset{\textbf{$\boldsymbol\Delta$Poset}}
 
-\XXX \todo{sums, functions, box (and thus any discrete type)}
+\begin{definition}
+  The category \ChangePoset\ has as objects change structures $A,B$ and as morphisms differentiable monotone maps $f : V A \to V B$, that is, maps having at least one derivative $f' : \iso V A \to \Delta A \to \Delta B$ (also monotone). Morphism composition and the identity morphism are both as in \Poset.
+\end{definition}
+
+\begin{proof}
+  Of course, for this to be a category we need to show that: (1) the identity map is differentiable; (2) the composition of two differentiable maps is differentiable. We also need associativity and identity of composition, but these follow from the same in \Poset. Derivatives for identity and composition can be found as follows:
+
+  \begin{align*}
+    \id'\<x\<\dx &= \dx
+    &
+    (g \compose f)' \<x\<\dx &= g' \<(f\<x) \<(f' \<x\<\dx)
+  \end{align*}
+
+  \noindent
+  That $\id'$ is a derivative of \id\ is trivial, while for composition we need to pick maps $f',g'$ which are derivatives of $f,g$ respectively; then, applying the definition of derivatives:
+
+  \[
+  \infer*{\changes{\dx} x y}{
+    \infer*{\changes{f'\<x\<\dx}{f\<x}{f\<y}}{
+      \changes{g'\<(f\<x)\<(f'\<x\<\dx)}{g\<(f\<x)}{g\<(f\<y)}
+    }
+  }
+  \]
+\end{proof}
+
+\noindent
+In the rest of this section we will sketch the most important structures in \ChangePoset\ needed to support Datafun's semantics, providing a recipe for incrementalizing Datafun.  Applied correctly, this will let us automatically find derivatives for functions used by \prim{fix} expressions, allowing us to employ the semi\naive\ evaluation strategy for finding fixed points faster.
+
 
-\pagebreak
+\subsection{The structure of \ChangePoset}
 
-\fixme{achim}{Achim is very unhappy with this section, check his notes.}
+We should note up front that there are reasonable alternative choices for both the definition of \ChangePoset\ and the structures we are about to construct in it to interpret Datafun's semantics. Our eventual destination (\cref{section-phi-delta}) is a static transformation on Datafun source code. This transformation was originally presented in \cite{seminaive-datafun}; it predates the construction of \ChangePoset\ presented here and is independent of it. However, the transformation and the logical relation used to prove it correct (\cref{section-seminaive-logical-relation}) are fairly intricate. Our aim in presenting \ChangePoset\ is to break the core concepts involved in these transformations down into small pieces, to show how this complexity arises and suggest potential alternatives for future investigation.
 
-%% To make precise the notion of change, an incremental \fn-calculus associates
-%% every type $A$ with a \emph{change structure}, consisting of:%
-%% %
-%% \footnote{Our notion of change structure differs significantly from that of
-%%   \citet{incremental}, although it is similar to the logical relation given in
-%%   \citet{DBLP:conf/esop/GiarrussoRS19}; we discuss this in
-%%     \cref{section-incremental-lambda-calculus}. Although we do not use change
-%%   structures \emph{per se} in the proof of correctness sketched in
-%%   \cref{section-seminaive-logical-relation}, they are an important source of
-%%   intuition.}
+For instance, \todo{note that derivatives are not unique. So then why differentiable rather than equipped with derivatives?}
 
-%% \begin{enumerate}
-%% \item A type $\D A$ of possible changes to values of type $A$.
-%% \item A ternary relation $R_A \subseteq \D A \x A \x A$. As a suggestive
-%%   notation, we will generally write $(\dx, x, y) \in R_A$ as
-%%   $\changesat{A}{\dx}{x}{y}$, read as ``$\dx$ changes $x$ into $y$''.
-%% \end{enumerate}
+\todo{problems: 1. Why differentiable rather than equipped with derivatives? A: we don't get proper sums with the latter, because we can't prove equality of the derivatives. In the end we will provide an explicit program transformation which constructs derivatives, which will follow the proof that the maps are differentiable closely.
 
-\noindent
-Since the iterations towards a fixed point grow monotonically, in Datafun we only
-need \emph{increasing} changes.
-%
-For example, sets change by gaining new elements:
+  2. Are derivatives unique?
 
-\begin{align*}
-  \D\tseteq{A} &= \tseteq{A}
-  &
-  \changesat{\tseteq{A}}{\dx}{x}{x \cup \dx}
-\end{align*}
+  2. We need derivatives to compute seminaive fixed points, but why do we need derivatives for all of Datafun? 3. Is finding derivatives enough?}
+\XXX
 
-\noindent
-Set changes may be the most significant for fixed point purposes, but to handle
-all of Datafun we need a change structure for every type. For products and sums,
-for example, the change structure is pointwise:
-%
-\fixme{achim}{Why not $\Delta(A \x B) = \Delta A + \Delta B$?}
-%
-\nopagebreak
+Recall that the structures we needed to interpret Datafun into the category \Poset\ were: products, sums, exponentials, a discreteness comonad to interpret \iso, sets and semilattice objects, equality-test morphisms, and fixed points.
+
+
+\subsubsection{Products}
+
+%% In many cases the value-structure of \ChangePoset\ is ``inherited'' from \Poset. For instance, the value-poset of the product of two change structures, $V(A \x B)$, is the product of their value posets, $VA \x VB$; and the projection morphism $\pi_i : A_1 \x A_2 \to A_i : \ChangePoset$ is the \Poset-projection $\pi_i : V A_1 \x V A_2 \to V A_i : \Poset$. When this inheritance applies, we omit the definitions of $V A$ and morphisms of our structures, and only give the delta poset $\D A$, the update relation $R_A$, and show the inherited morphisms differentiable.
+
+%% For instance, finite products and terminal objects inherit from \Poset, and their deltas are given component-wise:
+
+%% \begin{center}
+%%   \setlength\tabcolsep{10pt}
+%%   %% \def\arraystretch{1.333}
+%%   \begin{tabular}{c@{\qquad}c}
+%%     $\D\tunit = \tunit$
+%%     &
+%%     \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
+%%     \\[1.25ex]
+%%     \(\D(A \x B) = \D A \x \D B\)
+%%     &
+%%     \(\infer[product change]{
+%%       \changesat{A}{\da}{a}{a'}
+%%       \\
+%%       \changesat{B}{\db}{b}{b'}
+%%     }{\changesat{A \x B}
+%%       {\tuple{\da,\db}}
+%%       {\tuple{a,b}}
+%%       {\tuple{a',b'}}
+%%     }\)
+%%   \end{tabular}
+%% \end{center}
+
+Products and the terminal object in \ChangePoset\ mirror those in \Poset:
 
 \begin{center}
-  \setlength\tabcolsep{10pt}
-  \begin{tabular}{@{}ccc@{}}
-    $\D\tunit = \tunit$
+  \def\arraystretch{1.333}
+  \begin{tabular}{c@{\qquad\qquad}c}
+    $V\terminalobject = \terminalobject$
+    &
+    \(V(A \x B) = VA \x VB\)
+    \\
+    $\D\terminalobject = \terminalobject$
     &
     \(\D(A \x B) = \D A \x \D B\)
+    \\[1.25ex]
+    \(\changesat{\terminalobject}{\tuple{}}{\tuple{}}{\tuple{}}\)
     &
-    \(\D(A + B) = \D A + \D B\)
-    \\[\betweenfunctionskip]    % TODO: is this the right distance?
-    \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
-    &
-    \(\infer{
+    \(\infer[product change]{
       \changesat{A}{\da}{a}{a'}
       \\
       \changesat{B}{\db}{b}{b'}
@@ -194,75 +228,217 @@ for example, the change structure is pointwise:
       {\tuple{a,b}}
       {\tuple{a',b'}}
     }\)
-    &
-    \(\infer{
-      \changesat{A_i}{\dx_i}{x}{x'}
-    }{
-      \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i x'}
-    }\)
   \end{tabular}
 \end{center}
 
-%% \begin{align*}
-%%   \D\tunit &= \tunit
-%%   &
-%%   \D(A \x B) &= \D A \x \D B
-%%   &
-%%   \D(A + B) &= \D A + \D B
-%% \end{align*}
-%%
-%% \begin{align*}
-%%   \changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}
-%%   &&
-%%   %% \infer{
-%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
-%%   %% }{\changesat{A_1 \x A_2}
-%%   %%   {\tuple{\vec\dx}}
-%%   %%   {\tuple{\vec x}}
-%%   %%   {\tuple{\vec y}}
-%%   %% }
-%%   %
-%%   %% \infer{
-%%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
-%%   %% }{\changesat{A_1 \x A_2}
-%%   %%   {\tuple{\dx_1,\dx_2}}
-%%   %%   {\tuple{x_1,x_2}}
-%%   %%   {\tuple{y_1,y_2}}
-%%   %% }
-%%   %
-%%   \infer{
-%%     \changesat{A}{\da}{a}{a'}
-%%     \\
-%%     \changesat{B}{\db}{b}{b'}
-%%   }{\changesat{A \x B}
-%%     {\tuple{\da,\db}}
-%%     {\tuple{a,b}}
-%%     {\tuple{a',b'}}
-%%   }
-%%   &&
-%%   \infer{
-%%     \changesat{A_i}{\dx}{x}{y}
-%%   }{
-%%     \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
-%%   }
-%% \end{align*}
-
 \noindent
-Since we only consider increasing changes, and $\iso A$ is ordered discretely,
-the only ``change'' permitted is to stay the same. Consequently, no information
-is necessary to indicate what changed:
+These satisfy functionality, soundness, and zero changes by invoking the corresponding properties at $A$ and $B$.
+%
+For instance, $(a,b)$ has a zero change because $a$ must have a zero change $\changes{\da} a a$, likewise for $b, \db$, and \rn{product change} then tells us that $\changes{(\da,\db)}{(a,b)}{(a,b)}$.
+
+Finally, the terminal map $\fork{}$, projection $\pi_i$, and tupling $\fork{f,g}$ (given $f : A \to B$ and $g : A \to C$) are all the same as in \Poset\ (thus inheriting the necessary universal properties), with derivatives given by:
+%
+\todo{should I give types of derivatives not types of morphisms? should I use Datafun notation for monotonicity-checking here?}
 
 \begin{align*}
-  \D(\iso A) &= \tunit
-  &&
-  \changesat{\iso A}{\tuple{}}{x}{x}
+  \fork{} &: A \to \terminalobject
+  &
+  \fork{}' \<a \<\da &= \tuple{}
+  \\
+  \pi_i &: A_1 \x A_2 \to A_i
+  &
+  \pi_i' \<(x_1,x_2) \<(\dx_1,\dx_2) &= \dx_i
+  \\
+  \fork{f,g} &: A \to B \x C
+  &
+  \fork{f,g}' \<a \<\da &= \tuple{f'\<a\<\da, g'\<a\<\da}
 \end{align*}
 
 \noindent
-Finally we come to the most interesting case: functions.
+The correctness of $\fork{}'$ is trivial; correctness of $\pi_i'$ follows by inversion of \rn{product change}; and $\fork{f,g}'$ is correct by \rn{product change} and correctness of $f',g'$.
+
+Note that had we chosen to let $\Delta(A \x B) = \Delta A + \Delta B$, representing a change to a tuple by a change to only one of its components, this would not allow us to differentiate tupling $\fork{f,g}$, since a change to the input may cause both components of the output to change simultaneously.
+
+
+\subsubsection{Sums}
+
+Sums and the initial object also mirror those in \Poset:
+
+\begin{center}
+  \def\arraystretch{1.333}  
+  \begin{tabular}{c@{\qquad\qquad}c}
+    $V \initialobject = \initialobject$
+    &
+    $V (A + B) = V A + V B$
+    \\
+    $\Delta\initialobject = \initialobject$
+    &
+    $\Delta(A + B) = \Delta A + \Delta B$
+    \\[1ex]
+    $R_\initialobject = \emptyset$
+    &
+    \(
+    \infer[sum change]{
+      \changesat{A_i}{\dx}{x}{y}
+    }{
+      \changesat{A_1+A_2}{\inj i \dx}{\inj i x}{\inj i y}
+    }
+    \)
+  \end{tabular}
+\end{center}
+
+\noindent
+These satisfy functionality, soundness, and zero changes pretty straightforwardly using the corresponding properties at $A$ and $B$. For instance, $\inj i \dx$ is a zero change to $\inj i x$ when $\dx$ is a zero change to $x$.
+
+The initial map $\krof{}$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2}$ (given $f : A_1 \to C$, $f_2 : A_2 \to C$) are the same as in \Poset\ (inheriting its universal properties), with derivatives as follows:
 
 \begin{align*}
-  \D(A \to B) &= \iso A \to \D A \to \D B
+  \krof{} &: \initialobject \to A
+  &
+  \krof{}' &= \krof{} \quad\text{(the domain is empty)}
+  \\
+  \injc_i &: A_i \to A_1 + A_2
+  &
+  \injc_i' \<x \<\dx &= \inj i \dx
+  \\
+  \krof{f,g} &: A_1 + A_2 \to C
+  &
+  \krof{f_1,f_2}' \<(\inj i x) \<(\inj j \dx) &=
+  \begin{cases}
+    f_i' \<x \<\dx & \text{if}~i = j\\
+    %% f_i' \<x \<\text{(some zero change to $x$)} & \text{if}~ i \ne j
+    \textsf{\itshape anything of type $\D C$} & \text{if}~ i \ne j
+  \end{cases}
+\end{align*}
+
+\noindent
+Correctness of $\krof{}'$ is vacuous; correctness of $\injc_i'$ follows directly from \rn{sum change}; but the definition of $\krof{f_1,f_2}'$ requires explanation.
+%
+If we take the proposition that $\krof{f_1,f_2}'$ is a derivative of $\krof{f_1,f_2}$ and apply the definition of $R_{A_1+A_2}$ (namely \rn{sum change}), we find that it simplifies to:
+
+\[
+\infer{
+  \changesat{A_i}{\dx}{x}{y}
+}{
+  \changesat{C}{\krof{f_1,f_2}' \<(\inj i x) \<(\inj i \dx)}
+            {f_i\<x}{f_i\<y}
+}
+\]
+
+\noindent
+This only constrains the behavior of $\krof{f_1,f_2}' \<(\inj i x) \<(\inj j \dx)$ when $i = j$; and in this case, we have $\changesat{C}{f_i'\<x\<\dx}{f\<x}{f\<y}$ as desired. Since the $i \ne j$ case is unconstrained, any value of type $\D C$ will suffice; all we need for differentiability is to show one exists, i.e. that $\D C$ is inhabited. Fortunately, in this case we have an $x : V A_i$ and a differentiable function $f_i : A_i \to C$. Using this we can apply \emph{zero changes} at $A_i$ and pick some $\dy : \D A_i$ such that $\changesat{A_i}{\dy}{x}{x}$ (although this property is unnecessary; all we need is a value $\D A_i$), and then we have $f_i' \<x\<\dy : \D C$.
+
+This $i \ne j$ case is related to the \emph{partiality} of the validity relation: $\inj 1 \dx$ is never a valid change to $\inj 2 x$.
+%
+This is hard to avoid given our definition of change structures: to differentiate $\injc_i$ and $\krof{f_1,f_2}$ we need $\D(A_1 + A_2)$ to include both $\D A_1$ and $\D A_2$ somehow; and a change $\dx \in \D A_1$ has no natural meaning applied to a value $x \in V A_2$.%
+%
+Furthermore, the fact that the $i \ne j$ case is unconstrained -- essentially ``dead code'' -- means that if we had defined \ChangePoset\ morphisms as maps \emph{equipped with a particular derivative} (rather than merely differentiable) we would be unable to prove the uniqueness of $\krof{f,g}'$ required by the universal property for sums.%
+%
+\footnote{We could avoid this and restore uniqueness of $\krof{f,g}'$ by defining $\changesat{A_1+A_2}{\inj i \dx}{\inj j x}{\inj j x}$ for $j \ne i$; that is, treating currently ``invalid'' changes as zero-changes. This unfortunately doesn't extend to the function case, which as we'll see shortly also needs a partial validity relation.}
+%
+\todolater{This might be addressed by changing the definition of \ChangePoset, for instance, to only require derivatives to be defined for valid changes (need to explain ``valid''); we don't do this because we want our types to be simple so our category corresponds with our transformation on Datafun, a simply-typed language.}
+
+
+\subsubsection{Exponentials}
+
+The values of the exponentials in \ChangePoset\ capture differentiable, monotone maps:
+
+\begin{align*}
+  V(A \expto B) &= \text{differentiable monotone maps $VA \to VB$, ordered pointwise}
+  \\
+  &= (\ChangePoset(A, B),\, \{(f,g) : \fa{x} f\<x \le g\<x\})
+\end{align*}
+
+%% \begin{align*}
+%%   V(A \expto B) &= \text{differentiable monotone maps $VA \to VB$, ordered pointwise}
+%%   \\
+%%   &= (\ChangePoset(A, B),\, \{(f,g) : \fa{x} f\<x \le g\<x\})
+%%   \\[1ex]
+%%   \Delta(A \expto B)
+%%   &= \iso VA \expto (\D A \expto \D B)
+%%   \\[1ex]
+%%   \changesat{A \expto B}{\df}{f}{g}
+%%   &\iff
+%%   \fa{\changesat{A}{\dx}{x}{y}}
+%%   \changesat{B}{\df\<x\<\dx}{f\<x}{g\<y}
+%% \end{align*}
+
+\newcommand\curried[1]{\lambda{#1}}
+
+\noindent
+We might expect changes $\D(A \expto B)$ to be given pointwise, as (not necessarily monotone) functions $VA \to \D B$ mapping each input to the change in the corresponding output:
+
+%% \begin{align*}
+%%   \D(A \expto B) &= \iso VA \expto (\D A \expto \D B)
+%%   &
+%%   \infer[fn~change]{
+%%     \fa{\changesat A \dx x y}
+%%     \changesat B {\df\<x\<\dx} {f\<x} {g\<y}
+%%   }{
+%%     \changesat{A \to B}{\df}{f}{g}
+%%   }
+%% \end{align*}
+
+{\color{rgb,255:red,214;green,92;blue,92}
+\begin{align*}
+  \D(A \expto B) &= \iso V A \expto \D B
+  &
+  \infer{
+    \fa{x} \changesat{B}{\df\<x}{f\<x}{g\<x}
+  }{
+    \changesat{A \expto B}{\df}{f}{g}
+  }
+  &&\text{\scshape\ding{55}\: not an exponential}
+\end{align*}}
+
+\noindent
+However, this choice makes it difficult to differentiate function application.
+%
+The function application map $\eval : (A \expto B) \x A \to B$ is, of course, given by $\eval\<(f,x) = f\<x$.
+%
+%% A derivative $\eval'$ would be a function such that $\eval' \<(f,x) \<(\df,\dx)$ tells us how $f\<x$ changes as both $f$ and $x$ change.
+To differentiate this is to ask for some $\eval'\<(f,x) \<(\df,\dx)$ that captures how $f\<x$ changes as both $f$ and $x$ change simultaneously:
+%
+supposing $\changes{\df}{f}{g}$ and $\changes{\dx}{x}{y}$, how do we find a change $f\<x \changesto g\<y$?
+
+Using a pointwise change $\df : VA \to \D B$, we can find $\changes{\df\<x}{f\<x}{g\<x}$; and applying differentiability of $f$ we can find some $\changes{f'\<x\<\dx}{f\<x}{f\<y}$.
+%
+The former handles a change to the function, the latter a change to the argument.
+%
+These form two sides of a ``square of changes'':
+
+% https://q.uiver.app/?q=WzAsNCxbMCwwLCJmXFw7eCJdLFszLDAsImZcXDt5Il0sWzAsMywiZ1xcO3giXSxbMywzLCJnXFw7eSJdLFswLDIsImRmXFw7eCIsMSx7InN0eWxlIjp7InRhaWwiOnsibmFtZSI6Imhvb2siLCJzaWRlIjoiYm90dG9tIn19fV0sWzAsMSwiZidcXDt4XFw7ZHgiLDEseyJzdHlsZSI6eyJ0YWlsIjp7Im5hbWUiOiJob29rIiwic2lkZSI6ImJvdHRvbSJ9fX1dLFsyLDMsImcnXFw7eFxcO2R4IiwxLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoiaG9vayIsInNpZGUiOiJib3R0b20ifX19XSxbMSwzLCJkZlxcO3kiLDEseyJzdHlsZSI6eyJ0YWlsIjp7Im5hbWUiOiJob29rIiwic2lkZSI6ImJvdHRvbSJ9fX1dLFswLDMsIj8iLDEseyJjb2xvdXIiOlswLDYwLDYwXSwic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZG90dGVkIn19fSxbMCw2MCw2MCwxXV1d
+\[\begin{tikzcd}[every label/.append style={font=\footnotesize}]
+	{f\<x} &&& {f\<y} \\
+    \\
+	\\
+	{g\<x} &&& {g\<y}
+	\arrow["{\color{rgb,255:red,214;green,92;blue,92}\df\<x}"{description}, hook', from=1-1, to=4-1]
+	\arrow["{f'\<x\<\dx}"{description}, hook', from=1-1, to=1-4]
+	\arrow["{g'\<x\<\dx}"{description}, hook', from=4-1, to=4-4]
+	\arrow["{\color{rgb,255:red,214;green,92;blue,92}\df\<y}"{description}, hook', from=1-4, to=4-4]
+	\arrow["{?}"{description},
+      %color={rgb,255:red,214;green,92;blue,92}, color=Blue,
+      dotted, from=1-1, to=4-4]
+\end{tikzcd}\]
+
+\noindent
+We need the \emph{diagonal} of this square.
+%
+One approach would be to use pointwise function changes but augment our definition of change structures to allow \emph{composing} changes, and find the diagonal by composing sides.
+%
+Unfortunately, this is more difficult than it appears: $\eval'$ is applied to $f,x,\df,\dx$, but to compute $\df\<y$ or $g'\<x\<\dx$ we need either $y$ or $g$.
+%
+This seems to require equipping change structures with an operator $\oplus_A : \iso VA \x \D A \to VA$ that extends the validity relation $R_A$ from a partial to a \emph{total} function (since $\eval'$ is defined for all inputs, not merely valid ones); then we can recover $y = x \oplus \dx$ or $g = f \oplus \df$.
+%
+But $\oplus_{A \to B}$ is difficult to construct, because we must guarantee that $f \oplus \df$ is a \emph{monotone} function, no matter the value of $\df : \iso V A \to \D B$; it is easy to come up with a $\df$ such that $\fnof{x} f\<x \oplus \df\<x$ (the natural definition of $f\oplus\df$) is non-monotone~\todo{fwdref}.
+
+Perhaps there is some way through these difficulties; fortunately, there is a simple approach that side-steps them entirely: following the original incremental \fn-calculus~\citep{incremental} we require function changes to produce the diagonal \emph{directly}.
+%
+Since this diagonal depends on the change $\dx$ to the argument, function changes $\df$ become two-argument functions:
+
+\begin{align*}
+  \D(A \expto B) &= \iso VA \expto (\D A \expto \D B)
   &
   \infer[fn~change]{
     \fa{\changesat A \dx x y}
@@ -273,46 +449,285 @@ Finally we come to the most interesting case: functions.
 \end{align*}
 
 \noindent
-Observe that a function change $\df$ takes two arguments: a base point $x : \iso A$ and a change $\dx : \D A$.
-%
-To understand why we need both, consider incrementalizing function application:
-we wish to know how $f\<x$ changes as both $f$ and $x$ change.
-%
-Supposing $\changes{\df}{f}{g}$ and $\changes{\dx}{x}{y}$, how do we find a
-change $f\<x \changesto g\<y$ that updates both function and argument?
+With this definition, function changes are exactly what is needed to incrementalize function application $f\<x$. A change to a function $\changes{\df}{f}{g}$ accepts a change in its argument $\changes{\dx}{x}{y}$ and produces the the change in its output, $\changes{\df\<x\<\dx}{f\<x}{g\<y}$.
 
-If changes were given pointwise, taking only a base point, we might take
-$\changes{\df}{f} g$ to mean that $\fa{x} \changes{\df\<x}{f\<x}{g\<x}$. But
-this only gets us to $g\<x$, not $g\<y$: we've accounted for the change in the
-function, but not the argument.
+Note also the mixture of monotonicity and non-monotonicity in $\iso V A \expto
+\D A \expto \D B$.
 %
-We can account for both by giving $\df$ an additional parameter: not just the
-base point $x$, but also the change to it $\dx$.
+Since our functions are monotone (increasing inputs yield increasing outputs),
+we expect function changes to be monotone with respect to input changes $\D A$:
+a larger increase in the input yields a larger increase in the output.
 %
-Then by inverting \rn{fn~change} we have $\changes{\df\<x\<\dx}{f\<x}{g\<y}$ as
-desired.
-
-%% This makes it easy to incrementalize function application, $f\<x$; given
-%% changes $\changes \df f g$ and $\changes \dx x y$ to the function and its
-%% argument, we want to compute the change that takes us to the updated
-%% application $g\<y$. By inverting \textsc{FnChange} we know that
-%% $\changes{\df\<x\<\dx}{f\<x}{g\<y}$, so $\df\<x\<\dx$ gives us the desired
-%% change.
-
-%% If instead changes were given pointwise, letting $\D(A \to B)= \iso A \to \D B$,
-%% then it'd be natural to let $\changes{\df}{f}{g} \iff \fa{x}
-%% \changes{\df\<x}{f\<x}{g\<x}$.
-
-Note also the mixture of monotonicity and non-monotonicity in the type $\iso A
-\to \D A \to \D B$. Since our functions are monotone (increasing inputs yield
-increasing outputs), function changes are monotone with respect to input changes
-$\D A$: a larger increase in the input yields a larger increase in the output.
 However, there's no reason to expect the change in the output to grow as the
-base point increases -- hence the base point argument is discrete, $\iso A$.
+base point increases -- hence the first argument is discrete, $\iso V A$.
+
+Finally, to make $A \expto B$ an exponential we need function application $\eval_{A,B} : (A \expto B) \x A \to B$ (which we have already discussed), and for any $f : C \x A \to B$, its currying $\curried{f} : C \to A \expto B$.
+%
+%% Finally, to be an exponential object we need function application $\eval_{A,B} : (A \expto B) \x A \to B$, which we have already discussed, and its counterpart, currying: given $f : C \x A \to B$ we must define $\curried{f} : C \to A \expto B$.
+%
+These are defined as in \Poset, which ensures their universal property holds; but since $V(A \expto B)$ contains only \emph{differentiable} maps, besides derivatives for $\eval$ and $\curried{f}$ we need derivatives for $(\curried{f}\<c)$ for every $c \in VC$:
+
+%% \begin{align*}
+%%   \eval\<(f,x) &= f\<x\\
+%%   \eval'\<(f,x) \<(\df,\dx) &= \df\<x\<\dx
+%%   \\[1ex]
+%%   \curried{f} \<\gamma \<x &= f\<(\gamma,x)
+%%   \\
+%%   (\curried{f} \<\gamma)' \<x \<\dx &=
+%%   f' \<(\gamma,x) \<(\textsf{\itshape pick a zero change to }\gamma, \dx)
+%%   \\
+%%   \curried{f}' \<\gamma \<\dgamma \<x \<\dx &= f' \<(\gamma,x) \<(\dgamma,\dx)
+%% \end{align*}
+
+\begin{align*}
+  \eval\<(f,x) &= f\<x
+  &
+  \curried{f} \<c \<x &= f\<(c,x)
+  \\
+  \eval'\<(f,x) \<(\df,\dx) &= \df\<x\<\dx
+  &
+  \curried{f}' \<c \<\dc \<x \<\dx &= f' \<(c,x) \<(\dc,\dx)
+  \\
+  &&
+  (\curried{f} \<c)' \<x \<\dx &=
+  f' \<(c,x) \<(\textsf{\itshape pick a zero change to }c, \dx)
+\end{align*}
+
+\noindent
+To show these derivatives correct \XXX
+
+
+\subsubsection{The box comonad and fixed points}
+\todo{Need explanations of box and fix and how they interact and why we chose to set them up the way we did. I can probably punt the other structures needed to interpret Datafun into the appendix, only sketching a few to give the rough idea, since most of the same ideas are covered in the next section.}
+
+
+%% To explain these definitions, it may help to begin with why the more ``obvious'' definitions do not work. Following the product and sum examples, we might expect the value-poset of the exponential object $V(A \expto B)$ to be the exponential in \Poset, $VA \expto VB$. Moreover we might expect changes $\D(A \expto B)$ to be given pointwise, as functions $V A \to \D B$ mapping each input to the change in the corresponding output. These choices do not give us exponential objects, however, for interconnected reasons, beginning with differentiability of function application -- that is, the map $\eval : (A \expto B) \x A \to B$.
+
+%% \[ \eval \<(f, x) = f(x) \]
+
+%% However, we must restrict this poset to only include \emph{differentiable} maps. Although this makes sense considering \ChangePoset-morphisms are differentiable, it actually arises for complex reasons stemming from the definition of $\D(A \expto B)$.
+
+
+%% \pagebreak
+%% Set changes are important since most of our motivating examples of fixed points
+%% are taken at set type, but to handle all of Datafun we will need change
+%% structures for every type. For products, for instance, we use a pointwise change
+%% structure:
+
+%% \begin{center}
+%%   \setlength\tabcolsep{10pt}
+%%   \begin{tabular}{c@{\qquad}c}
+%%     $\D\tunit = \tunit$
+%%     &
+%%     \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
+%%     \\[\betweenfunctionskip]    % TODO: is this the right distance?
+%%     \(\D(A \x B) = \D A \x \D B\)
+%%     &
+%%     \(\infer{
+%%       \changesat{A}{\da}{a}{a'}
+%%       \\
+%%       \changesat{B}{\db}{b}{b'}
+%%     }{\changesat{A \x B}
+%%       {\tuple{\da,\db}}
+%%       {\tuple{a,b}}
+%%       {\tuple{a',b'}}
+%%     }\)
+%%   \end{tabular}
+%% \end{center}
+
+%% \noindent
+%% Here \emph{functionality}, \emph{soundness}, and \emph{zero changes} are trivial for the unit type $\tunit$, and for $A \x B$ they follow directly from the corresponding properties at $A$ and $B$ and the pointwise ordering on products: for instance, a zero change to $(a,b)$ is $(\da,\db)$ where $\da$ is a zero change to $a$ and $\db$ a zero change to $b$.\footnotemark
+
+%% \footnotetext{%
+%% One may ask why we let $\D(A \x B) = \D A \x \D B$ rather than $\D A + \D B$, letting $\changesat{A\x B}{\inj 1 \da}{(a,b)}{(a',b)}$ when $\changesat A{\da} a {a'}$ and symmetrically for $B$. This would satisfy our three properties, but recall that our goal is incrementalizing \XXX
+%% %
+%% }
+
+%% \XXX \todo{sums, functions, box (and thus any discrete type)}
+
+
+%% \fixme{achim}{Achim is very unhappy with this section, check his notes.}
+
+%% %% To make precise the notion of change, an incremental \fn-calculus associates
+%% %% every type $A$ with a \emph{change structure}, consisting of:%
+%% %% %
+%% %% \footnote{Our notion of change structure differs significantly from that of
+%% %%   \citet{incremental}, although it is similar to the logical relation given in
+%% %%   \citet{DBLP:conf/esop/GiarrussoRS19}; we discuss this in
+%% %%     \cref{section-incremental-lambda-calculus}. Although we do not use change
+%% %%   structures \emph{per se} in the proof of correctness sketched in
+%% %%   \cref{section-seminaive-logical-relation}, they are an important source of
+%% %%   intuition.}
+
+%% %% \begin{enumerate}
+%% %% \item A type $\D A$ of possible changes to values of type $A$.
+%% %% \item A ternary relation $R_A \subseteq \D A \x A \x A$. As a suggestive
+%% %%   notation, we will generally write $(\dx, x, y) \in R_A$ as
+%% %%   $\changesat{A}{\dx}{x}{y}$, read as ``$\dx$ changes $x$ into $y$''.
+%% %% \end{enumerate}
+
+%% \noindent
+%% Since the iterations towards a fixed point grow monotonically, in Datafun we only
+%% need \emph{increasing} changes.
+%% %
+%% For example, sets change by gaining new elements:
+
+%% \begin{align*}
+%%   \D\tseteq{A} &= \tseteq{A}
+%%   &
+%%   \changesat{\tseteq{A}}{\dx}{x}{x \cup \dx}
+%% \end{align*}
+
+%% \noindent
+%% Set changes may be the most significant for fixed point purposes, but to handle
+%% all of Datafun we need a change structure for every type. For products and sums,
+%% for example, the change structure is pointwise:
+%% %
+%% \fixme{achim}{Why not $\Delta(A \x B) = \Delta A + \Delta B$?}
+%% %
+%% \nopagebreak
+
+%% \begin{center}
+%%   \setlength\tabcolsep{10pt}
+%%   \begin{tabular}{@{}ccc@{}}
+%%     $\D\tunit = \tunit$
+%%     &
+%%     \(\D(A \x B) = \D A \x \D B\)
+%%     &
+%%     \(\D(A + B) = \D A + \D B\)
+%%     \\[\betweenfunctionskip]    % TODO: is this the right distance?
+%%     \(\changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}\)
+%%     &
+%%     \(\infer{
+%%       \changesat{A}{\da}{a}{a'}
+%%       \\
+%%       \changesat{B}{\db}{b}{b'}
+%%     }{\changesat{A \x B}
+%%       {\tuple{\da,\db}}
+%%       {\tuple{a,b}}
+%%       {\tuple{a',b'}}
+%%     }\)
+%%     &
+%%     \(\infer{
+%%       \changesat{A_i}{\dx_i}{x}{x'}
+%%     }{
+%%       \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i x'}
+%%     }\)
+%%   \end{tabular}
+%% \end{center}
+
+%% %% \begin{align*}
+%% %%   \D\tunit &= \tunit
+%% %%   &
+%% %%   \D(A \x B) &= \D A \x \D B
+%% %%   &
+%% %%   \D(A + B) &= \D A + \D B
+%% %% \end{align*}
+%% %%
+%% %% \begin{align*}
+%% %%   \changesat{\tunit}{\tuple{}}{\tuple{}}{\tuple{}}
+%% %%   &&
+%% %%   %% \infer{
+%% %%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
+%% %%   %% }{\changesat{A_1 \x A_2}
+%% %%   %%   {\tuple{\vec\dx}}
+%% %%   %%   {\tuple{\vec x}}
+%% %%   %%   {\tuple{\vec y}}
+%% %%   %% }
+%% %%   %
+%% %%   %% \infer{
+%% %%   %%   \fa{i} \changesat{A_i}{\dx_i}{x_i}{y_i}
+%% %%   %% }{\changesat{A_1 \x A_2}
+%% %%   %%   {\tuple{\dx_1,\dx_2}}
+%% %%   %%   {\tuple{x_1,x_2}}
+%% %%   %%   {\tuple{y_1,y_2}}
+%% %%   %% }
+%% %%   %
+%% %%   \infer{
+%% %%     \changesat{A}{\da}{a}{a'}
+%% %%     \\
+%% %%     \changesat{B}{\db}{b}{b'}
+%% %%   }{\changesat{A \x B}
+%% %%     {\tuple{\da,\db}}
+%% %%     {\tuple{a,b}}
+%% %%     {\tuple{a',b'}}
+%% %%   }
+%% %%   &&
+%% %%   \infer{
+%% %%     \changesat{A_i}{\dx}{x}{y}
+%% %%   }{
+%% %%     \changesat{A_1 + A_2}{\inj i \dx}{\inj i x}{\inj i y}
+%% %%   }
+%% %% \end{align*}
+
+%% \noindent
+%% Since we only consider increasing changes, and $\iso A$ is ordered discretely,
+%% the only ``change'' permitted is to stay the same. Consequently, no information
+%% is necessary to indicate what changed:
+
+%% \begin{align*}
+%%   \D(\iso A) &= \tunit
+%%   &&
+%%   \changesat{\iso A}{\tuple{}}{x}{x}
+%% \end{align*}
+
+%% \noindent
+%% Finally we come to the most interesting case: functions.
+
+%% \begin{align*}
+%%   \D(A \to B) &= \iso A \to \D A \to \D B
+%%   &
+%%   \infer[fn~change]{
+%%     \fa{\changesat A \dx x y}
+%%     \changesat B {\df\<x\<\dx} {f\<x} {g\<y}
+%%   }{
+%%     \changesat{A \to B}{\df}{f}{g}
+%%   }
+%% \end{align*}
+
+%% \noindent
+%% Observe that a function change $\df$ takes two arguments: a base point $x : \iso A$ and a change $\dx : \D A$.
+%% %
+%% To understand why we need both, consider incrementalizing function application:
+%% we wish to know how $f\<x$ changes as both $f$ and $x$ change.
+%% %
+%% Supposing $\changes{\df}{f}{g}$ and $\changes{\dx}{x}{y}$, how do we find a
+%% change $f\<x \changesto g\<y$ that updates both function and argument?
+
+%% If changes were given pointwise, taking only a base point, we might take
+%% $\changes{\df}{f} g$ to mean that $\fa{x} \changes{\df\<x}{f\<x}{g\<x}$. But
+%% this only gets us to $g\<x$, not $g\<y$: we've accounted for the change in the
+%% function, but not the argument.
+%% %
+%% We can account for both by giving $\df$ an additional parameter: not just the
+%% base point $x$, but also the change to it $\dx$.
+%% %
+%% Then by inverting \rn{fn~change} we have $\changes{\df\<x\<\dx}{f\<x}{g\<y}$ as
+%% desired.
+
+%% %% This makes it easy to incrementalize function application, $f\<x$; given
+%% %% changes $\changes \df f g$ and $\changes \dx x y$ to the function and its
+%% %% argument, we want to compute the change that takes us to the updated
+%% %% application $g\<y$. By inverting \textsc{FnChange} we know that
+%% %% $\changes{\df\<x\<\dx}{f\<x}{g\<y}$, so $\df\<x\<\dx$ gives us the desired
+%% %% change.
+
+%% %% If instead changes were given pointwise, letting $\D(A \to B)= \iso A \to \D B$,
+%% %% then it'd be natural to let $\changes{\df}{f}{g} \iff \fa{x}
+%% %% \changes{\df\<x}{f\<x}{g\<x}$.
+
+%% Note also the mixture of monotonicity and non-monotonicity in the type $\iso A
+%% \to \D A \to \D B$. Since our functions are monotone (increasing inputs yield
+%% increasing outputs), function changes are monotone with respect to input changes
+%% $\D A$: a larger increase in the input yields a larger increase in the output.
+%% However, there's no reason to expect the change in the output to grow as the
+%% base point increases -- hence the base point argument is discrete, $\iso A$.
 
 
 \subsection{Zero changes, derivatives, and faster fixed points}
 \label{section-derivatives}
+
+\todo{Needs to be incorporated into the above categorical discussion.}
 
 If $\changesat A \dx x x$, we call $\dx$ a \emph{zero change} to $x$. Usually
 zero changes are boring -- for example, a zero change to a set $x :

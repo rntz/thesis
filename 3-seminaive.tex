@@ -1,15 +1,21 @@
 \chapter{Semi\naive\ Evaluation}
 \label{chapter-seminaive}
 
+\fixme{jeremy}{I should cite and discuss my POPL 2020 paper. But where and how? Check Jeremy's feedback.}
+
 \noindent
-In \cref{chapter-datafun} we presented Datafun's syntax and semantics. These semantics are straightforward to implement directly, but implementing them \emph{efficiently} is another matter. Datalog has decades of well-studied implementation and optimization techniques\todolater{citations}.
+In \cref{chapter-datafun} we presented Datafun's syntax and semantics. These semantics are straightforward to implement directly; implementing them \emph{efficiently} is more difficult. Datalog has decades of well-studied implementation and optimization techniques\todolater{citations}.
 %
 To explore whether these techniques can be transferred to Datafun, in this
 chapter we'll examine just one classic Datalog optimization,
 \emph{semi\naive\ evaluation}, which makes practical Datalog and Datafun's
 defining feature: iterative fixed points.
 
-In \cref{section-seminaive-incremental} we'll see how the direct approach to finding fixed points wastes time by recomputing already-known facts at each iteration, and how semi\naive\ evaluation fixes this by computing only the differences between iterations. Our key insight (thought not original to us\todo{citation}) is to see semi\naive\ evaluation as an application of incremental computation, that is, efficiently responding to \emph{changes}. To apply this insight, in \cref{section-change-structures} we adapt prior work on the incremental lambda calculus~\citep{incremental} to develop a ``theory of changes'' for Datafun. Using this theory as a guide, our central contribution~(\cref{section-phi-delta}) is a pair of static Datafun-to-Datafun translations which enable the semi\naive\ fixed-point-finding strategy. Finally, we prove these transformations correct using a logical relation  (\cref{section-seminaive-logical-relation}).
+In \cref{section-seminaive-incremental} we'll see how the direct approach to finding fixed points wastes time by recomputing already-known facts at each iteration, and how semi\naive\ evaluation fixes this by computing the differences between iterations. Our key insight (thought not original to us\todo{citation}) is to see semi\naive\ evaluation as an application of incremental computation, that is, efficiently responding to changes.
+%
+To apply this insight, in \cref{section-change-structures} we adapt prior work on the incremental lambda calculus~\citep{incremental} to construct a category of incrementalizable monotone maps capable of interpreting Datafun's semantics.
+%
+Using this construction as a guide, our central contribution~(\cref{section-phi-delta}) is a pair of static Datafun-to-Datafun translations which enable the semi\naive\ fixed-point-finding strategy. Finally, we prove these transformations correct using a logical relation  (\cref{section-seminaive-logical-relation}).
 
 \input{3.1-seminaive-incremental}
 

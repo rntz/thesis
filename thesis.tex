@@ -1,6 +1,6 @@
 % draft significantly speeds up compilation in various packages by disabling
 % features. eg. hyperref, microtype.
-\documentclass[12pt,draft,]{report}
+\documentclass[12pt,]{report}
 \includeonly{
   coverpage,
   0-abstract,
@@ -10,7 +10,7 @@
   4-implementation,
   5-extensions,
   6-related-work,
-  %% appendix-proofs,
+  appendix-proofs,
 }
 
 % NB. must load rntzref before rntzthm, because of bad cleveref/amsthm

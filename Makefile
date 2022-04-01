@@ -24,6 +24,9 @@ PANDOC := pandoc --from markdown+raw_tex-latex_macros \
 %.pdf: %.tex FORCE
 	$(LATEXRUN) $<
 
+pdflatex\:%.pdf: %.tex FORCE
+	pdflatex $<
+
 # %.tex: %.md Makefile
 # 	sed -Ee 's/^\f$$//' $< | $(PANDOC) -o $@
 
@@ -34,8 +37,7 @@ PANDOC := pandoc --from markdown+raw_tex-latex_macros \
 # "live". You can also specify a target to recompile, eg. `make watch:foo.pdf`.
 # It's a bit overenthusiastic, though; it reruns when ANYTHING changes.
 watch: watch\:all
-watch\:%:
-	make --no-print-directory -j $^
+watch\:%: %
 	@while inotifywait -e modify,move,delete -r . >/dev/null 2>&1; do \
 		echo; \
 		make --no-print-directory -j $^; \
