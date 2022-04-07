@@ -1,0 +1,84 @@
+% NB. must load rntzref before rntzthm, because of bad cleveref/amsthm
+% interaction. Also must load rntzfootnotes before rntzref, because...?
+% NB. rntzabstract not compatible with book.cls.
+\usepackage[a4,hratio=1:1,]{rntzgeometry}
+\usepackage{rntztitle,rntzsection,rntzfootnotes,rntzref,rntzthm}
+% Make section name references use \S.2
+\makeatletter\crefname{section}{\S\@gobble}{\S\@gobble}\makeatother
+
+%% TODO: fiddle with page formatting, might want headers
+%\usepackage{fancyhdr} %?
+
+%% figure captions
+\usepackage{caption}
+\newcommand\interpunct{·}
+\DeclareCaptionLabelSeparator{interpunct}{\makebox[1em]{\interpunct}}
+\DeclareCaptionLabelSeparator{emspace}{\hspace{1em}}
+\DeclareCaptionLabelSeparator{enspace}{\hphantom{--}}
+\DeclareCaptionLabelSeparator{dot}{.\ \,}
+\DeclareCaptionLabelSeparator{spacer}{\hphantom{.\ \,}}
+\DeclareCaptionLabelFormat{custom}{\textsc{#1~#2}}
+\captionsetup[figure]{
+  labelformat=custom,labelsep=spacer,name=figure,textfont=it}
+
+
+%% -- FONTS --
+% unfortunately scosf doesn't affect \scshape, only \textsc
+\usepackage[sups,scaled=.96,scosf]{XCharter} % osf/osfI? no, they look bad
+\makeatletter\edef\XCharter@altone{}\makeatother
+\usepackage[scaled=1.01042]{inconsolata}
+% no osf b/c sometimes used in subscripts
+% the colons and semicolons in AlegreyaSans are too small :(
+\usepackage[proportional,scaled=1.007,]{AlegreyaSans}
+
+\let\oldrmdefault\rmdefault \let\rmdefault\sfdefault
+\usepackage[euler-digits]{eulervm}
+\makeatletter\edef\zeu@Scale{0.996}\makeatother
+\makeatletter\edef\zeu@Scale{0.999}\makeatother
+%\makeatletter\edef\zeu@Scale{1}\makeatother
+\let\rmdefault\oldrmdefault
+
+\linespread{1.06667} %\linespread{1.07249} %\linespread{1.08333}
+\frenchspacing
+\usepackage[tracking=true,letterspace=75,]{microtype}
+% 4-figure-seminaive-vs-naive-graph
+\SetTracking{encoding=*,family=sf*,shape=sc,}{50}
+\SetTracking{encoding=*,family={sf*,AlegreyaSans-TLF},shape=*,size=scriptsize}
+            {14} % ideally 20, but overfull hbox
+\SetTracking{encoding=*,family={sf*,AlegreyaSans-TLF},shape=sc*,size=scriptsize}
+            {50} % ideally 50-60 but overfull hbox
+
+
+%% -- ETC --
+\usepackage[utf8]{inputenc}
+\usepackage[round,authoryear,sort&compress]{natbib}
+\bibliographystyle{plainnat}
+\usepackage{notation}
+
+\begin{document}
+
+%\input{unfinished-disclaimer}
+
+\include{coverpage}
+\include{0-abstract}
+\tableofcontents
+\include{1-introduction}
+\include{2-datafun}
+\include{3-seminaive}
+\include{4-implementation}
+\include{5-extensions}
+\include{6-related-work}
+
+\chapter{Conclusions}
+\fixme{jeremy}{Lacking conclusions. What have we Learned? What did you learn? Did you succeed in your goal (“to design a language which improves on...”, p13)? What, with the benefit of hindsight, should have been done differently? What was a surprise? What remains to be done? If I have forgotten all the details, what one to three main points should I remember? What is your elevator pitch – indeed, what is your \emph{thesis}? \url{https://www.ccs.neu.edu/home/shivers/diss-advice.html}}
+
+\appendix
+\include{appendix-proofs}
+
+%% ---------- Bibliography ----------
+%\FloatBarrier
+%% \clearpage
+\fixme{jeremy}{You should cite and discuss your POPL 2020 paper! Be consistent about abbreviating journal and conference names, about providing DOIs for things that have them. The backslash in Springer DOIs with underscores is a latex artifact, but not actually part of the DOI.}
+\bibliography{thesis}
+
+\end{document}

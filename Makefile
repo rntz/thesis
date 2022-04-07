@@ -6,14 +6,15 @@ LATEXRUN := $(RNTZTEXDIR)/latexrun/latexrun
 export TEXINPUTS := $(RNTZTEXDIR):
 
 # Targets to generate.
-TARGETS := thesis.pdf
+TARGETS := thesis-draft.pdf thesis.pdf
+LATEXRUNDIRS := latex.out $(TARGETS:.pdf=.latex.out)
 
 .PHONY: all clean sparkling force watch watch\:% FORCE
 all: $(TARGETS)
 clean:
 sparkling: clean
 	rm -f $(TARGETS)
-	if test -d latex.out; then rm -r latex.out; fi
+	for d in $(LATEXRUNDIRS); do if test -d $$d; then rm -r $$d; fi; done
 force: sparkling all
 
 # The sed script here filters out form feed lines. I use these to mark &
@@ -22,7 +23,7 @@ PANDOC := pandoc --from markdown+raw_tex-latex_macros \
   --pdf-engine=pdflatex
 
 %.pdf: %.tex FORCE
-	$(LATEXRUN) $<
+	$(LATEXRUN) $< -O $*.latex.out
 
 pdflatex\:%.pdf: %.tex FORCE
 	pdflatex $<
@@ -38,11 +39,17 @@ pdflatex\:%.pdf: %.tex FORCE
 # It's a bit overenthusiastic, though; it reruns when ANYTHING changes.
 watch: watch\:all
 watch\:%: %
-	@while inotifywait -e modify,move,delete -r . >/dev/null 2>&1; do \
+	@while inotifywait -e modify,move,delete -r . $(addprefix @./,$(LATEXRUNDIRS)) >/dev/null 2>&1; do \
 		echo; \
 		make --no-print-directory -j $^; \
 		make --no-print-directory -j $^; \
 	done
+
+# # DOESN'T CLEAN UP THE SUBPROCESSES ON INTERRUPTION
+# watch:
+# 	for f in $(TARGETS); do \
+# 		make watch:$$f & \
+# 	done; wait
 
 # debugging: `make print-FOO` will print the value of $(FOO)
 .PHONY: print-%
