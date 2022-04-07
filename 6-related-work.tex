@@ -710,6 +710,7 @@ Pursuing this conjecture further we leave to future work.
 
 
 \subsection{The monoidal approach to change}
+\label{section-monoidal-change}
 
 The incremental \fn-calculus has its notion of a change structure; Datafun has another; but these do not exhaust the space of possibilities. A line of work starting with \citet{DBLP:conf/esop/Alvarez-Picallo19}, and most thoroughly expounded in Mario Alvarez-Picallo's thesis~\citeyearpar{mario-thesis} has explored representing change structures using monoid actions, which they call \emph{change actions}. 
 A change action on a set $A$ consists of a monoid $(\Delta A, +_A, 0_A)$ and a monoid action $\oplus_A : A \x \Delta A \to A$.
@@ -751,6 +752,8 @@ This fundamental divergence from the incremental \fn-calculus would require
 redesigning the $\phi/\delta$ transformations -- neither the 2019 paper nor
 Alvarez-Picallo's thesis give an explicit derivative transformation for a
 higher-order language.
+
+\label{pointwise-changes-monotonicity}
 
 However, there is a deeper issue: in a monotonicity-aware context like Datafun, we must choose whether the pointwise change functions are required to be monotone, $\Delta(A \to B) = A \to \Delta B$, or allowed to be non-monotone, $\Delta(A \to B) = \iso A \to \Delta B$.
 %

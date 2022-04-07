@@ -5,35 +5,14 @@ To solve the problem of computing how a function's output changes in response to
 %
 To do this, incremental \fn-calculi associate every type $A$ with a \emph{change structure}.
 %
-In our case, noting that Datafun types denote posets, we define change structures as follows:\footnote{%
-This is far from the only reasonable notion of change structure one might consider. For instance, \citet{DBLP:phd/dnb/Giarrusso20} defines both \emph{basic change structures} (definition 12.1.1), consisting only of a delta-set and a relation, and the more elaborate \emph{change structures} (definition 13.1.1) that have an update operator $\oplus : A \x \D A \to A$, a difference operator $\ominus : A \x A \to \D A$, and composition of changes $\circledcirc : \D A \x \D A \to \D A$; while \citet{mario-thesis} uses a definition based on monoid actions.
-%
-We will compare these with our approach in more detail in \cref{section-related-work-incremental-computation}.
-
-However, change structures alone will not suffice to achieve our goal of speeding up fixed point computations, as we will discover in \cref{why-is-fix-discrete}.
-%
-Our eventual solution involves a pair of static transformations proved correct by a complex logical relation (\cref{section-phi-delta,section-seminaive-logical-relation}).
-%
-Explaining these transformations and logical relation without first developing familiarity with the simpler change structures which inspired them would, however, be difficult; hence this section.
-%
-But since these simpler change structures are not used in the logical relation or proof of correctness, our choice of properties to impose is somewhat arbitrary; we have chosen what seems the simplest definition which both supports the types of Datafun and provides appropriate intuition.%
-%
-%% For instance, if we drop our three properties and require only a poset $\D A$ and the relation $V_A$, this coincides with the \emph{basic change structures} defined by \citet[definition 12.1.1]{DBLP:phd/dnb/Giarrusso20}, save that we use posets where Giarrusso uses sets.
-%% %
-%% This definition is simple, but does not capture our intuition that all changes should be increasing (\emph{soundness}) or that a base point $x$ and a change $\dx$ uniquely determine the updated value $y$ (\emph{functionality}).
-%
-%% In the other direction, we could require more and insist on \emph{completeness}: if $x \le y : A$ then there exists some $\dx : \D A$ such that $\changesat A {\dx} x y$. Proving completeness of function spaces is problematic, however; we conjecture it can be done if we add even more structure, insisting that (1) completeness is \emph{monotone}, that is, there is a map $\name{diff} : \setfor{(x,y)}{x \le y : A} \to \D A$ such that $x_2 \le x_1 \wedge y_1 \le y_2 \implies \name{diff}(x_1, y_1) \le \name{diff}(x_2,y_2)$; and (2) there is a monotone change composition operator $\name{follow} : \D A \x \D A \to \D A$ such that if $\changesat A {\dx} x y$ and $\changesat A {\dy} y z$ then $\changesat A {\name{follow}(dx, dy)} x z$.
-%% %
-%% This begins to look like \todo{Giarrusso's ???}.
-}
+In our case, noting that Datafun types denote posets, we define change structures as follows:
 
 \begin{definition}
-  A \emph{change structure} $A$ consists of a poset $V A$ of ``values'', a poset
-  $\D A$ of ``changes'' or ``diffs'', and a ``validity'' relation $R_A \subseteq
-  \D A \x V A \x V A$. For $\dx : \D A$ and $x, y : V A$, we will write $(\dx,
-  x, y) \in R_A$ interchangeably as $\changesat A {\dx} x y$, glossed ``$\dx$
-  changes $x$ into $y$''. In this case we also say that $\dx$ is a \emph{valid}
-  change to $x$. This relation must satisfy three properties:
+  A \emph{change structure} $A$ consists of a poset $V A$, a poset $\D A$, and a
+  relation $R_A \subseteq \D A \x V A \x V A$. For $\dx : \D A$ and $x, y : V
+  A$, we will write $(\dx, x, y) \in R_A$ interchangeably as $\changesat A {\dx}
+  x y$. This relation must satisfy three
+  properties:
 
   \newlength{\wubwubwub}
   \setlength\wubwubwub{.25\baselineskip}
@@ -46,13 +25,20 @@ But since these simpler change structures are not used in the logical relation o
     \emph{Soundness} & If $\changesat A {\dx} x y$ then $x \le_A y$.
     %% \\ & In other words, all changes are increasing.
     \\[\wubwubwub]
-    \emph{Zero changes} & If $x : V A$ there is some $\dx : \D A$ such that $\changesat A {\dx} x x$. (We call any such $\dx$ a ``zero change'' to $x$.)
+    \emph{Zero changes} & If $x : V A$ there is some $\dx : \D A$ such that $\changesat A {\dx} x x$.
     %% There is a function $\zero_A : A \to \D A$ such that $\changesat A {\zero_A\<a} a a$.
     %% (We do not require $\zero_A$ to be monotone.)
   \end{tabular}
 \end{definition}
 
 \noindent
+Some useful terminology and notation: We can think of elements $\dx \in \D A$ as
+\emph{changes} or ``diffs'' to values $x \in VA$. The relation $R_A$ tell us how
+changes affect values: we gloss $\changesat{A}{\dx} x y$ as ``$\dx$ changes $x$
+into $y$''. We say that $\dx$ is a \emph{valid} change to $x$ if there is some $y$ such that $\changesat{A}{\dx} x y$.
+%
+When $\changes{\dx} x x$ we call $\dx$ a \emph{zero change} to $x$; when we need to pick such a change we write $\zero_x$. By the axiom of choice, the \emph{zero changes} property is equivalent to the existence of such a $\zero$ function.
+
 %% Elements of $\D A$ represent ``deltas'' or ``diffs'', while $V_A$ says how these deltas affect elements of $A$.
 %% %
 %% Given a delta $\dx \in \D A$ and two values $x,y \in A$, one may read $(\dx, x, y) \in V_A$ as ``$\dx$ changes $x$ into $y$''; hence the suggestive notation $\changes {\dx} x y$.
@@ -100,31 +86,63 @@ union. \emph{Soundness} requires that all changes are increasing, which is true 
 %
 Finally, \emph{zero changes} holds since $x \cup \emptyset = x$; one can leave a set unchanged by adding nothing.%
 %
-\footnote{%
+\footnote{\label{footnote-completeness}%
 Indeed, sets have not only zero changes but all increasing changes: for any $x \le y$ there is a $\dx$ such that $\changesat{\tseteq A}{\dx}{x}{y}$; for instance one may let $\dx = y \setminus x$, or indeed just $y$. We call this property \emph{completeness,} as it is the converse of soundness.
 %
-However, while our change structure for sets is complete, we will soon observe that completeness is troublesome at function types, so we do not insist on it in general.}
+However, while our change structure for sets is complete, we will later observe that completeness is troublesome at function types, so we do not insist on it in general.}
 
 We'll see more examples of change structures later, including ones where the validity relation is a partial rather than a total function, but first, let's revisit our transitive closure example from \cref{section-seminaive-incremental}.
 %
 Using change structures we can generalize the relation between \name{step} and $\name{step}'$. We call $\name{step}'$ a \emph{derivative}, because it tells us how \name{step}'s output changes in respond to its input changing:
 
-\begin{definition}
-  A \emph{derivative} of a monotone map $f : A \to B$ between change structures $A$, $B$ is a monotone map $f' : \iso V A \to \D A \to \D B$ satisfying the law:
+\begin{definition}\label{definition-derivative}
+  A \emph{derivative} of a monotone map $f : A \to B$ between change structures $A$, $B$ is a monotone map $f' : \iso V A \to \D A \to \D B$ satisfying the law (for all $x,y,\dx$):
+
+  %% \[
+  %% \infer{\changesat A {\dx} x y}{\changesat B {f'\<x \<\dx} {f\<x} {f\<y}}
+  %% \]
 
   \[
-  \infer{\changesat A {\dx} x y}{\changesat B {f'\<x \<\dx} {f\<x} {f\<y}}
+  {\changesat A {\dx} x y} \implies {\changesat B {f'\<x \<\dx} {f\<x} {f\<y}}
   \]
 \end{definition}
 
-Applying this to our change structure for finite sets, we recover the relationship we needed between \name{step} and $\name{step}'$ in \cref{section-seminaive-incremental} for semi\naive\ evaluation:
+\noindent
+We say \emph{a} derivative, not \emph{the} derivative, because derivatives are not necessarily unique. This is because changes are not necessarily unique: for fixed $x,y$ there may be many $\dx$ such that $\changes{\dx} x y$.
+
+Applying this definition to our change structure for finite sets, we recover the relationship we needed between \name{step} and $\name{step}'$ in \cref{section-seminaive-incremental} for semi\naive\ evaluation:
 
 \begin{align*}
-  & \text{$f'$ is a derivative of $f : \tseteq A \to \tseteq A$}\\
-  \iff& \fa{\changesat{\tseteq A}{\dx} x y}\, \changesat{\tseteq A}{f' \<x\<\dx}{f\<x}{f\<y}\\
-  \iff& \fa{x \cup \dx = y}\, f\<x \cup f'\<x\<\dx = f\<y\\
-  \iff& \fa{x,\dx}\, f\<x \cup f'\<x\<\dx = f\<(x \cup \dx)
+  \changesat{\tseteq A} \ds s t
+  &\implies
+  \changesat{\tseteq A}{\name{step}'\<s\<\ds}{\name{step}\<s}{\name{step}\<t}
+  \\
+  % should make a box that is as wide as \implies here.
+  &\parbox[t]{\widthof{${}\implies{}$}}{\centering\emph{iff}}
+  \\[2.5pt]
+  s \cup \ds = t
+  &\implies
+  \name{step}\<s \cup \name{step}'\<s\<\ds = \name{step}\<t
+  \\
+  % should make a box that is as wide as \implies here.
+  &\parbox[t]{\widthof{${}\implies{}$}}{\centering\emph{iff}}
+  \\[2.5pt]
+  \name{step}\<(s \cup \ds) &= \name{step}\<s \cup \name{step}'\<s\<\ds
 \end{align*}
+
+%% \begin{align*}
+%%   & \text{$\name{step}'$ is a derivative of $\name{step} : \tseteq A \to \tseteq A$}\\
+%%   \iff& \fa{\changesat{\tseteq A}{\ds} s t}\, \changesat{\tseteq A}{\name{step}' \<s\<\ds}{\name{step}\<s}{\name{step}\<t}\\
+%%   \iff& \fa{s \cup \ds = t}\, \name{step}\<s \cup \name{step}'\<s\<\ds = \name{step}\<t\\
+%%   \iff& \fa{s,\ds}\, \name{step}\<(s \cup \ds) = \name{step}\<s \cup \name{step}'\<s\<\ds
+%% \end{align*}
+
+%% \begin{align*}
+%%   & \text{$f'$ is a derivative of $f : \tseteq A \to \tseteq A$}\\
+%%   \iff& \fa{\changesat{\tseteq A}{\dx} x y}\, \changesat{\tseteq A}{f' \<x\<\dx}{f\<x}{f\<y}\\
+%%   \iff& \fa{x \cup \dx = y}\, f\<x \cup f'\<x\<\dx = f\<y\\
+%%   \iff& \fa{x,\dx}\, f\<x \cup f'\<x\<\dx = f\<(x \cup \dx)
+%% \end{align*}
 
 \noindent
 This generalization is useful because differentiable maps (that is, maps possessing a derivative in the above sense) \emph{compose;} in fact, they form a category:
@@ -147,36 +165,97 @@ This generalization is useful because differentiable maps (that is, maps possess
   \noindent
   That $\id'$ is a derivative of \id\ is trivial, while for composition we need to pick maps $f',g'$ which are derivatives of $f,g$ respectively; then, applying the definition of derivatives:
 
-  \[
-  \infer*{\changes{\dx} x y}{
-    \infer*{\changes{f'\<x\<\dx}{f\<x}{f\<y}}{
-      \changes{g'\<(f\<x)\<(f'\<x\<\dx)}{g\<(f\<x)}{g\<(f\<y)}
-    }
-  }
-  \]
+  \begin{align*}
+    &\changes{\dx} x y
+    \\
+    \implies&
+    \changes{f'\<x\<\dx}{f\<x}{f\<y}
+    \\
+    \implies&
+    \changes{g'\<(f\<x)\<(f'\<x\<\dx)}{g\<(f\<x)}{g\<(f\<y)}
+  \end{align*}
+
+  %% \[
+  %% \infer*{\changes{\dx} x y}{
+  %%   \infer*{\changes{f'\<x\<\dx}{f\<x}{f\<y}}{
+  %%     \changes{g'\<(f\<x)\<(f'\<x\<\dx)}{g\<(f\<x)}{g\<(f\<y)}
+  %%   }
+  %% }
+  %% \]
+
+  \noindent
+  We also need $\id'\<x\<\dx$ and $(g \compose f)' \<x \<\dx$ to be monotone in $\dx$, which they are, for straightforward compositional reasons; in general, for the remainder of \cref{section-change-structures}, we omit showing that functions are monotone unless the argument is non-obvious.
 \end{proof}
 
 \noindent
-In the rest of this section we will sketch the most important structures in \ChangePoset\ needed to support Datafun's semantics, providing a recipe for incrementalizing Datafun.  Applied correctly, this will let us automatically find derivatives for functions used by \prim{fix} expressions, allowing us to employ the semi\naive\ evaluation strategy for finding fixed points faster.
+In the next section we will sketch the most important structures in \ChangePoset\ needed to support Datafun's semantics, providing a recipe for incrementalizing Datafun.  Applied correctly, this will let us automatically find derivatives for functions used by \prim{fix} expressions, allowing us to employ the semi\naive\ evaluation strategy for finding fixed points faster.
 
 
-\subsection{The structure of \ChangePoset}
+\section{The structure of \ChangePoset}
+\label{section-changeposet}
 
-We should note up front that there are reasonable alternative choices for both the definition of \ChangePoset\ and the structures we are about to construct in it to interpret Datafun's semantics. Our eventual destination (\cref{section-phi-delta}) is a static transformation on Datafun source code. This transformation was originally presented in \cite{seminaive-datafun}; it predates the construction of \ChangePoset\ presented here and is independent of it. However, the transformation and the logical relation used to prove it correct (\cref{section-seminaive-logical-relation}) are fairly intricate. Our aim in presenting \ChangePoset\ is to break the core concepts involved in these transformations down into small pieces, to show how this complexity arises and suggest potential alternatives for future investigation.
+We should note up front that ours is only one among many reasonable notions of change structure.
+%
+For instance, \citet{DBLP:phd/dnb/Giarrusso20} defines both \emph{basic change structures} (definition 12.1.1), consisting only of a delta-set and a relation, and the more elaborate \emph{change structures} (definition 13.1.1) that have an update operator $\oplus : A \x \D A \to A$, a difference operator $\ominus : A \x A \to \D A$, and composition of changes $\circledcirc : \D A \x \D A \to \D A$; while \citet{mario-thesis} uses a definition based on monoid actions.
+%
+We will compare these with our approach in more detail in \cref{section-related-work-incremental-computation}, but the ``big picture'' difference is that we are pervasively concerned with \emph{monotone functions,} \emph{increasing changes,} and \emph{higher-order computation;} most of our choices flow from one more more of these considerations.
 
-For instance, \todo{note that derivatives are not unique. So then why differentiable rather than equipped with derivatives?}
+%% Even under these constraints, there are potential alternatives to our definition of \ChangePoset\ and the structures we are about to construct in it to interpret Datafun's semantics.
+%
+Our eventual destination (\cref{section-phi-delta}) is a static transformation on Datafun source code.
+%
+This transformation was originally presented in \cite{seminaive-datafun}; it predates the construction of \ChangePoset\ presented here and is independent of it.
+%
+However, the transformation and the logical relation used to prove it correct (\cref{section-seminaive-logical-relation}) are fairly intricate.
+%
+Our aim in presenting \ChangePoset\ is to break the core concepts involved in these transformations down into small pieces, to show how this complexity arises and suggest potential alternatives for future investigation.
+%
+%% Our definitions are informed by this goal: we have used what seemed the simplest definitions which both support the features of Datafun and provide appropriate intuition for the transformations presented later.
 
-\todo{problems: 1. Why differentiable rather than equipped with derivatives? A: we don't get proper sums with the latter, because we can't prove equality of the derivatives. In the end we will provide an explicit program transformation which constructs derivatives, which will follow the proof that the maps are differentiable closely.
+%% %% OLD INTRO
+%% there are reasonable alternatives to the definition of \ChangePoset\ and the structures we are about to construct in it to interpret Datafun's semantics. Our eventual destination (\cref{section-phi-delta}) is a static transformation on Datafun source code.
+%% %
+%% This transformation was originally presented in \cite{seminaive-datafun}; it predates the construction of \ChangePoset\ presented here and is independent of it.
+%% %
+%% However, the transformation and the logical relation used to prove it correct (\cref{section-seminaive-logical-relation}) are fairly intricate.
+%% %
+%% Our aim in presenting \ChangePoset\ is to break the core concepts involved in these transformations down into small pieces, to show how this complexity arises and suggest potential alternatives for future investigation.
+ 
+%% %% OLD FOOTNOTE
+%% This is far from the only reasonable notion of change structure one might consider. For instance, \citet{DBLP:phd/dnb/Giarrusso20} defines both \emph{basic change structures} (definition 12.1.1), consisting only of a delta-set and a relation, and the more elaborate \emph{change structures} (definition 13.1.1) that have an update operator $\oplus : A \x \D A \to A$, a difference operator $\ominus : A \x A \to \D A$, and composition of changes $\circledcirc : \D A \x \D A \to \D A$; while \citet{mario-thesis} uses a definition based on monoid actions.
+%% %
+%% We will compare these with our approach in more detail in \cref{section-related-work-incremental-computation}.
+
+%% However, change structures alone will not suffice to achieve our goal of speeding up fixed point computations, as we will discover in \cref{why-is-fix-discrete}.
+%% %
+%% Our eventual solution involves a pair of static transformations proved correct by a complex logical relation (\cref{section-phi-delta,section-seminaive-logical-relation}).
+%% %
+%% Explaining these transformations and logical relation without first developing familiarity with the simpler change structures which inspired them would, however, be difficult; hence this section.
+%% %
+%% But since these simpler change structures are not used in the logical relation or proof of correctness, our choice of properties to impose is somewhat arbitrary; we have chosen what seems the simplest definition which both supports the types of Datafun and provides appropriate intuition.%
+%% %
+%% %% For instance, if we drop our three properties and require only a poset $\D A$ and the relation $V_A$, this coincides with the \emph{basic change structures} defined by \citet[definition 12.1.1]{DBLP:phd/dnb/Giarrusso20}, save that we use posets where Giarrusso uses sets.
+%% %% %
+%% %% This definition is simple, but does not capture our intuition that all changes should be increasing (\emph{soundness}) or that a base point $x$ and a change $\dx$ uniquely determine the updated value $y$ (\emph{functionality}).
+%% %
+%% %% In the other direction, we could require more and insist on \emph{completeness}: if $x \le y : A$ then there exists some $\dx : \D A$ such that $\changesat A {\dx} x y$. Proving completeness of function spaces is problematic, however; we conjecture it can be done if we add even more structure, insisting that (1) completeness is \emph{monotone}, that is, there is a map $\name{diff} : \setfor{(x,y)}{x \le y : A} \to \D A$ such that $x_2 \le x_1 \wedge y_1 \le y_2 \implies \name{diff}(x_1, y_1) \le \name{diff}(x_2,y_2)$; and (2) there is a monotone change composition operator $\name{follow} : \D A \x \D A \to \D A$ such that if $\changesat A {\dx} x y$ and $\changesat A {\dy} y z$ then $\changesat A {\name{follow}(dx, dy)} x z$.
+%% %% %
+%% %% This begins to look like \todo{Giarrusso's ???}.
+
+\todolater{address some alternative directions here: For instance, observe that derivatives are not necessarily unique. So then why differentiable rather than equipped with derivatives?
+
+  1. Why differentiable rather than equipped with derivatives? A: we don't get proper sums with the latter, because we can't prove equality of the derivatives. In the end we will provide an explicit program transformation which constructs derivatives, which will follow the proof that the maps are differentiable closely.
 
   2. Are derivatives unique?
 
   2. We need derivatives to compute seminaive fixed points, but why do we need derivatives for all of Datafun? 3. Is finding derivatives enough?}
-\XXX
 
-Recall that the structures we needed to interpret Datafun into the category \Poset\ were: products, sums, exponentials, a discreteness comonad to interpret \iso, sets and semilattice objects, equality-test morphisms, and fixed points.
+Recall that the structures we needed to interpret Datafun into the category \Poset\ in \cref{section-poset-structures,section-semantics} were: products, sums, exponentials, a discreteness comonad to interpret \iso, sets and semilattice objects, equality-test morphisms, and fixed points.
+%
+In \ChangePoset\ we will cover products, sums, exponentials, the discreteness comonad, and fixed points in detail, as they are the most significant for understanding the broad structure of our approach; the remainder we will discuss briefly. \todo{Is this still accurate?}
 
 
-\subsubsection{Products}
+\subsection{Products}
 
 %% In many cases the value-structure of \ChangePoset\ is ``inherited'' from \Poset. For instance, the value-poset of the product of two change structures, $V(A \x B)$, is the product of their value posets, $VA \x VB$; and the projection morphism $\pi_i : A_1 \x A_2 \to A_i : \ChangePoset$ is the \Poset-projection $\pi_i : V A_1 \x V A_2 \to V A_i : \Poset$. When this inheritance applies, we omit the definitions of $V A$ and morphisms of our structures, and only give the delta poset $\D A$, the update relation $R_A$, and show the inherited morphisms differentiable.
 
@@ -234,11 +313,13 @@ Products and the terminal object in \ChangePoset\ mirror those in \Poset:
 \noindent
 These satisfy functionality, soundness, and zero changes by invoking the corresponding properties at $A$ and $B$.
 %
-For instance, $(a,b)$ has a zero change because $a$ must have a zero change $\changes{\da} a a$, likewise for $b, \db$, and \rn{product change} then tells us that $\changes{(\da,\db)}{(a,b)}{(a,b)}$.
+For instance, picking zero changes $\zero_a$, $\zero_b$ for $a,b$ respectively, \rn{product~change} tells us $(\zero_a, \zero_b)$ is a zero change to $(a,b)$.
+%
+%% For instance, $(a,b)$ has a zero change because $a$ must have a zero change $\changes{\da} a a$, likewise for $b, \db$, and \rn{product change} then tells us that $\changes{(\da,\db)}{(a,b)}{(a,b)}$.
 
 Finally, the terminal map $\fork{}$, projection $\pi_i$, and tupling $\fork{f,g}$ (given $f : A \to B$ and $g : A \to C$) are all the same as in \Poset\ (thus inheriting the necessary universal properties), with derivatives given by:
 %
-\todo{should I give types of derivatives not types of morphisms? should I use Datafun notation for monotonicity-checking here?}
+\todo{give types of derivatives not just of morphisms?}
 
 \begin{align*}
   \fork{} &: A \to \terminalobject
@@ -260,7 +341,7 @@ The correctness of $\fork{}'$ is trivial; correctness of $\pi_i'$ follows by inv
 Note that had we chosen to let $\Delta(A \x B) = \Delta A + \Delta B$, representing a change to a tuple by a change to only one of its components, this would not allow us to differentiate tupling $\fork{f,g}$, since a change to the input may cause both components of the output to change simultaneously.
 
 
-\subsubsection{Sums}
+\subsection{Sums}
 
 Sums and the initial object also mirror those in \Poset:
 
@@ -288,7 +369,7 @@ Sums and the initial object also mirror those in \Poset:
 \end{center}
 
 \noindent
-These satisfy functionality, soundness, and zero changes pretty straightforwardly using the corresponding properties at $A$ and $B$. For instance, $\inj i \dx$ is a zero change to $\inj i x$ when $\dx$ is a zero change to $x$.
+These satisfy functionality, soundness, and zero changes pretty straightforwardly using the corresponding properties at $A$ and $B$. For instance, $\inj i \zero_x$ is a zero change to $\inj i x$.
 
 The initial map $\krof{}$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2}$ (given $f : A_1 \to C$, $f_2 : A_2 \to C$) are the same as in \Poset\ (inheriting its universal properties), with derivatives as follows:
 
@@ -317,29 +398,38 @@ Correctness of $\krof{}'$ is vacuous; correctness of $\injc_i'$ follows directly
 If we take the proposition that $\krof{f_1,f_2}'$ is a derivative of $\krof{f_1,f_2}$ and apply the definition of $R_{A_1+A_2}$ (namely \rn{sum change}), we find that it simplifies to:
 
 \[
-\infer{
-  \changesat{A_i}{\dx}{x}{y}
-}{
-  \changesat{C}{\krof{f_1,f_2}' \<(\inj i x) \<(\inj i \dx)}
-            {f_i\<x}{f_i\<y}
-}
+\changesat{A_i}{\dx}{x}{y}
+\implies
+\changesat{C}{\krof{f_1,f_2}' \<(\inj i x) \<(\inj i \dx)}
+          {f_i\<x}{f_i\<y}
 \]
 
+%% \[
+%% \infer{
+%%   \changesat{A_i}{\dx}{x}{y}
+%% }{
+%%   \changesat{C}{\krof{f_1,f_2}' \<(\inj i x) \<(\inj i \dx)}
+%%             {f_i\<x}{f_i\<y}
+%% }
+%% \]
+
 \noindent
-This only constrains the behavior of $\krof{f_1,f_2}' \<(\inj i x) \<(\inj j \dx)$ when $i = j$; and in this case, we have $\changesat{C}{f_i'\<x\<\dx}{f\<x}{f\<y}$ as desired. Since the $i \ne j$ case is unconstrained, any value of type $\D C$ will suffice; all we need for differentiability is to show one exists, i.e. that $\D C$ is inhabited. Fortunately, in this case we have an $x : V A_i$ and a differentiable function $f_i : A_i \to C$. Using this we can apply \emph{zero changes} at $A_i$ and pick some $\dy : \D A_i$ such that $\changesat{A_i}{\dy}{x}{x}$ (although this property is unnecessary; all we need is a value $\D A_i$), and then we have $f_i' \<x\<\dy : \D C$.
+This only constrains the behavior of $\krof{f_1,f_2}' \<(\inj i x) \<(\inj j \dx)$ when $i = j$; and in this case, we have $\changesat{C}{f_i'\<x\<\dx}{f_i\<x}{f_i\<y}$ as desired. Since the $i \ne j$ case is unconstrained, any value of type $\D C$ will suffice; all we need for differentiability is to show one exists, i.e. that $\D C$ is inhabited. Fortunately, in this case we have an $x : V A_i$ and a differentiable function $f_i : A_i \to C$. Applying \emph{zero changes} at $A_i$ we can pick a zero-change $\zero_x$ (although it being a zero-change is unnecessary; all we need is an element of $\D A_i$) and take $f_i' \<x \<\zero_x : \D C$. Or, we could use zero-changes at $C$ instead and take $\zero_{(f_i\<x)} : \D C$.
+
+%% apply \emph{zero changes} at $A_i$ and pick some $\dy : \D A_i$ such that $\changesat{A_i}{\dy}{x}{x}$ (although this property is unnecessary; all we need is a value $\D A_i$), and then we have $f_i' \<x\<\dy : \D C$.
 
 This $i \ne j$ case is related to the \emph{partiality} of the validity relation: $\inj 1 \dx$ is never a valid change to $\inj 2 x$.
 %
-This is hard to avoid given our definition of change structures: to differentiate $\injc_i$ and $\krof{f_1,f_2}$ we need $\D(A_1 + A_2)$ to include both $\D A_1$ and $\D A_2$ somehow; and a change $\dx \in \D A_1$ has no natural meaning applied to a value $x \in V A_2$.%
+This is hard to avoid given our definition of change structures: to differentiate $\injc_i$ and $\krof{f_1,f_2}$ we need $\D(A_1 + A_2)$ to include both $\D A_1$ and $\D A_2$ somehow; and a change $\dx \in \D A_1$ has no natural meaning applied to a value $x \in V A_2$.
 %
 Furthermore, the fact that the $i \ne j$ case is unconstrained -- essentially ``dead code'' -- means that if we had defined \ChangePoset\ morphisms as maps \emph{equipped with a particular derivative} (rather than merely differentiable) we would be unable to prove the uniqueness of $\krof{f,g}'$ required by the universal property for sums.%
 %
-\footnote{We could avoid this and restore uniqueness of $\krof{f,g}'$ by defining $\changesat{A_1+A_2}{\inj i \dx}{\inj j x}{\inj j x}$ for $j \ne i$; that is, treating currently ``invalid'' changes as zero-changes. This unfortunately doesn't extend to the function case, which as we'll see shortly also needs a partial validity relation.}
-%
-\todolater{This might be addressed by changing the definition of \ChangePoset, for instance, to only require derivatives to be defined for valid changes (need to explain ``valid''); we don't do this because we want our types to be simple so our category corresponds with our transformation on Datafun, a simply-typed language.}
+\footnote{We could avoid partiality by defining $\changesat{A_1+A_2}{\inj i \dx}{\inj j x}{\inj j x}$ for $i \ne j$; that is, treating currently ``invalid'' changes as zero-changes. This unfortunately doesn't extend to the function case, which as we'll see shortly also needs a partial validity relation. Moreover, it doesn't ensure uniqueness of $\krof{f_1,f_2}'$: although it requires $\krof{f_1,f_2}'\<(\inj i x)\<(\inj j \dx)$ to be a zero change to $f_i\<x$ when $i \ne j$, there may be multiple such zero changes.}
+
+This could, for instance, be addressed by changing the definition of \ChangePoset\ to only require derivatives to be defined for valid changes. We don't do this because from a type-theoretic perspective, this requires a dependent or refinement type, while we want the types of our derivatives to be simple so our category corresponds closely with a static transformation on Datafun, a simply-typed language.
 
 
-\subsubsection{Exponentials}
+\subsection{Exponentials}
 
 The values of the exponentials in \ChangePoset\ capture differentiable, monotone maps:
 
@@ -364,6 +454,7 @@ The values of the exponentials in \ChangePoset\ capture differentiable, monotone
 %% \end{align*}
 
 \newcommand\curried[1]{\lambda{#1}}
+%\renewcommand\curried[1]{\lambda_{#1}}
 
 \noindent
 We might expect changes $\D(A \expto B)$ to be given pointwise, as (not necessarily monotone) functions $VA \to \D B$ mapping each input to the change in the corresponding output:
@@ -379,7 +470,10 @@ We might expect changes $\D(A \expto B)$ to be given pointwise, as (not necessar
 %%   }
 %% \end{align*}
 
-{\color{rgb,255:red,214;green,92;blue,92}
+\colorlet{wrong}{rgb,255:red,214;green,92;blue,92}
+\colorlet{wrong}{Red}
+\definecolor{wrong}{cmyk}{0, 0.8, 0.8, 0.25}
+{\color{wrong}
 \begin{align*}
   \D(A \expto B) &= \iso V A \expto \D B
   &
@@ -413,12 +507,12 @@ These form two sides of a ``square of changes'':
     \\
 	\\
 	{g\<x} &&& {g\<y}
-	\arrow["{\color{rgb,255:red,214;green,92;blue,92}\df\<x}"{description}, hook', from=1-1, to=4-1]
-	\arrow["{f'\<x\<\dx}"{description}, hook', from=1-1, to=1-4]
-	\arrow["{g'\<x\<\dx}"{description}, hook', from=4-1, to=4-4]
-	\arrow["{\color{rgb,255:red,214;green,92;blue,92}\df\<y}"{description}, hook', from=1-4, to=4-4]
+	\arrow["{\color{wrong}\df\<x}"{description}, hook, from=1-1, to=4-1]
+	\arrow["{f'\<x\<\dx}"{description}, hook, from=1-1, to=1-4]
+	\arrow["{g'\<x\<\dx}"{description}, hook, from=4-1, to=4-4]
+	\arrow["{\color{wrong}\df\<y}"{description}, hook, from=1-4, to=4-4]
 	\arrow["{?}"{description},
-      %color={rgb,255:red,214;green,92;blue,92}, color=Blue,
+      %color={wrong}, color=Blue,
       dotted, from=1-1, to=4-4]
 \end{tikzcd}\]
 
@@ -431,7 +525,7 @@ Unfortunately, this is more difficult than it appears: $\eval'$ is applied to $f
 %
 This seems to require equipping change structures with an operator $\oplus_A : \iso VA \x \D A \to VA$ that extends the validity relation $R_A$ from a partial to a \emph{total} function (since $\eval'$ is defined for all inputs, not merely valid ones); then we can recover $y = x \oplus \dx$ or $g = f \oplus \df$.
 %
-But $\oplus_{A \to B}$ is difficult to construct, because we must guarantee that $f \oplus \df$ is a \emph{monotone} function, no matter the value of $\df : \iso V A \to \D B$; it is easy to come up with a $\df$ such that $\fnof{x} f\<x \oplus \df\<x$ (the natural definition of $f\oplus\df$) is non-monotone~\todo{fwdref}.
+But $\oplus_{A \to B}$ is difficult to construct, because we must guarantee that $f \oplus \df$ is a \emph{monotone} function, no matter the value of $\df : \iso V A \to \D B$; it is easy to come up with a $\df$ such that $\fnof{x} f\<x \oplus \df\<x$ (the natural definition of $f\oplus\df$) is non-monotone.\footnote{We further discuss the issue of monotonicity and pointwise changes in \cref{pointwise-changes-monotonicity}.}
 
 Perhaps there is some way through these difficulties; fortunately, there is a simple approach that side-steps them entirely: following the original incremental \fn-calculus~\citep{incremental} we require function changes to produce the diagonal \emph{directly}.
 %
@@ -449,7 +543,41 @@ Since this diagonal depends on the change $\dx$ to the argument, function change
 \end{align*}
 
 \noindent
-With this definition, function changes are exactly what is needed to incrementalize function application $f\<x$. A change to a function $\changes{\df}{f}{g}$ accepts a change in its argument $\changes{\dx}{x}{y}$ and produces the the change in its output, $\changes{\df\<x\<\dx}{f\<x}{g\<y}$.
+With this definition, function changes are exactly what is needed to incrementalize function application $f\<x$. A change to a function $\changes{\df}{f}{g}$ accepts a change in its argument $\changes{\dx}{x}{y}$ and produces the the change in its output, $\changes{\df\<x\<\dx}{f\<x}{g\<y}$. If we return to our square of changes, we find it now has a zig-zag shape, with the diagonal filled in but missing the vertical sides:
+
+\[\begin{tikzcd}[every label/.append style={font=\footnotesize}]
+	{f\<x} &&& {f\<y} \\
+    \\
+	\\
+	{g\<x} &&& {g\<y}
+	\arrow["{f'\<x\<\dx}"{description}, hook, from=1-1, to=1-4]
+	\arrow["{g'\<x\<\dx}"{description}, hook, from=4-1, to=4-4]
+	\arrow["{\df\<x\<\dx}"{description},
+      %color={wrong}, color=Blue,
+      hook, from=1-1, to=4-4]
+    %% \arrow["{\df\<x\<\zero_x}"{description}, hook,from=1-1,to=4-1]
+    %% \arrow["{\df\<y\<\zero_y}"{description}, hook,from=1-4,to=4-4]
+\end{tikzcd}\]
+
+\noindent
+To recover the missing sides, we can apply $\df$ to zero-changes $\zero_x$ and $\zero_y$ instead of $\dx$:
+
+\[\begin{tikzcd}[every label/.append style={font=\footnotesize}]
+	{f\<x} &&& {f\<y} \\
+    \\
+	\\
+	{g\<x} &&& {g\<y}
+	\arrow["{f'\<x\<\dx}"{description}, hook, from=1-1, to=1-4]
+	\arrow["{g'\<x\<\dx}"{description}, hook, from=4-1, to=4-4]
+	\arrow["{\df\<x\<\dx}"{description},
+      %color={wrong}, color=Blue,
+      hook, from=1-1, to=4-4]
+    \arrow["{\df\<x\<\zero_x}"{description}, hook,from=1-1,to=4-1]
+    \arrow["{\df\<y\<\zero_y}"{description}, hook,from=1-4,to=4-4]
+\end{tikzcd}\]
+
+\noindent
+Zero changes thus let us recover a pointwise change $\fnof{x} \df\<x\<\zero_x$ from any $\changesat{A \expto B}{\df} f g$.
 
 Note also the mixture of monotonicity and non-monotonicity in $\iso V A \expto
 \D A \expto \D B$.
@@ -461,11 +589,48 @@ a larger increase in the input yields a larger increase in the output.
 However, there's no reason to expect the change in the output to grow as the
 base point increases -- hence the first argument is discrete, $\iso V A$.
 
+Although this nicely solves the problem of differentiating $\eval$, it is not immediately obvious that $R_{A \expto B}$ is functional, sound, and possesses zero-changes.\footnotemark\
+%
+The first two are quite similar, so we'll tackle them together:
+%
+Suppose $\changesat{A \expto B}{\df}{f}{g}$ and likewise $\changes{\df} f h$ and fix some $x \in VA$. For functionality, we wish to show $g\<x = h\<x$; for soundness, we wish to show $f\<x \le g\<x$.
+%
+By zero changes at $A$ we can pick some $\changes{\zero_x} x x$.
+%
+Inverting \rn{fn~change} we have $\changesat{B}{\df\<x\<\zero_x}{f\<x}{g\<x}$ and likewise $\changes{\df\<x\<\zero_x}{f\<x}{h\<x}$.
+%
+Then by functionality at $B$ we have $g\<x = h\<x$; and by soundness at $B$ we have $f\<x \le g\<x$.
+
+Showing \emph{zero changes} is simple but illuminating.
+%
+By definition, every $f : V(A \expto B)$ is differentiable, and a derivative $f'$ of $f$ is exactly a zero change $\changesat{A \expto B}{f'}{f}{f}$:
+
+\begin{align*}
+  &\changesat{A \to B}{\df}{f}{f}\\
+  \iff&
+  \fa{\changesat A \dx x y}
+  \changesat B {\df\<x\<\dx} {f\<x} {f\<y}
+  &&\text{\rn{fn~change}}
+  \\
+  \iff& \df\text{ is a derivative of }f
+  &&\text{\cref{definition-derivative}}
+\end{align*}
+
+\noindent
+This happens because we've defined function changes $\changesat{A \expto B}{\df} f g$ to tell us how function application responds to changes in both the function and its argument. If the function \emph{doesn't} change, this reduces to how the function's output changes as its argument changes: exactly what a derivative does.
+
+\footnotetext{We also promised in a footnote on \cpageref{footnote-completeness} to show that completeness was problematic at function types / exponentials. In other words, supposing $f \le g : A \expto B$, why can't we find some $\changes{\df} f g$? Well, we would need $\changesat{B}{\df\<x\<\dx}{f\<x}{g\<y}$ whenever $\changes{\dx} x y$. If we inductively suppose completeness at $B$, we could pick such a change, since by monotonicity we can show $f\<x \le g\<y$. Of course, we need $\df$ to be defined over \emph{all} $x,\dx$, not merely valid ones, but this is nothing the axiom of choice can't handle. More problematic is that we need $\df\<x\<\dx$ to be \emph{monotone} with respect to $\dx$. So merely picking changes is not enough; we have to pick them in a way that preserves monotonicity.
+
+  We conjecture this can be done by strengthening change structures to include (1) monotone completeness and (2) monotone change composition. \emph{Monotone completeness} strengthens completeness by requiring an operator $y \ominus_A x$ defined for $y \ge x : VA$ such that $\changesat{A}{y \ominus_A x} x y$ and which is monotone in $y$ and anti-monotone in $x$, that is, $x' \le x \wedge y \le y' \implies y \ominus x \le y' \ominus x'$. \emph{Monotone change composition} requires a monotone operator $\ocircle_A : \D A \x \D A \to \D A$ such that if $\changes{\dx}{x}{y}$ and $\changes{\dy} y z$ then $\changes{\dy \ocircle \dx}{x}{z}$. Then we can define $g \ominus_{A \expto B} f = \fnof x \fnof{\dx} g'\<x\<\dx \ocircle_B (g\<x \ominus_B f\<x)$ and $\dg \ocircle_{A \expto B} \df = \fnof x \fnof{\dx} \dg \<x\<\dx \ocircle \df\<x\<\zero_x$.
+
+  We have not done this because it considerably complicates the definition of change structures and does not help explain any features of the translation given in \cref{section-phi-delta}, but it might be an interesting direction for future work.
+}
+
 Finally, to make $A \expto B$ an exponential we need function application $\eval_{A,B} : (A \expto B) \x A \to B$ (which we have already discussed), and for any $f : C \x A \to B$, its currying $\curried{f} : C \to A \expto B$.
 %
 %% Finally, to be an exponential object we need function application $\eval_{A,B} : (A \expto B) \x A \to B$, which we have already discussed, and its counterpart, currying: given $f : C \x A \to B$ we must define $\curried{f} : C \to A \expto B$.
 %
-These are defined as in \Poset, which ensures their universal property holds; but since $V(A \expto B)$ contains only \emph{differentiable} maps, besides derivatives for $\eval$ and $\curried{f}$ we need derivatives for $(\curried{f}\<c)$ for every $c \in VC$:
+These are defined as in \Poset, which ensures their universal property holds; but since $V(A \expto B)$ contains only \emph{differentiable} maps, besides $\eval$ and $\curried{f}$ we also require $(\curried{f}\<c)$ to be differentiable:
 
 %% \begin{align*}
 %%   \eval\<(f,x) &= f\<x\\
@@ -476,7 +641,7 @@ These are defined as in \Poset, which ensures their universal property holds; bu
 %%   (\curried{f} \<\gamma)' \<x \<\dx &=
 %%   f' \<(\gamma,x) \<(\textsf{\itshape pick a zero change to }\gamma, \dx)
 %%   \\
-%%   \curried{f}' \<\gamma \<\dgamma \<x \<\dx &= f' \<(\gamma,x) \<(\dgamma,\dx)
+%%   (\curried f)' \<\gamma \<\dgamma \<x \<\dx &= f' \<(\gamma,x) \<(\dgamma,\dx)
 %% \end{align*}
 
 \begin{align*}
@@ -484,21 +649,59 @@ These are defined as in \Poset, which ensures their universal property holds; bu
   &
   \curried{f} \<c \<x &= f\<(c,x)
   \\
-  \eval'\<(f,x) \<(\df,\dx) &= \df\<x\<\dx
+  \eval'\<(f,a) \<(\df,\da) &= \df\<a\<\da
   &
-  \curried{f}' \<c \<\dc \<x \<\dx &= f' \<(c,x) \<(\dc,\dx)
+  (\curried f)' \<c \<\dc \<a \<\da &= f' \<(c,a) \<(\dc,\da)
   \\
   &&
-  (\curried{f} \<c)' \<x \<\dx &=
-  f' \<(c,x) \<(\textsf{\itshape pick a zero change to }c, \dx)
+  (\curried{f} \<c)' \<a \<\da &=
+  f' \<(c,a) \<(\zero_c, \da)
 \end{align*}
 
 \noindent
-To show these derivatives correct \XXX
+We've already seen how $\eval'$s correctness follows from \rn{fn~change}. Applying $R_{A \expto B}$ and $R_{C \x A}$, we find that $(\curried{f})'$ is a derivative for $\curried{f}$ when $f'$ is a derivative for $f$:
 
-
-\subsubsection{The box comonad and fixed points}
-\todo{Need explanations of box and fix and how they interact and why we chose to set them up the way we did. I can probably punt the other structures needed to interpret Datafun into the appendix, only sketching a few to give the rough idea, since most of the same ideas are covered in the next section.}
+\begin{align*}
+  & (\curried f)'\text{ is a derivative of }\curried{f}
+  \\
+  \iff&
+  \fa{\changesat{C}{\dc}{c}{c'}}
+  \changesat{A \expto B}{(\curried f)'\<c\<\dc}{\curried{f}\<c}{\curried{f}\<c'}
+  \\
+  \iff&
+  \fa{\changesat{C}{\dc}{c}{c'}}
+  \fa{\changesat{A}{\da}{a}{a'}}
+  \changesat{B}{(\curried f)'\<c\<\dc\<a\<\da}
+            {\curried{f}\<c\<a}
+            {\curried{f}\<c'\<a'}
+  \\
+  \iff&
+  \fa{\,\changesat{C \x A}{(\dc,\da)}{(c,a)}{(c',a')}}
+  \changesat{B}{f'\<(c,a)\<(\dc,\da)}{f\<(c,a)}{f\<(c',a')}
+  \\
+  \iff&
+  f'\text{ is a derivative of }f
+\end{align*}
+
+\noindent
+Finally, the correctness of $(\curried f \<c)'$ follows from that of $f'$ by applying $\changesat{C}{\zero_c}{c}{c}$:
+
+\begin{align*}
+  &\text{$f'$ is a derivative of $f$ and $\zero_c$ is a zero change to $c$}
+  \\
+  \implies&
+  \fa{\changesat{A}{\da} a {a'}}
+  \changesat{B}{f'\<(c,a)\<(\zero_c,\da)}{f\<(c,a)}{f\<(c,a')}
+  \\
+  \iff&
+  \fa{\changesat{A}{\da}{a}{a'}}
+  \changesat{B}{(\curried{f} \<c)' \<a\<\da}
+            {(\curried{f} \<c) \<a}
+            {(\curried{f} \<c) \<a'}
+  \\
+  \iff&
+  (\curried{f} \<c)'\text{ is a derivative of }(\curried{f} \<c)
+\end{align*}
 
 
 %% To explain these definitions, it may help to begin with why the more ``obvious'' definitions do not work. Following the product and sum examples, we might expect the value-poset of the exponential object $V(A \expto B)$ to be the exponential in \Poset, $VA \expto VB$. Moreover we might expect changes $\D(A \expto B)$ to be given pointwise, as functions $V A \to \D B$ mapping each input to the change in the corresponding output. These choices do not give us exponential objects, however, for interconnected reasons, beginning with differentiability of function application -- that is, the map $\eval : (A \expto B) \x A \to B$.
@@ -506,6 +709,74 @@ To show these derivatives correct \XXX
 %% \[ \eval \<(f, x) = f(x) \]
 
 %% However, we must restrict this poset to only include \emph{differentiable} maps. Although this makes sense considering \ChangePoset-morphisms are differentiable, it actually arises for complex reasons stemming from the definition of $\D(A \expto B)$.
+
+
+\subsection{The finite powerset monad and semilattice objects}
+
+0. We've already seen the finite powerset monad: ...
+
+1. Semilattice objects generalize the finite powerset monad.
+
+2. Semilattice objects are ones where $VL = \D L$ is a semilattice and $\changesat{L}{\dx} x y \iff x \vee \dx = y$. This definition is rather restrictive, but we'll see soon that something along these lines seems necessary in order to let semi\naive\ fixed points workout.
+
+3. Join is straightforward. This leaves us with singleton, isEmpty, collect and fix, which both use the discreteness comonad $\iso$, which we haven't yet defined.
+
+
+\subsection{Fixed points and the box comonad}
+
+To handle \prim{fix} expressions we need a class of fixed-point morphisms, $\morph{fix}_L : \iso(L \expto L) \to L$, for each ``semilattice object'' $L$. We will defer 
+
+
+\subsection{The box comonad and fixed points}
+
+Almost all of the remaining structures we need to interpret Datafun's semantics into \ChangePoset\ depend crucially on how we choose to interpret one particular type: the discreteness comonad \iso. For instance, to interpret set types $\tseteq A$ we need a finite powerset $\pfin$ equipped with morphisms $\morph{singleton}_A : \iso A \to \pfinof A$ and $\morph{isEmpty}_A : \iso P A \to \terminalobject + \terminalobject$; to interpret equality we need morphisms $\morph{eq}_A : \iso A \x \iso A \to \pfinof \terminalobject$; and to interpret $\prim{fix}$ we need morphisms $\morph{fix}_L : \iso(L \expto L) \to L$ for semilattice objects $L$.
+%
+Perhaps surprisingly, there are several distinct monoidal comonads in \ChangePoset\ which can support all these structures.
+%
+We will first consider the simplest of these before explaining why, ultimately, we choose a different interpretation, for reasons to do with fixed points.
+
+\newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
+
+Since we only wish to capture increasing changes and the type $\iso A$ is ordered discretely, $x \le y : \iso A \iff x = y$, the only possible ``change'' is to stay the same. The comonad $\isotriv$ that most straightforwardly represents this simply lets the space of changes be trivial:
+
+\begin{align*}
+  V \isotriv A &= \iso V A
+  &
+  \Delta\isotriv A &= \terminalobject
+  &
+  %% \fa{a : VA} 
+  \changesat{\isotriv A}{()} a a
+\end{align*}
+
+\noindent
+This straightforwardly satisfies functionality, soundness, and zero changes. Moreover, it inherits the monoidal comonad structure of $\iso$ from \Poset. Fixing some map $f : A \to B$, the derivatives of functorial action, extraction, duplication, and distribution are mostly trivial:
+
+\begin{align*}
+  \isotriv(f) &\isa \isotriv A \to \isotriv B
+  &
+  \isotriv(f)' \<x \<\tuple{} &= \tuple{}
+  \\
+  \varepsilon_A &\isa \isotriv A \to A
+  &
+  \varepsilon_A' \<x \<\tuple{} &= \zero_x
+  \\
+  \delta_A &\isa \isotriv A \to \isotriv\isotriv A
+  &
+  \delta_A' \<x \<\tuple{} &= \tuple{}
+  \\
+  \isox &\isa \textstyle\prod_i \isotriv A_i \to \isotriv\prod_i A_i
+  &
+  {\isox}' \<x \<\dx &= \tuple{}
+  \\
+  \isosum &\isa \textstyle\isotriv\sum_i A_i \to \sum_i \isotriv A_i
+  &
+  {\isosum}' \<(\inj i x) \<\tuple{} &= \inj i ()
+\end{align*}
+
+\noindent
+
+
+\todo{Need explanations of box and fix and how they interact and why we chose to set them up the way we did. I can probably punt the other structures needed to interpret Datafun into the appendix, only sketching a few to give the rough idea, since most of the same ideas are covered in the next section.}
 
 
 %% \pagebreak
