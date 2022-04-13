@@ -67,6 +67,7 @@ Recall that our goal is to speed up fixed point computation. Since
 iterations toward a fixed point grow monotonically, in Datafun we only need
 \emph{increasing} changes. Therefore, changes to sets are themselves sets, to be unioned in:
 
+\label{example-finite-set-change-structure}
 \begin{align*}
   V \tseteq A &= \tseteq A
   &
@@ -110,6 +111,7 @@ Using change structures we can generalize the relation between \name{step} and $
 \noindent
 We say \emph{a} derivative, not \emph{the} derivative, because derivatives are not necessarily unique. This is because changes are not necessarily unique: for fixed $x,y$ there may be many $\dx$ such that $\changes{\dx} x y$.
 
+\label{example-step-prime-is-a-derivative}
 Applying this definition to our change structure for finite sets, we recover the relationship we needed between \name{step} and $\name{step}'$ in \cref{section-seminaive-incremental} for semi\naive\ evaluation:
 
 \begin{align*}
@@ -127,7 +129,10 @@ Applying this definition to our change structure for finite sets, we recover the
   % should make a box that is as wide as \implies here.
   &\parbox[t]{\widthof{${}\implies{}$}}{\centering\emph{iff}}
   \\[2.5pt]
-  \name{step}\<(s \cup \ds) &= \name{step}\<s \cup \name{step}'\<s\<\ds
+  \name{step}\<(s \cup \ds)
+  %% &\parbox[t]{\widthof{${}\implies{}$}}{\centering$=$}
+  &=
+  \name{step}\<s \cup \name{step}'\<s\<\ds
 \end{align*}
 
 %% \begin{align*}
@@ -711,20 +716,195 @@ Finally, the correctness of $(\curried f \<c)'$ follows from that of $f'$ by app
 %% However, we must restrict this poset to only include \emph{differentiable} maps. Although this makes sense considering \ChangePoset-morphisms are differentiable, it actually arises for complex reasons stemming from the definition of $\D(A \expto B)$.
 
 
-\subsection{The finite powerset monad and semilattice objects}
+\subsection{Semilattice change structures and semi\naive\ fixed points}
 
-0. We've already seen the finite powerset monad: ...
+We've already been introduced to the finite powerset change structure, as our introductory example in \cref{example-finite-set-change-structure}.
+%
+But to define it properly as a functor $\pfin : \ChangePoset \to \ChangePoset$, inheriting from the corresponding $\pfin$ on \Poset:
 
-1. Semilattice objects generalize the finite powerset monad.
+\begin{align*}
+  V \pfinof A &= \pfinof V A
+  &
+  \Delta \pfinof A &= \pfinof VA
+  &
+  \changesat{\pfinof A}{\dx} x y &\iff x \cup \dx = y
+\end{align*}
 
-2. Semilattice objects are ones where $VL = \D L$ is a semilattice and $\changesat{L}{\dx} x y \iff x \vee \dx = y$. This definition is rather restrictive, but we'll see soon that something along these lines seems necessary in order to let semi\naive\ fixed points workout.
+\noindent
+%% This plainly satisfies functionality ($\cup$ is a function), soundness (for any $x \le y$, we have $x \cup y = y$, for instance), and zero-changes (for any $x$ we have $x \cup \emptyset = x$).
+%
+%% We also need derivatives for $\morph{singleton}$ and \morph{isEmpty}, but the types of these morphisms involve the discreteness comonad $\iso$; we'll return to them after we define what $\iso$ means in \ChangePoset.
+%
+This finite powerset change structure forms the prototype for our change structures for semilattices in general, which we need to support various language features, most importantly fixed points.
+%
+We saw in \cref{section-seminaive-incremental,section-change-structures,example-step-prime-is-a-derivative} that given a function $f : \pfinof A \to \pfinof A$ and a derivative for it $f' : \iso \pfinof A \to \pfinof A \to \pfinof A$ we can compute its fixed point semi\naive{}ly as follows:
 
-3. Join is straightforward. This leaves us with singleton, isEmpty, collect and fix, which both use the discreteness comonad $\iso$, which we haven't yet defined.
+\begin{align*}
+  x_0 &= \emptyset & x_{i+1} &= x_i \cup \dx_i\\
+  \dx_0 &= f\<\emptyset & \dx_{i+1} &= f'\<x_i\<\dx_i
+\end{align*}
+
+\newcommand\semichange[1]{\name{Semi}\,#1}
+
+\noindent
+This takes advantage of the fact that the change to a set is another set, and we apply a change using set union/semilattice join. Following this pattern, we can endow any semilattice $L : \Poset$ with a similar change structure:
+
+\begin{align*}
+  V L &= L
+  &
+  \D L &= L
+  &
+  \changesat{L}{\dx} x y &\iff x \vee \dx = y
+\end{align*}
+
+\noindent
+This satisfies functionality ($\vee$ is a function), soundness (if $x \le y$ then $x \vee y = y$, for instance), and zero-changes ($x \vee \bot = x$).
+%
+Let's call this the \emph{semilattice change structure} on $L$.
+%
+By construction, the finite powerset change structure $PA$ is the semilattice change structure on $PVA$;
+%
+and our semi\naive\ fixed point strategy generalizes to any semilattice change structure:
+
+\begin{theorem} \label{theorem-seminaive-fixed-points}
+  Given a semilattice $L$ with no infinite ascending chains, a monotone map $f : L \to L$, and a derivative for it $f' : \iso L \to L \to L$ such that $f \<(x\vee \dx) = f \<x \vee f'\<x\<\dx$, we can find the least fixed point of $f$ as the limit $\bigvee_i x_i$ of the ascending chain defined by:
+
+  \begin{align*}
+    x_0 &= \bot & x_{i+1} &= x_i \vee \dx_i\\
+    \dx_0 &= f\<\bot & \dx_{i+1} &= f'\<x_i\<\dx_i
+  \end{align*}
+\end{theorem}
+
+\begin{proof}
+  It suffices to show inductively that $x_{i+1} = f\<x_i$; from this it follows that $x_i = f^i \<\bot$, as in the \naive\ approach to computing a fixed point. We prove this with essentially the same argument used in \cref{proof-seminaive-step-works} (\cpageref{proof-seminaive-step-works}). The base case is $x_1 = x_0 \vee \dx_0 = \bot \vee f\<\bot = f\<\bot = f\<x_0$, and the inductive case is:
+
+  \begin{align*}
+    x_{i+2} &= x_{i+1} \vee \dx_{i+1}
+    && \text{definition of }x_{i+2}
+    \\
+    &= f\<x_i \vee f' \<x_i \<\dx_i
+    && \text{inductive hypothesis, definition of }\dx_{i+1}
+    \\
+    &= f\<(x_i \vee \dx_i)
+    && f'~\text{is a derivative of}~f\\
+    &= f\<x_{i+1}
+    && \text{definition of }x_{i+1}
+  \end{align*}
+\end{proof}
 
 
-\subsection{Fixed points and the box comonad}
+\subsection{Fixed points and discreteness comonads}
 
-To handle \prim{fix} expressions we need a class of fixed-point morphisms, $\morph{fix}_L : \iso(L \expto L) \to L$, for each ``semilattice object'' $L$. We will defer 
+\Cref{thorem-seminaive-fixed-points} shows we can speed up fixed points by exploiting the power of derivatives.
+%
+It may seem as though this justifies a morphism $\morph{fix} : (L \expto L) \to L : \ChangePoset$ for any semilattice change structure $L$ satisfying ACC.
+%
+However, morphisms in \ChangePoset\ must be differentiable: does $\morph{fix}$ have a derivative? Prior work~\citep{delta-fix,DBLP:conf/esop/Alvarez-Picallo19} has answered this affirmatively. One solution is to find the \emph{fixed point of the function change:}
+
+\[
+\morph{fix}' \<f \<\df = \morph{fix} \<(\df \<(\morph{fix} \<f))
+\]
+
+\noindent
+How and why this works is non-obvious; we refer the reader to \cite{delta-fix} for a full explanation.
+%
+So there is indeed a morphism $\morph{fix} : (L \expto L) \to L : \ChangePoset$. However, from the perspective of our original goal of speeding up fixed point computations, the derivative of this morphism presents two issues.
+%
+First, it isn't actually incremental: computing $\morph{fix}'\<f\<\df$ using this derivative requires re-computing $\morph{fix}\<f$ as an argument to $\df$!\footnotemark\
+%
+Second, we would naturally like to compute $\morph{fix}\<(\df\<(\morph{fix} \<f))$ \emph{semi\naive{}ly,} but we have no guarantee that $(\df \<(\morph{fix}\<f))$ is differentiable!
+%
+In essence, what we need is a higher-order derivative; a coherent theory of higher-order derivatives and higher-order change structures would be enormously interesting, but we leave it to future work.
+
+\footnotetext{The need to recompute $\morph{fix}\<f$ could likely be solved by caching intermediate values, which we discuss further in \cref{section-caching}. Somewhat unusually, in this case we want to cache the previous output of an operation rather than its previous input.}
+
+Instead, we deliberately limit the scope of our approach to avoid the need to incrementally maintain fixed points. As we've already seen \todo{bwd ref}, in Datafun \prim{fix} is not treated as a monotone operator; correspondingly the morphisms we require to interpret it are not $\morph{fix} : (L \expto L) \to L$ but rather $\morph{fix} : {\color{IsoRed} \iso}(L \expto L) \to L$. The idea here is that, just as $\iso$ in \Poset\ captures \emph{non-monotonicity} in an otherwise monotone world, in \ChangePoset\ we can use it to capture \emph{non-differentiability} or \emph{non-incrementalizability} in an otherwise differentiable world.
+
+\newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
+
+More concretely, since we only consider increasing changes and $\iso A$ is ordered discretely, $x \le y : \iso A \iff x = y$, the only possible ``change'' is to stay the same. We can thus extend the discreteness comonad $\iso$ on $\Poset$ to a comonad $\isotriv$ on $\ChangePoset$ by letting the space of changes be trivial:
+
+\begin{align*}
+  V \isotriv A &= \iso V A
+  &
+  \Delta\isotriv A &= \terminalobject
+  &
+  %% \fa{a : VA} 
+  \changesat{\isotriv A}{()} a a
+\end{align*}
+
+\noindent
+This straightforwardly satisfies functionality, soundness, and zero changes. Moreover, it inherits the monoidal comonad structure of $\iso$ from \Poset. Fixing some map $f : A \to B$, the derivatives of functorial action, extraction, duplication, and distribution are mostly trivial:
+
+\begin{align*}
+  \isotriv(f) &\isa \isotriv A \to \isotriv B
+  &
+  \isotriv(f)' \<x \<\tuple{} &= \tuple{}
+  \\
+  \varepsilon_A &\isa \isotriv A \to A
+  &
+  \varepsilon_A' \<x \<\tuple{} &= \zero_x
+  \\
+  \delta_A &\isa \isotriv A \to \isotriv\isotriv A
+  &
+  \delta_A' \<x \<\tuple{} &= \tuple{}
+  \\
+  \isox &\isa \textstyle\prod_i \isotriv A_i \to \isotriv\prod_i A_i
+  &
+  {\isox}' \<x \<\dx &= \tuple{}
+  \\
+  \isosum &\isa \textstyle\isotriv\sum_i A_i \to \sum_i \isotriv A_i
+  &
+  {\isosum}' \<(\inj i x) \<\tuple{} &= \inj i ()
+\end{align*}
+
+\noindent
+Finally, observe that any monotone map $f : V\isotriv A \to VB$ is trivially differentiable by letting $f' \<x \<() = \zero_{(f\<x)}$, confirming our intuition that differentiable maps $\isotriv A \to B$ should coincide with not-necessarily-differentiable maps $A \to B$.
+
+Perhaps surprisingly, $\isotriv$ is not the only monoidal comonad in \ChangePoset\ capable of playing the role of $\iso$ in Datafun's semantics.
+%
+Nor is it the one which most closely resembles the static transformation on Datafun code which we will introduce in \cref{section-phi-delta}.
+%
+This is primarily an accident of history: the static transformation was discovered first and first presented in \cref{seminaive-datafun}; this categorical account came later, and a transformation based on $\isotriv$ might be a fruitful avenue for future work.
+
+\newcommand\isodelta{\ensuremath{\iso_{\Delta}}}
+
+However, there is at least one reason to consider an alternate interpretation of $\iso$.
+%
+The semi\naive\ approach to computing a functions fixed point requires a derivative of it; using this to define the morphism $\morph{fix} : \isotriv(L \expto L) \to L$ relies on the fact that $V(L \expto L)$ contains only differentiable maps.
+%
+Exploiting this differentiability constructively, as in a code transformation, would require us to annotate \emph{every} function with a derivative, even if it is not used in a fixed point.\footnotemark\
+%
+To avoid this, we can instead exploit the fact that the argument to \morph{fix} is boxed, and creatively reinterpret $\iso A$ to consist of values equipped with zero changes.
+%
+Then $\iso(L \expto L)$ will consist of functions equipped with their zero changes; and as we've already seen, a zero change to a function is a derivative of it.
+%
+So instead of $\isotriv$, consider the comonad $\isodelta$ defined by:
+
+\footnotetext{It must be admitted that this reason is rather weak, because a perfectly standard dead code elimination pass would suffice to remove these unnecessary derivatives. Another way of looking at our definition of $\isodelta$ is as a type-directed ``unused derivative elimination pass''.}
+
+\begin{align*}
+  V\isodelta A
+  &= \text{pairs $(x,\dx)$ such that $\changesat{A}{\dx} x x$, ordered discretely}
+  \\
+  \Delta\isodelta A &= \terminalobject
+  \\
+  R_{\isodelta A} &= \{((), (x,\dx), (x,\dx))
+  \mathrel{\text{such that}}
+  (x,\dx) \in V\isodelta A\}
+  %% \changesat{\isodelta A}{()}{(x,\dx)}{(x,\dx)}
+\end{align*}
+
+\noindent
+
+
+\todo{explain monoidal comonad structure}
+
+- only requires constructing derivatives of morphisms $\ChangePoset(A,B)$
+
+\XXX
+
+This leaves us with join, singleton, isEmpty, collect, and eq, which both use the discreteness comonad $\iso$
 
 
 \subsection{The box comonad and fixed points}
@@ -734,8 +914,6 @@ Almost all of the remaining structures we need to interpret Datafun's semantics 
 Perhaps surprisingly, there are several distinct monoidal comonads in \ChangePoset\ which can support all these structures.
 %
 We will first consider the simplest of these before explaining why, ultimately, we choose a different interpretation, for reasons to do with fixed points.
-
-\newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
 
 Since we only wish to capture increasing changes and the type $\iso A$ is ordered discretely, $x \le y : \iso A \iff x = y$, the only possible ``change'' is to stay the same. The comonad $\isotriv$ that most straightforwardly represents this simply lets the space of changes be trivial:
 
