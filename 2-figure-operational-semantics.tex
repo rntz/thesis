@@ -59,21 +59,27 @@
     \\
     \efor[L]{x \in \esetraw{}} e &~\stepsto~ \bot_L
     \\
-    \efor[L]{x \in \esetraw{v, \vec u}} e
+    \efor[L]{x \in \esetraw{\vec u, v}} e
     &\omit\rlap{$~\stepsto~
-      (\subone{e}{x}{v}) \vee_L \efor[L]{x \in \esetraw{\vec u}} e
+      (\efor[L]{x \in \esetraw{\vec u}} e)
+      \vee_L
+      (\subone{e}{x}{v}) 
     $}
   \end{align*}
   \vspace{0pt}
 
   \textsc{other reductions}
   \begin{align*}
+    \bot_\tunit &~\stepsto~ \etuple{}
+    &
+    \etuple{} \vee_\tunit \etuple{} &~\stepsto~ \etuple{}
+    \\
     \bot_{\tset{A}} &~\stepsto~ \esetraw{}
     &
-    \bot_{L \x M} &~\stepsto~ \etuple{\bot_L,\,\bot_M}
-    \\
     \esetraw{\vec v} \vee_{\tset A} \esetraw{\vec u}
     &~\stepsto~ \esetraw{\vec v,\, \vec u}
+    \\
+    \bot_{L \x M} &~\stepsto~ \etuple{\bot_L,\,\bot_M}
     &
     \etuple{v_1, v_2} \binvee_{L \x M} \etuple{u_1, u_2}
     &~\stepsto~ \etuple{v_1 \vee_L u_1,\, v_2 \vee_M u_2}
@@ -91,7 +97,7 @@
       \efalse & \text{otherwise}
     \end{cases}
     \\
-    \prim{fix}_{\fixt L} \<v
+    \prim{fix}_{\fixt L} \<\eboxraw{v}
     &\omit\rlap{$~\stepsto~
       \eiter[\fixt L]{v}{\bot_{\fixt L}}{v \<\bot_{\fixt L}}
     $}

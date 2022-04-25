@@ -7,7 +7,7 @@ Datalog, any implementation technique is valid so long as it lines up with this
 semantics.
 %
 To show such an implementation is possible, we present a simple call-by-value
-structural operational semantics in \cref{figure-operational-semantics}\todo{ and show that all well-typed terms terminate}.
+structural operational semantics in \cref{figure-operational-semantics} and show that all well-typed terms terminate.
 %
 In our operational semantics we:
 
@@ -34,10 +34,11 @@ structure is immediately reducible; we extend this relation to all
 expressions with the rule:
 
 \[
-\infer{e\stepsto e'}{\fillhole E e \stepsto \fillhole E{e'}}
+\infer[eval context]{e\stepsto e'}{\fillhole E e \stepsto \fillhole E{e'}}
 \]
 
 \noindent
+%
 In our rules for $e \stepsto e'$ where $e$ is an \prim{iter} expression we make
 use of a decidable ordering test on values, $v \le u : \eqt A$, and a
 corresponding equality test $v = u : \eqt A$. We define these using
@@ -62,12 +63,28 @@ determine if a fixed point has been reached. If so, its value $u_1$ is returned;
 otherwise we step to $\eiter{f}{u_2}{f\<u_2}$ to evaluate the next iteration,
 and so on.
 
+Observe that values don't step and evaluation is deterministic:
+
+\begin{lemma}[Values don't step]\label{lemma-values-don't-step}
+  If $v$ is a value, there is no $e$ such that $v \stepsto e$.
+\end{lemma}
+
+\begin{proof}
+  The left hand side of each reduction rule can never be a value. This is easily verified by inspection for the rules in \cref{figure-operational-semantics}; and for \rn{eval context} we can see by the definition of evaluation contexts $E$ that filling a hole with a non-value always produces a non-value.
+\end{proof}
+
+\begin{lemma}[Determinism]
+  If $e \stepsto e'_1$ and $e \stepsto e'_2$ then $e'_1 = e'_2$; thus inductively, since values don't step, if $e \evalsto v$ and $e \evalsto u$ then $v = u$.
+\end{lemma}
+
+\begin{proof}
+  The left-hand sides of all reduction rules $e \stepsto e'$ are disjoint; there is no term to which two distinct reduction rules could apply. This applies inductively to \rn{eval context} because decompositions of a term into an evaluation context and a reducible subterm are unique. \todolater{why?}
+\end{proof}
+
 
 \subsection{A logical relation for termination}
 
-\todolater{extend this to handle adequacy}
-
-\newcommand\evalsto{\stepsto^*}
+%% \todolater{extend this to handle adequacy}
 
 \newcommand\oplr[3]{{#2} \prec {#3} : {#1}}
 \newcommand\opequiv[3]{{#2} \equiv {#3} : {#1}}
@@ -76,22 +93,34 @@ and so on.
 \newcommand\oplrclosed[3]{\oplr{#1}{#2}{#3}}
 \newcommand\oplrclosedequiv[3]{\opequiv{#1}{#2}{#3}}
 
+%% \renewcommand\oplrvalue[3]{{#2} \prec_{\textsf{V}} {#3} : {#1}}
+%% \renewcommand\oplrvalueequiv[3]{{#2} \equiv_{\textsf{V}} {#3} : {#1}}
+
+\renewcommand\oplrvalue[3]{{#2} \prec {#3} : {#1}}
+\renewcommand\oplrvalueequiv[3]{{#2} \equiv {#3} : {#1}}
+\renewcommand\oplrclosed[3]{{#2} \prec {#3} : {#1}}
+\renewcommand\oplrclosedequiv[3]{{#2} \equiv {#3} : {#1}}
+
 To prove that all well-typed terms terminate according to our operational
 semantics, we use a logical relations argument.
 %
-As a matter of notation, we will let $v,u,w$ range over values, $a,b,c$ range over closed terms and $\gamma,\sigma$ range over closing substitutions.
+As a matter of notation, we will let $v,u,w$ range over values; $a,b,c$ range over closed terms; and $\gamma,\sigma$ range over closing substitutions.
 
 Our guiding intuition is that since we need an order structure in our
 denotational semantics to prove the definedness of fixed points, we likewise
 need an order structure on our syntax to prove the termination of fixed points.
 %
-To this end we interpret each type $A$ as a \emph{partial preorder}, $\oplr A x y$.
+To this end we interpret each type $A$ as a \emph{partial preorder,} $\oplr A x y$.
 %
-A partial preorder is a relation which is transitive and \emph{partially reflexive}, that is, $x \prec y \implies x \prec  x \wedge y \prec y$. While reflexivity may be glossed as ``every element is related to itself'', partial reflexivity glosses as ``if an element is related to anything, it is related to itself''; in other words, unlike reflexivity, it permits some elements to be ``outside the relation'' and unrelated to anything, even themselves.
+A partial preorder is a relation which is transitive and \emph{partially reflexive,} that is, $x \prec y \implies x \prec  x \wedge y \prec y$. While reflexivity may be glossed as ``every element is related to itself'', partial reflexivity glosses as ``if an element is related to anything, it is related to itself''; in other words, unlike reflexivity, it permits some elements to be ``outside the relation'' and unrelated to anything, even themselves.
 %
-Any partial preorder gives rise to a partial equivalence relation (PER), $x \equiv y \iff x \prec y \wedge y \prec x$, and a partial order over the equivalence classes of this PER; so our approach may also be considered to interpret types as partially-ordered PERs. \fixme{achim}{What is partially ordered and how?}
+%% Another way of seeing this is that a partial preorder over a set $S$ is equivalent to a subset $\setfor{x \in S}{x \prec x}$ equipped with an ordinary preorder.
+%
+Any partial preorder $x \prec y$ gives rise to a symmetric, transitive relation $x \equiv y \iff x \prec y \wedge y \prec x$.\footnotemark
 
-As a matter of fact we define a mutually inductive collection of partial preorders, on values $\oplrvalue A v u$ \fixme{achim}{Where was V(A) defined?}, on closed terms $\oplrclosed A a b$, on closing substitutions $\oplr \G \gamma \sigma$, on open terms $\oplr {\Gamma \vdash A} e f$, and on open terms paired with closing substitutions $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$. The rules for the value-relation are most complex, and we give them first:
+\footnotetext{Symmetric, transitive relations are also known as partial equivalence relations (PERs). Moreover, letting $[x]_\equiv$ denote the equivalence class of $x$ (defined only when $x \prec x$), the relation $[x]_\equiv \le [y]_\equiv \iff x \prec y$ is a partial order over these equivalence classes; so our approach may also be considered to interpret types as PERs equipped with partial orders on their equivalence classes.}
+
+In fact we define a mutually inductive collection of partial preorders: on values $\oplrvalue A v u$, an extension to closed terms $\oplrclosed A a b$, on closing substitutions $\oplr \G \gamma \sigma$, on open terms $\oplr {\Gamma \vdash A} e f$, and on open terms paired with closing substitutions $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$. The rules for the value-relation are:
 %
 \begin{mathpar}
   \infer{~}{\oplrvalue{\tunit}{\etuple{}}{\etuple{}}}
@@ -108,7 +137,7 @@ As a matter of fact we define a mutually inductive collection of partial preorde
     \oplrvalue{A_1 + A_2}{\inj i v}{\inj i u}
   }
 
-  \infer{
+  \infer[lr~fn]{
     \oplr{(\hm x A \vdash B)} e f
   }{
     \oplrvalue{A \to B}{\efn x e}{\efn x f}
@@ -116,26 +145,41 @@ As a matter of fact we define a mutually inductive collection of partial preorde
 
   \infer{\oplrvalueequiv A v u}{\oplrvalue{\iso A}{\eboxraw{v}}{\eboxraw{u}}}
 
-  \infer{
-    \faex{i}{j} \oplrvalueequiv A {v_i}{u_j}
+  \infer[lr~set]{
+    \faex{i}{j} \oplrvalueequiv{\eqt A}{v_i}{u_j}
+    \\
+    \fa{j} \oplrvalue{\eqt A}{u_j}{u_j}
   }{
     \oplrvalue{\tseteq A}{\esetraw{v_i}_i}{\esetraw{u_i}_i}
   }
 \end{mathpar}
 
 \noindent
-We define the other relations as follows:
+Note that \rn{lr~fn} depends on the relation for open terms, making this definition mutually inductive. The second premise of \rn{lr~set} may seem strange but it is necessary to ensure partial reflexivity. We extend this value-relation to closed terms:
 
 \begin{align*}
   \oplrclosed{A} a b
   &\iff
-  a \evalsto v \wedge b \evalsto u \wedge \oplrvalue A v u
-  \\
+  \ex{v,u} a \evalsto v \wedge b \evalsto u \wedge \oplrvalue A v u
+  \label{equation-lr-closed}
+\end{align*}
+
+\noindent
+Note that if $a,b$ are values, this definition coincides with the relation on values, since values do not step; this justifies using the same notation for the relation on values and closed terms.
+%
+We extend this relation to closing substitutions pointwise, noting that discrete hypotheses are required to be equivalent:
+
+\begin{align*}
   \oplr{\Gamma} \gamma \sigma
   &\iff
   (\fa{\hm x A \in \G} \oplrclosed A {\gamma_x}{\sigma_x})
   \wedge (\fa{\hd x A \in \G} \oplrclosedequiv A {\gamma_x}{\sigma_x})
-  \\
+\end{align*}
+
+\noindent
+Finally, we extend the relation to open terms, which involves an auxiliary relation on pairs of terms and closing substitutions:
+
+\begin{align*}
   \oplr{\Gamma \vdash A}{e_1}{e_2}
   &\iff
   \fa{\oplr \Gamma {\gamma_1}{\gamma_2}}
@@ -166,17 +210,357 @@ Note that $\oplr{\Gamma,A}{\gamma_1,e_1}{\gamma_2,e_2}$ may be seen as a transit
     \end{tikzcd}}
 \end{center}
 
-\begin{theorem}[Fundamental theorem]
+\noindent
+This ensures partial reflexivity; if we replace $e_1$ with $e_2$ or vice-versa this square collapses to one of its sides. If we had instead only required the diagonal, $\oplrclosed A {\gamma_1(e_1)}{\gamma_2(e_2)}$, we could not derive $\oplrclosed A {\gamma_1(e_1)} {\gamma_2(e_1)}$ (or the same for $e_2$) as required by partial reflexivity.
+
+\begin{restatable}[Fundamental theorem]{theorem}{TerminationFundamental}
+  \label{theorem-termination-fundamental}
+%\begin{theorem}[Fundamental theorem]
   If $\J e \Gamma A$ then $\oplr{\Gamma \vdash A} e e$.
-\end{theorem}
+\end{restatable}
+
+\noindent
+Termination of well-typed programs follows as a corollary by unrolling definitions:
+
+\begin{restatable}[Termination]{theorem}{Termination}
+  Every closed, well-typed program $\J{a}{\emptycx}{A}$ terminates.
+\end{restatable}
+
 \begin{proof}
-  By induction on $\J e \Gamma A$.
-%
-  The key case is the fixed point rule, whose proof is a syntactic version of
-  the proof of definedness of fixed points in the denotational semantics. We
-  therefore give this case here, and leave the other cases to the appendix: \fixme{jeremy,achim}{give the proof!}
+\begin{align*}
+  & \J{a}{\emptycx}{A}
+  \\
+  \implies& \oplr{\emptycx \vdash A} a a
+  && \text{Fundamental theorem}
+  \\
+  \implies& \fa{\oplr{\emptycx}{\gamma_1}{\gamma_2}}
+  \oplr{\Gamma,A}{\gamma_1,a}{\gamma_2,a}
+  && \text{expand the definition}
+  \\
+  \implies& \oplr{\emptycx,A}{\tuple{},a}{\tuple{},a}
+  && \text{since }\oplr{\emptycx}{\tuple{}}{\tuple{}}\text{ vacuously}
+  \\
+  \implies& \oplrclosed{A} a a
+  && \text{expand the definition and simplify}
+  \\
+  \implies& \ex{v,u} a \evalsto v \wedge a \evalsto u \wedge \oplrvalue A v u
+  && \text{expand the definition}
+  \\
+  \implies& \ex{v} a \evalsto v
+  && \text{simplify}
+\end{align*}
 \end{proof}
 
 \noindent
-It follows as immediate corollary (using the definition of $\oplrclosed A a b$)
-that every closed, well-typed program terminates: \fixme{achim}{actually explain how this follows, it is non-obvious. Where does the ACC come into the argument?}
+The proof of the fundamental theorem itself proceeds by induction on $\J e \Gamma A$.
+%
+The key case is the fixed point rule, whose proof is a syntactic version of
+the proof of the existence of least fixed points in the denotational semantics.
+%
+We therefore give the fixed point case here, and leave the other cases to the appendix.
+%
+To build up to this case, we need quite a few auxiliary definitions and lemmas.
+
+\newcommand\goodvalue[1]{\ensuremath{\textsf{Ok}_{\textsf{V}}({#1})}}
+\newcommand\goodclosed[1]{\ensuremath{\textsf{Ok}_{\textsf{C}}({#1})}}
+\newcommand\goodopen[1]{\ensuremath{\textsf{Ok}({#1})}}
+
+First, any partial preorder over a set $S$ gives rise to a subset $\setfor{x \in S}{x \prec x}$ over which $\prec$ is reflexive and thus a true preorder. It will be convenient to apply this point of view to our logical relations:
+
+\begin{definition}[Good terms] We define the following preordered sets of ``good'' terms:
+  \begin{align*}
+    \goodvalue{A} &= \setfor{v}{\oplrvalue A v v}
+    &&\text{the good values}
+    \\
+    \goodclosed{A} &= \setfor{a}{\oplrclosed A a a}
+    && \text{the good closed terms}
+    \\
+    \goodopen{\Gamma \vdash A} &= \setfor{e}{\oplr{\Gamma \vdash A} e e}
+    && \text{the good open terms}
+  \end{align*}
+
+  \noindent
+  We preorder these by the corresponding logical relation, so $v \le u : \goodvalue A \iff \oplrvalue A v u$, etc.
+\end{definition}
+
+%% %% The fundamental theorem says that all well-typed terms are good.
+%% %% %
+%% We introduce these sets primarily to define certain functions on them. For instance, the evaluation and application maps:
+
+\begin{lemma}[Closed term evaluation map]\label{lemma-closed-term-evaluation}
+  There exists a monotone map $\name{value}_A : \goodclosed A \to \goodvalue A$ such that $\name{value}\<a = v$ if and only if $a \evalsto v$.
+\end{lemma}
+
+\begin{proof}
+  The definition of $\oplrclosed A a a$ shows that every good closed term evaluates to some good value. Determinism shows this value is unique, so we can name it $\name{value}\<a$. And given $\oplrclosed A a b$, applying its definition and this uniqueness shows that $\oplrvalue A {\name{value}\<a} {\name{value}\<b}$, showing monotonicity.
+\end{proof}
+
+\begin{lemma}[Closed term application map]\label{lemma-closed-term-application}
+  If $\oplrclosed{A \to B}{a_1}{a_2}$ and $\oplrclosed A {b_1}{b_2}$ then $\oplrclosed B {a_1\<b_1} {a_2\<b_2}$.
+%
+  Equivalently, there exists a monotone map $\name{apply}_{A,B} : \goodclosed{A \to B} \times \goodclosed A \to \goodvalue B$ such that $\name{apply}\<(a,b) = \name{value}\<(a\<b) = v$ if and only if $a\<b \evalsto v$.
+\end{lemma}
+
+\begin{proof}
+  Suppose $\oplrclosed{A \to B}{a_1}{a_2}$ and $\oplrclosed A {b_1}{b_2}$.
+%
+  %% It suffices to find some $v_1,v_2$ such that $a_i\<b_i \evalsto v_i$ and $\oplrvalue B {v_1}{v_2}$.
+%
+  Unrolling these assumptions, we have $e_1,e_2,u_1,u_2$ satisfying:
+
+  \begin{align*}
+    a_1 &\evalsto \efn x e_1
+    &
+    a_2 &\evalsto \efn x e_2
+    &
+    e_1 &\prec e_2 : (\hm x A) \vdash B
+    \\
+    b_1 &\evalsto u_1
+    &
+    b_2 &\evalsto u_2
+    &
+    u_1 &\prec u_2 : A
+  \end{align*}
+
+  \noindent
+%
+  From $\oplrvalue A {u_1}{u_2}$ we have $\oplr{(\hm x A)}{(\subto{\mvar x}{u_1})}{(\subto{\mvar x}{u_2})}$, and applying this to $\oplr{(\hm x A) \vdash B}{e_1}{e_2}$ we have a transitive square:
+
+  \begin{center}
+    \tikzset{
+      no line/.style={draw=none,
+        commutative diagrams/every label/.append style={/tikz/auto=false}}}
+            {\begin{tikzcd}
+                \subone{e_1}{\mvar x}{u_1} \precright \precdown
+                &
+                \subone{e_2}{\mvar x}{u_1} \precdown\\
+                \subone{e_1}{\mvar x}{u_2} \precright
+                &
+                \subone{e_2}{\mvar x}{u_2}
+            \end{tikzcd}}
+  \end{center}
+
+  \noindent
+  Taking the diagonal of this square, we have $\oplrclosed B {\subone{e_1}{\mvar x}{u_1}} {\subone{e_2}{\mvar x}{u_2}}$ and therefore $v_1,v_2$ such that $\subone{e_i}{\mvar x}{u_i} \evalsto v_i$ and $\oplrvalue B {v_1} {v_2}$.
+%
+  Thus for $i \in \{1,2\}$ we have:
+
+  \begin{align*}
+    a_i\<b_i
+    \evalsto (\efn x e_i)\<b_i
+    \evalsto (\efn x e_i)\<u_i
+    \stepsto \subone{e_i}{\mvar x}{u_i}
+    \evalsto v_i
+  \end{align*}
+
+  \noindent
+  and $\oplrvalue B {v_1}{v_2}$ as desired.
+\end{proof}
+
+\begin{lemma}[Closed term pairing]
+  If $\oplrclosed A {a_1} {a_2}$ and $\oplrclosed B {b_1} {b_2}$ then $\oplrclosed{A \times B}{\etuple{a_1,b_1}}{\etuple{a_2,b_2}}$.
+\end{lemma}
+
+\begin{proof}
+  Applying our assumptions' definitions we have $v_1,v_2,u_1,u_2$ such that:
+
+  \begin{align*}
+    a_1 &\evalsto v_1
+    &
+    a_2 &\evalsto v_2
+    &
+    v_1 &\prec v_2 : A
+    \\
+    b_1 &\evalsto u_1
+    &
+    b_2 &\evalsto u_2
+    &
+    u_1 &\prec u_2 : B
+  \end{align*}
+
+  \noindent
+  From this we have:
+
+  \begin{align*}
+    \etuple{a_1, b_1} \evalsto \etuple{v_1, b_1} &\evalsto \etuple{v_1, u_1}
+    &
+    \etuple{a_2, b_2} \evalsto \etuple{v_2, b_2} &\evalsto \etuple{v_2, u_2}
+  \end{align*}
+
+  \noindent
+  And $\oplrvalue{A \times B}{\etuple{v_1, u_1}}{\etuple{v_2, u_2}}$ because $\oplrvalue A {v_1} {v_2}$ and $\oplrvalue B {u_1} {u_2}$, which is what we wished to show.
+\end{proof}
+
+\begin{lemma}[Closure under stepping]
+  $\prec$ is closed under $\evalsto$; that is, if $\oplrclosed A a b$ and $(a' \evalsto a) \vee (a \evalsto a')$ and $(b' \evalsto b) \vee (b \evalsto b')$, then $\oplrclosed A {a'} {b'}$.
+\end{lemma}
+
+\begin{proof}
+  $a \evalsto v$ and $b \evalsto u$ such that $\oplrvalue A v u$ so by determinism $a' \evalsto v$ and $b' \evalsto u$, thus $\oplrclosed A {a'}{b'}$.
+\end{proof}
+
+%% Finally, we need to establish that $\bot_L$ is a least element of the preorder $\goodclosed L$ at every semilattice type $L$:
+
+\begin{restatable}[Bottom is bottom]{lemma}{BottomIsBottom}
+  $\fa{a \in \goodclosed L} \oplrclosed{L}{\bot_L} a$.
+\end{restatable}
+
+\begin{proof}
+  By induction on $L$:
+
+  \begin{description}
+    \item[Case $\tunit$:] Follows trivially from $\bot_\tunit \stepsto \etuple{}$ and the relation at $\tunit$.
+
+    \item[Case $L_1 \times L_2$:] We have $a \evalsto \etuple{v_1, v_2}$ for good $v_i$ and by IH we have $\oplrclosed{L_i}{\bot_{L_i}}{v_i}$. Thus by closed term pairing $\oplrclosed{L_1 \times L_2}{\etuple{\bot_{L_1}, \bot_{L_2}}}{\etuple{v_1,v_2}}$ and since $\bot_{L_1 \times L_2} \stepsto \etuple{\bot_{L_1},\bot_{L_2}}$ by closure under stepping we have what we desire.
+
+    \item[Case $\tseteq A$:] Since $\bot_{\tseteq A} \stepsto \esetraw{}$ it suffices to show $\oplrvalue{\tseteq A}{\esetraw{}}{v}$ for $v \in \goodvalue{\tseteq A}$. This follows from \rn{lr~set}; the first premise is vacuous and the second follows from goodness of $v$.
+  \end{description}
+\end{proof}
+
+%% Finally, we need a lemma correlating various orderings on values of equality types. This will let us ``port'' the ascending chain condition from our semantics to our syntax.
+
+%% \begin{lemma}[Value ordering]\label{lemma-value-ordering}
+%%   If $\oplrvalue{\eqt A} v u$ then $\J v {\emptycx}{\eqt A}$ and $\J u {\emptycx}{\eqt A}$ and $\den{v} \le \den{u} : \den{\eqt A}$ and  $v \le u : \eqt A$. (To be precise, by $\den v : \den{\eqt A}$ we mean the map $\den{\J v \emptycx {\eqt A}} : \Poset(\den\emptycx,\den{\eqt A})$ applied to the empty environment $() : \den{\emptycx}$.)
+%% \end{lemma}
+
+\begin{lemma}[First-order agreement on values]\label{lemma-value-ordering}
+  If $v \in \goodvalue{\eqt A}$ then $\J v {\emptycx}{\eqt A}$ and moreover for $v,u \in \goodvalue{\eqt A}$:
+
+  \[
+  \oplrvalue{\eqt A} v u \iff \den{v} \le \den{u} : \den{\eqt A} \iff v \le u : \eqt A
+  \]
+
+  \noindent
+  (To be precise, by $\den v : \den{\eqt A}$ we mean the map $\den{\J v \emptycx {\eqt A}} : \Poset(\den\emptycx,\den{\eqt A})$ applied to the empty environment $() : \den{\emptycx}$.)
+\end{lemma}
+
+\begin{proof}
+  By induction on $\eqt A$. To show $\J v \emptycx {\eqt A}$, in each case we apply the definition of $\oplrvalue{\eqt A} v v$ (e.g.\ for $\eqt A_1 \times \eqt A_2$ we find that $v = \etuple{u_1,u_2}$ for some $u_1,u_2 \in \goodvalue{\eqt A_1}$) followed by applying our inductive hypotheses and the following typing rules (here specialized to $\Gamma = \emptycx$):
+%
+  \begin{mathpar}
+    \infer[\rn{unit}]{\quad}{\J {\etuple{}} \emptycx \tunit}
+
+    \infer[\rn{pair}]{(\J{e_i}\emptycx{A_i})_i}{\J{\etuple{e_1,e_2}} \emptycx {A_1 \x A_2}}
+
+    \infer[\rn{inj}]{\J e \emptycx A_i}{\J{\inj i e}\emptycx{A_1 + A_2}}
+
+    \infer[\rn{set}]{(\J {e_i} {\emptycx} {\eqt A})_i}{
+      \J {\esetsub{e_i}{i}} \emptycx {\tset{\eqt A}}}
+  \end{mathpar}
+
+  \noindent
+  As for equivalence of the orderings, observe that:
+
+  \begin{align*}
+    \den{\etuple{}} &= \tuple{} : \den{\tunit}
+    &
+    \den{\etuple{v,u}} &= \tuple{\den{v},\den{u}} : \den{\eqt A \times \eqt B}
+    \\
+    \den{\inj i v} &= \inj i \den{v} : \den{\eqt A + \eqt B}
+    &
+    \den{\esetraw{v_i}_i} &= \{\den{v_i}\}_i : \den{\tseteq A}
+  \end{align*}
+
+  \noindent
+  and therefore:
+
+  \begin{align*}
+    \den{\etuple{}} \le \den{\etuple{}} : \den{\tunit} &\iff \top
+    \\
+    \den{\etuple{v_1,u_1}} \le \den{\etuple{v_2,u_2}} : \den{\eqt A \times \eqt B}
+    &\iff
+    \den{v_1} \le \den{v_2} : \den{\eqt A}
+    \wedge
+    \den{u_1} \le \den{u_2} : \den{\eqt B}
+    \\
+    \den{\inj i v} \le \den{\inj j u} : \den{\eqt A_1 + \eqt A_2}
+    &\iff
+    i = j \wedge \den{v} \le \den u : \den{\eqt A_i}
+    \\
+    \den{\esetraw{v_i}_i} \le \den{\esetraw{u_j}_j} : \den{\tseteq A}
+    &\iff
+    \{\den{v_i}\}_i \subseteq \{\den{u_j}\}_j
+    \iff
+    %% \{\den{v_i}\}_i \le \{\den{u_j}\}_j : \pfinof{\den{\tseteq A}}
+    \faex i j \den{v_i} = \den{u_j} : \den{\eqt A}
+  \end{align*}
+
+  \noindent
+  In each case, these coincide (after applying our inductive hypothesis) with the rules defining $\oplrvalue{\eqt A} v u$ and $v \le u : \eqt A$, except for $\oplrvalue{\tseteq A}{\esetraw{v_i}_i}{\esetraw{u_j}_j}$, which has the additional premise $\fa j \oplrvalue{\eqt A}{u_j}{u_j}$; but this is satisfied by the assumption $\esetraw{u_j}_j \in \goodvalue{\tseteq A}$. Thus inductively all three preorders coincide on good values of equality types.
+%
+  \todo{discuss base types}
+
+  %% \begin{description}
+  %% \item[Case $\tunit$:] Trivial.
+
+  %% \item[Case $\eqt{A} \times \eqt{B}$:]
+  %%   Assume $\oplrvalue{\eqt A \times \eqt B}{\etuple{v_1,u_1}}{\etuple{v_2,u_2}}$. By definition we have $\oplrvalue{\eqt A}{v_1}{v_2}$ and $\oplrvalue{\eqt B}{u_1}{u_2}$ and by IH we have $\J{v_i}{\emptycx}{\eqt A}$ and $\J{u_i}{\emptycx}{\eqt B}$, which shows $\J{(v_i,u_i)}{\emptycx}{\eqt A \times \eqt B}$; and $\den{v_1} \le \den{v_2} : \den{\eqt A}$ and $\den{u_1} \le \den{u_2} : \den{\eqt B}$, which shows $\den{\etuple{v_1,u_1}} \le \den{\etuple{v_2,u_2}} : \den{\eqt A \times \eqt B}$; and $v_1 \le v_2 : \eqt A$ and $u_1 \le u_2 : \eqt B$, which show $\etuple{v_1,u_1} \le \etuple{v_2,u_2} : \eqt A \times \eqt B$.
+
+  %% \item[Case ${\eqt A}_1 + \eqt{A}_2$:] Assume $\oplrvalue{\eqt A_1 + \eqt A_2}{\inj i a}{\inj i b}$ for some $i \in \{1,2\}$. By definition we have $\oplrvalue{A_i}{a}{b}$. Applying our IH we have $\J a \emptycx {A_i}$ and $\J b \emptycx {A_i}$ which shows $\J{\inj i a} \emptycx {A_1 + A_2}$ and $\J{\inj i b} \emptycx {A_1 + A_2}$; and $\den a \le \den b : \den{\eqt A_i}$ which shows $\den{\inj i a} \le \den{\inj i b} : \den{\eqt A_1 + \eqt A_2}$; and $a \le b : \eqt A_i$ which shows $\inj i a \le \inj i b : \eqt A_1 + \eqt A_2$.
+
+  %% \item[Case $\tseteq A$:]
+  %%   Assume $\oplrvalue{\tseteq A}{\esetraw{v_i}_i}{\esetraw{u_j}_j}$, and thus $\faex i j \oplrvalueequiv{\eqt A}{v_i}{u_j}$ and $\fa j \oplrvalue{\eqt A}{u_j}{u_j}$. Applying our IH we have $\fa i \J{v_i}\emptycx{\eqt A}$ and $\fa j \J{u_j}\emptycx{\eqt A}$, which shows $\J{\esetraw{v_i}_i}\emptycx{\tseteq A}$ and $\J{\esetraw{u_j}_j}\emptycx{\tseteq B}$; and $\faex i j \den{v_i} = \den{u_j} : \den{\eqt A}$ therefore $\den{\esetraw{v_i}_i} = \{\den{v_i}\}_i \le \{\den{u_j}\}_j = \den{\esetraw{u_j}_j} : \den{\tseteq A}$; and $\faex i j v_i = u_j : \eqt A$ which shows $\esetraw{v_i}_i \le \esetraw{u_j}_j : \tseteq A$.
+
+  %% \item[?:] \todo{case for base types}{}
+  %% \end{description}
+\end{proof}
+
+\noindent
+We now have the groundwork to prove the case of the fundamental theorem for $\efix e$:
+
+\begin{proof}
+  Assume $\infer*{\J e \Gamma \isofixLtoL}{\J {\efix e} \Gamma {\fixt L}}$ and $\oplr\Gamma{\gamma_1}{\gamma_2}$. We wish to show that $\oplrclosed{\fixt L}{\efix[\fixt L] \gamma_1(e)}{\efix[\fixt L] \gamma_2(e)}$. By our inductive hypothesis we have $\oplrclosed{\isofixLtoL}{\gamma_1(e)}{\gamma_2(e)}$; applying this we have $v_1,v_2$ such that $\gamma_i(e) \evalsto \eboxraw{v_i}$ and $\oplrclosedequiv{\fixt L \to \fixt L}{v_1}{v_2}$. Thus for $i \in \{1,2\}$:
+
+  \begin{align*}
+    \efix[\fixt L] \gamma_i(e)
+    \evalsto
+    \efix[\fixt L] \eboxraw{v_i}
+    \stepsto
+    \eiter[\fixt L]{v_i}{\bot_{\fixt L}}{v_i\<\bot_{\fixt L}}
+  \end{align*}
+
+  \noindent
+  Let $f_i(u) = \name{apply}\<(v_i, u)$ for brevity.
+%
+  Then
+  applying \cref{lemma-closed-term-evaluation,lemma-closed-term-application} we have:
+
+  \begin{align*}
+    \eiter[\fixt L]{v_i}{\bot_{\fixt L}}{v_i\<\bot_{\fixt L}}
+    \evalsto
+    \eiter[\fixt L]{v_i}
+          {\name{value}\<\bot_{\fixt L}}
+          {f_i(\name{value}\<\bot_{\fixt L})}
+  \end{align*}
+
+  \noindent
+  By bottom-is-bottom we have $\oplrvalue{\fixt L}{\name{value}\<\bot_{\fixt L}}{f_i( \bot_{\fixt L})}$.
+%
+  To understand the way evaluation will proceed from here, consider the generalized situation $\eiter[\fixt L]{v_i}{u}{f_i(u)}$ where $\oplrvalue{\fixt L}{u}{f_i(u)}$. This steps like so:
+
+  \[
+  \eiter[\fixt L]{v_i}{u}{f_i(u)}
+  \evalsto
+  \begin{cases}
+    u & \text{if}~ u = f_i(u) : \eqt A\\
+    \eiter[\eqt A]{v}{f_i(u)}{f_i(f_i(u))} & \text{otherwise}
+  \end{cases}
+  \]
+
+  \noindent
+  In other words, starting from $u = \bot_{\fixt L}$, we calculate the sequence $u, f_i(u), f_i^2(u), f_i^3(u), ...$ until the first $k$ such that $f_i^k(u) = f_i^{k+1}(u) : \fixt L$ and return $f_i^k(u)$.
+%
+  Note that $f_i : \goodclosed{\fixt L} \to \goodvalue{\fixt L}$ is monotone by \cref{lemma-closed-term-application} and therefore this sequence ascends in the logical relation: $\oplrvalue{\fixt L}{f_i^j(u)}{f_i^{j+1}(u)}$.
+%
+  Also by monotonicity of $\name{apply}$, since $\oplrvalueequiv{\fixt L \to \fixt L}{v_1}{v_2}$ and $\oplrclosedequiv{\fixt L}{u}{u}$ by partial reflexivity, we have inductively that $\oplrvalueequiv{\fixt L}{f_1^j(u)}{f_2^j(u)}$.
+%
+  By \cref{lemma-value-ordering} these also hold in the semantic order, so the denotations both ascend $\den{f_i^j(u)} \le \den{f_i^{j+1}(u)} : \den{\fixt L}$ and coincide $\den{f_1^j(u)} = \den{f_2^j(u)} : \den{\fixt L}$.
+%
+  By the ascending chain condition on $\den{\fixt L}$ we know there must be some $k$ such that $\den{f_1^k(u)} = \den{f_1^{k+1}(u)}$; and as the sequences for $f_1,f_2$ coincide, $\den{f_1^k(u)} = \den{f_1^{k+1}(u)} = \den{f_2^k(u)} = \den{f_2^{k+1}(u)}$.
+%
+  Applying \cref{lemma-value-ordering} again this shows $f_i^k(u) = f_i^{k+1}(u) : \fixt L$, and therefore $f_i^k(u)$ for the least such $k$ is the value we terminate with; since $\oplrvalueequiv{\fixt L}{f_1^k(u)}{f_2^k(u)}$, applying closure under stepping we are done.
+\end{proof}
+
+\fixme{jeremy,achim}{prove the other cases of the fundamental theorem}
+
+%% \fixme{achim}{actually explain how this follows, it is non-obvious. Where does the ACC come into the argument?}

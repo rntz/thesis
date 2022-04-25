@@ -379,7 +379,7 @@
 \newcommand\ematchif[2]{\kw{if}\; {#1} \shortleftarrow \eiso{#2} \;}
 \newcommand\ematchthen{\kw{then}\;}
 \newcommand\ematchelse{\kw{else}\;}
-\newcommand\efix{\prim{fix}\<}
+\newcommand\efix[1][]{\prim{fix}_{#1}\<}
 \newcommand\isofixLtoL{\ensuremath{\iso(\kernfixtL \to \fixtLkern)}}
 \newcommand\efixisraw[2][]{\kw{fix}_{#1}~{#2}~\kw{is}\fnspace}
 \newcommand\efixis[3][]{\eiso{\efixisraw[#1]{\mvar{#2}}{#3}}}
@@ -412,6 +412,7 @@
 \renewcommand\fillhole[2]{\subone{#1}{\emptyhole}{#2}}
 \newcommand\eiter[4][]{\prim{iter}_{#1}({#2},\, {#3},\, {#4})}
 \newcommand\stepsto{\longmapsto}
+\newcommand\evalsto{\stepsto^*}
 
 %% Used in ch4, 4-implementation.tex.
 \newcommand\bigeboxraw[1]{\bigl[{#1}\bigr]}
