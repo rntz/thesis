@@ -16,6 +16,18 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 
 \section{Datafun}
 
+\TerminationFundamental*
+
+\begin{proof}
+  By induction on $\J e \Gamma A$.
+
+  \begin{description}
+    \item[Case ...] \XXX
+  \end{description}
+\end{proof}
+
+
+
 \todomaybe{include the figure defining weakening relation here}{}
 
 \begin{lemma}\label{lemma-weakening-variables}
@@ -98,8 +110,9 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 %% \end{definition}
 
 
-\DeltaLattice*
-\DeltaLatticeProof*
+\todo{find all references to this proof}
+%% \DeltaLattice*
+%% \DeltaLatticeProof*
 
 
 \nextlemma
@@ -930,6 +943,7 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 
 
 \nextlemma
+
 \SeminaiveFundamental*
 \begin{proof}
   \label{proof-seminaive-fundamental}
@@ -939,13 +953,466 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 
   \begin{description}[topsep=\baselineskip,itemsep=\baselineskip]
 
+    %% CASES: VARIABLES
+  \item[Case $\infer{\hm x A \in \G}{\J{\mvar x}\G A}$.]
+    We wish to show:
+
+    \begin{align*}
+      &\weirdat A
+               {\den{\delta \mvar x}\<(\gamma,\dgamma)}
+               {\den{\phi \mvar x}\<\gamma}
+               {\den{\mvar x}\<\rho}
+               {\den{\phi \mvar x}\<\gamma'}
+               {\den{\mvar x}\<\rho'}
+      \\
+      \iff&
+      \weirdat A
+               {\den{\mvar\dx}\<(\gamma,\dgamma)}
+               {\den{\mvar x}\<\gamma}
+               {\den{\mvar x}\<\rho}
+               {\den{\mvar x}\<\gamma'}
+               {\den{\mvar x}\<\rho'}
+      \\
+      \iff&
+      \weirdat A
+               {\dgamma_{\mvar\dx}}
+               {\gamma_{\mvar x}}
+               {\rho_{\mvar x}}
+               {\gamma'_{\mvar x}}
+               {\rho'_{\mvar x}}
+    \end{align*}
+
+    \noindent
+    which follows from the definition of our assumption.
+
+  \item[Case $\infer{\hd x A \in \G}{\J{\dvar x}\G A}$.]
+    We wish to show:
+
+    \begin{align*}
+      &\weirdat A
+               {\den{\delta \dvar x}\<(\gamma,\dgamma)}
+               {\den{\phi \dvar x}\<\gamma}
+               {\den{\dvar x}\<\rho}
+               {\den{\phi \dvar x}\<\gamma'}
+               {\den{\dvar x}\<\rho'}
+      \\
+      \iff&
+      \weirdat A
+               {\den{\dvar\dx}\<(\gamma,\dgamma)}
+               {\den{\dvar x}\<\gamma}
+               {\den{\dvar x}\<\rho}
+               {\den{\dvar x}\<\gamma'}
+               {\den{\dvar x}\<\rho'}
+      \\
+      \iff&
+      \weirdat A
+               {\gamma_{\dvar\dx}}
+               {\gamma_{\dvar x}}
+               {\rho_{\dvar x}}
+               {\gamma'_{\dvar x}}
+               {\rho'_{\dvar x}}
+    \end{align*}
+
+    If we apply our assumption we get:
+
+    \begin{align*}
+      &
+      \weirdat \G \dgamma \gamma \rho {\gamma'} {\rho'}
+      \\
+      \implies&
+      \weirdat {\iso A}
+               {\tuple{}}
+               {\tuple{\gamma_{\dvar x}, \gamma_{\dvar\dx}}}
+               {\rho_{\dvar x}}
+               {\tuple{\gamma'_{\dvar x}, \gamma'_{\dvar\dx}}}
+               {\rho'_{\dvar x}}
+      \\
+      \implies&
+      \weirdat A {\gamma_{\dvar\dx}}
+               {\gamma_{\dvar x}}
+               {\rho_{\dvar x}}
+               {\gamma'_{\dvar x}}
+               {\rho'_{\dvar x}}
+    \end{align*}
+
+    \noindent
+    as desired.
+
+    %% CASE: LAMBDA
+  \item[Case $\infer{\J e {\G,\hm x A} B}{\J{\efn x e} \G {A \to B}}$]
+    Recall that $\phi(\efn x e) = \efn x \phi e$ and $\delta(\efn x e) = \fnof{\pboxvar x} \efn\dx \delta e$. We wish to show
+
+    \[
+    \weirdat{A \to B}
+            {\den{\fnof{\pboxvar x} \efn\dx \delta e}\<(\gamma,\dgamma)}
+            {\den{\efn x \phi e}\<\gamma}
+            {\den{\efn x e}\<\rho}
+            {\den{\efn x \phi e}\<\gamma'}
+            {\den{\efn x e}\<\rho'}
+    \]
+
+    \noindent
+    Applying the definition of the logical relation at $A \to B$, it suffices to assume (a) $\weirdat A \dx x a y b$ and prove
+
+    \[
+    \weirdat B
+            {\den{\fnof{\pboxvar x} \efn\dx \delta e}\<(\gamma,\dgamma)\<x\<\dx}
+            {\den{\efn x \phi e}\<\gamma\<x}
+            {\den{\efn x e}\<\rho\<a}
+            {\den{\efn x \phi e}\<\gamma'\<y}
+            {\den{\efn x e}\<\rho'\<b}
+    \]
+
+    \noindent
+    which, by calculation, is:
+
+    \[
+    \weirdat
+    B
+    {\den{\delta e}\<\sigma}
+    {\den{\phi e} \<(\gamma, \subto{\mvar x} x)}
+    {\den{e} \<(\rho, \subto{\mvar x} a)}
+    {\den{\phi e} \<(\gamma, \subto{\mvar x} y)}
+    {\den{e} \<(\rho, \subto{\mvar x} b)}
+    \]
+
+    \noindent
+    where $\sigma = (\gamma,\dgamma,\subto{\dvar x}{x}, \subto{\mvar\dx}{\dx})$. This follows from our inductive hypothesis if we can show that:
+
+    \[
+    \weirdat
+        {\G,\hm x A}
+        {(\dgamma, \subto{\mvar\dx}\dx)}
+        {(\gamma, \subto{\mvar x} x)}
+        {(\rho, \subto{\mvar x} a)}
+        {(\gamma', \subto{\mvar x} y)}
+        {(\rho', \subto{\mvar x} b)}
+    \]
+
+    \noindent
+    and this follows from our assumption and (a).
+
+    %% CASE: FUNCTION APPLICATION
+  \item[Case $\infer{
+      \J e \G {A \to B} \\
+      \J f \G A
+    }{
+      \J {e\<f} \G B
+    }$.]
+    Recall that $\phi(e\<f) = \phi e \< \phi f$ and $\delta(e\<f) = \delta e \<\ebox{\phi f} \<\delta f$. Thus we wish to show:
+
+    \[
+    \weirdat B
+    {\den{\delta e \<\ebox{\phi f} \<\delta f} \<(\gamma,\dgamma)}
+    {\den{\phi e \<\phi f} \<\gamma}
+    {\den{e\<f}\<\rho}
+    {\den{\phi e \<\phi f} \<\gamma'}
+    {\den{e\<f}\<\rho'}
+    \]
+
+    Let:
+
+    \begin{align*}
+      \dx &= \den{\delta e}\<(\gamma,\dgamma)
+      &&&
+      \dy &= \den{\delta f}\<(\gamma,\dgamma)
+      \\
+      x &= \den{\phi e} \<\gamma
+      &
+      a &= \den{e}\<\rho
+      &
+      y &= \den{\phi f}\<\gamma
+      &
+      b &= \den{f}\<\rho
+      \\
+      x' &= \den{\phi e}\<\gamma'
+      &
+      a' &= \den{e}\<\rho'
+      &
+      y' &= \den{\phi f}\<\gamma'
+      &
+      b' &= \den{f}\<\rho'
+    \end{align*}
+
+    \noindent
+    By our IH for $f$ we have $\weirdat A \dy y b {y'}{b'}$. By this and our IH for $e$ we have $\weirdat B {\dx\<y\<\dy}{x\<y}{a\<b}{x'\<y'}{a'\<b'}$. By calculation, this is equal to what we wish to show.
+%
+    \todo{Not quite! Need a form of weakening.}
+
+    %% \noindent
+    %% By calculation, we have for any appropriately typed $\sigma$:
+
+    %% \begin{align*}
+    %%   {\den{\delta e \<\ebox{\phi f} \<\delta f} \<\sigma}
+    %%   &=
+    %%   \den{\delta e}\<\sigma
+    %%   %% \<(\den{\ebox{\phi f}} \<\sigma)
+    %%   \<(\den{\phi f} \<\morphstrip_{\Phi\G}(\sigma))
+    %%   \<(\den{\delta f} \<\sigma)
+    %%   \\
+    %%   {\den{\phi e \<\phi f} \<\sigma}
+    %%   &=
+    %%   \den{\phi e} \<\sigma \<(\den{\phi f} \<\sigma)
+    %% \end{align*}
+
+  \item[Case $\infer{ }{\J{\etuple{}}\G\tunit}$.]
+    We wish to show:
+
+    \begin{align*}
+    &\weirdat \tunit
+             {\den{\etuple{}}\<(\gamma,\dgamma)}
+             {\den{\etuple{}}\<\gamma}
+             {\den{\etuple{}}\<\rho}
+             {\den{\etuple{}}\<\gamma'}
+             {\den{\etuple{}}\<\rho'}
+    \\
+    \iff
+    &\weirdat \tunit {\tuple{}}{\tuple{}}{\tuple{}}{\tuple{}}{\tuple{}}
+    \\
+    \iff& \top
+    \end{align*}
+
+  \item[Case $\infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}}\G{A_1 \times A_2}}$:]
+    Recall that $\phi(\etuple{e_1,e_2}) = \etuple{\phi e_1, \phi e_2}$ and $\delta(\etuple{e_1, e_2}) = \etuple{\delta e_1, \delta e_2}$. Thus we wish to show:
+
+    \[
+    \weirdat {A_1 \times A_2}
+             {\den{\etuple{\delta e_1, \delta e_2}}\<(\gamma,\dgamma)}
+             {\den{\etuple{\phi e_1, \phi e_2}}\<\gamma}
+             {\den{\etuple{e_1, e_2}}\<\rho}
+             {\den{\etuple{\phi e_1, \phi e_2}}\<\gamma'}
+             {\den{\etuple{e_1, e_2}}\<\rho'}
+    \]
+
+    \noindent
+    Since in general $\den{(f_1, f_2)} \<\sigma = \tuple{\den{f_1}\<\sigma, \den{f_2}\<\sigma}$, applying the definition of the LR at $A_1 \times A_2$ this is equivalent to:
+
+    \[
+    \fa i
+    \weirdat{A_i}
+    {\den{\delta e_i} \<(\gamma,\dgamma)}
+    {\den{\phi e_i}\<\gamma}
+    {\den{e_i}\<\rho}
+    {\den{\phi e_i}\<\gamma'}
+    {\den{e_i}\<\rho'}
+    \]
+
+    \noindent
+    which holds by our IH.
+
+  \item[Case $\infer{\J e \G {A_1 \times A_2}}{\J{\pi_i\<e}\G{A_i}}$.]
+    Recall that $\phi(\pi_i\<e) = \pi_i\<\phi e$ and $\delta(\pi_i\<e) = \pi_i\<\delta e$ and observe that $\den{\pi_i\<f}\<\sigma = \pi_i(\den{f}\<\sigma)$. Applying this, what we wish to show is
+
+    \[
+    \weirdat {A_i}
+    {\pi_i\<(\den{\delta e}\<(\gamma,\dgamma))}
+    {\pi_i \<(\den{\phi e}\<\gamma)}
+    {\pi_i \<(\den{e}\<\rho)}
+    {\pi_i \<(\den{\phi e}\<\gamma')}
+    {\pi_i \<(\den{e}\<\rho')}
+    \]
+
+    \noindent
+    which is a direct consequence of our IH.
+
+  \item[Case $\infer{\J e \G {A_i}}{\J {\inj i e} \G {A_1 + A_2}}$.]
+    Recall that $\phi(\inj i e) = \inj i \phi e$ and $\delta(\inj i e) = \inj i \delta e$. Observe that in general $\den{\inj i f}\<\sigma = \inj i (\den{f}\<\sigma)$ and therefore what we wish to show is equivalent to:
+
+    \[
+    \weirdat{A_1 + A_2}
+    {\inj i (\den{\delta e}\<(\gamma,\dgamma))}
+    {\inj i (\den{\phi e}\<\gamma)}
+    {\inj i (\den{e}\<\rho)}
+    {\inj i (\den{\phi e}\<\gamma')}
+    {\inj i (\den{e}\<\rho')}
+    \]
+    
+    \noindent
+    which is by definition equivalent to our inductive hypothesis.
+
+  \item[Case $\infer{ }{\J \bot \G {\eqt L}}$.]
+    Recall that $\phi \bot = \bot$ and $\delta \bot = \bot$ and $\den{\bot}\<\sigma = \bot$. Thus it STS $\weirdat{\eqt L} \bot \bot \bot \bot \bot$, which holds by \cref{lemma-semilattice-changes}.
+
+  \item[Case $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2} \G {\eqt L}}$.]
+    Recall that $\phi(e_1 \vee e_2) = \phi e_1 \vee \phi e_2$. We wish to show:
+
+    \[
+    \weirdat{\eqt L}
+    {\den{\delta e_1 \vee \delta e_2} \<(\gamma,\dgamma)}
+    {\den{\phi e_1 \vee \phi e_2}\<\gamma}
+    {\den{e_1 \vee e_2}\<\rho}
+    {\den{\phi e_1 \vee \phi e_2}\<\gamma'}
+    {\den{e_1 \vee e_2}\<\rho'}
+    \]
+
+    Let:
+
+    \begin{align*}
+      \dx_i &= \den{\delta e_i}\<(\gamma,\dgamma)
+      &
+      x_i &= \den{\phi e_i}\<\gamma
+      &
+      x'_i &= \den{\phi e_i}\<\gamma'
+      &
+      a_i &= \den{e_i}\<\rho
+      &
+      a'_i &= \den{e_i}\<\rho'
+    \end{align*}
+
+    Since $\den{f \vee g}\<\sigma = \den{f}\<\sigma \vee \den{g}\<\sigma$, what we wish to show is equivalent to:
+
+    \[
+    \weirdat{\eqt L} {\dx_1 \vee \dx_2}
+    {x_1 \vee x_2} {a_1 \vee a_2}
+    {x'_1 \vee x'_2} {a'_1 \vee a'_2}
+    \]
+
+    \noindent
+    Applying \cref{lemma-semilattice-changes} this is equivalent to:
+
+    \begin{align*}
+      x_1 \vee x_2 &= a_1 \vee a_2
+      &
+      x'_1 \vee x'_2 &= a'_1 \vee a'_2 = x_1 \vee x_2 \vee \dx_1 \vee \dx_2
+    \end{align*}
+    
+    By our IH and assumption and \cref{lemma-semilattice-changes} we have:
+
+    \begin{align*}
+      x_i &= a_i
+      &
+      x'_i &= a'_i = x_i \vee \dx_i
+    \end{align*}
+
+    \noindent
+    which suffices by associativity and commutativity of $\vee$.
+
+  \item[Case $\infer{(\J{e_i} \G {\eqt A})_i}{\J{\esetraw{e_i}_i} \G {\tseteq A}}$.]
+    Recall that $\phi \esetraw{e_i}_i = \esetraw{\phi e_i}_i$ and $\delta \esetraw{e_i}_i = \bot$. Noting that $\den{\bot}\<(\gamma,\dgamma) = \bot$, by \cref{lemma-semilattice-changes} what we want to show is equivalent to:
+
+    \begin{align*}
+      \den{\esetraw{\phi e_i}_i}\<\gamma
+      =
+      \den{\esetraw{e_i}_i} \<\rho
+      =
+      \den{\esetraw{\phi e_i}_i} \<\gamma'
+      =
+      \den{\esetraw{e_i}_i} \<\rho'
+    \end{align*}
+
+
+    \noindent
+    Note that $\den{\esetraw{f_i}_i} \<\sigma = \bigvee_i \{\mkbox_\G(\den{f_i})(\sigma)\} = \{\den{f_i}\<(\morphstrip \<\sigma)\}_i$.
+%
+    Also observe that by \cref{lemma-discrete-contexts,lemma-context-stripping} and our assumption, we have
+
+    \begin{eqnarray}
+      \label{hooligan}
+      &\weirdat{\stripcx\G}{\tuple{}}{\morphstrip\<\gamma}{\morphstrip\<\rho}
+      {\morphstrip\<\gamma'}{\morphstrip\<\rho'}
+      \\
+      \label{football}
+      &\morphstrip\<\gamma = \morphstrip\<\gamma'
+      \quad\text{and}\quad
+      \morphstrip\<\rho = \morphstrip\<\rho'
+    \end{eqnarray}
+
+    \noindent
+    So applying \cref{football} it suffices to show that
+    $\{\den{\phi e_i} \<(\morphstrip \<\gamma)\}_i = \{\den{e_i} \<(\morphstrip \<\rho)\}_i$, for which it suffices to show $\den{\phi e_i} \<(\morphstrip \<\gamma) = \den{e_i} \<(\morphstrip \<\rho)$. This holds by our IH for $e_i$ and \cref{hooligan} and \cref{lemma-equality-changes}.
+        
+  \item[Case $\infer{(\J {e_i} {\stripcx{\G}} {\eqt A})_i}{\J{\eeq{e_1}{e_2}} \G \tbool}$.]
+
+    Recall that $\phi(\eeq{e_1}{e_2}) = \eeq{\phi e_1}{\phi e_2}$ and $\delta(\eeq{e_1}{e_2}) = \bot$. Thus what we wish to show is:
+
+    \[
+    \weirdat{\tbool}
+            {\den{\bot} \<(\gamma,\dgamma)}
+            {\den{\eeqraw{\phi e_1}{\phi e_2}} \<\gamma}
+            {\den{\eeqraw{e_1}{e_2}} \<\rho}
+            {\den{\eeqraw{\phi e_1}{\phi e_2}} \<\gamma'}
+            {\den{\eeqraw{e_1}{e_2}} \<\rho'}
+    \]
+    
+    \noindent
+    Observing that $\den{\bot}\<(\gamma,\dgamma) = \emptyset$ and applying the definition of the logic relation for $\tbool = \tset{\tunit}$, this is equivalent to:
+
+    \[
+    \den{\eeq{\phi e_1}{\phi e_2}}\<\gamma
+    =
+    \den{\eeq{\phi e_1}{\phi e_2}}\<\gamma'
+    =
+    \den{\eeq{e_1}{e_2}}\<\rho
+    =
+    \den{\eeq{e_1}{e_2}}\<\rho'
+    \]
+
+    \noindent
+    Observe by calculation that
+
+    \[
+    \den{\eeq{f_1}{f_2}}\<\sigma
+    =
+    \begin{cases}
+      \{()\} &\text{if}\ \den{f_1} \<(\morphstrip\<\sigma) = \den{f_2}\<(\morphstrip\<\sigma)\\
+      \emptyset & \text{otherwise}
+    \end{cases}
+    \]
+
+    \noindent
+    Thus it suffices to show $\den{\phi e_i} \<(\morphstrip\<\gamma) = \den{\phi e_i} \<(\morphstrip\<\gamma') = \den{e_i} \<(\morphstrip\<\rho) = \den{e_i} \<(\morphstrip\<\rho')$. By our assumption and \cref{lemma-discrete-contexts,lemma-context-stripping} we know $\morphstrip\<\gamma = \morphstrip\<\gamma'$ and $\morphstrip\<\rho = \morphstrip\<\rho'$ and $\weirdat{\stripcx\G}{\tuple{}}{\morphstrip\<\gamma}{\morphstrip\<\rho}{\morphstrip\<\gamma'}{\morphstrip\<\rho'}$.
+%
+    By the first two equalities it now suffices to show $\den{\phi e_i} \<(\morphstrip \<\gamma) = \den{e_i} \<(\morphstrip \<\rho)$.
+%
+    Applying our IH to the remaining third proposition we have
+
+    \[
+    \weirdat{\eqt A}{\den{\delta e_i} \<(\morphstrip\<\gamma)}
+    {\den{\phi e_i} \<(\morphstrip \<\gamma)}
+    {\den{e_i} \<(\morphstrip \<\rho)}
+    {\den{\phi e_i} \<(\morphstrip \<\gamma')}
+    {\den{e_i} \<(\morphstrip \<\rho')}
+    \]
+
+    \noindent
+    which by \cref{lemma-equality-changes} implies $\den{\phi e_i} \<(\morphstrip \<\gamma) = \den{e_i} \<(\morphstrip \<\rho)$ as desired.
+
+  \item[Case $\infer{\J e {\stripcx\G} {\tset \tunit}}{\J {\eisempty e} \Gamma {\tunit + \tunit}}$.]
+
+    Recall that $\phi(\eisempty e) = \delta(\eisempty e) = \eisempty{\phi e}$.
+%
+    Note that by \cref{lemma-discrete-contexts,lemma-context-stripping} we have $\morphstrip\<\gamma = \morphstrip\<\gamma'$ and $\morphstrip\<\rho = \morphstrip\<\rho'$ and $\weirdat{\stripcx\G}{()}{\morphstrip\<\gamma}{\morphstrip\<\rho}{\morphstrip\<\gamma'}{\morphstrip\<\rho'}$; applying this to our inductive hypothesis and invoking \cref{lemma-equality-changes} on the result, we have
+
+    \begin{align*}
+      \den{e}\<(\morphstrip\<\rho)
+      = \den{e}\<(\morphstrip\<\rho')
+      = \den{\phi e} \<(\morphstrip\<\gamma)
+      = \den{\phi e} \<(\morphstrip\<\gamma')
+    \end{align*}
+
+    \noindent
+    Thus all are equal to the same value. Now, observe by calculation that
+
+    \[
+    \den{\eisempty f} \<\sigma = 
+    \begin{cases}
+      \inj i () & \text{if}~\den{f}\<(\morphstrip\<\sigma) = \emptyset\\
+      \inj 2 () & \text{otherwise}
+    \end{cases}
+    \]
+
+    \noindent
+    Thus, there is some $i$ such that $\den{\eisempty e}\<\rho = \den{\eisempty e}\<\rho' = \den{\eisempty{\phi e}}\<\gamma = \den{\eisempty{\phi e}}\<\gamma' = \inj i ()$ and we have $\weirdat{\tunit + \tunit}{\inj i ()}{\inj i ()}{\inj i ()}{\inj i ()}{\inj i ()}$ as desired.
+
+    \todo{weakening! for the delta.}
+
     %% CASE: CASE ANALYSIS
   \item[Case $\infer{
       \J e \G {A_1 + A_2} \\
       (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
     }{
       \J{\emcase e (\inj i \mvar x \caseto f_i)_i} \Gamma B
-    }$] Recall that
+    }$.] Recall that
 %
     \begin{align*}
       \phi(\emcase e (\inj i \mvar x \caseto f_i)_i)
@@ -1593,13 +2060,14 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
     noting that $\isosum = \morph{id}$ and therefore $\den{\esplit e}\<\rho =
     \den{e}\<\rho$. The other two are no more difficult but considerably more
     tedious, so we omit the details of the calculations. \todolater{provide
-      calculations for at least one}
+      calculations for at least one; do the delta one, it's simpler}
     
     %% CASES REMAINING
+
   \item[Remaining cases.] I am afraid I did not have time to typeset all the cases of this proof; the remaining cases have been included as handwritten scans on the following pages.
     
   \end{description}
 
   %% THE REST OF THE CASES
-  \includepdf[pages=2-]{remarkable-seminaive-proof}
+  \includepdf[pages=2-14]{remarkable-seminaive-proof}
 \end{proof}
