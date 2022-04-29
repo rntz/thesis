@@ -10,13 +10,37 @@ transformation which implements this strategy. However, the purpose of
 semi\naive\ evaluation is not to push changes around, but to compute results
 faster. We have proven that our transformed program computes the same result,
 but not shown that it does so more efficiently.
+%
+In this chapter we remedy this experimentally, observing that at least two
+further optimizations are necessary to achieve asymptotic performance
+improvements:
 
-In this chapter we remedy this experimentally. First, we apply our program
-transformation to our running example, transitive closure. In the process we
-observe a few additional optimizations necessary to reap the efficiency
-benefits of seminaive evaluation. We discuss our implementation of the
-semi\naive\ program transformation and these optimizations and measure their
-effect on the performance of some example program.
+%% In this chapter we remedy this experimentally. First, we apply our program
+%% transformation to our running example, transitive closure. In the process we
+%% observe a few additional optimizations necessary to reap the efficiency
+%% benefits of seminaive evaluation. We discuss our implementation of the
+%% semi\naive\ program transformation and these optimizations and measure their
+%% effect on the performance of some example program.
+
+First, we apply the semi\naive\ program transformation by hand to our running
+example, transitive closure (\cref{section-seminaive-trans}).
+%
+In the process we uncover some obvious inefficiencies in the transformed code
+and demonstrate how to optimize them away.
+%
+We implement a Datafun-to-Haskell compiler, and use it to demonstrate
+experimentally that semi\naive\ evaluation can produce asymptotic performance
+improvements when combined with these optimizations (\cref{section-implementation}).
+
+Second, we observe that even with these optimizations, there remain
+cases where we do asymptotically more work than necessary, not because of
+inefficiencies in the transformed program, but because of the imprecision of our
+derivatives. This results in overly large changes between iterations which
+accumulate across fixed point iterations. We implement a
+simple solution based on change minimization and test it experimentally.
+
+\todo{add forward references to sections}
 
 \input{4.1-seminaive-trans}
 \input{4.2-implementation-optimization}
+\input{4.3-diff-minimization}

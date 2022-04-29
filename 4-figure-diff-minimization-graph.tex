@@ -1,0 +1,79 @@
+\begin{figure}
+  \centering\small\sffamily
+
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{axis}[
+        title={\scshape transitive closure without diff minimization},
+        xlabel={Number of nodes},
+        ylabel={Time (seconds)},
+        height=132.88pt, width=213pt, % golden
+        %height=140pt, width=210pt, % 2:3
+        legend entries={line graph,line graph with self-loops},
+        legend cell align=left,
+        legend pos = north west,
+        legend style={
+          font=\footnotesize,
+          draw=none,
+          nodes={inner sep=3pt,}
+        },
+        xtick = {120, 160, ..., 320},
+        ytick = {0, 60, ..., 260},
+      ]
+      \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop.dat};
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+    \end{axis}
+  \end{tikzpicture}
+
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{axis}[
+        title={\scshape transitive closure with self-loops},
+        xlabel={Number of nodes},
+        ylabel={Time (seconds)},
+        height=132.88pt, width=213pt, % golden
+        %height=140pt, width=210pt, % 2:3
+        legend entries={semi\naive,{semi\naive\ minimizing}},
+        legend entries={w/o minimizing diffs, minimizing diffs},
+        legend cell align=left,
+        legend pos = north west,
+        legend style={
+          font=\footnotesize,
+          draw=none,
+          nodes={inner sep=3pt,}
+        },
+        xtick = {120, 160, ..., 320},
+        ytick = {0, 60, ..., 260},
+      ]
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
+%      \addplot [color=ForestGreen,mark=star] table [x=n,y=normal] {trans-loop.dat};
+    \end{axis}
+  \end{tikzpicture}
+  \hfil
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{axis}[
+        title={\scshape transitive closure with diff minimization},
+        xlabel={Number of nodes},
+        ylabel={Time (seconds)},
+        height=132.88pt, width=213pt, % golden
+        %height=140pt, width=210pt, % 2:3
+        legend entries={{with loops},{loopless}},
+        legend cell align=left,
+        legend pos = north west,
+        legend style={
+          font=\footnotesize,
+          draw=none,
+          nodes={inner sep=3pt,}
+        },
+        xtick = {120, 160, ..., 320},
+        %ytick = {0, 40, ..., 150},
+      ]
+      %% \addplot [color=red,mark=square*] table [x=n,y=normal] {trans-loop.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
+      \addplot [color=blue,mark=*] table [x=n,y=minimized] {trans-loop.dat};
+%      \addplot [color=green,mark=x] table [x=n,y=normal] {trans-loop.dat};
+    \end{axis}
+  \end{tikzpicture}
+
+%  \caption{Semi\naive\ transitive closure on a loopy line graph with and without diff minimization}
+  \caption{The effect of self-loops and diff minimization on semi\naive\ transitive closure on a line graph}
+\end{figure}
