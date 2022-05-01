@@ -3,7 +3,7 @@
 
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{axis}[
-        title={\scshape transitive closure without diff minimization},
+        title={\scshape transitive closure without change minimization},
         xlabel={Number of nodes},
         ylabel={Time (seconds)},
         height=132.88pt, width=213pt, % golden
@@ -24,6 +24,7 @@
     \end{axis}
   \end{tikzpicture}
 
+  
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{axis}[
         title={\scshape transitive closure with self-loops},
@@ -32,7 +33,7 @@
         height=132.88pt, width=213pt, % golden
         %height=140pt, width=210pt, % 2:3
         legend entries={semi\naive,{semi\naive\ minimizing}},
-        legend entries={w/o minimizing diffs, minimizing diffs},
+        legend entries={w/o minimizing changes, minimizing changes},
         legend cell align=left,
         legend pos = north west,
         legend style={
@@ -51,7 +52,7 @@
   \hfil
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{axis}[
-        title={\scshape transitive closure with diff minimization},
+        title={\scshape transitive closure with change minimization},
         xlabel={Number of nodes},
         ylabel={Time (seconds)},
         height=132.88pt, width=213pt, % golden
@@ -74,6 +75,7 @@
     \end{axis}
   \end{tikzpicture}
 
-%  \caption{Semi\naive\ transitive closure on a loopy line graph with and without diff minimization}
-  \caption{The effect of self-loops and diff minimization on semi\naive\ transitive closure on a line graph}
+%  \caption{Semi\naive\ transitive closure on a loopy line graph with and without change minimization}
+  \caption{The effect of self-loops and change minimization on semi\naive\ transitive closure on a line graph}
+  \label{figure-change-minimization-graph}
 \end{figure}

@@ -1,0 +1,118 @@
+\section{Change minimization}
+
+\label{section-change-minimization}
+
+\begin{figure}
+  \centering\small\sffamily
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{axis}[
+        %% title={\scshape transitive closure without change minimization},
+        xlabel={Number of nodes},
+        ylabel={Time (seconds)},
+        %% height=132.88pt, width=213pt, % golden
+        %height=140pt, width=210pt, % 2:3
+        height=144pt, width=233pt, % fibonacci/golden
+        legend entries={line graph,line graph with self-loops},
+        legend cell align=left,
+        legend pos = north west,
+        legend style={
+          font=\footnotesize,
+          draw=none,
+          nodes={inner sep=3pt,}
+        },
+        xtick = {120, 160, ..., 320},
+        ytick = {0, 60, ..., 260},
+      ]
+      \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop.dat};
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Semi\naive\ transitive closure on a linear graph with and without loops}
+  \label{figure-loops-kill-us}
+\end{figure}
+
+Before we jump to the conclusion that we have captured the essence of seminaive evaluation, let's try a small twist on our running example: let's add self-loops to every node in our linear graph, producing the graph $(V,E)$ with $V = \{1, ..., n\}$ and $E = \setfor{(i,j)}{j \in \{i,i+1\}}$.
+%
+This makes our reachability relation reflexive, changing the transitive closure from the less-than relation $\setfor{(i,j)}{1 \le i < j \le n}$ to the less-than-or-equal-to relation $\setfor{(i,j)}{1 \le i \le j \le n}$.
+%
+This produces exactly $n$ new paths, namely $\setfor{(i,i)}{1 \le i \le n}$; since we already had quadratically many paths, ideally this won't affect our performance much.
+
+Unfortunately, as we can see in \cref{figure-loops-kill-us}, adding these self-loops produces an asymptotic slowdown, even with our semi\naive\ transformation and all optimizations applied (\`a la \emph{semi\naive\ optimized}).
+%
+What's going on here?
+%
+Recall from \cref{equation-semifix-trans-recurrence}, \cpageref{equation-semifix-trans-recurrence}, that the semi\naive\ iteration strategy Datafun uses for transitive closure is:
+
+\begin{align*}
+  x_0 &= \bot
+  &
+  x_{i+1} &= x_i \cup \dx_i
+  \\
+  \dx_0 &= \name{edges}
+  &
+  \dx_{i+1} &= \name{edges} \relcomp \dx_i
+\end{align*}
+
+\noindent
+The key computation step here is $\dx_{i+1} = \name{edges} \relcomp \dx_i$.
+%
+In other words, we prepend edges out of each ``frontier'' $\dx_i$ to get the next frontier $\dx_{i+1}$.
+%
+Ideally, each frontier consists of pairs $(x,y)$ newly discovered to be reachable; by accumulating them into $x_i = \bigcup_{j<i} \dx_j$ we find all such pairs.
+%
+In a linear graph without self-loops, as we saw in \cref{section-seminaive-incremental}, this strategy discovers each reachable pair exactly once, because $\dx_i$ captures paths of length exactly $i$, and each reachable pair corresponds to a unique path.
+%
+But if our edge relation is reflexive, any path from $x$ to $y$ can be adjoined to a self-loop to find a longer path from $x$ to $y$; thus $\dx_i \subseteq \dx_{i+1}$.
+%
+In turn this means that $\dx_i = x_{i+1}$; by adding self-loops we've regressed to \naive\ evaluation!
+
+Taking a logical perspective, at step $i$, \naive\ evaluation finds all derivations of depth $d \le i$, while the ``semi\naive'' strategy we've presented so far finds only derivations of depth $d = i$.
+%
+This is a clear improvement, but sometimes the same fact is derivable at multiple depths -- as in our loopy linear graph, where derivation depth is path length.
+%
+We only care about \emph{deducibility,} so for our purposes anything after the first (shallowest) derivation is redundant.
+
+From an incremental computation perspective, this is a problem of unnecessarily large changes.
+%
+Our semi\naive\ strategy looks for ``new'' ways to derive a tuple $(x,y)$, based on whatever was ``newly'' derived in the previous step.
+%
+But our notion of ``new'' is a bit lax, because our derivatives are allowed to be imprecise. Our strategy for finding a fixed point of a function $f : \tset{\fint A} \to \tset{\fint A}$ is:
+
+\begin{align*}
+  x_0 &= \emptyset & x_{i+1} &= x_i \cup \dx_i\\
+  \dx_0 &= f\<\emptyset &\dx _{i+1} &= f'\<x_i\<\dx_i
+\end{align*}
+
+\noindent
+For sets, the derivative property guarantees that $f\<x_i \cup f'\<x_i\<\dx_i = f\<x_{i+1}$, but not that $f'\<x_i\<\dx_i = f\<x_{i+1} \setminus f\<x_i$.
+%
+This is exploited in, among others, the derivative rule $\delta(e_1 \cup e_2) = \delta e_1 \cup \delta e_2$.
+%
+If $\delta e_1$ and $e_2$ intersect (or $\delta e_2$ and $e_1$ intersect), this generates an overly large change.
+
+Returning to the logical perspective, discovering something twice because it has two different derivations seems in general unavoidable; in graph reachability, for instance, how can we know two different paths lead to the same destination except by following them?
+%
+This benign rediscovery is not, however, what causes the asymptotic slowdown in \cref{figure-change-minimization-graph}.
+%
+The problem is that rediscovering a reachable pair $(x,y)$ at iteration $i$ causes redundant work in all subsequent iterations, because it is included in $\dx_i$ (treated as ``new'') and used to compute $\dx_{i+1}$.
+%
+Consequently, $\dx_{i+1}$ will include re-derivations of anything $(x,y)$ makes ``newly'' deducible; and so on in $\dx_{i+2}, \dx_{i+3},$ \emph{etc.}
+
+In this way, overly large changes accumulate across iterations.
+%
+While we may not be able to avoid all rediscovery, we can avoid these snowballing changes (and consequent asymptotic wastefulness) by \emph{minimizing our changes}.
+
+\todo{these changes aren't really a problem until they accumulate; discovering the same thing twice is fine, discovering it n times is a problem. and it's not clear how in general to avoid discovering something twice except by diffing, i.e. discovering it twice and then being like ``oops, we already knew this''. it's not the re-discovery but then DOING WORK based on the re-discovery that's the problem.}
+
+At this point the obvious approach would be to alter our semi\naive\ transformation to generate precise changes. \XXX
+
+\XXX
+
+\noindent
+%% Thus in computing $\dx_{i+1}$ we recompute everything in $\dx_i$; exactly what we were trying to avoid with semi\naive\ evaluation!
+%
+We cannot \emph{entirely} avoid additional work here: the addition of reflexive edges adds new paths between nodes, and we cannot in general avoid rediscovering pairs $(x,z)$ when there are multiple paths that connect them.
+%
+However, we can avoid these unnecessary changes accumulating, which is far more important: computing every path twice is a constant factor slowdown; computing every path $n$ times is an asymptotic one.
+
+\input{4-figure-change-minimization-graph}
