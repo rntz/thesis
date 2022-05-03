@@ -290,52 +290,51 @@ The precise formal definition of a change structure differs between the various 
 %
 A good starting point is the notion of a \emph{basic change structure} introduced in Giarrusso's PhD thesis~\citeyearpar[chapter 12, definition 12.1.1]{DBLP:phd/dnb/Giarrusso20}:
 %
-a basic change structure on a set $V$ consists of a change set $\Delta V$ and a validity relation $\gvalid{V}{dx}{x_1}{x_2}$ indicating that $dx : \Delta V$ is a valid change from the base points $x_1 : V$ to $x_2 : V$.
+a basic change structure on a set $S$ consists of a change set $\Delta S$ and a validity relation $\gvalid{S}{dx}{x_1}{x_2}$ indicating that $dx : \Delta S$ is a valid change from the base points $x_1 : S$ to $x_2 : S$.
 
 For example, we can endow the naturals $\N$ with a basic change structure by
 letting changes be integer differences $\Delta \N = \mathbb{Z}$ and letting
 $\gvalid{\N}{dx}{x_1}{x_2} \iff x_1 + dx = x_2$.
 %
-To handle higher-order computation, we can endow function types $A \to B$ with a
-basic change structure as follows: let $\Delta(A \to B) = A \to \Delta A \to
-\Delta B$ and define the validity relation by saying that a valid function
-change $\gvalid{A \to B}{df}{f_1}{f_2}$ is one which takes \fixme{achim}{This doesn't mention the first argument of type A.} valid input changes
-$\gvalid{A}{dx}{x_1}{x_2}$ to valid output changes
-$\gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}$, that is, a change between the
-original function applied to its original argument $f_1\<x_1$ and the updated
-function applied to an updated argument $f_2\<x_2$.
+To handle higher-order computation, Giarrusso endows function types $A \to B$
+with a basic change structure as follows (definition 12.1.8): let $\Delta(A \to
+B) = A \to \Delta A \to \Delta B$ and define the validity relation by saying
+that a valid function change $\gvalid{A \to B}{df}{f_1}{f_2}$ is one which takes
+an argument $x : A$ and valid change to it $\gvalid{A}{dx}{x_1}{x_2}$ to a valid
+output change $\gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}$, that is, a change
+between the original function applied to its original argument $f_1\<x_1$ and
+the updated function applied to an updated argument $f_2\<x_2$.
 
-Notation aside, basic change structures coincide with the change
-structures introduced in \cref{section-change-structures}, save that in Datafun
-$V$ and $\Delta V$ are not sets but posets.
+Giarrusso goes on to define more elaborate ``full'' change structures
+(definition 13.1.1) which additionally possesses operators $x \oplus \dx$ for
+updating a base point by a change, $y \ominus x$ for finding a change between
+two points, $\zero$ for finding a zero change from a point to itself, and
+$\dx \circledcirc \dy$ for composing two changes.%
 %
-The change structures for functions also nearly coincide, except that in Datafun we are concerned with monotonicity, which forces us to let $\Delta(A \to B) = {\color{Rhodamine}\iso} A \to \Delta A \to \Delta B$, using \iso\ to allow function changes to be non-monotone with respect to the base point.
+\footnote{In the original presentation by \citet{incremental} these operators
+  (except $\circledcirc$, which is not present) are taken as primary rather than
+  as additions to a basic change structure, and the validity relation
+  $\gvalid{S}{dx}{x_1}{x_2}$ is reduced to a set of valid changes $\Delta_S
+  \,x_1 \subseteq \Delta S$. Datafun's approach to semi\naive\ computation was originally inspired by this paper, but we moved to a validity-relation approach because of the difficulties of defining these operators in a monotonicity-aware setting; thus the validity relation approach to change structures appears to have been indendently invented in both Datafun and in Giarrusso's work.}
+
+Datafun's change structures (\cref{definition-change-structures}) lie somewhere between Giarrusso's basic and ``full'' change structures, modified to handle monotonicity: in Datafun $S$ (or $V S$ in our notation) and $\Delta S$ are not sets but posets.
 %
-Here we see the beginnings of divergence between Datafun and the incremental
-\fn-calculus, driven at root by a difference of goals: in Datafun we are not
-trying to respond to arbitrary changes to our whole program's input, but only to
+For example, our change structures for functions almost coincide, except that
+because of Datafun's monotonicity typing we must let $\Delta(A \to B) =
+{\color{Rhodamine}\iso} A \to \Delta A \to \Delta B$, using \iso\ to allow
+function changes to be non-monotone with respect to the base point.
+%
+The root divergence here is one of goals: in Datafun we are not trying to
+respond to arbitrary changes to our whole program's input, but only to
 incrementalize the inner loops of fixed points to calculate them more
 efficiently.
 %
-Because these fixed points are monotone, in Datafun we need only handle \emph{increasing} change.
+Because these fixed points are monotone, in Datafun we need only handle increasing change (enforced by our \emph{soundness} condition).
 %
 The price of this simplification is that we must pay careful attention to the interaction of incrementalization with Datafun's monotonicity-checking modal type system in our program transformation and its proof of correctness.
 
-This is also the cause of our second divergence: Giarrusso goes on to define a
-more elaborate version of change structure (definition 13.1.1) which
-additionally possesses operators $\oplus$ for updating a base point by a change,
-$\ominus$ for finding a change between two points, $\zero$ for finding a zero
-change from a point to itself, and $\circledcirc$ for composing two changes.
-%
 Because of the limited way Datafun uses incremental computation, we only need
-some of these operators, and only at certain types.%
-%
-\footnotemark
-\footnotetext{In the original presentation by \citet{incremental} these operators
-  (except $\circledcirc$, which is not present) are taken as primary rather than
-  as additions to a basic change structure, and the validity relation
-  $\gvalid{V}{dx}{x_1}{x_2}$ is reduced to a set of valid changes $\Delta_V
-  \,x_1 \subseteq \Delta V$. Datafun's approach to semi\naive\ computation was originally inspired by this paper, but we moved to a validity-relation approach because of the difficulties of defining these operators in a monotonicity-aware setting; thus the validity relation approach to change structures appears to have been indendently invented in both Datafun and in Giarrusso's work.}
+some of the operators from Giarrusso's full change structures, and only at certain types.
 %
 We use $\zero$ explicitly in the $\phi$ and $\delta$ translations of loops, $\eforvar x e f$, to supply the zero change for the elements $\dvar x$;
 %
@@ -379,6 +378,93 @@ These simplifications are fortuitous, because the interaction of the fully gener
 %
   This would make $\oplus$, like \semifix, a ``trusted primitive'' whose implementation cannot be expressed in Datafun itself.
 }
+
+%% For example, we can endow the naturals $\N$ with a basic change structure by
+%% letting changes be integer differences $\Delta \N = \mathbb{Z}$ and letting
+%% $\gvalid{\N}{dx}{x_1}{x_2} \iff x_1 + dx = x_2$.
+%% %
+%% To handle higher-order computation, Giarrusso endows function types $A \to B$
+%% with a basic change structure as follows (definition 12.1.8): let $\Delta(A \to
+%% B) = A \to \Delta A \to \Delta B$ and define the validity relation by saying
+%% that a valid function change $\gvalid{A \to B}{df}{f_1}{f_2}$ is one which takes
+%% an argument $x : A$ and valid change to it $\gvalid{A}{dx}{x_1}{x_2}$ to a valid
+%% output change $\gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}$, that is, a change
+%% between the original function applied to its original argument $f_1\<x_1$ and
+%% the updated function applied to an updated argument $f_2\<x_2$.
+
+%% Notation aside, basic change structures coincide with the change
+%% structures introduced in \cref{section-change-structures}, save that in Datafun
+%% $V$ and $\Delta V$ are not sets but posets.
+%% %
+%% The change structures for functions also nearly coincide, except that in Datafun we are concerned with monotonicity, which forces us to let $\Delta(A \to B) = {\color{Rhodamine}\iso} A \to \Delta A \to \Delta B$, using \iso\ to allow function changes to be non-monotone with respect to the base point.
+%% %
+%% Here we see the beginnings of divergence between Datafun and the incremental
+%% \fn-calculus, driven at root by a difference of goals: in Datafun we are not
+%% trying to respond to arbitrary changes to our whole program's input, but only to
+%% incrementalize the inner loops of fixed points to calculate them more
+%% efficiently.
+%% %
+%% Because these fixed points are monotone, in Datafun we need only handle \emph{increasing} change.
+%% %
+%% The price of this simplification is that we must pay careful attention to the interaction of incrementalization with Datafun's monotonicity-checking modal type system in our program transformation and its proof of correctness.
+
+%% This is also the cause of our second divergence: Giarrusso goes on to define a
+%% more elaborate version of change structure (definition 13.1.1) which
+%% additionally possesses operators $\oplus$ for updating a base point by a change,
+%% $\ominus$ for finding a change between two points, $\zero$ for finding a zero
+%% change from a point to itself, and $\circledcirc$ for composing two changes.
+%% %
+%% Because of the limited way Datafun uses incremental computation, we only need
+%% some of these operators, and only at certain types.%
+%% %
+%% \footnote{In the original presentation by \citet{incremental} these operators
+%%   (except $\circledcirc$, which is not present) are taken as primary rather than
+%%   as additions to a basic change structure, and the validity relation
+%%   $\gvalid{V}{dx}{x_1}{x_2}$ is reduced to a set of valid changes $\Delta_V
+%%   \,x_1 \subseteq \Delta V$. Datafun's approach to semi\naive\ computation was originally inspired by this paper, but we moved to a validity-relation approach because of the difficulties of defining these operators in a monotonicity-aware setting; thus the validity relation approach to change structures appears to have been indendently invented in both Datafun and in Giarrusso's work.}
+%% %
+%% We use $\zero$ explicitly in the $\phi$ and $\delta$ translations of loops, $\eforvar x e f$, to supply the zero change for the elements $\dvar x$;
+%% %
+%% but since these elements are always of first-order type $\eqt A$, we only need to compute zero changes for first order values.
+%% %
+%% We implicitly use $\oplus$ in restricted form in the implementation of
+%% semi\naive\ fixed points, to combine the value $x_i$ of the
+%% $i$\textsuperscript{th} iteration with its corresponding change $dx_i$.
+%% %
+%% However, fixed points are always at first-order lattice types $\fixtLkern$, and because of the way our change types are constructed $\oplus$ at these types is simply $\vee$.
+%% %
+%% Even more subtly, we use $\ominus$ in the same place, to find the kick-off change between the first iteration $x_1 = f\<\bot$ and the zeroth $x_0 = \bot$; but, again because of the way these change types are constructed, $f\<\bot \ominus \bot$ is simply $f\<\bot$.
+%% %
+%% These simplifications are fortuitous, because the interaction of the fully general versions of these operators with monotonicity typing presents several difficulties.%
+%% %
+%% \footnote{For starters, in general $x \ominus y$ may not exist unless $x \ge y$ since in Datafun we only support increasing changes.
+%% %
+%%   For another example, it is difficult to define the ${\oplus}$ operator internally in a way that respects monotonicity typing at higher type.
+%% %
+%%   Recall that in Datafun all functions are monotone and $\Delta(A \to B) = \iso A \to \Delta A \to \Delta B$.
+%% %
+%%   The natural definition of $\oplus_{A \to B}$ would seem to be:
+
+%%   \begin{align*}
+%%     {\oplus}_{A \to B} &\isa (A \to B) \x (\iso A \to \Delta A \to \Delta B)
+%%     \to (A \to B)
+%%     \\
+%%     (f \oplus \df) &=
+%%     \efn{x} f \<\mvar x
+%%     \oplus \df \<{\color{red}\ebox{\mvar x}} \<(\zero \<{\mvar x})
+%%   \end{align*}
+
+%%   \noindent
+%%   However, this passes the \emph{monotone} variable $\mvar x$ to the function change $\df$, which takes it as a \emph{discrete} argument -- it does not type-check!
+%% %
+%%   Indeed, it is not hard to come up with functions $f, \df$ such that the result of $f \oplus \df$ as defined above is not a monotone function.
+
+%%   These difficulties might be overcome with further careful work; for example,
+%%   it should be possible to prove that $f \oplus \df$ is monotone so long as
+%%   $\df$ is a valid change to $f$.
+%% %
+%%   This would make $\oplus$, like \semifix, a ``trusted primitive'' whose implementation cannot be expressed in Datafun itself.
+%% }
 
 
 \subsubsection{The derivative translation}
@@ -444,7 +530,7 @@ defined by:
 \end{code}
 
 \noindent
-Any type $A$ may be endowed with a change structure by letting $\Delta A = \typename{update}~A$ and letting $\gvalid{A}{dx} x y$ be defined by:
+Any type $A$ may be endowed with a basic change structure by letting $\Delta A = \typename{update}~A$ and letting $\gvalid{A}{dx} x y$ be defined by:
 %
 \begin{mathpar}
   \infer*{}{\gvalid{A}{\ctor{old}} x x}
@@ -505,7 +591,7 @@ The general strategy is to rerun the original function if any of its arguments c
 \subsubsection{Caching intermediate results}
 \label{section-caching}
 
-\fixme{informal}{I have} claimed that dependency tracking can be seen as a special case of finite differencing.
+We have observed that dependency tracking's re-execution strategy can be seen as a special case of finite differencing.
 %
 However, one thing all dependency tracking systems do is store intermediate results between runs so they can reuse them if they don't need to be recomputed because their dependencies haven't changed.
 %
@@ -532,7 +618,7 @@ recall the derivatives of function application in each system:
 \end{align*}
 
 \noindent
-\fixme{informal}{As you can see}, these recalculate the original argument $e_2$ (or in the case of Datafun, its sped-up version $\phi e_2$).
+These expressions recalculate the original argument $e_2$ (or in the case of Datafun, its sped-up version $\phi e_2$).
 %
 %% On its own, recomputation is a losing strategy. Suppose our program is a
 %% pipeline-style computation: \todo{boxes-and-wires diagram for $f \then g
@@ -621,7 +707,7 @@ need exactly two pieces of state to produce this sequence: the previous iteratio
 %
 This is our only cache; unless $f$ is self-maintainable, any intermediate values it requires will be recomputed by $dx_{i + 1} = f' \<x_i \<dx_i$.
 %
-By a happy and surprising serendipity, in practice most step functions  are either self-maintainable or do not compute expensive intermediate results.
+Serendipitously, in practice most step functions  are either self-maintainable or do not compute expensive intermediate results.
 
 For instance, consider implementing transitive closure as the fixed point of either \name{consing} or \name{appending}.
 %
@@ -715,7 +801,7 @@ Tantalizingly, \citet{DBLP:conf/esop/Alvarez-Picallo19} explicitly use this noti
 %
 Might this monoidal approach work in Datafun as well?
 %
-At first it seems as though it might: many of Datafun's change structures, in particular those on semilattice types more generally, fit into this structure neatly: for instance, on finite set types $\tseteq{A}$ the change action is simply sets $\Delta\tseteq{A} = \tseteq{A}$ with ${+} = {\oplus} = {\cup}$ and $0 = \varnothing$.
+At first it seems as though it might: many of Datafun's change structures, in particular those on semilattice types, fit into this structure: for instance, on finite set types $\tseteq{A}$ the change action is simply sets $\Delta\tseteq{A} = \tseteq{A}$ with ${+} = {\oplus} = {\cup}$ and $0 = \varnothing$.
 
 However, points (2) and (3) above produce problems when considering the change structure for functions.
 %
