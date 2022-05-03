@@ -11,7 +11,7 @@
 
 We state these lemmas and theorems in dependency order, so that nothing is used
 before it has been proven. This is not always the order in which they are stated
-in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the appendix into sections according to your chapters the right thing to do?}
+in the text. \todolater{But maybe it should be?} \fixmelater{jeremy}{Is dividing the appendix into sections according to your chapters the right thing to do?}
 
 
 \section{Datafun}
@@ -134,7 +134,7 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
       By \cref{lemma-weakening-variables}.
 
     \item[Cases\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$%
-      \quad $\infer{\quad}{\J\bot\G {\eqt L}}$.]\
+      \quad $\infer{\quad}{\J\bot\G {L}}$.]\
 %
       Trivial.
 
@@ -147,7 +147,7 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 
         \infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}
 
-        \infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}
+        \infer{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2}\G {L}}
 
         \infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso B}}
 
@@ -171,8 +171,8 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 
         \infer{
           \J e \G {\tset A} \\
-          \J f {\G,\, \hd x A} {\eqt L}
-        }{\J {\eforvar x e f} \G {\eqt L}}
+          \J f {\G,\, \hd x A} {L}
+        }{\J {\eforvar x e f} \G {L}}
       \end{mathpar}
 
       Apply the inductive hypotheses, using \rn{cons} when necessary to show
@@ -580,19 +580,19 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 %%       directly, and the former by way of weakening: \todolater{finish proving
 %%         this case}
 
-%%     \item[Case\quad $\infer{\quad}{\J\bot\G {\eqt L}}$,\quad $\phi\bot = \bot$,
+%%     \item[Case\quad $\infer{\quad}{\J\bot\G {L}}$,\quad $\phi\bot = \bot$,
 %%       \quad $\delta\bot = \bot$.]\
 
-%%       Trivial, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
+%%       Trivial, noting only that $\Phi{L} = L$ by \cref{lemma-phi-eqt}
 %%       and $\Delta\Phi\eqt{L} = \eqt{L}$ by
 %%       \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
 %%       types as required.
 
-%%     \item[Case\quad $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}$,\quad
+%%     \item[Case\quad $\infer{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2}\G {L}}$,\quad
 %%       $\phi(e_1 \vee e_2) = \phi e_1 \vee \phi e_2$,\quad
 %%       $\delta(e_1 \vee e_2) = \delta e_1 \vee \delta e_2$.]\
 
-%%       Immediate, noting only that $\Phi\eqt{L} = \eqt L$ by \cref{lemma-phi-eqt}
+%%       Immediate, noting only that $\Phi\eqt{L} = L$ by \cref{lemma-phi-eqt}
 %%       and $\Delta\Phi\eqt{L} = \eqt{L}$ by
 %%       \cref{lemma-phi-eqt,lemma-delta-lattice} are both semilattice equality
 %%       types as required.
@@ -606,8 +606,8 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
 
 %%     \item[Case\quad $\infer{
 %%         \J e \G {\tset A} \\
-%%         \J f {\G,\, \hd x A} {\eqt L}
-%%       }{\J {\eforvar x e f} \G {\eqt L}}$.]\
+%%         \J f {\G,\, \hd x A} {L}
+%%       }{\J {\eforvar x e f} \G {L}}$.]\
 
 %%       Recall that
 %%       \begin{align*}
@@ -1230,14 +1230,14 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
     \noindent
     which is by definition equivalent to our inductive hypothesis.
 
-  \item[Case $\infer{ }{\J \bot \G {\eqt L}}$.]
-    Recall that $\phi \bot = \bot$ and $\delta \bot = \bot$ and $\den{\bot}\<\sigma = \bot$. Thus it STS $\weirdat{\eqt L} \bot \bot \bot \bot \bot$, which holds by \cref{lemma-semilattice-changes}.
+  \item[Case $\infer{ }{\J \bot \G {L}}$.]
+    Recall that $\phi \bot = \bot$ and $\delta \bot = \bot$ and $\den{\bot}\<\sigma = \bot$. Thus it STS $\weirdat{L} \bot \bot \bot \bot \bot$, which holds by \cref{lemma-semilattice-changes}.
 
-  \item[Case $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2} \G {\eqt L}}$.]
+  \item[Case $\infer{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2} \G {L}}$.]
     Recall that $\phi(e_1 \vee e_2) = \phi e_1 \vee \phi e_2$. We wish to show:
 
     \[
-    \weirdat{\eqt L}
+    \weirdat{L}
     {\den{\delta e_1 \vee \delta e_2} \<(\gamma,\dgamma)}
     {\den{\phi e_1 \vee \phi e_2}\<\gamma}
     {\den{e_1 \vee e_2}\<\rho}
@@ -1262,7 +1262,7 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
     Since $\den{f \vee g}\<\sigma = \den{f}\<\sigma \vee \den{g}\<\sigma$, what we wish to show is equivalent to:
 
     \[
-    \weirdat{\eqt L} {\dx_1 \vee \dx_2}
+    \weirdat{L} {\dx_1 \vee \dx_2}
     {x_1 \vee x_2} {a_1 \vee a_2}
     {x'_1 \vee x'_2} {a'_1 \vee a'_2}
     \]
@@ -1725,9 +1725,9 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
     %% CASE: FOR LOOPS
   \item[Case $\infer{
       \J e \Gamma {\tseteq A}\\
-      \J f {\Gamma, \hd x {\eqt A}} {\eqt L}
+      \J f {\Gamma, \hd x {\eqt A}} {L}
     }{
-      \J{\eforvar x e f} \Gamma {\eqt L}
+      \J{\eforvar x e f} \Gamma {L}
     }$.] Recall that:
 %
     \begin{align*}
@@ -1774,7 +1774,7 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
     $\weirdat{\Gamma, \hd x {\eqt A}}{\dgamma^x}{\gamma_1^x}{\rho_1^x}{\gamma_2^x}{\rho_2^x}$. From this and our inductive hypothesis for $f$, applying \cref{lemma-semilattice-changes}:
 %
     \begin{align}
-      &\weirdat{\eqt L}
+      &\weirdat{L}
       {\den{\delta f}\<\dgamma^x}
       {\den{\phi f}\<\gamma_1^x}
       {\den{f}\<\rho_1^x}
@@ -1816,7 +1816,7 @@ in the text. \todolater{But maybe it should be?} \fixme{jeremy}{Is dividing the 
     \end{align*}
 %
     Then what we wish to show is that
-    \(\weirdat{\eqt L}{dm}{m_1}{l_1}{m_2}{l_2}\), or equivalently by applying \cref{lemma-semilattice-changes}, that
+    \(\weirdat{L}{dm}{m_1}{l_1}{m_2}{l_2}\), or equivalently by applying \cref{lemma-semilattice-changes}, that
 %
     $m_1 = l_1$ and $m_2 = l_2 = m_1 \vee dm$.
 %

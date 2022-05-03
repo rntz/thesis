@@ -204,19 +204,15 @@ Datalog's semi\naive\ evaluation. Instead, it uses \emph{finite differencing.}
 
 \paragraph{Finite differencing}
 
-\fixme{jeremy}{there's a lot of old work on finite differencing that I don't discuss, eg. Paige \& Koenig (1982).}
+\fixmelater{jeremy}{there's a lot of old work on finite differencing that I don't discuss, eg. Paige \& Koenig (1982).}
 
 Dependency tracking approaches incrementalization with a yes-or-no mindset: did
 our dependencies change?
-%
-%% Suppose, however, that our inputs have changed \emph{only a little}.
 %
 Suppose instead we ask the question: \emph{how} did our dependencies change?
 %
 By analyzing this difference we may be able to compute the resulting difference
 to our output.
-%
-%% (In \cref{chapter-seminaive} we called these stratagems \emph{derivatives}.)
 %
 For constant-time operations over atomic data, like adding two 64-bit numbers,
 this may not be any faster than simple re-execution.
@@ -233,9 +229,9 @@ add the difference to the previous sum. This is $O(1)$, easily extended to
 handle new or removed elements, and doesn't require balancing or rebalancing a
 tree.
 
-However, this example works only because addition on the integers commutes and
-associates.\fixme{jeremy}{This requires more than commutativity in associativity, as you'll discover if you try to do the same trick for maximum.} This is what allows us to combine a sum $\sum_i x_i$ with a
-difference $dx$ to the $j$\textsuperscript{th} element and find the updated sum:
+However, this example works only because addition on the integers commutes and associates.\footnotemark\ This is what allows us to combine a sum $\sum_i x_i$ with a difference $dx$ to the $j$\textsuperscript{th} element and find the updated sum:
+
+\footnotetext{More precisely, associativity and commutativity suffice because our aggregation (summation) is the same as the operator that applies our differences (addition). If we were taking the maximum of the list instead of its sum, this strategy would not work, even though maximum itself commutes and associates.}
 
 \[
 dx + \sum_i x_i = \sum_i 

@@ -257,9 +257,18 @@ The proof of the fundamental theorem itself proceeds by induction on $\J e \Gamm
 The key case is the fixed point rule, whose proof is a syntactic version of
 the proof of the existence of least fixed points in the denotational semantics.
 %
-We therefore give the fixed point case here, and leave the other cases to the appendix.
+%% We therefore give the fixed point case here, and leave the other cases to the appendix.
 %
-To build up to this case, we need quite a few auxiliary definitions and lemmas.
+We give the proof of the fundamental theorem at the end of this section; to
+build up to it we must first develop several auxiliary definitions and lemmas.
+
+
+\subsection{Metatheory of the logical relation}
+
+\setlist[description]{
+  topsep=\parsep,
+  font={\mdseries\itshape},
+}
 
 \newcommand\goodvalue[1]{\ensuremath{\textsf{Ok}_{\textsf{V}}({#1})}}
 \newcommand\goodclosed[1]{\ensuremath{\textsf{Ok}_{\textsf{C}}({#1})}}
@@ -401,22 +410,6 @@ First, any partial preorder over a set $S$ gives rise to a subset $\setfor{x \in
 
 %% Finally, we need to establish that $\bot_L$ is a least element of the preorder $\goodclosed L$ at every semilattice type $L$:
 
-\begin{restatable}[Bottom is bottom]{lemma}{BottomIsBottom}
-  $\fa{a \in \goodclosed L} \oplrclosed{L}{\bot_L} a$.
-\end{restatable}
-
-\begin{proof}
-  By induction on $L$:
-
-  \begin{description}
-    \item[Case $\tunit$:] Follows trivially from $\bot_\tunit \stepsto \etuple{}$ and the relation at $\tunit$.
-
-    \item[Case $L_1 \times L_2$:] We have $a \evalsto \etuple{v_1, v_2}$ for good $v_i$ and by IH we have $\oplrclosed{L_i}{\bot_{L_i}}{v_i}$. Thus by closed term pairing $\oplrclosed{L_1 \times L_2}{\etuple{\bot_{L_1}, \bot_{L_2}}}{\etuple{v_1,v_2}}$ and since $\bot_{L_1 \times L_2} \stepsto \etuple{\bot_{L_1},\bot_{L_2}}$ by closure under stepping we have what we desire.
-
-    \item[Case $\tseteq A$:] Since $\bot_{\tseteq A} \stepsto \esetraw{}$ it suffices to show $\oplrvalue{\tseteq A}{\esetraw{}}{v}$ for $v \in \goodvalue{\tseteq A}$. This follows from \rn{lr~set}; the first premise is vacuous and the second follows from goodness of $v$.
-  \end{description}
-\end{proof}
-
 %% Finally, we need a lemma correlating various orderings on values of equality types. This will let us ``port'' the ascending chain condition from our semantics to our syntax.
 
 %% \begin{lemma}[Value ordering]\label{lemma-value-ordering}
@@ -505,60 +498,335 @@ First, any partial preorder over a set $S$ gives rise to a subset $\setfor{x \in
   %% \end{description}
 \end{proof}
 
-\noindent
-We now have the groundwork to prove the case of the fundamental theorem for $\efix e$:
+\begin{restatable}[Bottom is bottom]{lemma}{BottomIsBottom}
+  \label{lemma-bottom-is-bottom}
+  $\fa{a \in \goodclosed L} \oplrclosed{L}{\bot_L} a$.
+\end{restatable}
 
 \begin{proof}
-  Assume $\infer*{\J e \Gamma \isofixLtoL}{\J {\efix e} \Gamma {\fixt L}}$ and $\oplr\Gamma{\gamma_1}{\gamma_2}$. We wish to show that $\oplrclosed{\fixt L}{\efix[\fixt L] \gamma_1(e)}{\efix[\fixt L] \gamma_2(e)}$. By our inductive hypothesis we have $\oplrclosed{\isofixLtoL}{\gamma_1(e)}{\gamma_2(e)}$; applying this we have $v_1,v_2$ such that $\gamma_i(e) \evalsto \eboxraw{v_i}$ and $\oplrclosedequiv{\fixt L \to \fixt L}{v_1}{v_2}$. Thus for $i \in \{1,2\}$:
+  By induction on $L$:
 
-  \begin{align*}
-    \efix[\fixt L] \gamma_i(e)
+  \begin{description}
+    \item[Case $\tunit$:] Follows trivially from $\bot_\tunit \stepsto \etuple{}$ and the relation at $\tunit$.
+
+    \item[Case $L_1 \times L_2$:] We have $a \evalsto \etuple{v_1, v_2}$ for good $v_i$ and by IH we have $\oplrclosed{L_i}{\bot_{L_i}}{v_i}$. Thus by closed term pairing $\oplrclosed{L_1 \times L_2}{\etuple{\bot_{L_1}, \bot_{L_2}}}{\etuple{v_1,v_2}}$ and since $\bot_{L_1 \times L_2} \stepsto \etuple{\bot_{L_1},\bot_{L_2}}$ by closure under stepping we have what we desire.
+
+    \item[Case $\tseteq A$:] Since $\bot_{\tseteq A} \stepsto \esetraw{}$ it suffices to show $\oplrvalue{\tseteq A}{\esetraw{}}{v}$ for $v \in \goodvalue{\tseteq A}$. This follows from \rn{lr~set}; the first premise is vacuous and the second follows from goodness of $v$.
+  \end{description}
+\end{proof}
+
+\begin{restatable}[Join is join]{lemma}{JoinIsJoin}
+  \label{lemma-join-is-join}
+  \(a \vee_{L} b\) is the least upper bound of \(a,b \in \goodclosed{L}\) with respect to the logical relation. That is, \(\oplrclosed{L} a {a \vee_{L} b}\) and \(\oplrclosed{L} b {a \vee_{L} b}\) and for any \(c\) such that \(\oplrclosed{L} a c\) and \(\oplrclosed{L} b c\) we have \(\oplrclosed{L} {a \vee_{L} b} c\).
+\end{restatable}
+
+\begin{proof}
+  By closure under stepping it suffices to show the same for only good values.
+  For this it suffices to show that \(\den{\name{value}\<(v \vee_L u)} = \den{v} \vee \den{u}\) because by \cref{lemma-value-ordering} the semantic ordering and the logical relation ordering agree, so a least upper bound in one is a least upper bound in the other. We show this by induction on $L$:
+
+  \begin{description}
+    \item[Case $\tunit$:] Follows from \(\etuple{} \vee_L \etuple{} \evalsto \etuple{}\) and the trivial order on $\tunit$.
+
+    \item[Case $L \times M$:] Then we have
+
+      \begin{align*}
+        &\phantom{{}={}}
+        \den{\name{value}\<(\etuple{v_1, v_2} \vee_{L \times M} \etuple{u_1, u_2})}
+        \\
+        &= \den{\etuple{\name{value}\<(v_1 \vee_L u_1),\, \name{value}\<(v_2 \vee_M u_2)}}
+        && \text{calculation}
+        \\
+        &= (\den{\name{value} \<(v_1 \vee_L u_1)},\, \den{\name{value} \<(v_2 \vee_M u_2)})
+        && \text{calculation}
+        \\
+        &= (\den{v_1} \vee \den{u_1},\, \den{v_2} \vee \den{u_2})
+        && \text{inductive hypothesis}
+        \\
+        &= (\den{v_1}, \den{v_2}) \vee (\den{u_1}, \den{u_2})
+        && \text{join in product semilattice}
+        \\
+        &= \den{\etuple{v_1, v_2}} \vee \den{\etuple{u_1, u_2}}
+        && \text{calculation}
+      \end{align*}
+
+    \item[Case $\tseteq A$:] We have
+
+      \begin{align*}
+        \den{\name{value}\<(\esetraw{\vec v} \vee_{\tseteq A} \esetraw{\vec u})}
+        &= \den{\esetraw{\vec v, \vec u}}
+        && \text{calculation}
+        \\
+        &= \{\den{v_i}\}_i \cup \{\den{u_j}\}_j
+        && \text{calculation}
+        \\
+        &= \den{\esetraw{\vec v}} \vee \den{\esetraw{\vec u}}
+        && \text{calculation}
+      \end{align*}
+  \end{description}
+\end{proof}
+
+\begin{lemma}[Discrete contexts]
+  \label{lemma-discrete-contexts}
+  If \(\oplr{\stripcx\G \vdash A} e f\) and \(\oplr\G{\gamma_1}{\gamma_2}\) then \(\oplrclosedequiv A {\gamma_1(e)} {\gamma_2(f)}\).
+\end{lemma}
+
+\begin{proof}
+  From \(\oplr\G{\gamma_1}{\gamma_2}\) we have \(\opequiv{\stripcx\G}{\gamma_1}{\gamma_2}\) because \(\stripcx\G\) restricts to only discrete hypotheses \(\hd x A \in \G\) for which we know \(\oplrclosedequiv A {\gamma_1(\dvar x)}{\gamma_2(\dvar x)}\). Thus applying \(\oplr{\stripcx\G \vdash A} e f\) we have \(\oplrclosedequiv A {\gamma_1(e)} {\gamma_2(f)}\) as desired.
+\end{proof}
+
+
+\subsection{Proof of the fundamental theorem}
+
+We now have the groundwork to prove the fundamental theorem, starting with the crucial case of fixed point expressions $\efix e$.
+
+\TerminationFundamental*
+
+\begin{proof}
+  Unrolling the definition of the logical relation, we may assume $\oplr\Gamma{\gamma_1}{\gamma_2}$ and wish to show from this that $\oplrclosed A {\gamma_1(e)}{\gamma_2(e)}$. We do this by induction on $\J e \G A$.
+
+  \begin{description}[ topsep=\baselineskip, itemsep=\baselineskip, ]
+  \item[Case\quad $\infer{\J e \Gamma \isofixLtoL}{\J {\efix e} \Gamma {\fixt L}}$.]
+    We wish to show that
+
+    \[\oplrclosed{\fixt L}{\efix[\fixt L] \gamma_1(e)}{\efix[\fixt L] \gamma_2(e)}\]
+
+    \noindent
+    By our inductive hypothesis we have $\oplrclosed{\isofixLtoL}{\gamma_1(e)}{\gamma_2(e)}$; applying this we have $v_1,v_2$ such that $\gamma_i(e) \evalsto \eboxraw{v_i}$ and $\oplrclosedequiv{\fixt L \to \fixt L}{v_1}{v_2}$. Thus for $i \in \{1,2\}$:
+
+    \begin{align*}
+      \efix[\fixt L] \gamma_i(e)
+      \evalsto
+      \efix[\fixt L] \eboxraw{v_i}
+      \stepsto
+      \eiter[\fixt L]{v_i}{\bot_{\fixt L}}{v_i\<\bot_{\fixt L}}
+    \end{align*}
+
+    \noindent
+    Let $f_i(u) = \name{apply}\<(v_i, u)$ for brevity.
+    %
+    Then
+    applying \cref{lemma-closed-term-evaluation,lemma-closed-term-application} we have:
+
+    \begin{align*}
+      \eiter[\fixt L]{v_i}{\bot_{\fixt L}}{v_i\<\bot_{\fixt L}}
+      \evalsto
+      \eiter[\fixt L]{v_i}
+            {\name{value}\<\bot_{\fixt L}}
+            {f_i(\name{value}\<\bot_{\fixt L})}
+    \end{align*}
+
+    \noindent
+    By bottom-is-bottom we have $\oplrvalue{\fixt L}{\name{value}\<\bot_{\fixt L}}{f_i( \bot_{\fixt L})}$.
+    %
+    To understand the way evaluation will proceed from here, consider the generalized situation $\eiter[\fixt L]{v_i}{u}{f_i(u)}$ where $\oplrvalue{\fixt L}{u}{f_i(u)}$. This steps like so:
+
+    \[
+    \eiter[\fixt L]{v_i}{u}{f_i(u)}
     \evalsto
-    \efix[\fixt L] \eboxraw{v_i}
-    \stepsto
-    \eiter[\fixt L]{v_i}{\bot_{\fixt L}}{v_i\<\bot_{\fixt L}}
-  \end{align*}
+    \begin{cases}
+      u & \text{if}~ u = f_i(u) : \eqt A\\
+      \eiter[\eqt A]{v}{f_i(u)}{f_i(f_i(u))} & \text{otherwise}
+    \end{cases}
+    \]
+
+    \noindent
+    Starting with $u = \bot_{\fixt L}$, this calculates the sequence $u, f_i(u), f_i^2(u), f_i^3(u), \dots$ until the first $k$ such that $f_i^k(u) = f_i^{k+1}(u) : \fixt L$ and returns $f_i^k(u)$.
+    %
+    Note that $f_i : \goodclosed{\fixt L} \to \goodvalue{\fixt L}$ is monotone by \cref{lemma-closed-term-application} and therefore this sequence ascends in the logical relation: $\oplrvalue{\fixt L}{f_i^j(u)}{f_i^{j+1}(u)}$.
+    %
+    Also by monotonicity of $\name{apply}$, since $\oplrvalueequiv{\fixt L \to \fixt L}{v_1}{v_2}$ and $\oplrclosedequiv{\fixt L}{u}{u}$ by partial reflexivity, we have inductively that $\oplrvalueequiv{\fixt L}{f_1^j(u)}{f_2^j(u)}$.
+    %
+    By \cref{lemma-value-ordering} these also hold in the semantic order, so the denotations both ascend $\den{f_i^j(u)} \le \den{f_i^{j+1}(u)} : \den{\fixt L}$ and coincide $\den{f_1^j(u)} = \den{f_2^j(u)} : \den{\fixt L}$.
+    %
+    By the ascending chain condition on $\den{\fixt L}$ we know there must be some $k$ such that $\den{f_1^k(u)} = \den{f_1^{k+1}(u)}$; and as the sequences for $f_1,f_2$ coincide, $\den{f_1^k(u)} = \den{f_1^{k+1}(u)} = \den{f_2^k(u)} = \den{f_2^{k+1}(u)}$.
+    %
+    Applying \cref{lemma-value-ordering} again this shows $f_i^k(u) = f_i^{k+1}(u) : \fixt L$, and therefore $f_i^k(u)$ for the least such $k$ is the value we terminate with; since $\oplrvalueequiv{\fixt L}{f_1^k(u)}{f_2^k(u)}$, applying closure under stepping we are done.
+
+  \item[Cases\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$ \quad $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$.]
+    From \(\oplr\G{\gamma_1}{\gamma_2}\) we have \(\oplrclosed A {\gamma_1(x)}{\gamma_2(x)}\).
+
+  \item[Case\quad $\infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}$.]
+    What we wish to show is equivalent to:
+
+    \begin{align*}
+      &\phantom{{} \iff {}}
+      \oplrclosed{A \to B}{\gamma_1(\efn x e)}{\gamma_2(\efn x e)}
+      \\
+      &\iff \oplrclosed{A \to B}{\efn x \gamma_1(e)}{\efn x \gamma_2(e)}
+      \\
+      &\iff \oplr{(\hm x A) \vdash B}{\gamma_1(e)}{\gamma_2(e)}
+    \end{align*}
+
+    \noindent
+    For the last it suffices to assume \(\oplrclosed A {a_1} {a_2}\) and show the transitive square at the logical relation for \(B\):
+
+  \begin{center}
+    \tikzset{
+      no line/.style={draw=none,
+        commutative diagrams/every label/.append style={/tikz/auto=false}}}
+            {\begin{tikzcd}
+                \sub{e}{\gamma_1,\,  \subto{\mvar x}{a_1}} \precright \precdown
+                &
+                \sub{e}{\gamma_2,\, \subto{\mvar x}{a_1}} \precdown\\
+                \sub{e}{\gamma_1,\, \subto{\mvar x}{a_2}} \precright
+                &
+                \sub{e}{\gamma_2,\, \subto{\mvar x}{a_2}}
+            \end{tikzcd}}
+  \end{center}
 
   \noindent
-  Let $f_i(u) = \name{apply}\<(v_i, u)$ for brevity.
-%
-  Then
-  applying \cref{lemma-closed-term-evaluation,lemma-closed-term-application} we have:
+  By our IH we have \(\fa{\oplr{\G,\, \hm x A}{\sigma}{\sigma'}}\oplrclosed B {\sigma(e)}{\sigma'(e)}\), so it suffices to show the transitive square at the logical relation for \(\G, \hm x A\):
 
-  \begin{align*}
-    \eiter[\fixt L]{v_i}{\bot_{\fixt L}}{v_i\<\bot_{\fixt L}}
-    \evalsto
-    \eiter[\fixt L]{v_i}
-          {\name{value}\<\bot_{\fixt L}}
-          {f_i(\name{value}\<\bot_{\fixt L})}
-  \end{align*}
-
-  \noindent
-  By bottom-is-bottom we have $\oplrvalue{\fixt L}{\name{value}\<\bot_{\fixt L}}{f_i( \bot_{\fixt L})}$.
-%
-  To understand the way evaluation will proceed from here, consider the generalized situation $\eiter[\fixt L]{v_i}{u}{f_i(u)}$ where $\oplrvalue{\fixt L}{u}{f_i(u)}$. This steps like so:
-
-  \[
-  \eiter[\fixt L]{v_i}{u}{f_i(u)}
-  \evalsto
-  \begin{cases}
-    u & \text{if}~ u = f_i(u) : \eqt A\\
-    \eiter[\eqt A]{v}{f_i(u)}{f_i(f_i(u))} & \text{otherwise}
-  \end{cases}
-  \]
+  \begin{center}
+    \tikzset{
+      no line/.style={draw=none,
+        commutative diagrams/every label/.append style={/tikz/auto=false}}}
+            {\begin{tikzcd}
+                ({\gamma_1,\,  \subto{\mvar x}{a_1}}) \precright \precdown
+                &
+                ({\gamma_2,\, \subto{\mvar x}{a_1}}) \precdown\\
+                ({\gamma_1,\, \subto{\mvar x}{a_2}}) \precright
+                &
+                ({\gamma_2,\, \subto{\mvar x}{a_2}})
+            \end{tikzcd}}
+  \end{center}
 
   \noindent
-  In other words, starting from $u = \bot_{\fixt L}$, we calculate the sequence $u, f_i(u), f_i^2(u), f_i^3(u), ...$ until the first $k$ such that $f_i^k(u) = f_i^{k+1}(u) : \fixt L$ and return $f_i^k(u)$.
+  This holds by \(\oplr\G{\gamma_1}{\gamma_2}\) and \(\oplrclosed A {a_1}{a_2}\) and the definition of the logical relation for contexts.
+
+  \item[Case\quad $\infer{\J e \G {A \to B} \\ \J f \G A}{\J {e\<f} \G B}$.]
+    We wish to show \(\oplrclosed B {\gamma_1(e) \<\gamma_1(f)} {\gamma_2(e) \<\gamma_2(f)}\). By IH we have \(\oplrclosed{A \to B}{\gamma_1(e)}{\gamma_2(e)}\) and \(\oplrclosed A {\gamma_1(f)}{\gamma_2(f)}\).
 %
-  Note that $f_i : \goodclosed{\fixt L} \to \goodvalue{\fixt L}$ is monotone by \cref{lemma-closed-term-application} and therefore this sequence ascends in the logical relation: $\oplrvalue{\fixt L}{f_i^j(u)}{f_i^{j+1}(u)}$.
+    What we wish to show then follows from \cref{lemma-closed-term-application}.
+
+  \item[Case\quad $\infer{\quad}{\J {\etuple{}} \G \tunit}$.] Trivial.
+
+  \item[Case\quad
+    $\infer{(\J{e_i}\G{A_i})_i}{\J{\etuple{e_1,e_2}} \G {A_1 \x A_2}}$.] Apply our inductive hypotheses to get \(\gamma_i(e_j) \evalsto v_{i,j}\) with \(\oplrvalue{A_j}{v_{1,j}}{v_{2,j}}\); this shows \(\oplrvalue{A_1 \times A_2}{\etuple{v_{1,1}, v_{1,2}}}{\etuple{v_{2,1}, v_{2,2}}}\) and since \(\gamma_i(\etuple{e_1,e_2}) = \etuple{\gamma_i(e_1), \gamma_i(e_2)} \evalsto \etuple{v_{i,1}, \gamma_i(e_2)} \evalsto \etuple{v_{i,1}, v_{i,2}}\) by closure under stepping we are done.
+
+  \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$.] By IH we have \(\gamma_j(e) \evalsto \etuple{v_{1,j}, v_{2,j}}\) with \(\oplrvalue{A_i}{v_{i,1}}{v_{i,2}}\); thus we have \(\gamma_j(\pi_i\<e) = \pi_i\<\gamma_j(e) \evalsto \pi_i\<\etuple{v_{1,j}, v_{2,j}} \stepsto v_{i,j}\) and we are done.
+
+  \item[Case\quad $\infer{\J e \G A_i}{\J{\inj i e}\G{A_1 + A_2}}$.]
+    \XXX
+
+  \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
+      (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
+    }{
+      \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
+    }$.]
+    \XXX
+
+  \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$.]
+    By our IH and \cref{lemma-discrete-contexts} we have for some $v_i$ that \(\gamma_i(e) \evalsto v_i\) with \(\oplrvalueequiv A {v_1}{v_2}\). Thus we have \(\gamma_i(\eboxraw{e}) = \eboxraw{\gamma_i(e)} \evalsto \eboxraw{v_i}\) and by the definition of the LR for \(\iso A\) we are done.
+
+  \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
+    \J {\eletbox x e f} \G B}$.]
+    By our IH for $e$ and the logical relation for \(\iso A\) we have \(\gamma_i(e) \evalsto \eboxraw{v_i}\) for some \(\oplrvalueequiv A {v_1}{v_2}\). Then using this and applying our IH for $f$ we have \(\sub{f}{\gamma_i,\, \subto{\dvar x}{v_i}} \evalsto u_i\) for some \(\oplrvalue B {u_1}{u_2}\). Then we have:
+
+    \begin{align*}
+      \eletbox x {\gamma_i(e)} \gamma_i(f)
+      &\evalsto \eletbox x {\eboxraw{v_i}} \gamma_i(f)\\
+      &\stepsto \sub{f}{\gamma_i,\, \subto{\dvar x}{v_i}}\\
+      &\stepsto u_i
+    \end{align*}
+
+    \noindent
+    And by closure under stepping we are done.
+
+  \item[Case\quad $\infer{\quad}{\J\bot\G {L}}$.] By bottom is bottom and partial reflexivity.
+
+  \item[Case\quad $\infer{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2}\G {L}}$.] Applying our IH we have \(\oplrclosed L {\gamma_1(e_i)} {\gamma_2(e_i)}\); since \hyperref[lemma-join-is-join]{join is join} we know in particular that \(\vee\) is a monotone operator on good closed terms and therefore \(\oplrclosed L {\gamma_1(e_1) \vee \gamma_1(e_2)} {\gamma_2(e_1) \vee \gamma_2(e_2)}\) as desired.
+
+  \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
+    \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$.]
+
+    Applying \cref{lemma-discrete-contexts} we have by our IH that \(\oplrclosedequiv{\eqt A}{\gamma_1(e_i)}{\gamma_2(e_i)}\) and thus for some \(v_{i,j}\) we have \(\gamma_j(e_i) \evalsto v_{i,j}\) with \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\). Then by calculation we have \(\gamma_j(\esetraw{e_i}_i) \evalsto \esetraw{v_{i,j}}_i\) and applying \rn{lr~set} (using partial reflexivity for its second premise) we have \(\oplrvalue{\tseteq A}{\esetraw{v_{i,1}}_j}{\esetraw{v_{i,2}}_i}\) and by closure under stepping we are done.
+
+  \item[Case\quad $\infer{
+      \J e \G {\tseteq A} \\
+      \J f {\G,\, \hd x {\eqt A}} {L}
+    }{\J {\eforvar x e f} \G {L}}
+$.]
 %
-  Also by monotonicity of $\name{apply}$, since $\oplrvalueequiv{\fixt L \to \fixt L}{v_1}{v_2}$ and $\oplrclosedequiv{\fixt L}{u}{u}$ by partial reflexivity, we have inductively that $\oplrvalueequiv{\fixt L}{f_1^j(u)}{f_2^j(u)}$.
+    We wish to show that
+
+    \[
+    \oplrclosed{L}
+    {\eforvar x {\gamma_1(e)} {\gamma_1(f)}}
+    {\eforvar x {\gamma_2(e)} {\gamma_2(f)}}
+    \]
+
+    \noindent
+    By our IH we have $\oplrclosed{\tseteq A}{\gamma_1(e)}{\gamma_2(e)}$. Applying the definition of this, let $v_{i,j} \in \goodvalue{\eqt A}$ and $a_{i,j}$ be defined by:
+
+    \begin{align*}
+      \{v_{i,j}\}_j &= \name{value}\<(\gamma_i(e))
+      &
+      a_{i,j} &= \sub{f}{\gamma_i, \subto{\dvar x}{v_{i,j}}}
+    \end{align*}
+
+    \noindent
+    From the logical relation we have $\faex j k \oplrvalue{\eqt A}{v_{1,j}}{v_{2,k}}$. From this, our IH for $f$, and the definition of the logical relation for contexts we have $\faex i j \oplrclosed{\eqt A}{a_{1,i}}{a_{2,j}}$.
 %
-  By \cref{lemma-value-ordering} these also hold in the semantic order, so the denotations both ascend $\den{f_i^j(u)} \le \den{f_i^{j+1}(u)} : \den{\fixt L}$ and coincide $\den{f_1^j(u)} = \den{f_2^j(u)} : \den{\fixt L}$.
+    Observe that:
+
+    \begin{align*}
+      \eforvar x {\gamma_i(e)} {\gamma_i(f)}
+      &\evalsto 
+      \eforvar x {\{v_{i,j}\}_j} {\gamma_i(f)}
+      \\
+      &\evalsto
+      \bot_{L}
+      \vee_{L} \sub f {\gamma_i, \subto{\dvar x}{v_{i,1}}}
+      \vee_{L} \sub f {\gamma_i, \subto{\dvar x}{v_{i,2}}}
+      \vee_{L} \dots
+      \\
+      &=
+      \bot_{L} \vee_{L} a_{i,1} \vee_{L} a_{i,2} \vee_{L} \dots
+    \end{align*}
+
+    \noindent
+    Then by closure under stepping we wish to show:
+
+    \[
+    \oplrclosed{L}
+    {(\bot_{L} \vee_{L} a_{1,1} \vee_{L} a_{1,2} \vee_{L} \dots)}
+    {(\bot_{L} \vee_{L} a_{2,1} \vee_{L} a_{2,2} \vee_{L} \dots)}
+    \]
+
+    \noindent
+    Applying \hyperref[lemma-bottom-is-bottom]{bottom is bottom} and \hyperref[lemma-join-is-join]{join is join}, this follows from $\faex i j \oplrclosed{\eqt A}{a_{1,i}}{a_{2,j}}$, because then transitively
+
+    \[
+    a_{1,i}
+    \prec
+    a_{2,i}
+    \prec
+    (\bot_{L} \vee_{L} a_{2,1} \vee_{L} a_{2,2} \vee_{L} \dots)
+    : L
+    \]
+
+    \noindent
+    Showing that the latter is an upper bound of each \(a_{1,i}\) and since \((\bot_{L} \vee_{L} a_{1,1} \vee_{L} a_{1,2} \vee_{L} \dots)\) is least among such upper bounds, we have what we desire.
+
+
+  \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
+        {\J {\eeq{e_1}{e_2}} \G \tbool}$.]
+    By \cref{lemma-discrete-contexts} for some $v_{i,j}$ we have \(\gamma_j(e_i) \evalsto v_{i,j}\) such that \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\).
 %
-  By the ascending chain condition on $\den{\fixt L}$ we know there must be some $k$ such that $\den{f_1^k(u)} = \den{f_1^{k+1}(u)}$; and as the sequences for $f_1,f_2$ coincide, $\den{f_1^k(u)} = \den{f_1^{k+1}(u)} = \den{f_2^k(u)} = \den{f_2^{k+1}(u)}$.
+    It suffices to show that \(\oplrclosedequiv\tbool{(\eeqraw{v_{1,1}}{v_{2,1}})}{(\eeqraw{v_{1,2}}{v_{2,2}})}\).
 %
-  Applying \cref{lemma-value-ordering} again this shows $f_i^k(u) = f_i^{k+1}(u) : \fixt L$, and therefore $f_i^k(u)$ for the least such $k$ is the value we terminate with; since $\oplrvalueequiv{\fixt L}{f_1^k(u)}{f_2^k(u)}$, applying closure under stepping we are done.
+Since pretty plainly \(\oplrvalue\tbool\etrue\etrue\) and \(\oplrvalue\tbool\efalse\efalse\) (by the same reasoning as in the case for \(\esetsub{e_i} i\)), and since \(\eeqraw{v_{1,j}}{v_{2,j}}\) steps to either \(\etrue\) or \(\efalse\) depending on whether \(v_{1,j} = v_{2,j} : \eqt A\), it suffices to show that \(v_{1,1} = v_{2,1} : \eqt A \iff v_{1,2} = v_{2,2} : \eqt A\). By \cref{lemma-value-ordering} we know that this decidable ordering test coincides with equivalence in the logical relation, thus this holds because \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\).
+
+  \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
+    \J {\eisempty e} \G {\tunit + \tunit}}$.]
+    \XXX
+
+  \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
+        B}}$.]
+    \XXX
+
+  \end{description}
 \end{proof}
 
 \fixme{jeremy,achim}{prove the other cases of the fundamental theorem}

@@ -99,14 +99,16 @@
 \newcommand\fixmelater[2]{%\PackageWarning{FIXME}{#1: #2}%
 {\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#2}]}}}
 
-%% Quieten todos
+%% Quieten todos, no warnings except from fixmes
 \renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 
-%% %% disable todos
-%% \renewcommand\todolater[1]{}
-%% \renewcommand\footnotelater[1]{}
-%% \renewcommand\todomaybe[2]{}
-%% \renewcommand\warntodo[2]{\PackageWarning{todo}{#1}}
+%% Disable todos
+\renewcommand\todolater[1]{}
+\renewcommand\footnotelater[1]{}
+\renewcommand\todomaybe[2]{}
+\renewcommand\warntodo[2]{}
+\renewcommand\XXX{\PackageWarning{XXX}{XXX}{\todocolor\ensuretext{\bfseries\sffamily[{XXX}]}}}
+\renewcommand\fixmelater[2]{}
 
 
 %% ---------- Environments ----------

@@ -14,6 +14,8 @@
 
   \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$.]
 
+  \item[Case\quad $\infer{\J e \G A_i}{\J{\inj i e}\G{A_1 + A_2}}$.]
+
   \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
       (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
     }{
@@ -25,17 +27,17 @@
   \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
     \J {\eletbox x e f} \G B}$.]
 
-  \item[Case\quad $\infer{\quad}{\J\bot\G {\eqt L}}$.]
+  \item[Case\quad $\infer{\quad}{\J\bot\G {L}}$.]
 
-  \item[Case\quad $\infer{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}$.]
+  \item[Case\quad $\infer{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2}\G {L}}$.]
 
   \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
     \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$.]
 
   \item[Case\quad $\infer{
-      \J e \G {\tset A} \\
-      \J f {\G,\, \hd x A} {\eqt L}
-    }{\J {\eforvar x e f} \G {\eqt L}}$.]
+      \J e \G {\tseteq A} \\
+      \J f {\G,\, \hd x {\eqt A}} {L}
+    }{\J {\eforvar x e f} \G {L}}$.]
 
   \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
         {\J {\eeq{e_1}{e_2}} \G \tbool}$.]
@@ -48,8 +50,5 @@
 
   \item[Case\quad $\infer{\J e \G \isofixLtoL}{%
     \J{\efix e} \G {\fixt L}}$.]
-
-  %% \item[Case\quad $\infer{\J e {\stripcx{\G},\, \hm x {\fixt L}} {\fixt L}}{%
-  %%   \J{\efixis x e} \G {\fixt L}}$.]
 
 \end{description}

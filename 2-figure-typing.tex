@@ -56,17 +56,17 @@
     \infer[\rn{letbox}]{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
       \J {\eletbox x e f} \G B}
 
-    \infer[\rn{bot}]{\quad}{\J\bot\G {\eqt L}}
+    \infer[\rn{bot}]{\quad}{\J\bot\G {L}}
 
-    \infer[\rn{join}]{(\J{e_i} \G {\eqt L})_i}{\J{e_1 \vee e_2}\G {\eqt L}}
+    \infer[\rn{join}]{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2}\G {L}}
 
     \infer[\rn{set}]{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
       \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}
 
     \infer[\rn{for}]{
-      \J e \G {\tset A} \\
-      \J f {\G,\, \hd x A} {\eqt L}
-    }{\J {\eforvar x e f} \G {\eqt L}}
+      \J e \G {\tseteq A} \\
+      \J f {\G,\, \hd x {\eqt A}} {L}
+    }{\J {\eforvar x e f} \G {L}}
 
     \infer[\rn{eq}]{(\J {e_i} {\stripcx\G} {\eqt A})_i}
           {\J {\eeq{e_1}{e_2}} \G \tbool}
