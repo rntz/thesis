@@ -1,4 +1,4 @@
-\chapter{Implementation and Optimization}
+\chapter{Implementation and Efficiency}
 
 \newcommand\deep{\mathvar{dp}}
 
@@ -30,16 +30,17 @@ and demonstrate how to optimize them away.
 %
 We implement a Datafun-to-Haskell compiler, and use it to demonstrate
 experimentally that semi\naive\ evaluation can produce asymptotic performance
-improvements when combined with these optimizations (\cref{section-implementation}).
+improvements when combined with these optimizations
+(\cref{section-implementation}).
 
-Second, we observe that even with these optimizations, there remain
-cases where we do asymptotically more work than necessary, not because of
-inefficiencies in the transformed program, but because of the imprecision of our
-derivatives. This results in overly large changes between iterations which
-accumulate across fixed point iterations. We implement a
-simple solution based on change minimization and test it experimentally.
+Second, we observe that even with these optimizations, there remain cases where
+we do asymptotically more work than necessary, not because of inefficiencies in
+the transformed program, but because of the imprecision of our derivatives
+\cref{section-change-minimization}. This results in overly large changes between
+iterations which accumulate across fixed point iterations. We implement a simple
+solution based on change minimization and test it experimentally.
 
-\todo{add forward references to sections}
+\todolater{check forward references remain correct}
 
 \input{4.1-seminaive-trans}
 \input{4.2-implementation-optimization}

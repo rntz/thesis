@@ -96,6 +96,9 @@
 \newcommand\fixme[2]{\PackageWarning{FIXME}{#1: #2}%
 {\fixmecolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 
+\newcommand\fixmelater[2]{%\PackageWarning{FIXME}{#1: #2}%
+{\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#2}]}}}
+
 %% Quieten todos
 \renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 

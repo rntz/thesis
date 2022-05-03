@@ -305,21 +305,6 @@ $\gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}$, that is, a change between the
 original function applied to its original argument $f_1\<x_1$ and the updated
 function applied to an updated argument $f_2\<x_2$.
 
-%% \begin{eqnarray*}
-%% &\gvalid{A \to B}{df}{f_1}{f_2}\\
-%% &\text{if and only if}\\
-%% &\fa{x_1,x_2 : A, dx : \Delta A}
-%% \gvalid{A}{dx}{x_1}{x_2} \implies \gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}
-%% \end{eqnarray*}
-
-%% \begin{eqnarray*}
-%% \gvalid{A \to B}{df}{f_1}{f_2} \iff \fa{\gvalid{A}{dx}{x_1}{x_2}}
-%% \gvalid{B}{df\<x_1\<dx}{f_1\<x_1}{f_2\<x_2}
-%% \end{eqnarray*}
-
-%% And, returning to the subject of higher-order computation,
-%% \todo{talk about the change structure on functions?}
-
 Notation aside, basic change structures coincide with the change
 structures introduced in \cref{section-change-structures}, save that in Datafun
 $V$ and $\Delta V$ are not sets but posets.
@@ -336,11 +321,6 @@ Because these fixed points are monotone, in Datafun we need only handle \emph{in
 %
 The price of this simplification is that we must pay careful attention to the interaction of incrementalization with Datafun's monotonicity-checking modal type system in our program transformation and its proof of correctness.
 
-%% Consequently, in Datafun we need only handle increasing change, an apparent
-%% simplification -- the price of which is needing to account for the interaction
-%% between incrementalization and Datafun's monotonicity-checking modal type
-%% system.
-
 This is also the cause of our second divergence: Giarrusso goes on to define a
 more elaborate version of change structure (definition 13.1.1) which
 additionally possesses operators $\oplus$ for updating a base point by a change,
@@ -350,7 +330,8 @@ change from a point to itself, and $\circledcirc$ for composing two changes.
 Because of the limited way Datafun uses incremental computation, we only need
 some of these operators, and only at certain types.%
 %
-\footnote{In the original presentation by \citet{incremental} these operators
+\footnotemark
+\footnotetext{In the original presentation by \citet{incremental} these operators
   (except $\circledcirc$, which is not present) are taken as primary rather than
   as additions to a basic change structure, and the validity relation
   $\gvalid{V}{dx}{x_1}{x_2}$ is reduced to a set of valid changes $\Delta_V

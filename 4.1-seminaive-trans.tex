@@ -71,6 +71,13 @@ skip such no-op translations. Now for the $\delta$ translation:
 \end{flail}
 
 \noindent
+Thus:
+
+\begin{equation}\label{equation-delta-for-equal}
+  \delta(\efor {\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}) = \bot
+\end{equation}
+
+\noindent
 The core insight here is that neither $\eeq \yone \ytwo$ nor
 $\eset{\etuple{\dvar x, \dvar z}}$ can change. Propagating this information --
 for example, rewriting $(\efor {...} \bot)$ to $\bot$ -- can simplify
@@ -87,17 +94,28 @@ translation is again a no-op, and the $\delta$ translation is:
   \\
   &= \hphantom{{}\cup} \efor{\etuple{\ytwo, \dvar z} \in \dt}
   \phi(\efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
-  && {\text{apply $\delta$ and omit unused \kw{let}s}}
+  && \text{apply $\delta$ and omit unused \kw{let}s}
   \\
   &\hphantom{{}=} \cup \efor{\etuple{\ytwo, \dvar z} \in t \cup \dt}
   \delta(\efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
   \\
   &= \efor{\etuple{\ytwo, \dvar z} \in \dt}
   \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
-  && \text{apply prior work, propagate }\bot
+  && \text{use \cref{equation-delta-for-equal}, propagate }\bot
 \end{flail}
 
-\noindent Tackling the outermost \kw{for} loop:
+\noindent Thus:
+
+\begin{equation}\label{equation-delta-for-for}
+  \delta(\efor{\etuple{\ytwo, \dvar z} \in t}
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}})
+  =
+  \efor{\etuple{\ytwo, \dvar z} \in \dt}
+  \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
+\end{equation}
+
+\noindent
+Tackling the outermost \kw{for} loop:
 
 \begin{flail}
   &\mathrel{\hphantom{=}}
@@ -118,7 +136,7 @@ translation is again a no-op, and the $\delta$ translation is:
   &= \efor{\etuple{\dvar x, \yone} \in \ds}
   \efor{\etuple{\ytwo, \dvar z} \in t}
   \efor{\eeq \yone \ytwo} \eset{\etuple{\dvar x, \dvar z}}
-  && \text{apply prior work}
+  && \text{use \cref{equation-delta-for-for}}
   \\
   &\cup
   \efor{\etuple{\dvar x, \yone} \in s \cup \ds}
@@ -130,10 +148,16 @@ translation is again a no-op, and the $\delta$ translation is:
 \end{flail}
 
 \noindent
-This, then, is the derivative $\delta(s \relcomp t)$ of relation composition.
-With a bit of rewriting, this is equivalent to $(\ds \relcomp t) \cup (s \relcomp
-\dt) \cup (\ds \relcomp \dt)$, which is perhaps the derivative a human would
-give.
+This, then, is the derivative of relation composition:
+
+\begin{equation}\label{equation-delta-relation-composition}
+  \delta(s \relcomp t) = (\ds \relcomp t) \cup ((s \cup \ds) \relcomp \dt)
+\end{equation}
+
+\noindent
+With a bit of rewriting, this is equivalent to $(\ds \relcomp t) \cup (s
+\relcomp \dt) \cup (\ds \relcomp \dt)$, which is perhaps the derivative a human
+would give.
 
 Let's use this to figure out $\phi(\name{trans}\<\eboxvar{e})$. Working inside
 out, we start with the derivative of the loop body, $\delta(\dvar e \cup (\dvar
@@ -146,20 +170,25 @@ e \relcomp p))$:
   &= \delta\dvar e
   \cup (\delta\dvar e \relcomp p)
   \cup ((\dvar e \cup \delta\dvar e) \relcomp \deep)
+  && \text{use \cref{equation-delta-relation-composition}}
   \\
   &= \bot \cup (\bot \relcomp p) \cup ((\dvar e \cup \bot) \relcomp \deep)
-  && \delta\dvar e ~\text{is a zero change; insert }\bot
+  && \delta\dvar e ~\text{is a zero change; replace with }\bot
   \\
   &= \dvar e \relcomp \deep
   && \text{propagate}~\bot
 \end{flail}
 
 \noindent
-The penultimate step requires a new optimization.
+Note that the penultimate step here requires a new optimization: by definition $\delta\dvar e = \dvar{de}$, but since $\dvar e$ is discrete we know $\dvar{de}$ is a zero change, so we may safely replace it by $\bot$, as it will have the same effect.
 %
-By definition $\delta\dvar e = \dvar{de}$, but since $\dvar e$ is discrete we
-know $\dvar{de}$ is a zero change, so we may safely replace it by $\bot$.
+Thus:
 
+\begin{equation}\label{equation-delta-loop-body}
+  \delta({\dvar e \cup (\dvar e \relcomp p)}) = \dvar e \relcomp \deep
+\end{equation}
+
+\noindent
 Putting everything together, we have:
 
 \begin{flail}
@@ -176,9 +205,7 @@ Putting everything together, we have:
   &= \semifix\<\bigeboxtuple{
       ({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}),\
       ({\fnof{\pboxvar p} \fnof{\deep} \dvar e \relcomp \deep})}
-  && \text{previous work}
-  \\
-  & \text{\fixme{jeremy}{need a cross reference/explanation of “previous work”}}
+  && \text{use \cref{equation-delta-loop-body}}
 \end{flail}
 
 \noindent

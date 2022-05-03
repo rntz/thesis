@@ -1,14 +1,68 @@
 \begin{figure}
   \centering\small\sffamily
 
+  %% \begin{tikzpicture}[baseline=(current bounding box.center)]
+  %%   \begin{axis}[
+  %%       title={\scshape transitive closure without change minimization},
+  %%       xlabel={Number of nodes},
+  %%       ylabel={Time (seconds)},
+  %%       height=132.88pt, width=213pt, % golden
+  %%       %height=140pt, width=210pt, % 2:3
+  %%       legend entries={line graph,line graph with self-loops},
+  %%       legend cell align=left,
+  %%       legend pos = north west,
+  %%       legend style={
+  %%         font=\footnotesize,
+  %%         draw=none,
+  %%         nodes={inner sep=3pt,}
+  %%       },
+  %%       xtick = {120, 160, ..., 320},
+  %%       ytick = {0, 60, ..., 260},
+  %%     ]
+  %%     \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop.dat};
+  %%     \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+  %%   \end{axis}
+  %% \end{tikzpicture}
+
+%%   \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%     \begin{axis}[
+%%         title={\scshape transitive closure with change minimization},
+%%         xlabel={Number of nodes},
+%%         ylabel={Time (seconds)},
+%%         height=132.88pt, width=213pt, % golden
+%%         %height=140pt, width=210pt, % 2:3
+%%         legend entries={{with loops},{loopless}},
+%%         legend cell align=left,
+%%         legend pos = north west,
+%%         legend style={
+%%           font=\footnotesize,
+%%           draw=none,
+%%           nodes={inner sep=3pt,}
+%%         },
+%%         xtick = {120, 160, ..., 320},
+%%         %ytick = {0, 40, ..., 150},
+%%       ]
+%%       %% \addplot [color=red,mark=square*] table [x=n,y=normal] {trans-loop.dat};
+%%       \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
+%%       \addplot [color=blue,mark=*] table [x=n,y=minimized] {trans-loop.dat};
+%% %      \addplot [color=green,mark=x] table [x=n,y=normal] {trans-loop.dat};
+%%     \end{axis}
+%%   \end{tikzpicture}
+
   \begin{tikzpicture}[baseline=(current bounding box.center)]
-    \begin{axis}[
-        title={\scshape transitive closure without change minimization},
+    \begin{semilogyaxis}[
+        %% title={\scshape transitive closure},
         xlabel={Number of nodes},
-        ylabel={Time (seconds)},
-        height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt, % 2:3
-        legend entries={line graph,line graph with self-loops},
+        ylabel={Slowdown factor},
+        width=400pt, height=500pt, % 4:5
+        %% width=333.3pt, height=500pt, % 2:3
+        width=309pt, height=500pt, % golden
+        legend entries={
+          {not minimizing, loopy},
+          {minimizing, loopy},
+          {minimizing, loopless},
+          {not minimizing, loopless},
+        },
         legend cell align=left,
         legend pos = north west,
         legend style={
@@ -16,66 +70,103 @@
           draw=none,
           nodes={inner sep=3pt,}
         },
-        xtick = {120, 160, ..., 320},
-        ytick = {0, 60, ..., 260},
+        grid=major,
+        ymajorgrids, log basis y=2,
+        xtick={120, 160, ..., 480},
+        ytickten={0,1,2,3,4,5,6,7,8,9,10,11},
       ]
-      \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop.dat};
-      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
-    \end{axis}
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-slowdown.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop-slowdown.dat};
+      \addplot [color=blue,mark=*] table [x=n,y=minimized] {trans-loop-slowdown.dat};
+      \addplot [color=green,mark=x] table [x=n,y=normal] {trans-loop-slowdown.dat};
+    \end{semilogyaxis}
   \end{tikzpicture}
 
+  %% \begin{tikzpicture}[baseline=(current bounding box.center)]
+  %%   \begin{loglogaxis}[
+  %%       %% title={\scshape transitive closure},
+  %%       xlabel={Number of nodes},
+  %%       ylabel={Time (seconds)},
+  %%       height=247pt, width=400pt,
+  %%       height=300pt,
+  %%       legend entries={
+  %%         {not minimizing, loopy},
+  %%         {minimizing, loopy},
+  %%         {minimizing, loopless},
+  %%         {not minimizing, loopless},
+  %%       },
+  %%       legend cell align=left,
+  %%       legend pos = north west,
+  %%       legend style={
+  %%         font=\footnotesize,
+  %%         draw=none,
+  %%         nodes={inner sep=3pt,}
+  %%       },
+  %%       grid=major,
+  %%       log basis x=2, xtick distance=2^(0.5),
+  %%       %% log basis y=2, yminorticks=true,
+  %%       %% xtickten={7, 7.5, ..., 9},
+  %%       %% xtick = {120, 160, ..., 320},
+  %%       %% ytick = {0, 60, ..., 260},
+  %%     ]
+  %%     \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-extended.dat};
+  %%     \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop-extended.dat};
+  %%     \addplot [color=blue,mark=*] table [x=n,y=minimized] {trans-loop-extended.dat};
+  %%     \addplot [color=green,mark=x] table [x=n,y=normal] {trans-loop-extended.dat};
+  %%   \end{loglogaxis}
+  %% \end{tikzpicture}
+
+  \scriptsize
+
+  \vspace{\baselineskip}
   
-  \begin{tikzpicture}[baseline=(current bounding box.center)]
-    \begin{axis}[
-        title={\scshape transitive closure with self-loops},
-        xlabel={Number of nodes},
-        ylabel={Time (seconds)},
-        height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt, % 2:3
-        legend entries={semi\naive,{semi\naive\ minimizing}},
-        legend entries={w/o minimizing changes, minimizing changes},
-        legend cell align=left,
-        legend pos = north west,
-        legend style={
-          font=\footnotesize,
-          draw=none,
-          nodes={inner sep=3pt,}
-        },
-        xtick = {120, 160, ..., 320},
-        ytick = {0, 60, ..., 260},
-      ]
-      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
-      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
-%      \addplot [color=ForestGreen,mark=star] table [x=n,y=normal] {trans-loop.dat};
-    \end{axis}
-  \end{tikzpicture}
-  \hfil
-  \begin{tikzpicture}[baseline=(current bounding box.center)]
-    \begin{axis}[
-        title={\scshape transitive closure with change minimization},
-        xlabel={Number of nodes},
-        ylabel={Time (seconds)},
-        height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt, % 2:3
-        legend entries={{with loops},{loopless}},
-        legend cell align=left,
-        legend pos = north west,
-        legend style={
-          font=\footnotesize,
-          draw=none,
-          nodes={inner sep=3pt,}
-        },
-        xtick = {120, 160, ..., 320},
-        %ytick = {0, 40, ..., 150},
-      ]
-      %% \addplot [color=red,mark=square*] table [x=n,y=normal] {trans-loop.dat};
-      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
-      \addplot [color=blue,mark=*] table [x=n,y=minimized] {trans-loop.dat};
-%      \addplot [color=green,mark=x] table [x=n,y=normal] {trans-loop.dat};
-    \end{axis}
-  \end{tikzpicture}
+  %% We color rows according to corresponding lines in the graphs.
+  \colorlet{darkred}{red!65!black}
+  \colorlet{darkblue}{blue!65!black}
+  \colorlet{darkgreen}{green!50!black}
 
-%  \caption{Semi\naive\ transitive closure on a loopy line graph with and without change minimization}
+  {\AlegreyaSansTLF\lsstyle
+  \setlength\tabcolsep{3.75pt}
+  \begin{tabu}{@{}l*{17}{r}@{}}
+    & \multicolumn{9}{c}{\scshape graph size vs seconds to evaluate}\\
+    & 120 & 140 & 160 & 180 & 200 & 220 & 240 & 260 & 280
+    \\\midrule
+    \rowfont{\color{darkred}}
+    \scshape not minimizing, loopy & 3.310 & 5.909 & 9.881 & 16.032 & 23.860 & 35.866 & 55.938 & 81.851 & 117.876
+    \\
+    \rowfont{\color{black}}
+    \scshape minimizing, loopy
+    & 0.048 & 0.079 & 0.113 & 0.162 & 0.213 & 0.288 & 0.359 & 0.449 & 0.562
+    \\
+    \rowfont{\color{darkblue}}
+    \scshape minimizing, loopless
+    & 0.027 & 0.040 & 0.060 & 0.082 & 0.115 & 0.149 & 0.191 & 0.242 & 0.294
+    \\
+    \rowfont{\color{darkgreen}}
+    \scshape not minimizing, loopless & 0.024 & 0.036 & 0.055 & 0.077 & 0.104 & 0.135 & 0.177 & 0.222 & 0.274
+    \\
+    \\
+    %% & \multicolumn{9}{c}{\scshape graph size}\\
+    %% & \multicolumn{9}{c}{\scshape number of nodes}\\
+    & 300 & 320 & 340 & 360 & 380 & 400 & 440 & 480
+    \\\midrule
+    \rowfont{\color{darkred}}
+    \scshape not minimizing, loopy
+    & 171.830 & 251.552 & 349.668 & 461.830 & 598.083 & 745.815 & 1148.258 & 1683.929
+    \\
+    \rowfont{\color{black}}
+    \scshape minimizing, loopy
+    & 0.684 & 0.816 & 0.959 & 1.153 & 1.367 & 1.545 & 2.061 & 2.664
+    \\
+    \rowfont{\color{darkblue}}
+    \scshape minimizing, loopless
+    & 0.355 & 0.428 & 0.504 & 0.595 & 0.704 & 0.809 & 1.058 & 1.370
+    \\
+    \rowfont{\color{darkgreen}}
+    \scshape not minimizing, loopless
+    & 0.332 & 0.401 & 0.490 & 0.558 & 0.672 & 0.779 & 1.006 & 1.306
+  \end{tabu}}
+
   \caption{The effect of self-loops and change minimization on semi\naive\ transitive closure on a line graph}
   \label{figure-change-minimization-graph}
 \end{figure}

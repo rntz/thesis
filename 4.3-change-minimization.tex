@@ -2,8 +2,19 @@
 
 \label{section-change-minimization}
 
-\begin{figure}
-  \centering\small\sffamily
+Before we jump to the conclusion that we have captured the essence of seminaive evaluation, let's try a small twist on our running example: let's add self-loops to every node in our linear graph, producing the graph $(V,E)$ with $V = \{1, ..., n\}$ and $E = \setfor{(i,j)}{j \in \{i,i+1\}}$.
+%
+This makes our reachability relation reflexive, changing the transitive closure from the less-than relation $\setfor{(i,j)}{1 \le i < j \le n}$ to the less-than-or-equal-to relation $\setfor{(i,j)}{1 \le i \le j \le n}$.
+%
+This produces exactly $n$ new paths, namely $\setfor{(i,i)}{1 \le i \le n}$; since we already had quadratically many paths, ideally this won't affect our performance much.
+
+%% Unfortunately, as we can see in \cref{figure-loops-kill-us}, 
+Unfortunately,
+adding these self-loops produces an asymptotic slowdown, even with our semi\naive\ transformation and all optimizations applied (\`a la \emph{semi\naive\ optimized}):
+
+\nopagebreak[3]
+\begin{center}
+  \small\sffamily
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{axis}[
         %% title={\scshape transitive closure without change minimization},
@@ -27,24 +38,17 @@
       \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
     \end{axis}
   \end{tikzpicture}
-  \caption{Semi\naive\ transitive closure on a linear graph with and without loops}
-  \label{figure-loops-kill-us}
-\end{figure}
+  %% \caption{Semi\naive\ transitive closure on a linear graph with and without loops}
+  %% \label{figure-loops-kill-us}
+\end{center}
 
-Before we jump to the conclusion that we have captured the essence of seminaive evaluation, let's try a small twist on our running example: let's add self-loops to every node in our linear graph, producing the graph $(V,E)$ with $V = \{1, ..., n\}$ and $E = \setfor{(i,j)}{j \in \{i,i+1\}}$.
-%
-This makes our reachability relation reflexive, changing the transitive closure from the less-than relation $\setfor{(i,j)}{1 \le i < j \le n}$ to the less-than-or-equal-to relation $\setfor{(i,j)}{1 \le i \le j \le n}$.
-%
-This produces exactly $n$ new paths, namely $\setfor{(i,i)}{1 \le i \le n}$; since we already had quadratically many paths, ideally this won't affect our performance much.
-
-Unfortunately, as we can see in \cref{figure-loops-kill-us}, adding these self-loops produces an asymptotic slowdown, even with our semi\naive\ transformation and all optimizations applied (\`a la \emph{semi\naive\ optimized}).
-%
+\noindent
 What's going on here?
 %
 Recall from \cref{equation-semifix-trans-recurrence}, \cpageref{equation-semifix-trans-recurrence}, that the semi\naive\ iteration strategy Datafun uses for transitive closure is:
 
 \begin{align*}
-  x_0 &= \bot
+  x_0 &= \emptyset
   &
   x_{i+1} &= x_i \cup \dx_i
   \\
@@ -70,7 +74,7 @@ Taking a logical perspective, at step $i$, \naive\ evaluation finds all derivati
 %
 This is a clear improvement, but sometimes the same fact is derivable at multiple depths -- as in our loopy linear graph, where derivation depth is path length.
 %
-We only care about \emph{deducibility,} so for our purposes anything after the first (shallowest) derivation is redundant.
+We care only about \emph{whether} a fact has a derivation, so anything after the first (shallowest) derivation is redundant.
 
 From an incremental computation perspective, this is a problem of unnecessarily large changes.
 %
@@ -90,29 +94,80 @@ This is exploited in, among others, the derivative rule $\delta(e_1 \cup e_2) = 
 %
 If $\delta e_1$ and $e_2$ intersect (or $\delta e_2$ and $e_1$ intersect), this generates an overly large change.
 
-Returning to the logical perspective, discovering something twice because it has two different derivations seems in general unavoidable; in graph reachability, for instance, how can we know two different paths lead to the same destination except by following them?
+A more precise derivative would be $\delta(e_1 \cup e_2) = (\delta e_1 \setminus e_2) \cup (\delta e_2 \setminus e_1)$.
 %
-This benign rediscovery is not, however, what causes the asymptotic slowdown in \cref{figure-change-minimization-graph}.
+However, this does more work, not less: it does not avoid computing ``old'' elements $x \in e_1 \cup e_2$, but rather discards them after-the-fact.
 %
-The problem is that rediscovering a reachable pair $(x,y)$ at iteration $i$ causes redundant work in all subsequent iterations, because it is included in $\dx_i$ (treated as ``new'') and used to compute $\dx_{i+1}$.
+Indeed, discovering something twice because it has two different derivations seems in general unavoidable; in graph reachability, for instance, how can we know two different paths lead to the same destination except by following them?
+
+So if computing these overly large changes actually takes \emph{less} work, where does the asymptotic slowdown originate?
 %
-Consequently, $\dx_{i+1}$ will include re-derivations of anything $(x,y)$ makes ``newly'' deducible; and so on in $\dx_{i+2}, \dx_{i+3},$ \emph{etc.}
-
-In this way, overly large changes accumulate across iterations.
+It happens because rediscovering a reachable pair $(x,y)$ at iteration $i$ causes redundant work in all subsequent iterations, because it is included in $\dx_i$ (treated as ``new'') and used to compute $\dx_{i+1} = f'\<x_i\<\dx_i$.
 %
-While we may not be able to avoid all rediscovery, we can avoid these snowballing changes (and consequent asymptotic wastefulness) by \emph{minimizing our changes}.
+Consequently, $\dx_{i+1}$ will include re-derivations of anything the presence of $(x,y)$ makes ``newly'' deducible; and so on in $\dx_{i+2}, \dx_{i+3},$ \emph{etc.}
 
-\todo{these changes aren't really a problem until they accumulate; discovering the same thing twice is fine, discovering it n times is a problem. and it's not clear how in general to avoid discovering something twice except by diffing, i.e. discovering it twice and then being like ``oops, we already knew this''. it's not the re-discovery but then DOING WORK based on the re-discovery that's the problem.}
+While we may not be able to avoid all rediscovery, we can avoid these unnecessary changes accumulating across iterations -- and the resulting asymptotic wastefulness -- by \emph{minimizing our changes.}
+%
+Let's change our strategy for finding the ``new'' frontier $\dx_{i+1}$ to remove anything that's already in $x_{i+1}$:
 
-At this point the obvious approach would be to alter our semi\naive\ transformation to generate precise changes. \XXX
-
-\XXX
+\begin{align*}
+  \textit{for transitive closure}
+  \qquad
+  \dx_{i+1} &= (\name{edges} \relcomp \dx_i) \setminus x_{i+1}
+  \\
+  \textit{or more generally}
+  \qquad
+  \dx_{i+1} &= (f' \<x_i \<\dx_i) \setminus x_{i+1}
+\end{align*}
 
 \noindent
-%% Thus in computing $\dx_{i+1}$ we recompute everything in $\dx_i$; exactly what we were trying to avoid with semi\naive\ evaluation!
-%
-We cannot \emph{entirely} avoid additional work here: the addition of reflexive edges adds new paths between nodes, and we cannot in general avoid rediscovering pairs $(x,z)$ when there are multiple paths that connect them.
-%
-However, we can avoid these unnecessary changes accumulating, which is far more important: computing every path twice is a constant factor slowdown; computing every path $n$ times is an asymptotic one.
+This ensures each $\dx_i$ is minimal, disjoint from $x_i$ and thus all prior $\dx_j$ for $j < i$. (We don't need to do anything to minimize $\dx_0$ since $x_0 = \bot$.) This fixes our asymptotic slowdown:
+
+\nopagebreak[3]
+\begin{center}
+  \small\sffamily
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{axis}[
+        %% title={\scshape transitive closure with self-loops},
+        xlabel={Number of nodes},
+        ylabel={Time (seconds)},
+        height=132.88pt, width=213pt, % golden
+        %height=140pt, width=210pt, % 2:3
+        legend entries={semi\naive,{semi\naive\ minimizing}},
+        legend entries={w/o minimizing changes, minimizing changes},
+        legend cell align=left,
+        legend pos = north west,
+        legend style={
+          font=\footnotesize,
+          draw=none,
+          nodes={inner sep=3pt,}
+        },
+        xtick = {120, 160, ..., 320},
+        ytick = {0, 60, ..., 260},
+      ]
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
+      %      \addplot [color=ForestGreen,mark=star] table [x=n,y=normal] {trans-loop.dat};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
 
 \input{4-figure-change-minimization-graph}
+
+\noindent
+If we examine all four options -- with and without self-loops, with and without minimizing $\dx_i$ -- and compare their slowdown factors, taking a loopless graph without change minimization as our baseline (\cref{figure-change-minimization-graph}), we find that a loopy graph without change minimization is asymptotically slower than everything else; on a loopless graph, minimizing changes has fairly low constant overhead compared to not minimizing; and when minimizing changes, moving from a loopless to a loopy graph causes a roughly factor-of-2 slowdown.
+
+
+\subsection{Implementing change minimization for Datafun}
+
+The preceding graphs were obtained by implementing this revised change-minimizing semi\naive\ evaluation strategy in our Datafun compiler and runtime.
+%
+To do this, we have to generalize from the finite set semilattice to all Datafun's semilattice types.
+%
+To do this, we must in turn ask why our revised strategy is correct.
+%
+\fixme{NOW}{finish section on implementing change minimization}
+%
+This is because $\changesat{\tseteq A}{\dx}{x}{y}$ implies $\changesat{\tseteq A}{\dx \setminus x} x y$, so since $\changes{f'\<x_i\<\dx_i}{x_{i+1}}{x_{i+2}}$ the same is true of $(f'\<x_i\<\dx_i) \setminus x_{i+1}$.
+%
+Of course, to apply this strategy in Datafun we need to generalize set difference to semilattices other than finite sets, giving a ``change minimization'' operator $(\setminus_L) : \Delta L \to L \to \Delta L$.

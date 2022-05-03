@@ -1,7 +1,7 @@
 \section{Implementation and optimization}
 \label{section-implementation}
 
-\todolater{expand and edit this section}
+\fixmelater{jeremy}{expand chapter 4}
 
 We have implemented a compiler from a fragment of Datafun (omitting sum types) to Haskell, available at \url{https://github.com/rntz/datafun/tree/popl20/v4-fastfix}.
 %
@@ -46,14 +46,16 @@ gains we claim, we benchmark two example Datafun programs:
 
 \item Finding all matches of the regular expression \texttt{/a*/} in the string
   $\texttt{a}^n$, using the regex combinators from
-  \cref{section-regex-combinators}. \fixme{jeremy}{remind me of a use of
-    higher-orderness in the regex example.} Finding all matches for
-  \texttt{/a*/} amounts to finding the reflexive, transitive closure of the
-  matches of \texttt{/a/}, and on $\texttt{a}^n$ these form a linear graph. Thus
-  it is a close computational analogue of our first example, written in a
-  higher-order style. We chose this example to test whether our extension of
-  semi\naive\ evaluation properly handles Datafun's distinctive feature:
-  higher-order programming.
+  \cref{section-regex-combinators}. Finding all matches for \texttt{/a*/}
+  amounts to finding the reflexive, transitive closure of the matches of
+  \texttt{/a/}, and on $\texttt{a}^n$ these form a linear graph.
+%
+  Thus this is a close analogue of our first example, but written in a
+  higher-order style, as we represent regular expressions as functions and
+  regex constructors as function combinators.
+%
+  We chose this example to test whether our extension of semi\naive\ evaluation
+  properly handles Datafun's distinctive feature: higher-order programming.
 \end{enumerate}
 
 \noindent
