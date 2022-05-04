@@ -480,11 +480,12 @@ B)$; to pattern-match on this, we need \prim{split} to distribute the $\iso$.
 
 This handles the first two cases, $(\inj i {\pboxvar x},\, \inj i \mvar\dx
 \caseto \delta f_i)_i$. Since we know the tags on $\phi e$ and $\delta e$ agree,
-these are the only possible cases. However, to appease our type-checker \fixme{jeremy}{Why do you need dead code in order to appease your type checker? What is this type checker? Can't it have impossibility tests, like Idris?} we must
-handle the \emph{impossible} case that $i \ne j$. This case is dead code: it
-needs to typecheck, but is otherwise irrelevant. It suffices to generate a dummy
-change $\dx : \DP A_i$ from our base point $\hd{x}{\Phi A_i}$. We do this using
-a simple function $\dummy_A : A \to \D A$ (\cref{figure-dummy}).
+these are the only possible cases. However, since the output of our translation
+is Datafun code, to appease the type-checker we must handle the
+\emph{impossible} case that $i \ne j$. This case is dead code: it needs to
+typecheck, but is otherwise irrelevant. It suffices to generate a dummy change
+$\dx : \DP A_i$ from our base point $\hd{x}{\Phi A_i}$. We do this using a
+simple function $\dummy_A : A \to \D A$ (\cref{figure-dummy}).
 
 \input{3-figure-dummy}
 
