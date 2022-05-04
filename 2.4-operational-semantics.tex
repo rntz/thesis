@@ -500,6 +500,7 @@ First, any partial preorder over a set $S$ gives rise to a subset $\setfor{x \in
 
 \begin{restatable}[Bottom is bottom]{lemma}{BottomIsBottom}
   \label{lemma-bottom-is-bottom}
+  \(\bot_L \in \goodclosed L\) and 
   $\fa{a \in \goodclosed L} \oplrclosed{L}{\bot_L} a$.
 \end{restatable}
 
@@ -643,7 +644,7 @@ We now have the groundwork to prove the fundamental theorem, starting with the c
     Applying \cref{lemma-value-ordering} again this shows $f_i^k(u) = f_i^{k+1}(u) : \fixt L$, and therefore $f_i^k(u)$ for the least such $k$ is the value we terminate with; since $\oplrvalueequiv{\fixt L}{f_1^k(u)}{f_2^k(u)}$, applying closure under stepping we are done.
 
   \item[Cases\quad $\infer{\hm x A \in \G}{\J {\mvar x} \G A}$ \quad $\infer{\hd x A \in \G}{\J {\dvar x} \G A}$.]
-    From \(\oplr\G{\gamma_1}{\gamma_2}\) we have \(\oplrclosed A {\gamma_1(x)}{\gamma_2(x)}\).
+    Follows directly from \(\oplr\G{\gamma_1}{\gamma_2}\).
 
   \item[Case\quad $\infer{\J e {\G,\,\hm x A} B}{\J {\efn x e} \G {A \to B}}$.]
     What we wish to show is equivalent to:
@@ -707,14 +708,26 @@ We now have the groundwork to prove the fundamental theorem, starting with the c
   \item[Case\quad $\infer{\J e \G {A_1 \x A_2}}{\J{\pi_i\<e}\G{A_i}}$.] By IH we have \(\gamma_j(e) \evalsto \etuple{v_{1,j}, v_{2,j}}\) with \(\oplrvalue{A_i}{v_{i,1}}{v_{i,2}}\); thus we have \(\gamma_j(\pi_i\<e) = \pi_i\<\gamma_j(e) \evalsto \pi_i\<\etuple{v_{1,j}, v_{2,j}} \stepsto v_{i,j}\) and we are done.
 
   \item[Case\quad $\infer{\J e \G A_i}{\J{\inj i e}\G{A_1 + A_2}}$.]
-    \XXX
+    By IH we have \(\gamma_j(e) \evalsto v_j\) for some \(\oplrvalue{A_i}{v_1}{v_2}\). Applying the definition of the LR we have \(\oplrvalue{A_1 + A_2}{\inj i v_1}{\inj i v_2}\) and since \(\gamma_j(\inj i e) = \inj i \gamma_j(e) \evalsto \inj i v_j\) by closure under stepping we are done.
 
   \item[Case\quad $\infer{\J e \G {A_1 + A_2} \\
       (\J {f_i} {\G,\, \hm{x_i}{A_i}} {B})_i
     }{
       \J {\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i} \G B
     }$.]
-    \XXX
+    By IH for $e$ and the LR for \(A_1 + A_2\) we have \(\gamma_j(e) \evalsto \inj i v_j\) for some $i$ and \(\oplrvalue{A_i}{v_1}{v_2}\). Using this and our IH for $f_i$ we have \(\oplrclosed B {\sub{f_i}{\gamma_1,\, \subto{\mvar x_i}{v_1}}}{\sub{f_i}{\gamma_2,\, \subto{\mvar x_i}{v_2}}}\). Then by calculation:
+
+    \begin{align*}
+      \gamma_j(\emcase{e} (\inj i {\mvar x_i} \caseto f_i)_i)
+      &\evalsto
+      {\emcase {\inj i v_j} (\inj i {\mvar x_i} \caseto \gamma_j(f_i))_i}
+      \\
+      &\stepsto
+      \sub{f_i}{\gamma_j,\, \subto{\mvar x_i}{v_j}}
+    \end{align*}
+
+    \noindent
+    and by closure under stepping we are done.
 
   \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$.]
     By our IH and \cref{lemma-discrete-contexts} we have for some $v_i$ that \(\gamma_i(e) \evalsto v_i\) with \(\oplrvalueequiv A {v_1}{v_2}\). Thus we have \(\gamma_i(\eboxraw{e}) = \eboxraw{\gamma_i(e)} \evalsto \eboxraw{v_i}\) and by the definition of the LR for \(\iso A\) we are done.
@@ -733,7 +746,7 @@ We now have the groundwork to prove the fundamental theorem, starting with the c
     \noindent
     And by closure under stepping we are done.
 
-  \item[Case\quad $\infer{\quad}{\J\bot\G {L}}$.] By bottom is bottom and partial reflexivity.
+  \item[Case\quad $\infer{\quad}{\J\bot\G {L}}$.] By bottom is bottom.
 
   \item[Case\quad $\infer{(\J{e_i} \G {L})_i}{\J{e_1 \vee e_2}\G {L}}$.] Applying our IH we have \(\oplrclosed L {\gamma_1(e_i)} {\gamma_2(e_i)}\); since \hyperref[lemma-join-is-join]{join is join} we know in particular that \(\vee\) is a monotone operator on good closed terms and therefore \(\oplrclosed L {\gamma_1(e_1) \vee \gamma_1(e_2)} {\gamma_2(e_1) \vee \gamma_2(e_2)}\) as desired.
 
@@ -820,15 +833,12 @@ Since pretty plainly \(\oplrvalue\tbool\etrue\etrue\) and \(\oplrvalue\tbool\efa
 
   \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
     \J {\eisempty e} \G {\tunit + \tunit}}$.]
-    \XXX
+    Applying our IH and \cref{lemma-discrete-contexts} we have \(\oplrclosedequiv{\tset \tunit}{\gamma_1(e)}{\gamma_2(e)}\).
+%
+    This means we have some \(\vec v, \vec u\) such that \(\gamma_1(e) \evalsto \esetraw{\vec v}\) and \(\gamma_2(e) \evalsto \esetraw{\vec v}\) and \(\oplrvalueequiv{\tset\tunit}{\esetraw{\vec v}}{\esetraw{\vec u}}\). This implies that \(\vec v\) is empty if and only if \(\vec u\) is empty. In one case \(\eisempty {\gamma_i(e)} \evalsto \inj 1 \etuple{}\); in the other, \(\inj 2 \etuple{}\). So by closure under stepping it suffices to show \(\inj j \etuple{} \in \goodvalue{\tunit + \tunit}\) for \(j \in \{1,2\}\); which it is by unrolling the definitions involved.
 
-  \item[Case\quad $\infer{\J e \G {\iso{(A + B)}}}{\J{\esplit e} \G {\iso A + \iso
-        B}}$.]
-    \XXX
+  \item[Case\quad $\infer{\J e \G {\iso{(A_1 + A_2)}}}{\J{\esplit e} \G {\iso A_1 + \iso A_2}}$.]
+    By our IH and the LR for \(\iso(A_1 + A_2)\) we have for some \(i \in \{1,2\}\) and \(\oplrvalueequiv{A_i}{v_1}{v_2}\) that \(\gamma_j(e) \evalsto \eboxraw{\inj i v_j}\). Then \(\gamma_j(\esplit e) \evalsto \esplit \eboxraw{\inj i v_j} \stepsto \inj i \eboxraw{v_j}\), and using the definition of the LR we have \(\oplrvalue{\iso A_1 + \iso A_2}{\inj i \eboxraw{v_1}}{\inj i \eboxraw{v_2}}\) and by closure under stepping we are done.
 
   \end{description}
 \end{proof}
-
-\fixme{jeremy,achim}{prove the other cases of the fundamental theorem}
-
-%% \fixme{achim}{actually explain how this follows, it is non-obvious. Where does the ACC come into the argument?}

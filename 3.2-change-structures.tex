@@ -266,7 +266,7 @@ A reader who does not care for a categorical view and is prepared to jump ``in t
 
 Recall that the structures we needed to interpret Datafun into the category \Poset\ in \cref{section-poset-structures,section-semantics} were: products, sums, exponentials, a discreteness comonad to interpret \iso, sets and semilattice objects, equality-test morphisms, and fixed points.
 %
-In \ChangePoset\ we will cover products, sums, exponentials, the discreteness comonad, and fixed points in detail, as they are the most significant for understanding the broad structure of our approach; the remainder we will discuss briefly. \todo{Is this still accurate?}
+In \ChangePoset\ we will cover products, sums, exponentials, the discreteness comonad, and fixed points, as they are the most significant for understanding the broad structure of our approach. \fixme{now}{Is this still accurate?} \todomaybe{cover other structures briefly}{}
 
 
 \subsection{Products}
@@ -767,7 +767,7 @@ This takes advantage of the fact that the change to a set is another set, and we
 \end{align*}
 
 \noindent
-This satisfies functionality ($\vee$ is a function), soundness (if $x \le y$ then $x \vee y = y$, for instance), and zero-changes ($x \vee \bot = x$).
+This satisfies functionality ($\vee$ is a function), soundness ($x \le x \vee y$), and zero-changes ($x \vee \bot = x$).
 %
 Let's call this the \emph{semilattice change structure} on $L$.
 %
@@ -835,160 +835,162 @@ Instead, we deliberately limit the scope of our approach to avoid the need to in
 
 \newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
 
-More concretely, since we only consider increasing changes and $\iso A$ is ordered discretely, $x \le y : \iso A \iff x = y$, the only possible ``change'' is to stay the same. We can thus extend the discreteness comonad $\iso$ on $\Poset$ to a comonad $\isotriv$ on $\ChangePoset$ by letting the space of changes be trivial:
+More concretely, since we only consider increasing changes and $\iso A$ is ordered discretely, $x \le y : \iso A \iff x = y$, the only possible ``change'' is to stay the same. We can thus extend the discreteness comonad $\iso$ on $\Poset$ to a comonad $\iso$ on $\ChangePoset$ by letting the space of changes be trivial:
 
 \begin{align*}
-  V \isotriv A &= \iso V A
+  V \iso A &= \iso V A
   &
-  \Delta\isotriv A &= \terminalobject
+  \Delta\iso A &= \terminalobject
   &
   %% \fa{a : VA} 
-  \changesat{\isotriv A}{()} a a
+  \changesat{\iso A}{()} a a
 \end{align*}
 
 \noindent
 This straightforwardly satisfies functionality, soundness, and zero changes. Moreover, it inherits the monoidal comonad structure of $\iso$ from \Poset. Fixing some map $f : A \to B$, the derivatives of functorial action, extraction, duplication, and distribution are mostly trivial:
 
 \begin{align*}
-  \isotriv(f) &\isa \isotriv A \to \isotriv B
+  \iso(f) &\isa \iso A \to \iso B
   &
-  \isotriv(f)' \<x \<\tuple{} &= \tuple{}
+  \iso(f)' \<x \<\tuple{} &= \tuple{}
   \\
-  \varepsilon_A &\isa \isotriv A \to A
+  \varepsilon_A &\isa \iso A \to A
   &
   \varepsilon_A' \<x \<\tuple{} &= \zero_x
   \\
-  \delta_A &\isa \isotriv A \to \isotriv\isotriv A
+  \delta_A &\isa \iso A \to \iso\iso A
   &
   \delta_A' \<x \<\tuple{} &= \tuple{}
   \\
-  \isox &\isa \textstyle\prod_i \isotriv A_i \to \isotriv\prod_i A_i
+  \isox &\isa \textstyle\prod_i \iso A_i \to \iso\prod_i A_i
   &
   {\isox}' \<x \<\dx &= \tuple{}
   \\
-  \isosum &\isa \textstyle\isotriv\sum_i A_i \to \sum_i \isotriv A_i
+  \isosum &\isa \textstyle\iso\sum_i A_i \to \sum_i \iso A_i
   &
   {\isosum}' \<(\inj i x) \<\tuple{} &= \inj i ()
 \end{align*}
 
 \noindent
-Finally, observe that any monotone map $f : V\isotriv A \to VB$ is trivially differentiable by letting $f' \<x \<() = \zero_{(f\<x)}$, confirming our intuition that differentiable maps $\isotriv A \to B$ should coincide with not-necessarily-differentiable maps $A \to B$.
+Finally, observe that any monotone map $f : V\iso A \to VB$ is trivially differentiable by letting $f' \<x \<() = \zero_{(f\<x)}$, confirming our intuition that differentiable maps $\iso A \to B$ should coincide with not-necessarily-differentiable maps $A \to B$.
 
-\fixme{now}{finish deltaposet exposition: cut the below and say that this doesn't quite match our translation (because?)}
-
-Perhaps surprisingly, $\isotriv$ is not the only monoidal comonad in \ChangePoset\ capable of playing the role of $\iso$ in Datafun's semantics.
-%
-Nor is it the one which most closely resembles the static transformation on Datafun code which we will introduce in \cref{section-phi-delta}.
-%
-This is primarily an accident of history: the static transformation was discovered first and first presented in \cref{seminaive-datafun}; this categorical account came later, and a revised transformation based on $\isotriv$ might be a fruitful avenue for future work.
-
-\newcommand\isodelta{\ensuremath{\iso_{\Delta}}}
-
-However, there is at least one reason to consider an alternate interpretation of $\iso$.
-%
-The semi\naive\ approach to computing a functions fixed point requires a derivative of it; using this to define the morphism $\morph{fix} : \isotriv(L \expto L) \to L$ relies on the fact that $V(L \expto L)$ contains only differentiable maps.
-%
-Exploiting this differentiability constructively, as in a code transformation, would require us to annotate \emph{every} function with a derivative, even if it is not used in a fixed point.\footnotemark\
-%
-To avoid this, we can instead exploit the fact that the argument to \morph{fix} is boxed, and creatively reinterpret $\iso A$ to consist of values equipped with zero changes.
-%
-Then $\iso(L \expto L)$ will consist of functions equipped with zero changes; and as we've already seen, a zero change to a function is a derivative of it.
-%
-So instead of $\isotriv$, consider the comonad $\isodelta$ defined by:
-
-\footnotetext{It must be admitted that this reason is rather weak, because a perfectly standard dead code elimination pass would suffice to remove these unnecessary derivatives. Another way of looking at our definition of $\isodelta$ is as a type-directed ``unused derivative elimination pass''.}
-
-\begin{align*}
-  V\isodelta A
-  &= \text{pairs $(x,\dx)$ such that $\changesat{A}{\dx} x x$, ordered discretely}
-  \\
-  \Delta\isodelta A &= \terminalobject
-  \\
-  R_{\isodelta A} &= \{((), (x,\dx), (x,\dx))
-  \mathrel{\text{such that}}
-  (x,\dx) \in V\isodelta A\}
-  %% \changesat{\isodelta A}{()}{(x,\dx)}{(x,\dx)}
-\end{align*}
-
-\noindent
-Functionality, soundness, and zero changes hold straightforwardly. Fixing some $f : A \to B : \ChangePoset$, the comonad structure is as follows:
-
-\todo{we can't use $f'$ in the definition of $\isodelta(f)$ because it's not unique. and we need functoriality to preserve id \& associativity. AAAAAAAAAARGH.}
-
-\begin{align*}
-  \isodelta(f) &\isa \isodelta A \to \isodelta B
-  &
-  \isodelta(f) \<(x, \dx) &= \color{Red}(f\<x, f'\<x\<\dx)
-  \XXX
-  &
-  \isodelta(f)' \<(x, \dx) \<() &= ()
-  \\
-  \varepsilon_A &\isa \isodelta A \to A
-  &
-  \varepsilon_A \<(x, \dx) &= x
-  &
-  \varepsilon_A' \<(x, \dx) \<() &= \dx
-  \\
-  \delta_A &\isa \isodelta A \to \isodelta\isodelta A
-  &
-  \delta_A \<(x, \dx) &= ((x, \dx), ())
-  &
-  \delta_A' \<(x, \dx) \<() &= ()
-\end{align*}
-
-\noindent
-The correctness of these derivatives is mostly trivial, except that $\varepsilon_A' \<(x,\dx)$ uses the fact that $\dx$ is a zero change to $x$.
-%
-The comonad laws require that $\varepsilon \compose \delta = \isodelta(\varepsilon) \compose \delta = \id$ and that $\delta \compose \delta = \isodelta(\delta) \compose \delta$; these are easily verified by direct computation.
-%
-Distribution over products and sums is as follows:
-
-\begin{align*}
-  \isox &\isa \prod_i\isodelta A_i \to \isodelta\prod_i A_i
-  &
-  \isosum &\isa \isodelta\sum_i A_i \to \sum_i\isodelta A_i
-  \\
-  \isox \<((x_i,\dx_i))_i &= ((x_i)_i, (\dx_i)_i)
-  &
-  \isosum \<(\inj i x, \inj i \dx) &= \inj i (x,\dx)
-  \\
-  {\isox}' \<\pwild \<\pwild &= ()
-  &
-  {\isosum}' \<(\inj i x, \pwild) \<() &= \inj i ()
-\end{align*}
-
-\noindent
-Finally, we can put all this machinery to work in the definition of $\morph{fix}_L : \isodelta(L \expto L) \rightarrow L$ for any semilattice change structure $L$ via semi\naive\ iteration:
-
-\begin{align*}
-  \morph{fix}_L\<(f,f') &= \semifix\<(f,f')
-  &
-  \morph{fix}_L'\<(f,f')\<() &= \bot
-\end{align*}
-
-\noindent
-Since the input is not allowed to change, the derivative $\morph{fix}'$ needs to compute a zero change; fortunately, $\bot$ is a universal zero change for any semilattice change structure.
-%
-Observe that this definition does not use the fact that the exponential object $V(L \expto L)$ contains only differentiable functions; instead it uses the explicitly-supplied zero change $f'$.
-
-There is, however, a problem with $\isodelta$. Our end-goal is a source-to-source translation on Datafun code, but the poset $V\isodelta A$ is not definable in Datafun, because Datafun is simply typed: assuming we have types corresponding to $VA$ and $\D A$, Datafun can express $\iso(VA \times \D A)$, but cannot ``filter this down'' to only pairs $(x,\dx)$ such that $\changes{\dx} x x$.
-%
-Our solution is to approximate: our translation produces a type corresponding to $\iso(VA \times \D A)$, and we deploy a logical relations argument to fix up the difference.\footnotemark
-
-\footnotetext{Unfortunately, this approximation cannot be made to work in \ChangePoset\ itself; if we let $V\isodelta A = VA \x \D A$ directly, then $\varepsilon_A' \<(x, \dx) = $}
-
-We will dive into the definition of this translation in the next section, but first, there are a few remaining structures necessary to interpret Datafun into \ChangePoset.
-
-\todo{explain (5) that this isn't a simply-typed thing anymore, alas, but (6) we can't let $V\isodelta A = VA \x \D A$ because extract must use zero and then we disobey comonad laws}
+\todo{exposition linking to the next section; maybe say this doesn't quite match our translation (because we need to concretely find derivative of functions?). or, adjust exposition in the intro to the next section to talk about ChangePoset.}
 
 
-\subsection{Remaining structures}
+%% Perhaps surprisingly, $\isotriv$ is not the only monoidal comonad in \ChangePoset\ capable of playing the role of $\iso$ in Datafun's semantics.
+%% %
+%% Nor is it the one which most closely resembles the static transformation on Datafun code which we will introduce in \cref{section-phi-delta}.
+%% %
+%% This is primarily an accident of history: the static transformation was discovered first and first presented in \cref{seminaive-datafun}; this categorical account came later, and a revised transformation based on $\isotriv$ might be a fruitful avenue for future work.
 
-\XXX
+%% \newcommand\isodelta{\ensuremath{\iso_{\Delta}}}
 
-This leaves us with join, singleton, isEmpty, collect, and eq, which both use the discreteness comonad $\iso$
+%% However, there is at least one reason to consider an alternate interpretation of $\iso$.
+%% %
+%% The semi\naive\ approach to computing a functions fixed point requires a derivative of it; using this to define the morphism $\morph{fix} : \isotriv(L \expto L) \to L$ relies on the fact that $V(L \expto L)$ contains only differentiable maps.
+%% %
+%% Exploiting this differentiability constructively, as in a code transformation, would require us to annotate \emph{every} function with a derivative, even if it is not used in a fixed point.\footnotemark\
+%% %
+%% To avoid this, we can instead exploit the fact that the argument to \morph{fix} is boxed, and creatively reinterpret $\iso A$ to consist of values equipped with zero changes.
+%% %
+%% Then $\iso(L \expto L)$ will consist of functions equipped with zero changes; and as we've already seen, a zero change to a function is a derivative of it.
+%% %
+%% So instead of $\isotriv$, consider the comonad $\isodelta$ defined by:
+
+%% \footnotetext{It must be admitted that this reason is rather weak, because a perfectly standard dead code elimination pass would suffice to remove these unnecessary derivatives. Another way of looking at our definition of $\isodelta$ is as a type-directed ``unused derivative elimination pass''.}
+
+%% \begin{align*}
+%%   V\isodelta A
+%%   &= \text{pairs $(x,\dx)$ such that $\changesat{A}{\dx} x x$, ordered discretely}
+%%   \\
+%%   \Delta\isodelta A &= \terminalobject
+%%   \\
+%%   R_{\isodelta A} &= \{((), (x,\dx), (x,\dx))
+%%   \mathrel{\text{such that}}
+%%   (x,\dx) \in V\isodelta A\}
+%%   %% \changesat{\isodelta A}{()}{(x,\dx)}{(x,\dx)}
+%% \end{align*}
+
+%% \noindent
+%% Functionality, soundness, and zero changes hold straightforwardly. Fixing some $f : A \to B : \ChangePoset$, the comonad structure is as follows:
+
+%% \todo{we can't use $f'$ in the definition of $\isodelta(f)$ because it's not unique. and we need functoriality to preserve id \& associativity. AAAAAAAAAARGH.}
+
+%% \begin{align*}
+%%   \isodelta(f) &\isa \isodelta A \to \isodelta B
+%%   &
+%%   \isodelta(f) \<(x, \dx) &= \color{Red}(f\<x, f'\<x\<\dx)
+%%   \XXX
+%%   &
+%%   \isodelta(f)' \<(x, \dx) \<() &= ()
+%%   \\
+%%   \varepsilon_A &\isa \isodelta A \to A
+%%   &
+%%   \varepsilon_A \<(x, \dx) &= x
+%%   &
+%%   \varepsilon_A' \<(x, \dx) \<() &= \dx
+%%   \\
+%%   \delta_A &\isa \isodelta A \to \isodelta\isodelta A
+%%   &
+%%   \delta_A \<(x, \dx) &= ((x, \dx), ())
+%%   &
+%%   \delta_A' \<(x, \dx) \<() &= ()
+%% \end{align*}
+
+%% \noindent
+%% The correctness of these derivatives is mostly trivial, except that $\varepsilon_A' \<(x,\dx)$ uses the fact that $\dx$ is a zero change to $x$.
+%% %
+%% The comonad laws require that $\varepsilon \compose \delta = \isodelta(\varepsilon) \compose \delta = \id$ and that $\delta \compose \delta = \isodelta(\delta) \compose \delta$; these are easily verified by direct computation.
+%% %
+%% Distribution over products and sums is as follows:
+
+%% \begin{align*}
+%%   \isox &\isa \prod_i\isodelta A_i \to \isodelta\prod_i A_i
+%%   &
+%%   \isosum &\isa \isodelta\sum_i A_i \to \sum_i\isodelta A_i
+%%   \\
+%%   \isox \<((x_i,\dx_i))_i &= ((x_i)_i, (\dx_i)_i)
+%%   &
+%%   \isosum \<(\inj i x, \inj i \dx) &= \inj i (x,\dx)
+%%   \\
+%%   {\isox}' \<\pwild \<\pwild &= ()
+%%   &
+%%   {\isosum}' \<(\inj i x, \pwild) \<() &= \inj i ()
+%% \end{align*}
+
+%% \noindent
+%% Finally, we can put all this machinery to work in the definition of $\morph{fix}_L : \isodelta(L \expto L) \rightarrow L$ for any semilattice change structure $L$ via semi\naive\ iteration:
+
+%% \begin{align*}
+%%   \morph{fix}_L\<(f,f') &= \semifix\<(f,f')
+%%   &
+%%   \morph{fix}_L'\<(f,f')\<() &= \bot
+%% \end{align*}
+
+%% \noindent
+%% Since the input is not allowed to change, the derivative $\morph{fix}'$ needs to compute a zero change; fortunately, $\bot$ is a universal zero change for any semilattice change structure.
+%% %
+%% Observe that this definition does not use the fact that the exponential object $V(L \expto L)$ contains only differentiable functions; instead it uses the explicitly-supplied zero change $f'$.
+
+%% There is, however, a problem with $\isodelta$. Our end-goal is a source-to-source translation on Datafun code, but the poset $V\isodelta A$ is not definable in Datafun, because Datafun is simply typed: assuming we have types corresponding to $VA$ and $\D A$, Datafun can express $\iso(VA \times \D A)$, but cannot ``filter this down'' to only pairs $(x,\dx)$ such that $\changes{\dx} x x$.
+%% %
+%% Our solution is to approximate: our translation produces a type corresponding to $\iso(VA \times \D A)$, and we deploy a logical relations argument to fix up the difference.\footnotemark
+
+%% \footnotetext{Unfortunately, this approximation cannot be made to work in \ChangePoset\ itself; if we let $V\isodelta A = VA \x \D A$ directly, then $\varepsilon_A' \<(x, \dx) = $}
+
+%% We will dive into the definition of this translation in the next section, but first, there are a few remaining structures necessary to interpret Datafun into \ChangePoset.
+
+%% \todo{explain (5) that this isn't a simply-typed thing anymore, alas, but (6) we can't let $V\isodelta A = VA \x \D A$ because extract must use zero and then we disobey comonad laws}
 
 
+%% \subsection{Remaining structures}
+
+%% \XXX
+
+%% This leaves us with join, singleton, isEmpty, collect, and eq, which both use the discreteness comonad $\iso$
+
+
+%% %% ---------- EVEN OLDER STUFF ----------
 %% \subsection{The box comonad and fixed points}
 
 %% Almost all of the remaining structures we need to interpret Datafun's semantics into \ChangePoset\ depend crucially on how we choose to interpret one particular type: the discreteness comonad \iso. For instance, to interpret set types $\tseteq A$ we need a finite powerset $\pfin$ equipped with morphisms $\morph{singleton}_A : \iso A \to \pfinof A$ and $\morph{isEmpty}_A : \iso P A \to \terminalobject + \terminalobject$; to interpret equality we need morphisms $\morph{eq}_A : \iso A \x \iso A \to \pfinof \terminalobject$; and to interpret $\prim{fix}$ we need morphisms $\morph{fix}_L : \iso(L \expto L) \to L$ for semilattice objects $L$.
@@ -1033,7 +1035,6 @@ This leaves us with join, singleton, isEmpty, collect, and eq, which both use th
 %%   {\isosum}' \<(\inj i x) \<\tuple{} &= \inj i ()
 %% \end{align*}
 
-
 %% \pagebreak
 %% Set changes are important since most of our motivating examples of fixed points
 %% are taken at set type, but to handle all of Datafun we will need change
@@ -1071,7 +1072,6 @@ This leaves us with join, singleton, isEmpty, collect, and eq, which both use th
 
 %% \XXX \todo{sums, functions, box (and thus any discrete type)}
 
-
 %% \fixme{achim}{Achim is very unhappy with this section, check his notes.}
 
 %% %% To make precise the notion of change, an incremental \fn-calculus associates
@@ -1249,7 +1249,6 @@ This leaves us with join, singleton, isEmpty, collect, and eq, which both use th
 %% However, there's no reason to expect the change in the output to grow as the
 %% base point increases -- hence the base point argument is discrete, $\iso A$.
 
-
 %% \subsection{Zero changes, derivatives, and faster fixed points}
 %% \label{section-derivatives}
 
