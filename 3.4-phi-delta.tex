@@ -73,10 +73,21 @@ first-order data:
 \end{restatable}
 
 \begin{restatable}{proof}{PhiEqualityTypeProof}
- Induct on $\eqt A$.
+ Induct on $\eqt A$ applying the equations in \cref{figure-DeltaPhi}.
 \end{restatable}
 
 \noindent
+It will also be important that, as in our semilattice change structures in \ChangePoset, changes at a semilattice type $L$ are drawn from the very same type:
+
+\begin{restatable}{lemma}{DeltaLattice}\label{lemma-delta-lattice}
+  At each semilattice type $L$, we have $\D L = L$.
+\end{restatable}
+\vspace{-\baselineskip}
+
+\begin{restatable}{proof}{DeltaLatticeProof}
+  Induct on $L$ applying the equations in \cref{figure-DeltaPhi}, recalling from \cref{figure-syntax} that the grammar of semilattice types is $L \bnfeq \tunit \bnfor L_1 \x L_2 \bnfor \tseteq A$.
+\end{restatable}
+
 As we'll see in \cref{section-var-fn-app,section-phi-delta-box}, $\phi$ and $\delta$ are
 mutually recursive. To make this work, $\delta e$ must find the change to $\phi
 e$ rather than $e$.
