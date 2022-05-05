@@ -189,7 +189,7 @@ This generalization is useful because differentiable maps (that is, maps possess
   %% \]
 
   \noindent
-  We also need $\id'\<x\<\dx$ and $(g \compose f)' \<x \<\dx$ to be monotone in $\dx$, which they are, for straightforward compositional reasons; in general, for the remainder of \cref{section-change-structures}, we omit showing that functions are monotone unless the argument is non-obvious.
+  We also need $\id'\<x\<\dx$ and $(g \compose f)' \<x \<\dx$ to be monotone in $\dx$, which they are, for straightforward compositional reasons; in general, for the remainder of \cref{section-change-structures,section-changeposet}, we omit showing that functions are monotone unless the argument is non-obvious.
 \end{proof}
 
 \noindent
@@ -349,9 +349,9 @@ Finally, the terminal map $\fork{}$, projection $\pi_i$, and tupling $\fork{f,g}
 \end{align*}
 
 \noindent
-The correctness of $\fork{}'$ is trivial; correctness of $\pi_i'$ follows by inversion of \rn{product change}; and $\fork{f,g}'$ is correct by \rn{product change} and correctness of $f',g'$.
+The correctness of $\fork{}'$ is trivial; correctness of $\pi_i'$ follows by inversion of \rn{product change}; and $\fork{f,g}'$ is correct by \rn{product change} and correctness of $f',g'$.\footnotemark
 
-Note that had we chosen to let $\Delta(A \x B) = \Delta A + \Delta B$, representing a change to a tuple by a change to only one of its components, this would not allow us to differentiate tupling $\fork{f,g}$, since a change to the input may cause both components of the output to change simultaneously.
+\footnotetext{Note that had we chosen to let $\Delta(A \x B) = \Delta A + \Delta B$, representing a change to a tuple by a change to only one of its components, this would not allow us to differentiate tupling $\fork{f,g}$, since a change to the input may cause both components of the output to change simultaneously.}
 
 
 \subsection{Sums}
@@ -384,7 +384,7 @@ Sums and the initial object also mirror those in \Poset:
 \noindent
 These satisfy functionality, soundness, and zero changes pretty straightforwardly using the corresponding properties at $A$ and $B$. For instance, $\inj i \zero_x$ is a zero change to $\inj i x$.
 
-The initial map $\krof{}$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2}$ (given $f : A_1 \to C$, $f_2 : A_2 \to C$) are the same as in \Poset\ (inheriting its universal properties), with derivatives as follows:
+The initial map $\krof{}$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2}$ (given $f_1 : A_1 \to C$, $f_2 : A_2 \to C$) are the same as in \Poset\ (inheriting its universal properties), with derivatives as follows:
 
 \begin{align*}
   \krof{} &: \initialobject \to A
@@ -807,7 +807,7 @@ and our semi\naive\ fixed point strategy generalizes to any semilattice change s
 
 \subsection{Fixed points and discreteness comonads}
 
-\Cref{thorem-seminaive-fixed-points} shows we can speed up fixed points by exploiting the power of derivatives.
+\Cref{theorem-seminaive-fixed-points} shows we can speed up fixed points by exploiting the power of derivatives.
 %
 It may seem as though this justifies a morphism $\morph{fix} : (L \expto L) \to L : \ChangePoset$ for any semilattice change structure $L$ satisfying ACC.
 %
@@ -826,11 +826,11 @@ First, it isn't actually incremental: computing $\morph{fix}'\<f\<\df$ using thi
 %
 Second, we would naturally like to compute $\morph{fix}\<(\df\<(\morph{fix} \<f))$ \emph{semi\naive{}ly,} but we have no guarantee that $(\df \<(\morph{fix}\<f))$ is differentiable!
 %
-In essence, what we need is a higher-order derivative; a coherent theory of higher-order derivatives and higher-order change structures would be enormously interesting, but we leave it to future work.
+This requires a higher-order derivative; a coherent theory of higher-order derivatives and higher-order change structures would be enormously interesting, but we leave it to future work.
 
 \footnotetext{The need to recompute $\morph{fix}\<f$ could likely be solved by caching intermediate values, which we discuss further in \cref{section-caching}. Somewhat unusually, in this case we want to cache the previous output of an operation rather than its previous input.}
 
-Instead, we deliberately limit the scope of our approach to avoid the need to incrementally maintain fixed points. As we've already seen \todo{bwd ref}, in Datafun \prim{fix} is not treated as a monotone operator; correspondingly the morphisms we require to interpret it are not $\morph{fix} : (L \expto L) \to L$ but rather $\morph{fix} : {\color{IsoRed} \iso}(L \expto L) \to L$. The idea here is that, just as $\iso$ in \Poset\ captures \emph{non-monotonicity} in an otherwise monotone world, in \ChangePoset\ we can use it to capture \emph{non-differentiability} or \emph{non-incrementalizability} in an otherwise differentiable world.
+Instead, we deliberately limit the scope of our approach to avoid the need to incrementally maintain fixed points. As we've already seen\todo{bwd ref}, in Datafun \prim{fix} is not treated as a monotone operator; correspondingly the morphisms we require to interpret it are not $\morph{fix} : (L \expto L) \to L$ but rather $\morph{fix} : {\color{IsoRed} \iso}(L \expto L) \to L$. The idea here is that, just as $\iso$ in \Poset\ captures \emph{non-monotonicity} in an otherwise monotone world, in \ChangePoset\ we can use it to capture \emph{non-differentiability} or \emph{non-incrementalizability} in an otherwise differentiable world.
 
 \newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
 

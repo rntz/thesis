@@ -103,17 +103,17 @@ L$.
 The restriction to ``fixtypes'' ensures $\fixt L$ has no infinite ascending
 chains, guaranteeing the recursion will terminate.
 %
-The restriction to boxed functions -- essentially treating \prim{fix} as a
-non-monotone operator -- is motivated not by our semantics but by our strategy
-for evaluating Datafun efficiently; it will be explained in
-\cref{why-is-fix-discrete}. \fixme{achim}{Can you really not say more at this stage?}
+The restriction to boxed functions, treating \prim{fix} as a non-monotone
+operator, is motivated not by our semantics but by our strategy for evaluating
+Datafun efficiently. This will be explained in detail in
+\cref{why-is-fix-discrete}, but as a foreglimpse, to evaluate Datafun efficiently, we incrementalize monotone functions; incrementally maintaining \prim{fix} is difficult, so we treat it as non-monotone.
 
 
 \subsection{The category \Poset\ and its structures}
 \label{section-poset-structures}
 
 \todolater{rewrite from here on? Explain intuition more. check seminaive.pdf and
-  first paper}
+first paper}
 
 An object of $\Poset$ is a pair $(A, \le_A)$ consisting of a set $A$ and a
 reflexive, transitive, antisymmetric relation $\le_A \subseteq A \times A$. For
@@ -130,8 +130,8 @@ The bicartesian closed structure of $\Poset$ is largely the same as in $\Set$.
 The product and sum sets are constructed the same way, and ordered pointwise:
 
 \begin{align*}
-  (a,b) \le_{A \x B} (a',b') &\iff a \le_A a' \wedge b \le_B b'\\
-  \inj i x \le_{A_1 + A_2} \inj j y &\iff i = j \wedge x \le_{A_i} y
+(a,b) \le_{A \x B} (a',b') &\iff a \le_A a' \wedge b \le_B b'\\
+\inj i x \le_{A_1 + A_2} \inj j y &\iff i = j \wedge x \le_{A_i} y
 \end{align*}
 
 \noindent Projections $\pi_i$, injections $\injc_i$, tupling $\fork{f,g}$ and
@@ -148,11 +148,11 @@ Currying $\fn$ and evaluation are the same as in \Set. Supposing $f : A \x B \to
 C$, then:
 
 \begin{align*}
-  \fn(f) &\isa A \to (B \expto C) &
-  \eval_{A,B} &\isa (A \expto B) \x A \to B
-  \\
-  \fn(f) &= x \mapsto y \mapsto f(x,y) &
-  \eval_{A,B} &= (g,x) \mapsto g(x)
+\fn(f) &\isa A \to (B \expto C) &
+\eval_{A,B} &\isa (A \expto B) \x A \to B
+\\
+\fn(f) &= x \mapsto y \mapsto f(x,y) &
+\eval_{A,B} &= (g,x) \mapsto g(x)
 \end{align*}
 
 \noindent
@@ -171,7 +171,7 @@ partial order to mere equality.
 This forms a rather boring comonad whose functorial action $\iso(f)$, extraction $\varepsilon_A : \iso A \to A$, and duplication $\delta_A : \iso A \to \iso \iso A$ are all identities on the underlying sets:
 
 \begin{align*}
-  \iso(f) &= f & \varepsilon_A &= a \mapsto a & \delta_A &= a \mapsto a
+\iso(f) &= f & \varepsilon_A &= a \mapsto a & \delta_A &= a \mapsto a
 \end{align*}
 
 \noindent
@@ -197,13 +197,11 @@ A_i \to \sum_i \iso A_i$.
 
 Given a poset $(A, \le_A)$ we define the finite powerset poset $\pfinof(A,
 \le_A)$ as $(\powerset_{\mathrm{fin}}\, A, \subseteq)$, that is, the finite
-subsets of $A$ ordered by subset inclusion.
-%
-Note that the subset ordering completely ignores the element ordering $\le_A$.
-%
-\fixme{achim}{Achim notes that it does not have to, because there are meaningful powerset orderings. Should I explain why I use this one?}
+subsets of $A$ ordered by inclusion.\footnotemark\
 %
 Finite sets admit a pair of useful morphisms:
+
+\footnotetext{Note that the subset ordering completely ignores the element ordering $\le_A$. There are orderings on \(\powerset_{\mathrm{fin}}\, A\) which are not so forgetful; for instance, the free semilattice \(FA\) consists of finite sets ordered by \(s \le_{FA} t \iff \faex{x \in s}{y \in t} x \le_A y\) and quotiented by antisymmetry (this may also be seen as the semilattice of finitely-generated downward closed sets under union, or of finite antichains). Our \(P A\) is isomorphic to \(F \iso A\). However, Datalog's semantics use only the inclusion order, as do all of our motivating examples; so for simplicity we have stuck to it.}
 
 \begin{align*}
   \morph{singleton} &\isa \iso A \to \pfinof A

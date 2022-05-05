@@ -180,15 +180,14 @@ How do these three examples fit into our proposed pattern: finding the least fix
   an order with respect to which our state increases \emph{monotonically} over
   time.
 
-  For example, in graph reachability a node's state is a boolean flag; for
-  simplicity we'll regard it as \etrue\ if the node is checked,
+  For example, in graph reachability a node's state is a boolean flag; we'll regard it as \etrue\ if the node is checked,
   \efalse\ otherwise.
 %
   Since nodes go from unchecked to checked but not vice-versa, we say that
   $\efalse < \etrue$.
 %
   In single-source shortest-path our distances change toward zero, so we order
-  them ``inversely'', $\infty < \hdots < 3 < 2 < 1 < 0$.
+  them inversely, $\infty < \hdots < 3 < 2 < 1 < 0$.
 %
   And in reaching definitions our assignment-sets change by gaining new
   elements, so we order them by the subset relation, $s \le t \iff s \subseteq
@@ -389,7 +388,7 @@ universally quantified: the logical interpretation of our third line, for
 example, is $\fa{X, Y, Z} \atom{parent}{X, Y} \wedge \atom{parent}{Y, Z}
 \implies \atom{grandparent}{X, Z}$.
 
-Informally, the intended interpretation of a Datalog program is the set of all
+The intended interpretation of a Datalog program is the set of all
 facts deducible from its clauses.
 %
 We access this set via \emph{queries} such as
@@ -405,14 +404,14 @@ yes-or-no question: is the query deducible or not?
 %% Although in principle the result of a Datalog program is the set of \emph{all}
 %% deducible facts, in practice we use
 
-Observe that ``the set of all deducible facts'' fits neatly into our informal
-description of monotone fixed points: applying inference rules is a monotone
-process, adding but never removing knowledge; we desire the fixed point of this
-process, where everything that can be deduced has been; our semilattice is sets
-of atoms under union. The ascending chain condition, however, does not obviously
-hold -- perhaps there are infinitely many deducible facts? To answer this
-question, we must consider what differentiates Datalog from other logic
-programming languages.
+Computing the set of all deducible facts fits neatly into our description of
+monotone fixed points: applying inference rules is a monotone process, adding
+but never removing knowledge; we desire the fixed point of this process, where
+everything that can be deduced has been; our semilattice is sets of atoms under
+union. The ascending chain condition, however, does not obviously hold --
+perhaps there are infinitely many deducible facts? To answer this question, we
+must consider what differentiates Datalog from other logic programming
+languages.
 
 \todolater{include datalog by example section?}
 
@@ -612,11 +611,11 @@ relations\todo{haven't explained what relation means} finite:
 \end{enumerate}
 
 \noindent
-Together, range-restriction and constructor-freedom ensure that relations are
-\emph{finite} and thus enforce the ascending chain condition.
+Range-restriction and constructor-freedom together ensure that relations are
+finite and thus enforce the ascending chain condition.
 %
 This permits the most common Datalog implementation strategy, \emph{forward
-  chaining}.
+  chaining.}
 %
 In backward chaining we start from a goal (``can we reach St.~Louis?'') and
 reason backward, applying rules that might prove it.
@@ -909,14 +908,18 @@ in particular with a conventional language like Java or C++:
 \noindent
 We must also consider that static analysis blunts one of Datalog's primary
 drawbacks. As mentioned previously, one weakness of forward chaining is that it
-is undirected, deducing everything it can. If all we care about is the result of
-a fairly narrow query, this can waste a lot of effort. Although various
-optimizations and alternative evaluation strategies such as magic sets, tabling,
-and QSQR\fixme{jeremy}{citations and brief explanations for magic sets, tabling,
-  QSQR} exist to address this problem, in static analysis this eager approach is
-sensible: we generally wish to analyse the whole program exhaustively, whether
-for optimization or for bug-finding purposes. \todolater{this is not entirely
-  convincing.}
+is undirected, deducing everything it can. If we only need the results of a narrow query, this can waste a lot of effort.
+%
+Various optimizations and alternative evaluation strategies exist to address
+this problem, including \emph{magic sets}~\citep{magic-sets,DBLP:conf/pods/BeeriR87}, which statically rewrites recursive relation definitions to produce only a subset of facts relevant to a given query (for instance, automatically transforming all-pairs graph reachability to single-source reachability);
+%
+and \emph{tabling}~\citep{DBLP:conf/sigmod/TekleL11,DBLP:journals/tplp/SwiftW12}, which hybridizes forward- and backward-chaining by careful use of memoization.
+%
+%and \emph{QSQR,} which \XXX.
+%
+In static analysis, however, the eagerness of forward-chaining is less
+problematic, as we generally wish to analyse the whole program exhaustively,
+whether for optimization or for bug-finding purposes.
 
 
 \section{What Datalog can't do}
@@ -964,9 +967,9 @@ In an ordinary language, we would factor out this repeated code into a procedure
 Unfortunately, Datalog cannot do this:
 %
 Datalog does not have functions, procedures, or modules, only relations; and
-relations are first-order, unable to manipulate or abstract over other relations,
+relations are first-order, unable to manipulate or abstract over other relations.
 %
-and it is unclear how to lift this restriction without giving up the guarantees
+It is unclear how to lift this restriction without giving up the guarantees
 that make forward-chaining Datalog evaluation tractable.
 
 

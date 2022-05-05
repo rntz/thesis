@@ -77,20 +77,29 @@
     &\desugars \emcase{\eisempty{(\eeq{e_1}{e_2})}}
     \inj 1 \pwild \caseto f_2
     \casebar \inj 2 \pwild \caseto f_1
-    \\
-    &\fixme{jeremy}{explain reordering of $f_1,f_2$ above}
+    \\[-4pt]
+    &\phantom{{}\desugars{}}
+    \small\textit{(NB. \(\eisemptyraw e\) yields \(\injc_1\) if \(e\) is empty, i.e.\ \(\efalse\).)}
     \\
     \ematch{\ptuple{p_1,p_2}}{e}{f_1}{f_2}
-    &\desugars \ematch{p_1}{\pi_1\<e}{(\ematch{p_2}{\pi_2\<e}{f_1}{f_2})}{f_2}
+    &\desugars
+    %\ematch{p_1}{\pi_1\<e}{(\ematch{p_2}{\pi_2\<e}{f_1}{f_2})}{f_2}
+    \ematchif{p_1}{\pi_1\<e}
+    \\[-4pt]
+    &\phantom{{}\desugars{}}
+    \ematchthen{(\ematch{p_2}{\pi_2\<e}{f_1}{f_2})}
+    \\[-4pt]
+    &\phantom{{}\desugars{}}
+    \ematchelse{f_2}
     \\
     \ematch{\inj i p}{e}{f_1}{f_2}
     &\desugars \emcase{\esplit{\ebox{e}}}
-    \\
+    \\[-4pt]
     &\phantom{{}\desugars\quad}
     \inj i {\color{fresh} \mvar x} \caseto
     \eletbox{\color{fresh} \dvar y}{\color{fresh} \mvar x}
     (\ematch{p}{\color{fresh}\dvar y}{f_1}{f_2})
-    \\
+    \\[-4pt]
     &\phantom{{}\desugars\quad}
     \inj{(3-i)} {\color{fresh} \mvar x} \caseto f_2
   \end{align*}

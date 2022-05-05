@@ -70,18 +70,16 @@ Semantically, $\iso$ is a monoidal comonad or necessity modality, and so we base
 our syntax on \citet{jrml}'s syntax for the necessity fragment of constructive
 S4 modal logic.
 %
-\fixme{achim}{This is crucial. Explain in more detail than the following.}
-%
 This involves distinguishing two kinds of variable: discrete variables are in lowercase ($\dvar x, \dvar y, \dvarlong{foo}, \dvarlong{bar}$), while monotone variables are capitals ($\mvar X, \mvar Y, \mvar Z$).
 %
-Discrete variables obey normal scoping rules, but monotone variables are hidden
-within non-monotone expressions.
+Discrete variables may be used without restrictions, but monotone variables may only be used in ways that respect the ordering on their types: they must be used \emph{monotonically.}
 %
-For example, in an equality test $\eeq e f$, the terms $e$ and $f$ cannot refer
-to monotone variables bound outside the equality expression.
+This is enforced by removing monotone variables from scope within non-monotone expressions.
 %
-We highlight such expressions with a
-\adjustbox{bgcolor=isobg}{\isobgname\ background}.
+For example, we cannot compare two monotone variables for equality, \(\eeq{\mvar x}{\mvar y}\), because equality comparison is non-monotone.
+%
+To aid the reader, we highlight non-monotone expressions with a
+\adjustbox{bgcolor=isobg}{\isobgname\ background}; monotone variables bound outside of a non-monotone expression like \(\eeq e f\) may not be used within it.
 %
 Putting this all together, we construct the type $\iso A$ with the non-monotone
 introduction form $\ebox{e}$ and eliminate it by pattern-matching, $\eletbox x e
@@ -104,9 +102,9 @@ As long as the semilattice has no infinite ascending chains, the chain of iterat
 %
 Decidable equality ensures we can tell when this fixed point is reached.
 %
-While not used by fixed point iteration itself, semilattice join is used to define $f$ in all our motivating examples (following the ``pattern'' from \cref{section-monotone-fixed-points}), so we don't bother introducing ``posets with bottom'' as a concept separate from ``semilattices''.%
+While not used by fixed point iteration itself, semilattice join is used to define $f$ in all our motivating examples (following the pattern from \cref{section-monotone-fixed-points}), so we don't bother introducing ``posets with bottom'' as a concept separate from semilattices.%
 %
-\footnote{We are sweeping a few technical details under the rug here. First, for reasons which will not be explained until \cref{why-is-fix-discrete} we treat \prim{fix} as a non-monotone operator.
+\footnote{We are sweeping a few technical details under the rug here. First, for reasons which will not be explained until \cref{why-is-fix-discrete} we treat \prim{fix} as if it were a non-monotone operator.
 %
   \label{note-finite-eqtypes}
   Second, observe that the finite set type $\tseteq{A}$ will possess infinite
