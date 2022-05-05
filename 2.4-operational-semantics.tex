@@ -566,8 +566,8 @@ First, any partial preorder over a set $S$ gives rise to a subset $\setfor{x \in
   \end{description}
 \end{proof}
 
-\begin{lemma}[Discrete contexts]
-  \label{lemma-discrete-contexts}
+\begin{lemma}[Discrete contexts make terms equivalent]
+  \label{lemma-discrete-equivalence}
   If \(\oplr{\stripcx\G \vdash A} e f\) and \(\oplr\G{\gamma_1}{\gamma_2}\) then \(\oplrclosedequiv A {\gamma_1(e)} {\gamma_2(f)}\).
 \end{lemma}
 
@@ -730,7 +730,7 @@ We now have the groundwork to prove the fundamental theorem, starting with the c
     and by closure under stepping we are done.
 
   \item[Case\quad $\infer{\J {e} {\stripcx\G} A}{\J{\ebox e} \G {\iso A}}$.]
-    By our IH and \cref{lemma-discrete-contexts} we have for some $v_i$ that \(\gamma_i(e) \evalsto v_i\) with \(\oplrvalueequiv A {v_1}{v_2}\). Thus we have \(\gamma_i(\eboxraw{e}) = \eboxraw{\gamma_i(e)} \evalsto \eboxraw{v_i}\) and by the definition of the LR for \(\iso A\) we are done.
+    By our IH and \cref{lemma-discrete-equivalence} we have for some $v_i$ that \(\gamma_i(e) \evalsto v_i\) with \(\oplrvalueequiv A {v_1}{v_2}\). Thus we have \(\gamma_i(\eboxraw{e}) = \eboxraw{\gamma_i(e)} \evalsto \eboxraw{v_i}\) and by the definition of the LR for \(\iso A\) we are done.
 
   \item[Case\quad $\infer{\J e \G {\iso A} \\ \J f {\G,\,\hd x A} B}{
     \J {\eletbox x e f} \G B}$.]
@@ -753,7 +753,7 @@ We now have the groundwork to prove the fundamental theorem, starting with the c
   \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}{
     \J {\esetsub{e_i}{i}} \G {\tset{\eqt A}}}$.]
 
-    Applying \cref{lemma-discrete-contexts} we have by our IH that \(\oplrclosedequiv{\eqt A}{\gamma_1(e_i)}{\gamma_2(e_i)}\) and thus for some \(v_{i,j}\) we have \(\gamma_j(e_i) \evalsto v_{i,j}\) with \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\). Then by calculation we have \(\gamma_j(\esetraw{e_i}_i) \evalsto \esetraw{v_{i,j}}_i\) and applying \rn{lr~set} (using partial reflexivity for its second premise) we have \(\oplrvalue{\tseteq A}{\esetraw{v_{i,1}}_j}{\esetraw{v_{i,2}}_i}\) and by closure under stepping we are done.
+    Applying \cref{lemma-discrete-equivalence} we have by our IH that \(\oplrclosedequiv{\eqt A}{\gamma_1(e_i)}{\gamma_2(e_i)}\) and thus for some \(v_{i,j}\) we have \(\gamma_j(e_i) \evalsto v_{i,j}\) with \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\). Then by calculation we have \(\gamma_j(\esetraw{e_i}_i) \evalsto \esetraw{v_{i,j}}_i\) and applying \rn{lr~set} (using partial reflexivity for its second premise) we have \(\oplrvalue{\tseteq A}{\esetraw{v_{i,1}}_j}{\esetraw{v_{i,2}}_i}\) and by closure under stepping we are done.
 
   \item[Case\quad $\infer{
       \J e \G {\tseteq A} \\
@@ -825,7 +825,7 @@ $.]
 
   \item[Case\quad $\infer{(\J {e_i} {\stripcx\G} {\eqt A})_i}
         {\J {\eeq{e_1}{e_2}} \G \tbool}$.]
-    By \cref{lemma-discrete-contexts} for some $v_{i,j}$ we have \(\gamma_j(e_i) \evalsto v_{i,j}\) such that \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\).
+    By \cref{lemma-discrete-equivalence} for some $v_{i,j}$ we have \(\gamma_j(e_i) \evalsto v_{i,j}\) such that \(\oplrvalueequiv{\eqt A}{v_{i,1}}{v_{i,2}}\).
 %
     It suffices to show that \(\oplrclosedequiv\tbool{(\eeqraw{v_{1,1}}{v_{2,1}})}{(\eeqraw{v_{1,2}}{v_{2,2}})}\).
 %
@@ -833,7 +833,7 @@ Since pretty plainly \(\oplrvalue\tbool\etrue\etrue\) and \(\oplrvalue\tbool\efa
 
   \item[Case\quad $\infer{\J {e} {\stripcx\G} {\tset\tunit}}{
     \J {\eisempty e} \G {\tunit + \tunit}}$.]
-    Applying our IH and \cref{lemma-discrete-contexts} we have \(\oplrclosedequiv{\tset \tunit}{\gamma_1(e)}{\gamma_2(e)}\).
+    Applying our IH and \cref{lemma-discrete-equivalence} we have \(\oplrclosedequiv{\tset \tunit}{\gamma_1(e)}{\gamma_2(e)}\).
 %
     This means we have some \(\vec v, \vec u\) such that \(\gamma_1(e) \evalsto \esetraw{\vec v}\) and \(\gamma_2(e) \evalsto \esetraw{\vec v}\) and \(\oplrvalueequiv{\tset\tunit}{\esetraw{\vec v}}{\esetraw{\vec u}}\). This implies that \(\vec v\) is empty if and only if \(\vec u\) is empty. In one case \(\eisempty {\gamma_i(e)} \evalsto \inj 1 \etuple{}\); in the other, \(\inj 2 \etuple{}\). So by closure under stepping it suffices to show \(\inj j \etuple{} \in \goodvalue{\tunit + \tunit}\) for \(j \in \{1,2\}\); which it is by unrolling the definitions involved.
 
