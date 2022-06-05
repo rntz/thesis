@@ -211,18 +211,21 @@ Putting everything together, we have:
 \noindent
 Examining the recurrence produced by this use of \semifix, we recover the
 semi\naive\ transitive closure algorithm from
-\cref{section-seminaive-tc-in-datafun}: \label{equation-semifix-trans-recurrence}
+\cref{section-seminaive-tc-in-datafun}:
 
 \begin{align*}
-  x_0 &= \bot & x_{i+1} &= x_i \cup \dx_i\\
+  x_0 &= \bot
+  &
+  x_{i+1} &= x_i \cup \dx_i
+  \\
   \dx_0 &= ({\fnof{p} \dvar e \cup (\dvar e \relcomp p)}) \<\bot
   = \dvar e
   &
   \dx_{i+1} &=
   ({\fnof{\pboxvar p} \fnof{\dx} \dvar e \relcomp \deep})
-  \<\ebox{x_i} \<\dx_i
+  \<\eboxraw{x_i} \<\dx_i
   = \dvar e \relcomp \dx_i
-\end{align*}
+\end{align*}\label{equation-semifix-trans-recurrence}
 
 \setlength\codeoffset{20pt}     %restore.
 

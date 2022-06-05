@@ -26,6 +26,26 @@
 % \usepackage{lipsum}             % \lipsum, DEBUGGING ONLY
 \usepackage{tikz,tikz-cd}       % used in operational semantics logical relation
 %\usepackage{mathabx}            % \ocirc
+\usepackage{quiver}             % various extensions to tikzcd, e.g. curves
+
+% source code listings for Haskell & Datafun
+% in draft mode, listings produces no listings which is useless.
+\usepackage[final]{listings}
+\lstdefinelanguage{hask}{
+  morekeywords={let,in,if,then,else,case,where,class,instance,module,import,as,qualified,do},
+  morecomment=[l]{--},
+  morecomment=[l]{...},
+}
+\lstdefinelanguage{datafun}{
+  morekeywords={let,in,fix,is,or,for,when},
+  emph={},
+  morecomment=[l]{--},
+}
+\lstset{basicstyle=\ttfamily,columns=fullflexible,language=hask}
+\colorlet{runtime}{Rhodamine}
+\newcommand\runtimename{pink}
+\newcommand\Runtimename{Pink}
+\lstset{emphstyle=\color{runtime},commentstyle=\color{Gray}}
 
 \hyphenation{semi-na\"ive} % TODO necessary? does it work?
 \hyphenation{hypo-the-ses}
@@ -95,20 +115,22 @@
 \newcommand\fixmecolor{\color{Red}}
 \newcommand\fixme[2]{\PackageWarning{FIXME}{#1: #2}%
 {\fixmecolor\ensuretext{\bfseries\sffamily[{#2}]}}}
-
-\newcommand\fixmelater[2]{%\PackageWarning{FIXME}{#1: #2}%
+\newcommand\fixmelater[2]{%
 {\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#2}]}}}
 
-%% Quieten todos, no warnings except from fixmes
-\renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
+%% %% Quieten todos, no warnings except from fixmes
+%% \renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 
-%% Disable todos
-\renewcommand\todolater[1]{}
-\renewcommand\footnotelater[1]{}
-\renewcommand\todomaybe[2]{}
-\renewcommand\warntodo[2]{}
-\renewcommand\XXX{\PackageWarning{XXX}{XXX}{\todocolor\ensuretext{\bfseries\sffamily[{XXX}]}}}
-\renewcommand\fixmelater[2]{}
+%% %% Disable todos
+%% \renewcommand\todolater[1]{}
+%% \renewcommand\footnotelater[1]{}
+%% \renewcommand\todomaybe[2]{}
+%% \renewcommand\warntodo[2]{}
+%% \renewcommand\XXX{\PackageWarning{XXX}{XXX}{\todocolor\ensuretext{\bfseries\sffamily[{XXX}]}}}
+%% \renewcommand\fixmelater[2]{}
+
+%% \renewcommand\fixme[2]{}
+%% \renewcommand\XXX{}
 
 
 %% ---------- Environments ----------

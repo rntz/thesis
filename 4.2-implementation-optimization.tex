@@ -1,48 +1,401 @@
-\section{Implementation and optimization}
+\section{Implementation}
 \label{section-implementation}
 
-\fixmelater{jeremy}{expand chapter 4}
+To put the seminaive transformation presented in \cref{chapter-seminaive} to the test, we have implemented it as part of a compiler and runtime for a fragment of Datafun (omitting sum types and pattern-matching), available at \url{https://github.com/rntz/datafun/tree/popl20/v4-fastfix}.
+%
+In \cref{section-compiler} we sketch the compiler's front-to-back structure, from Datafun source code through several intermediate stages to Haskell output.
+%
+In \cref{section-runtime} we explore how an example Datafun program gets compiled, exhibit the small auxiliary library necessary to run the compiled outputs, and explain why we chose Haskell as a target language.
+%
+%% In \cref{section-final-style} we discuss why we chose to implement the compiler in OCaml and in ``final style''~\citep{DBLP:journals/jfp/CaretteKS09}.
+%
+Finally, in \cref{section-benchmarks} we perform some simple benchmarks to test for the expected efficiency gains.
 
-We have implemented a compiler from a fragment of Datafun (omitting sum types) to Haskell, available at \url{https://github.com/rntz/datafun/tree/popl20/v4-fastfix}.
+%% In \cref{section-compiler} we explain the structure of our compiler and why we chose to implement it in OCaml.
+%% %
+%% Our compiler produces Haskell code which requires a small runtime library to execute; in \cref{section-runtime} we explain this runtime and why we chose Haskell as a target language.
+%% %
+%% Finally in \cref{section-benchmarks} we perform some simple benchmarks to test for the expected efficiency gains.
+
+%% \begin{itemize}
+%% \item the structure of our compiler. why OCaml? final style and why we use it. why do we omit sum types?
+%% \item what a compiled result looks like.
+%% \item the structure of our runtime implementation. why Haskell? (A: convenient high-level FP language w/ typeclasses.)
+%% \item Performance tests. Maybe this becomes its own section?
+%% \end{itemize}
+
+
+\subsection{The compiler structure}\label{section-compiler}
+
+\input{4-figure-compiler-passes}
+
+The compiler proceeds in several passes, shown as arrows in \cref{figure-compiler-passes}.
 %
-We use Haskell's \texttt{Data.Set} to represent Datafun sets, and typeclasses to implement Datafun's notions of equality and semilattice types.
+It begins with fairly standard parsing and typechecking phases. For parsing, we use OCaml's Menhir library\todo{citation and link}. The typechecker is bidirectional\todo{citation} rather than performing Hindley-Milner inference\todo{citation}, for simplicity of implementation.
 %
-We do no query planning and implement no join algorithms; relational
-joins, written in Datafun as nested \kw{for}-loops, are compiled into nested
-loops.
+After these, we have a choice of paths.
+
+The simplest approach is to translate Datafun fairly directly into Haskell.
 %
-Consequently our performance is worse than any real Datalog engine.
+Many of Datafun's features have direct parallels in Haskell, including sum, product, and function types; Datafun's sets are implemented using Haskell's \texttt{Data.Set} module; Datafun's semilattice types are implemented as a Haskell typeclass; and Datafun's fixed points can be implemented by \naive\ bottom-up iteration.
 %
-However, we do implement the $\phi$ translation, along with the following
-optimizations:
+\todo{forward reference where we discuss these details.}
+(We discuss these implementation details in \cref{section-runtime}.)
+
+One feature of Datafun that does not translate straightforwardly into Haskell is the discreteness comonad \(\iso\).
+%
+However, its only purpose is to track (non-)monotonicity; at runtime, \(\iso A\) may as well be \(A\).
+%
+Thus before emitting Haskell we \emph{``drop boxes'',} eliminating \(\iso\) and its related term syntax by rewriting \(\ebox e \rewrites e\) and \(\eletbox x e f \rewrites \elet{x = e} f\). For the same reason, we simultaneously drop the distinction between discrete and monotone variables.
+%
+This takes us to an intermediate language, unimaginatively dubbed ``IL'', supporting Datafun's computational features but lacking its modal typing subtleties, which we translate directly into Haskell.
+
+Thus to achieve \naive\ evaluation of Datafun code, we take a straight path through \cref{figure-compiler-passes}:
+
+\nopagebreak[3]
+% https://q.uiver.app/?q=WzAsNSxbMCwwLCJcXHRleHR7U291cmNlfSJdLFsyLDAsIlxcdGV4dHtTeW50YXh9Il0sWzQsMCwiXFx0ZXh0e1R5cGVkIHN5bnRheH0iXSxbNiwwLCJcXHRleHR7SUx9Il0sWzgsMCwiXFx0ZXh0e0hhc2tlbGx9Il0sWzAsMSwiXFx0ZXh0e3BhcnNlfSJdLFsxLDIsIlxcdGV4dHt0eXBlY2hlY2t9Il0sWzIsMywiXFx0ZXh0e2Ryb3AgYm94ZXN9Il0sWzMsNCwiXFx0ZXh0e2VtaXQgSGFza2VsbH0iXV0=
+\[\sffamily\small
+\begin{tikzcd}[every label/.append style={font=\footnotesize\itshape}]
+	{\text{Source}} && {\text{Syntax}} && {\text{Typed syntax}} && {\text{IL}} && {\text{Haskell}}
+	\arrow["{\text{parse}}", from=1-1, to=1-3]
+	\arrow["{\text{typecheck}}", from=1-3, to=1-5]
+	\arrow["{\text{drop boxes}}", from=1-5, to=1-7]
+	\arrow["{\text{emit}}", from=1-7, to=1-9]
+\end{tikzcd}\]
+
+To achieve semi\naive\ evaluation, however, we must apply the \emph{$\phi$ transform} from \cref{chapter-seminaive} to the typed syntax before dropping boxes, since the transform works precisely by annotating boxed terms with their zero-changes.
+%
+As we have no further use for $\iso$, the compiler pass implementing the $\phi$ omits boxes from its output.
+%
+Thus after applying the $\phi$ transform we can directly emit Haskell.
+
+As we saw in \cref{section-seminaive-trans}, however, the $\phi$ transform produces code that can often be simplified by replacing certain expressions by $\bot$. Therefore we implement two optimization passes:
 
 \begin{enumerate}
-\item Propagating $\bot$; for example, rewriting $(e \vee \bot) \rewrites e$ and
-  $(\eforin{x}{e} \bot) \rewrites \bot$.
+\item We \emph{propagate $\bot$} by applying the following rewrites to the IL:
 
-\item Inserting $\bot$ in place of semilattice-valued zero changes (for example,
-  changes to discrete variables $\delta \dvar x$). This makes $\bot$-propagation
-  more effective.
+  \begin{align*}
+    e \vee \bot &\rewrites e
+    &
+    \bot \vee e &\rewrites e\\
+    \eforin{x}{e} \bot &\rewrites \bot
+    &
+    \eforin x \bot e &\rewrites \bot
+    \\
+    \elet{x = \bot} e &\rewrites \subone{e}{x}{\bot}
+    &
+    \elet{x = e} \bot &\rewrites \bot
+    \\
+    \etuple{\bot, \bot} &\rewrites \bot
+    &
+    \pi_i\<\bot &\rewrites \bot
+  \end{align*}
 
-\item Recognising complex zero change expressions; for example, $\delta e
-  \<\ebox{\phi f} \<\delta f$ is a zero change if $\delta e$ and $\delta f$ are.
-  This allows more zero changes to be replaced by $\bot$, especially in
-  higher-order code such as our regular expression example.
+  \noindent
+  The most important rewrite here is $\eforin x e \bot \rewrites \bot$: to evaluate the left hand side directly, we evaluate $e$ and iterate over the resulting set, which takes work proportional to its size; but evaluating the right hand side takes constant work. This is where the asymptotic speedups originate. The other rewrites are useful primarily because they enable this one.
+
+\item To make $\bot$-propagation more effective, we first \emph{insert $\bot$}
+  in place of semilattice-valued zero changes.
+%
+  To this end, the \emph{$\phi$ transform} pass explicitly marks certain terms produced by $\delta$ which are guaranteed to be zero-changes, namely:
+
+  \begin{align*}
+    \delta\dvar x &= \dx \quad\text{(for discrete $x$)}
+    \\
+    \delta \ebox e &= \etuple{}
+    \\
+    \delta\esetsub{e_i} i &=
+    \delta(\eeq{e_1}{e_2}) =
+    \delta(\efix e) =
+    \delta\bot =
+    \bot
+  \end{align*}
+
+  The \emph{insert $\bot$} pass replaces these marked expressions with $\bot$ when they have semilattice type, along with some compound terms guaranteed to produce zero-changes:
+
+  \begin{align*}
+    & \elet{x = e} f
+    && \text{when $f$ is a zero change}\\
+    & x
+    && \text{when $x$ is let-bound to a zero change}\\
+    & e_1\<e_2\<e_3
+    && \text{when $e_1, e_3$ are both zero changes}
+  \end{align*}
+
+  \noindent
+  In case it is not clear, the last case corresponds to the derivative of
+  function application, $\delta(e \<f) = \delta e \<\ebox{\phi f} \<\delta f$,
+  when neither the function nor the argument are changing.
 \end{enumerate}
 
-\input{4-figure-seminaive-vs-naive-graph}
+\noindent
+To test whether \emph{insert $\bot$} is actually useful, we also implement a
+\emph{do nothing} pass for comparison, which simply ignores the zero-change
+annotations produced by the $\phi$ transform.
+%
+Altogether, we have three new paths through the compiler. First, after parsing and typechecking we we can apply the semi\naive\ transform without further optimizations:
+%
+{\small\[\sffamily
+\begin{tikzcd}[every label/.append style={font=\footnotesize\itshape}]
+  {\text{Typed syntax}} && {\text{IL with zero}} && {\text{IL}} && {\text{Haskell}}
+  \arrow["{\text{$\phi$ transform}}", from=1-1, to=1-3]
+  \arrow["{\text{do nothing}}", from=1-3, to=1-5]
+  \arrow["{\text{emit}}", from=1-5, to=1-7]
+\end{tikzcd}\]}
 
 \noindent
+Second, we can optimize the output of the $\phi$ transform by propagating $\bot$:
+%
+{\small\[\sffamily
+\begin{tikzcd}[every label/.append style={font=\footnotesize\itshape}]
+  {\text{Typed syntax}} && {\text{IL with zero}} && {\text{IL}} && {\text{IL}}
+  && {\text{Haskell}}
+  \arrow["{\text{$\phi$ transform}}", from=1-1, to=1-3]
+  \arrow["{\text{do nothing}}", from=1-3, to=1-5]
+  \arrow["{\text{propagate $\bot$}}", from=1-5, to=1-7]
+  \arrow["{\text{emit}}", from=1-7, to=1-9]
+\end{tikzcd}\]}
+
+\noindent
+Or finally, we can replace semilattice zero changes with $\bot$ to make $\bot$ propagation more effective:
+%
+{\small\[\sffamily
+\begin{tikzcd}[every label/.append style={font=\footnotesize\itshape}]
+  {\text{Typed syntax}} && {\text{IL with zero}} && {\text{IL}} && {\text{IL}}
+  && {\text{Haskell}}
+  \arrow["{\text{$\phi$ transform}}", from=1-1, to=1-3]
+  \arrow["{\text{insert $\bot$}}", from=1-3, to=1-5]
+  \arrow["{\text{propagate $\bot$}}", from=1-5, to=1-7]
+  \arrow["{\text{emit}}", from=1-7, to=1-9]
+\end{tikzcd}\]}
+
+
+\subsection{Compiling transitive closure}\label{section-compiling-trans}
+
+To understand the compiler's behavior more concretely, let's consider what it does to a Datafun program implementing transitive closure:
+
+\begin{code}
+  \name{trans} \isa \iso \tset{\eqt A \x \eqt A} \to \tset{\eqt A \x \eqt A}\\
+  \name{trans} \<\pboxvarlong{edge} =
+  \efixisraw{\mvar p}{\dvarlong{edge} \vee
+    \esetfor{\etuple{\dvar x, \dvar z}}{
+    \ptuple{\dvar x, \dvar y} \in \dvarlong{edge},\,
+    \ptuple{\peqvar y, \dvar z} \in \mvar p}}
+\end{code}
+
+\noindent
+This code needs a few changes for the compiler to accept it.
+%
+First, we must replace $\eqt A$ with a specific, concrete type, as the
+compiler does not support polymorphism.
+%
+Second, the compiler does not support pattern-matching, so we must replace box-patterns with let-unboxing, tuple-patterns with projections, and equality patterns $\peqvar{y}$ with equality tests:
+
+%% We've given the program a concrete type, working on graphs whose vertices are strings, because the compiler does not support polymorphism. We've also avoided use of pattern-matching syntax sugar, which the compiler also does not support. The compiler also lacks support for pattern-matching syntax sugar, and operates on ASCII syntax. Thus desugaring and \XXX\ the actual program text we use is:
+
+\begin{code}
+  \name{trans} \isa \iso \tset{\tstring \x \tstring} \to \tset{\tstring \x \tstring}\\
+  \name{trans} = \efn{e}
+  \\\quad
+  \elet{\pboxvarlong{edge} = \mvar e}
+  \\\quad
+  \efixisraw{\mvar p}
+  \\\qquad
+  \dvarlong{edge} \vee
+    \esetfor{\etuple{\pi_1\< \dvar a,\, \pi_2\< \dvar b}}{
+    \dvar a \in \dvarlong{edge},\,
+    \dvar b \in \mvar p,\,
+    \eeq{\pi_2\<a}{\pi_1\<b}
+  }
+\end{code}
+
+\noindent
+In the ASCII syntax the compiler accepts, this becomes:
+
+%% \begin{verbatim}
+%%   @([{str,str}] -> {str,str})       -- type annotation
+%%   \e.
+%%     let [edge] = e in
+%%     fix p is
+%%       edge or {(pi1 a, pi2 b) for a in edge for b in p when pi2 a = pi1 b}
+%% \end{verbatim}
+
+\begin{lstlisting}[language=datafun]
+  @([{str,str}] -> {str,str}) -- type annotation
+  \e.
+    let [edge] = e in
+    fix p is
+      edge or {(pi1 a, pi2 b) for a in edge for b in p when pi2 a = pi1 b}
+\end{lstlisting}
+
+%% \begin{center}
+%%   \setlength\tabcolsep{1em}
+%%   \begin{tabular}{>{\ttfamily}ll}
+%%     ASCII syntax & Explanation
+%%     \\\midrule
+%%     @([\{str,str\}] -> \{str,str\}) & (type annotation)
+%%     \\
+%%     \textbackslash e.
+%%     & $\efn{e}$
+%%     \\
+%%     \ let [edge] = e in
+%%     &
+%%     $\ \elet{\pboxvarlong{edge} = \mvar E}$
+%%     \\
+%%     \ fix p is
+%%     &
+%%     $\ \efixisraw{P}{}$
+%%     \\
+%%     \ \ edge or
+%%     %& ``\texttt{or}'' means semilattice join
+%%     & $\ \ \dvarlong{edge} \vee {}$
+%%     \\
+%%     \ \ \{(pi1 a, pi2 b)
+%%     \\
+%%     \ \ \ for a in edge for b in p
+%%     \\
+%%     \ \ \ when pi2 a = pi1 b\}
+%%   \end{tabular}
+%% \end{center}
+
+\noindent
+Passing this through the \naive\ compilation path, {\sffamily\itshape$\text{parse} \to \text{typecheck} \to \text{drop boxes} \to \text{emit}$}, produces closely corresponding Haskell code (also shown in \cref{figure-trans-naive}):
+
+\begin{lstlisting}[emph={fix,union,forIn,guard,set}]
+  \e_0 ->
+    let edge_1 = e_0 in
+    fix (\p_2 ->
+      union edge_1
+        (forIn edge_1 (\a_3 ->
+         forIn p_2 (\b_4 ->
+         guard (snd a_3 == fst b_4)
+         (set [(fst a_3, snd b_4)])))))
+\end{lstlisting}
+
+%% \begin{verbatim}
+%%   \e_0 ->
+%%     let edge_1 = e_0 in
+%%     fix (\p_2 ->
+%%       union
+%%         edge_1
+%%         (forIn edge_1 (\a_3 ->
+%%           forIn p_2 (\b_4 ->
+%%             guard (snd a_3 == fst b_4)
+%%               set [(fst a_3, snd b_4)]))))
+%% \end{verbatim}
+
+\noindent
+This code has been prettified by removing unnecessary parentheses and adding line breaks and indentation. Besides minor syntactic details, the primary changes are:
+
+\newcommand\runtime[1]{\texttt{\color{runtime}#1}}
+
+\begin{enumerate}
+\item Variable names have had unique numeric suffixes added; this is an artifact of the compiler internals.
+
+\item Boxes have been dropped, so \,\verb|let [edge] = e|\, becomes simply \,\lstinline{let edge_1 = e_0}.
+
+\item The set comprehension is translated into nested calls to \runtime{forIn}, \runtime{guard}, and \runtime{set}. This uglifies the code, replacing binding forms with higher-order functions applied to lambdas, but otherwise corresponds to desugaring the comprehension (\cref{figure-sugar}):
+
+  \begin{align*}
+    &\phantom{{}\desugars{}}
+    \esetfor{\etuple{\pi_1\< \dvar a,\, \pi_2\< \dvar b}}{
+    \dvar a \in \dvarlong{edge},\,
+    \dvar b \in \mvar p,\,
+    \eeq{\pi_2\<a}{\pi_1\<b}}
+    \\
+    &\desugars
+    \eforvar a {\dvarlong{edge}}
+    \eforvar b {\mvar p}
+    \eforin {\pwild} {\eeq{\pi_2\<\dvar a}{\pi_1\<\dvar b}}
+    \eset{\etuple{\pi_1\<\dvar a, \pi_2\<\dvar b}}
+  \end{align*}
+
+\item In a similar way, other Datafun features such as fixed points $\efixis x e$ and semilattice join $e_1 \vee e_2$ have been translated into calls to functions like \runtime{fix} and \runtime{union}.
+\end{enumerate}
+
+\input{4-figure-runtime-library}
+
+\noindent
+The resulting Haskell code depends on functions ({\color{runtime}highlighted in pink}) supplied by a small auxiliary library~(\cref{figure-runtime-library}).
+%
+The primary reason we chose Haskell as a target language is because it simplifies this step of translating language features into calls to library functions:
+%
+Datafun's concept of a ``semilattice type'' $L$, over which  $\vee$, $\bot$, \prim{fix}, and \kw{for}-loops are parameterized, translates directly to a Haskell typeclass \texttt{Semilat} defined in this auxiliary library.
+%
+This spares the Datafun compiler the work of determining at which types these primitives are actually invoked and generating the library code necessary for that subset of types.
+
+\label{section-runtime}
+
+This \lstinline{Semilat} typeclass has two core methods, \lstinline{(<:)} and \lstinline{unions}:%
+%
+\footnote{The \lstinline{diff} method on \lstinline{Semilat} and the \lstinline{semifixMinimized} function are not yet significant and will be explained in \cref{section-change-minimization}.\label{footnote-diff}}
+
+\begin{lstlisting}
+  class Semilat a where
+    (<:) :: a -> a -> Bool
+    unions :: [a] -> a
+    ... etc ...
+\end{lstlisting}
+
+\noindent
+The \lstinline{(<:)} operator computes the type's order relation $\le$,\footnote{We did not use Haskell's built-in \lstinline{Ord} typeclass for this because it is intended for total orders, not partial ones.} and is used to determine when fixed point iteration has stabilized: semi\naive\ iteration stabilizes once $\dx_i \le x_i$.
+%
+(This is an optimization over checking equality $x_i = x_{i+1}$.)
+%
+The \lstinline{unions} method computes the semilattice join/least upper bound of its list of arguments.
+%
+Using this we define binary \lstinline{union}/$\vee$ and nullary \lstinline{empty}/$\bot$ wrappers.
+%
+We provide instances for empty and binary products, booleans, and sets, the Haskell types which our Datafun semilattice types get translated into.
+
+The other functions provided by the runtime library are \lstinline{set}, used to construct literal sets; \lstinline{forIn}, which implements \kw{for}-loops over sets; \lstinline{guard}, which implements \kw{for}-loops over booleans (i.e.\ one-sided conditionals $\efor{e_1} e_2$, also seen as boolean ``guard'' conditions in set comprehensions); and \lstinline{fix}/\lstinline{semifix}, which implement \naive\ and semi\naive\ iteration respectively.\cref{footnote-diff}
+
+
+%% \subsection{Writing a compiler in final style}\label{section-final-style}
+
+%% \XXX
+
+
+\subsection{Benchmarking semi\naive\ evaluation}\label{section-benchmarks}
+
+%% We have implemented a compiler from a fragment of Datafun (omitting sum types) to Haskell, available at \url{https://github.com/rntz/datafun/tree/popl20/v4-fastfix}.
+%% %
+%% We use Haskell's \texttt{Data.Set} to represent Datafun sets, and typeclasses to implement Datafun's notions of equality and semilattice types.
+%% %
+%% We do no query planning and implement no join algorithms; relational
+%% joins, written in Datafun as nested \kw{for}-loops, are compiled into nested
+%% loops.
+%% %
+%% Consequently our performance is worse than any real Datalog engine.
+%% %
+%% However, we do implement the $\phi$ translation, along with the following
+%% optimizations:
+
+%% \begin{enumerate}
+%% \item Propagating $\bot$; for example, rewriting $(e \vee \bot) \rewrites e$ and
+%%   $(\eforin{x}{e} \bot) \rewrites \bot$.
+
+%% \item Inserting $\bot$ in place of semilattice-valued zero changes (for example,
+%%   changes to discrete variables $\delta \dvar x$). This makes $\bot$-propagation
+%%   more effective.
+
+%% \item Recognising complex zero change expressions; for example, $\delta e
+%%   \<\ebox{\phi f} \<\delta f$ is a zero change if $\delta e$ and $\delta f$ are.
+%%   This allows more zero changes to be replaced by $\bot$, especially in
+%%   higher-order code such as our regular expression example.
+%% \end{enumerate}
+
 To test whether the $\phi$ translation can produce the asymptotic performance
 gains we claim, we benchmark two example Datafun programs:
 
 \begin{enumerate}
 \item Finding the transitive closure of a linear graph using the \name{trans}
-  function from \cref{section-datafun-transitive-closure}. We chose this example
-  because, as discussed in \cref{section-seminaive-incremental}, it has a well
-  understood asymptotic speed-up under semi\naive\ evaluation. This means that
-  if we've failed to capture the essence of semi\naive\ evaluation, it should be
-  highly visible.
+  function from \cref{section-compiling-trans} (first introduced in
+  \cref{section-datafun-transitive-closure}). As discussed in
+  \cref{section-seminaive-incremental}, transitive closure has a well understood
+  asymptotic speed-up under semi\naive\ evaluation. This means that if we've
+  failed to capture the essence of semi\naive\ evaluation, it should be highly
+  visible.
 
 \item Finding all matches of the regular expression \texttt{/a*/} in the string
   $\texttt{a}^n$, using the regex combinators from
@@ -58,7 +411,38 @@ gains we claim, we benchmark two example Datafun programs:
   properly handles Datafun's distinctive feature: higher-order programming.
 \end{enumerate}
 
+\input{4-figure-compiled-code}
+
+\input{4-figure-seminaive-vs-naive-graph}
+
 \noindent
+We send each program through the four compiler paths described in \cref{section-compiler}: the direct/\naive\ translation (\emph{\naive}); the $\phi$ transform alone (\emph{semi\naive\ raw}); $\phi$ with $\bot$ propagation (\emph{semi\naive\ simplified}); and $\phi$ with $\bot$ insertion and propagation (\emph{semi\naive\ optimized}).
+%
+We exhibit the four translations of \name{trans} in \cref{figure-trans-naive,figure-trans-seminaive-raw,figure-trans-seminaive-simple,figure-trans-seminaive}.
+%
+We graph the benchmark results for three of these translations (excluding \emph{semi\naive\ simplified}) in \cref{figure-seminaive-vs-naive-graph}; we compare \emph{semi\naive\ simplified} and \emph{semi\naive\ optimized} in \cref{figure-seminaive-simplified-vs-optimized}.
+%
+These results support three conclusions:
+
+\begin{enumerate}
+\item Combining the $\phi$ transformation with $\bot$ propagation enables asymptotic speedups. \XXX
+
+\item These speedups extend to higher-order code: \XXX
+
+\item The $\bot$ insertion pass appears unnecessary to achieve asymptotic improvements, even (somewhat surprisingly) in higher-order code. \XXX
+\end{enumerate}
+
+\XXX
+Core result: as we suspected, the phi transform alone doesn't do anything, but when followed by $\bot$ insertion and propagation we get our asymptotic speedup. This is because of the for-loop removal.
+
+\XXX
+$\bot$ insertion seems to be unnecessary; on our benchmarks, performance is indistinguishable from just doing $\bot$ propagation. Looking at the code, it simplifies the programs, and even removes some loops, but the loops it removes are (for (x in bottom) e) not (for (x in e) bottom).  We were expecting to see some benefit for higher-order code, because bottom insertion can recognize and simplify zero changes involving use of higher order functions, but we didn't see this. further investigation needed.
+
+\todo{Rewrite remainder of section. Discuss: four compiler paths; naive vs seminaive; why bottom insertion seems to do nothing.}
+
+\clearpage
+\noindent
+\XXX
 We compiled each program in three distinct ways: \emph{\naive{}}, without the
 $\phi$ transform (but with $\bot$-propagation); \emph{semi\naive{} raw}, with
 the $\phi$ transform but without further optimization; and \emph{semi\naive{}

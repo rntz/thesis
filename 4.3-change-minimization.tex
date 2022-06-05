@@ -2,6 +2,8 @@
 
 \label{section-change-minimization}
 
+\todo{rewrite to explain how change minimization is implemented}
+
 Before we jump to the conclusion that we have captured the essence of seminaive evaluation, let's try a small twist on our running example: let's add self-loops to every node in our linear graph, producing the graph $(V,E)$ with $V = \{1, ..., n\}$ and $E = \setfor{(i,j)}{j \in \{i,i+1\}}$.
 %
 This makes our reachability relation reflexive, changing the transitive closure from the less-than relation $\setfor{(i,j)}{1 \le i < j \le n}$ to the less-than-or-equal-to relation $\setfor{(i,j)}{1 \le i \le j \le n}$.
@@ -45,7 +47,7 @@ adding these self-loops produces an asymptotic slowdown, even with our semi\naiv
 \noindent
 What's going on here?
 %
-Recall from \cref{equation-semifix-trans-recurrence}, \cpageref{equation-semifix-trans-recurrence}, that the semi\naive\ iteration strategy Datafun uses for transitive closure is:
+Recall from \cref{equation-semifix-trans-recurrence}, \cpageref{equation-semifix-trans-recurrence} (and confirmed by \cref{figure-trans-seminaive}) that the semi\naive\ iteration strategy Datafun uses for transitive closure is:
 
 \begin{align*}
   x_0 &= \emptyset
@@ -155,9 +157,9 @@ This ensures each $\dx_i$ is minimal, disjoint from $x_i$ and thus all prior $\d
 \input{4-figure-change-minimization-graph}
 
 \noindent
-If we examine all four options -- with and without self-loops, with and without minimizing $\dx_i$ -- and compare their slowdown factors, taking a loopless graph without change minimization as our baseline (\cref{figure-change-minimization-graph}), we find that a loopy graph without change minimization is asymptotically slower than everything else; on a loopless graph, minimizing changes has fairly low constant overhead compared to not minimizing; and when minimizing changes, moving from a loopless to a loopy graph causes a roughly 2x slowdown due to the need to remove rediscovered paths every iteration.
+If we examine all four options -- with and without self-loops, with and without minimizing $\dx_i$ -- and compare their slowdown factors, taking a loopless graph without change minimization as our baseline (\cref{figure-change-minimization-graph}), we find that (a) loopy graphs without change minimization are asymptotically slow; (b) on loopless graphs, minimizing changes has low constant overhead (versus not minimizing); and (c) moving from a loopless to a loopy graph causes a roughly 2x slowdown when minimizing changes, because we must remove rediscovered paths on every iteration.
 
-Two questions remain: (1) why does change minimization preserve correctness? and (2) how can we generalize change minimization from finite sets to all semilattice types? The answer to the first question will guide the solution to the second.
+Two questions remain: (1) why is change minimization correct? and (2) how can we generalize it from finite sets to all semilattice types? The answer to the first question will guide the solution to the second.
 %
 Change minimization is correct because it preserves validity of changes: if \(\changesat{\tseteq A}{\dx} x y\), in other words \(x \cup \dx = y\), then we also have \(\changesat{\tseteq A}{\dx \setminus x} x y\), because \(x \cup (\dx \setminus x) = x \cup \dx = y\). Thus minimizing changes preserves the inductive invariant that \(\changes{\dx_i}{x_i}{f \<x_i}\) which guarantees \semifix\ finds a least fixed point.
 %
@@ -175,7 +177,7 @@ This condition is what we need to generalize change minimization: for each latti
 \end{align*}
 
 \noindent
-This guarantees correctness; for performance, our guiding intuition is that \(\dx \setminus_L x\) should be ``as small as possible'' while preserving validity, with the goal of avoiding any unnecessary work downstream of change minimization.
+So much for correctness; for efficiency, our guiding intuition is that \(\dx \setminus_L x\) should be ``as small as possible'' to reduce any work downstream of change minimization.
 
 For any semilattice \(L\) one may always safely let \(\dx \setminus_L x = \dx\), returning us to the original definition of \semifix. Indeed, for totally-ordered semilattices this is the only valid definition; for instance, take \(\N^\infty_{\textsf{min}}\), the naturals extended with positive infinity under minimum. This inability to meaningfully minimize changes is concerning for the efficiency of computations which use these semilattices (e.g.\ shortest paths); an important direction for future work would be to characterize the efficiency of semi\naive\ evaluation over different classes of semilattice.
 

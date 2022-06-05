@@ -1,0 +1,26 @@
+\begin{figure}
+  \sffamily
+  % https://q.uiver.app/?q=WzAsNixbMCwwLCJcXHRleHR7U291cmNlfSJdLFswLDIsIlxcdGV4dHtTeW50YXh9Il0sWzAsNCwiXFx0ZXh0e1R5cGVkIHN5bnRheH0iXSxbMCw2LCJcXHRleHR7SUx9Il0sWzIsNSwiXFx0ZXh0e0lMIHcvIHplcm99Il0sWzAsOCwiXFx0ZXh0e0hhc2tlbGx9Il0sWzAsMSwiXFx0ZXh0e3BhcnNlfSJdLFsxLDIsIlxcdGV4dHt0eXBlY2hlY2t9Il0sWzIsMywiXFx0ZXh0e2Ryb3AgYm94ZXN9IiwyXSxbMiw0LCJcXHBoaVxcdGV4dHsgdHJhbnNmb3JtfSJdLFs0LDMsIlxcdGV4dHtkcm9wIHplcm9zfSIsMV0sWzQsMywiXFx0ZXh0e3Byb3BhZ2F0ZSB6ZXJvc30iLDEseyJjdXJ2ZSI6LTR9XSxbMyw1LCJcXHRleHR7ZW1pdCBIYXNrZWxsfSJdXQ==
+  \[
+  \begin{tikzcd}[every label/.append style={font=\footnotesize\itshape}]
+	        {\text{Source code}} \\
+	        \\
+	          {\text{Untyped syntax}} \\
+	          \\
+	            {\text{Typed syntax}} \\
+	            && {\text{IL with zero}} \\
+	            {\text{IL}} \\
+	            \\
+	              {\text{Haskell}}
+	              \arrow["{\text{parse}}"', from=1-1, to=3-1]
+	              \arrow["{\text{typecheck}}"', from=3-1, to=5-1]
+	              \arrow["{\text{drop boxes}}"', from=5-1, to=7-1]
+	              \arrow["{\phi\text{ transform}}", from=5-1, to=6-3]
+	              \arrow["{\text{do nothing}}"{description}, curve={height=12pt}, from=6-3, to=7-1]
+	              \arrow["{\text{insert $\bot$}}"{description}, curve={height=-24pt}, from=6-3, to=7-1]
+	              \arrow["{\text{emit}}"', from=7-1, to=9-1]
+	              \arrow["{\text{propagate }\bot}", from=7-1, to=7-1, loop left]
+  \end{tikzcd}\]
+  \caption{Stages of the Datafun compiler}
+  \label{figure-compiler-passes}
+\end{figure}

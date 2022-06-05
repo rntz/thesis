@@ -1,0 +1,101 @@
+\begin{figure}[p]\footnotesize
+  \begin{lstlisting}[gobble=2]
+  \e_0 ->
+    let edge_1 = e_0 in
+    fix (\p_2 ->
+      union edge_1
+        (forIn edge_1 (\a_3 ->
+         forIn p_2 (\b_4 ->
+         guard (snd a_3 == fst b_4)
+         (set [(fst a_3, snd b_4)])))))
+  \end{lstlisting}
+  \caption{\Naive\ translation of transitive closure}
+  \label{figure-trans-naive}
+\end{figure}
+
+\begin{figure}[p]\footnotesize
+  \begin{lstlisting}[gobble=2]
+  \e_0 ->
+    let (edge_1, dedge_1) = e_0 in
+    semifix
+      ((\p_2 -> union edge_1
+                   (forIn edge_1 (\a_3 ->
+                    forIn p_2 (\b_4 ->
+                    guard (snd a_3 == fst b_4)
+                    (set [(fst a_3, snd b_4)]))))),
+       (\p_2 -> \dp_2 ->
+        union dedge_1
+          (union
+            (forIn dedge_1 (\a_3 ->
+             let da_3 = ((), ()) in
+             forIn p_2 (\b_4 ->
+             guard (snd a_3 == fst b_4)
+             (set [(fst a_3, snd b_4)]))))
+            (forIn (union edge_1 dedge_1) (\a_3 ->
+             let da_3 = ((), ()) in
+             union
+               (forIn dp_2 (\b_4 ->
+                let db_4 = ((), ()) in
+                guard (snd a_3 == fst b_4)
+                (set [(fst a_3, snd b_4)])))
+               (forIn (union p_2 dp_2) (\b_4 ->
+                let db_4 = ((), ()) in
+                if (snd a_3 == fst b_4) then set [] else
+                guard False
+                (union (set [(fst a_3, snd b_4)]) (set [])))))))))
+  \end{lstlisting}
+  \caption{Raw semi\naive\ translation of transitive closure}
+  \label{figure-trans-seminaive-raw}
+\end{figure}
+
+\begin{figure}[p]\footnotesize
+  \begin{lstlisting}
+\e_0 ->
+  let (edge_1, dedge_1) = e_0 in
+  semifix
+    ((\p_2 -> union edge_1
+                 (forIn edge_1 (\a_3 ->
+                  forIn p_2 (\b_4 ->
+                  guard (snd a_3 == fst b_4)
+                  (set [(fst a_3, snd b_4)]))))),
+     (\p_2 -> \dp_2 ->
+      union dedge_1
+        (union
+          (forIn dedge_1 (\a_3 ->
+           let da_3 = ((), ()) in
+           forIn p_2 (\b_4 ->
+           guard (snd a_3 == fst b_4)
+           (set [((fst a_3), (snd b_4))]))))
+          (forIn (union edge_1 dedge_1) (\a_3 ->
+           let da_3 = ((), ()) in
+           forIn dp_2 (\b_4 ->
+           let db_4 = ((), ()) in
+           guard (snd a_3 == fst b_4)
+           (set [(fst a_3, snd b_4)])))))))
+  \end{lstlisting}
+  \caption{Semi\naive\ translation of transitive closure with $\bot$ propagation}
+  \label{figure-trans-seminaive-simple}
+\end{figure}
+
+\begin{figure}[p]
+  \footnotesize
+  \begin{lstlisting}
+\e_0 ->
+  let (edge_1, dedge_1) = e_0 in
+  semifix
+    ((\p_2 -> union edge_1
+                 (forIn edge_1 (\a_3 ->
+                  forIn p_2 (\b_4 ->
+                  guard (snd a_3 == fst b_4)
+                  (set [(fst a_3, snd b_4)]))))),
+     (\p_2 -> \dp_2 ->
+      forIn edge_1 (\a_3 ->
+      let da_3 = ((), ()) in
+      forIn dp_2 (\b_4 ->
+      let db_4 = ((), ()) in
+      guard (snd a_3 == fst b_4)
+      (set [(fst a_3, snd b_4)])))))
+  \end{lstlisting}
+  \caption{Semi\naive\ translation of transitive closure with $\bot$ insertion and propagation}
+  \label{figure-trans-seminaive}
+\end{figure}

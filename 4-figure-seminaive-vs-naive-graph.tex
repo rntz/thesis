@@ -75,3 +75,57 @@
   \label{figure-seminaive-vs-naive-graph}
 \end{figure}
 
+\begin{figure}
+  \centering\small\sffamily
+  \todo{finish graphs for bottom insertion vs just propagation}
+
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{semilogyaxis}[
+        title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
+        xlabel={Number of nodes},
+        ylabel={Time (seconds)},
+        height=132.88pt, width=213pt, % golden
+        %height=140pt, width=210pt, % 2:3
+        legend entries={simplified,optimized},
+        legend cell align=left,
+        legend pos = north west,
+        legend style={
+          font=\footnotesize,
+          draw=none,
+          nodes={inner sep=3pt,}
+        },
+        log basis y=2,
+        %% ytickten = {-2,-1,0,1},
+        %% xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
+      ]
+      \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {trans.dat};
+      \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {trans.dat};
+    \end{semilogyaxis}
+  \end{tikzpicture}
+
+  %% \hfil
+  %% \begin{tikzpicture}[baseline=(current bounding box.center)]
+  %%   \begin{axis}[
+  %%       title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
+  %%       xlabel={Number of characters},
+  %%       height=132.88pt, width=213pt, % golden
+  %%       %height=140pt, width=210pt,
+  %%       legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
+  %%       legend cell align=left,
+  %%       legend pos = north west,
+  %%       legend style={
+  %%         font=\footnotesize,
+  %%         draw=none,
+  %%         nodes={inner sep=3pt,}
+  %%       },
+  %%       xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
+  %%     ]
+  %%     \addplot [color=red,mark=square*] table [x=n,y=naive] {astar.dat};
+  %%     \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar.dat};
+  %%     \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar.dat};
+  %%   \end{axis}
+  %% \end{tikzpicture}
+  
+  \caption{Effect of $\bot$ insertion on semi\naive\ evaluation}
+  \label{figure-seminaive-simplified-vs-optimized}
+\end{figure}
