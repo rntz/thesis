@@ -1,0 +1,69 @@
+up to date wrt 0e5a2a70efebde9650aad89df177abd0d76c3024
+
+I've listed page numbers for the changes; these numbers are for the current pdf (with corrections), not the original pdf (prior to corrections).
+
+Major differences from initial submission:
+
+1. The explanation of change structures in chapter 3 has been totally rewritten, giving a mathematical definition of change structures, derivatives, and the category ΔPoset they form, and explaining why these definitions were chosen over potential alternatives. (pp45-54)
+
+2. Chapter 4 has been expanded to cover a crucial additional optimization, change minimization, without which we can still get asymptotic slowdowns. (pp69-72)
+
+3. The proofs of termination of the operational semantics (pp32-41) and correctness of the phi/delta translation (pp87-97) have been completed and typeset.
+
+Minor differences:
+
+p6, 11, 69, 75, 79, 80, perhaps others: Informal language has been removed.
+
+p7-10: The term "derivable" has been generally replaced with "deducible".
+
+p11: Citations and short explanations have been added for magic sets and tabling. Reference to QSQR has been removed; it is a variety of tabling.
+
+p13: Clarified in what sense semilattice aggregations are monotone.
+
+p15: "square this circle" replaced with "cut this Gordian knot". Fewer exclamation points.
+
+p16: Explanation of discrete vs monotone variables expanded. Explanation added for why fixed points take semilattice type.
+
+p18: An explanation has been added for why the expansion of (if !e1 <- e2 then f1 else f2) swaps the order of f1 and f2.
+
+p21: Removed duplicate definition of nil.
+
+p26: Brief explanation added for why we box the argument to fix.
+
+p28: Explained in footnote why we ignore the element ordering in our ordering on finite sets.
+
+p29-30: Replace center dot with semicolon for forward composition.
+
+p29: replace "these semantics" with "this semantics".
+
+p29,31: Use a circle for hole in evaluation context instead of a square.
+
+p31: The reduction rules for for-loops have been altered to process the set looped over from right-to-left; this makes the termination proof infinitesimally easier. Missing reduction rules for bottom at unit type have been added. The reduction rule for fix has been corrected to expect a boxed argument.
+
+p42: Added an introduction to chapter 3 saying how it connects with previous chapter.
+
+p42: Explicitly mention that `path` denotes reachability by 1 or more edges (as opposed to 0 or more).
+
+p43-44: Revise explanation of/derivation of seminaive evaluation strategy for transitive closure for clarity and explicitness.
+
+p47: Cite POPL 2020 paper, explain relation to contents of chapter.
+
+p55: Reference the figure that defines semilattice types and restate their grammar.
+
+p57: Moved figure containing syntax sugar used in phi/delta translations out of the appendix and into chapter 3.
+
+p60: Explained that we want the output of our translation to be well-typed Datafun code, which is why we need to appease its typechecker with impossible cases.
+
+p65: Revise introduction to chapter 4 to reflect that it discusses two optimizations: simplifying the output of the phi translation to remove unnecessary loops, and minimizing changes in semifix to avoid accumulating junk.
+
+p65-67: Label derived equations and backward-reference them when they are used instead of saying simply "prior work".
+
+p68: Mention that the regex example is higher-order because it encodes regexes as functions and regex constructions as function combinators.
+
+p75: "useless recomputation" -> "recomputation"
+
+p76: Add footnote explaining why/when commutativity and associativity suffice.
+
+p77: Update comparison between Giarrusso et al's change structures and ours to accomodate changes to our definition of change structures in Chapter 3.
+
+bibliography, p99-end: ensured 'Datalog', 'Horn Logic', 'CRDTs', 'Kripke', 'Schemer', 'Mercury',  are capitalized, removed incorrect page count from Koch 2013 reference, removed 'Wolfson College' from Mario's thesis
