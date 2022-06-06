@@ -6,7 +6,6 @@
         xlabel={Number of nodes},
         ylabel={Time (seconds)},
         height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt, % 2:3
         legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
         legend cell align=left,
         legend pos = north west,
@@ -28,15 +27,14 @@
         title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
         xlabel={Number of characters},
         height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt,
-        legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
-        legend cell align=left,
-        legend pos = north west,
-        legend style={
-          font=\footnotesize,
-          draw=none,
-          nodes={inner sep=3pt,}
-        },
+        %% legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
+        %% legend cell align=left,
+        %% legend pos = north west,
+        %% legend style={
+        %%   font=\footnotesize,
+        %%   draw=none,
+        %%   nodes={inner sep=3pt,}
+        %% },
         xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
       ]
       \addplot [color=red,mark=square*] table [x=n,y=naive] {astar.dat};
@@ -77,29 +75,51 @@
 
 \begin{figure}
   \centering\small\sffamily
-  \todo{finish graphs for bottom insertion vs just propagation}
-
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{semilogyaxis}[
         title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
         xlabel={Number of nodes},
-        ylabel={Time (seconds)},
-        height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt, % 2:3
-        legend entries={simplified,optimized},
+        ylabel={Speedup factor (larger is better)},
+        width=213pt, height=345pt,    % golden
+        legend entries={
+          semi\naive\ optimized,
+          semi\naive\ simplified,
+          semi\naive\ raw,
+          \naive,
+        },
         legend cell align=left,
-        legend pos = north west,
+        legend pos=north east,
         legend style={
           font=\footnotesize,
-          draw=none,
-          nodes={inner sep=3pt,}
+          %% draw=none,
+          nodes={inner sep=3pt,},
+          at={(0.5, 0.5)}, anchor=center,
         },
+        grid=major,ymajorgrids,
         log basis y=2,
-        %% ytickten = {-2,-1,0,1},
-        %% xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
+        xtick={120, 160, ..., 400},
       ]
-      \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {trans.dat};
-      \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {trans.dat};
+      \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {trans-speedup.dat};
+      \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {trans-speedup.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {trans-speedup.dat};
+      \addplot [color=red,mark=square*] table [x=n,y=naive] {trans-speedup.dat};
+    \end{semilogyaxis}
+  \end{tikzpicture}
+  \hfil
+  \begin{tikzpicture}[baseline=(current bounding box.center)]
+    \begin{semilogyaxis}[
+        title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
+        xlabel={Number of nodes},
+        width=213pt, height=345pt,    % golden
+        %% legend columns=2,
+        grid=major,ymajorgrids,
+        log basis y=2,
+        xtick={120, 160, ..., 400},
+      ]
+      \addplot [color=red,mark=square*] table [x=n,y=naive] {astar-speedup.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar-speedup.dat};
+      \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {astar-speedup.dat};
+      \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar-speedup.dat};
     \end{semilogyaxis}
   \end{tikzpicture}
 

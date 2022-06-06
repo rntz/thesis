@@ -51,11 +51,8 @@
 
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{semilogyaxis}[
-        %% title={\scshape transitive closure},
         xlabel={Number of nodes},
-        ylabel={Slowdown factor},
-        width=400pt, height=500pt, % 4:5
-        %% width=333.3pt, height=500pt, % 2:3
+        ylabel={Slowdown factor (smaller is better)},
         width=309pt, height=500pt, % golden
         legend entries={
           {not minimizing, loopy},
@@ -72,8 +69,7 @@
         },
         grid=major,
         ymajorgrids, log basis y=2,
-        xtick={120, 160, ..., 480},
-        %% xtick={120, 180, ..., 480},
+        xtick={120, 160, ..., 400},
         ytickten={0,1,2,3,4,5,6,7,8,9,10,11},
       ]
       \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-slowdown.dat};

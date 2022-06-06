@@ -422,14 +422,26 @@ We exhibit the four translations of \name{trans} in \cref{figure-trans-naive,fig
 %
 We graph the benchmark results for three of these translations (excluding \emph{semi\naive\ simplified}) in \cref{figure-seminaive-vs-naive-graph}; we compare \emph{semi\naive\ simplified} and \emph{semi\naive\ optimized} in \cref{figure-seminaive-simplified-vs-optimized}.
 %
-These results support three conclusions:
+These results support the following conclusions:
 
 \begin{enumerate}
-\item Combining the $\phi$ transformation with $\bot$ propagation enables asymptotic speedups. \XXX
+\item The $\phi$ transformation combined with optimizations enables asymptotic
+  speedups: \emph{semi\naive\ optimized} is dramatically faster than
+  \emph{\naive,} and the speedup factor increases with the size of the input
+  \todo{use a log plot of speedups}.
+%
+  Moreover, the measured times are similar for transitive closure and regex
+  search across all optimization levels, suggesting that higher-order code does
+  not pose a particular problem for our optimizations.
 
-\item These speedups extend to higher-order code: \XXX
-
-\item The $\bot$ insertion pass appears unnecessary to achieve asymptotic improvements, even (somewhat surprisingly) in higher-order code. \XXX
+\item These asymptotic improvements depend crucially on $\bot$ propagation:
+  \emph{semi\naive\ raw} yields only a small constant-factor speedup over
+  \emph{\naive}, roughly 10--20\%.
+%
+  However, the measured times for \emph{semi\naive\ simplified} and
+  \emph{semi\naive\ optimized} are effectively identical, so $\bot$ insertion
+  appears to be irrelevant, even (somewhat surprisingly) in higher-order code.
+  \XXX
 \end{enumerate}
 
 \XXX
