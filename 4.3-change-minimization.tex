@@ -10,9 +10,37 @@ This makes our reachability relation reflexive, changing the transitive closure 
 %
 This produces exactly $n$ new paths, namely $\setfor{(i,i)}{1 \le i \le n}$; since we already had quadratically many paths, ideally this won't affect our performance much.
 
-%% Unfortunately, as we can see in \cref{figure-loops-kill-us}, 
-Unfortunately,
-adding these self-loops produces an asymptotic slowdown, even with our semi\naive\ transformation and all optimizations applied (\`a la \emph{semi\naive\ optimized}):
+Unfortunately, adding these self-loops produces an asymptotic slowdown, even with our semi\naive\ transformation and all optimizations applied (\`a la \emph{semi\naive\ optimized}):
+
+%% \nopagebreak[3]
+%% \begin{center}
+%%   \small\sffamily
+%%   \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%     \begin{axis}[
+%%         %% title={\scshape transitive closure without change minimization},
+%%         xlabel={Number of nodes},
+%%         ylabel={Time (seconds)},
+%%         %% height=132.88pt, width=213pt, % golden
+%%         %height=140pt, width=210pt, % 2:3
+%%         height=144pt, width=233pt, % fibonacci/golden
+%%         legend entries={line graph,line graph with self-loops},
+%%         legend cell align=left,
+%%         legend pos = north west,
+%%         legend style={
+%%           font=\footnotesize,
+%%           draw=none,
+%%           nodes={inner sep=3pt,}
+%%         },
+%%         xtick = {120, 160, ..., 320},
+%%         ytick = {0, 60, ..., 260},
+%%       ]
+%%       \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop.dat};
+%%       \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+%%     \end{axis}
+%%   \end{tikzpicture}
+%%   %% \caption{Semi\naive\ transitive closure on a linear graph with and without loops}
+%%   %% \label{figure-loops-kill-us}
+%% \end{center}
 
 \nopagebreak[3]
 \begin{center}
@@ -33,15 +61,14 @@ adding these self-loops produces an asymptotic slowdown, even with our semi\naiv
           draw=none,
           nodes={inner sep=3pt,}
         },
-        xtick = {120, 160, ..., 320},
-        ytick = {0, 60, ..., 260},
+        xtick = {120, 160, ..., 400},
+        ytick = {0, 240, ..., 790},
       ]
-      \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop.dat};
-      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+      \addplot [color=Fuchsia,mark=x] table [x=n,y=normal] {trans-loop-extended.dat};
+      %% \addplot [color=black,mark=triangle*] table [x=n,y=normal] {trans-loop-extended.dat};
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-extended.dat};
     \end{axis}
   \end{tikzpicture}
-  %% \caption{Semi\naive\ transitive closure on a linear graph with and without loops}
-  %% \label{figure-loops-kill-us}
 \end{center}
 
 \noindent
@@ -125,17 +152,45 @@ Let's change our strategy for finding the ``new'' frontier $\dx_{i+1}$ to remove
 \noindent
 This ensures each $\dx_i$ is minimal, disjoint from $x_i$ and thus all prior $\dx_j$ for $j < i$. (We don't need to do anything to minimize $\dx_0$ since $x_0 = \bot$.) This fixes our asymptotic slowdown:
 
+%% \nopagebreak[3]
+%% \begin{center}
+%%   \small\sffamily
+%%   \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%     \begin{axis}[
+%%         %% title={\scshape transitive closure with self-loops},
+%%         xlabel={Number of nodes},
+%%         ylabel={Time (seconds)},
+%%         height=132.88pt, width=213pt, % golden
+%%         %height=140pt, width=210pt, % 2:3
+%%         legend entries={semi\naive,{semi\naive\ minimizing}},
+%%         legend entries={w/o minimizing changes, minimizing changes},
+%%         legend cell align=left,
+%%         legend pos = north west,
+%%         legend style={
+%%           font=\footnotesize,
+%%           draw=none,
+%%           nodes={inner sep=3pt,}
+%%         },
+%%         xtick = {120, 160, ..., 320},
+%%         ytick = {0, 60, ..., 260},
+%%       ]
+%%       %% \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-extended.dat};
+%%       %% \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop-extended.dat};
+%%       \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
+%%       \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
+%%     \end{axis}
+%%   \end{tikzpicture}
+%% \end{center}
+
 \nopagebreak[3]
 \begin{center}
   \small\sffamily
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{axis}[
-        %% title={\scshape transitive closure with self-loops},
+        %% title={\scshape transitive closure without change minimization},
         xlabel={Number of nodes},
         ylabel={Time (seconds)},
-        height=132.88pt, width=213pt, % golden
-        %height=140pt, width=210pt, % 2:3
-        legend entries={semi\naive,{semi\naive\ minimizing}},
+        height=144pt, width=233pt, % fibonacci/golden
         legend entries={w/o minimizing changes, minimizing changes},
         legend cell align=left,
         legend pos = north west,
@@ -144,15 +199,40 @@ This ensures each $\dx_i$ is minimal, disjoint from $x_i$ and thus all prior $\d
           draw=none,
           nodes={inner sep=3pt,}
         },
-        xtick = {120, 160, ..., 320},
-        ytick = {0, 60, ..., 260},
+        xtick = {120, 160, ..., 400},
+        ytick = {0, 240, ..., 790},
       ]
-      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop.dat};
-      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop.dat};
-      %      \addplot [color=ForestGreen,mark=star] table [x=n,y=normal] {trans-loop.dat};
+      \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-extended.dat};
+      \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop-extended.dat};
     \end{axis}
   \end{tikzpicture}
 \end{center}
+
+%% \nopagebreak[3]
+%% \begin{center}
+%%   \small\sffamily
+%%   \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%     \begin{axis}[
+%%         %% title={\scshape transitive closure with self-loops},
+%%         xlabel={Number of nodes},
+%%         ylabel={Time (seconds)},
+%%         height=132.88pt, width=213pt, % golden
+%%         %height=140pt, width=210pt, % 2:3
+%%         legend entries={w/o minimizing changes, minimizing changes},
+%%         legend cell align=left,
+%%         legend pos = north west,
+%%         legend style={
+%%           font=\footnotesize,
+%%           draw=none,
+%%           nodes={inner sep=3pt,}
+%%         },
+%%         xtick = {120, 180, ..., 500},
+%%       ]
+%%       \addplot [color=red,mark=square*] table [x=n,y=normal_loopy] {trans-loop-extended.dat};
+%%       \addplot [color=black,mark=triangle*] table [x=n,y=minimized_loopy] {trans-loop-extended.dat};
+%%     \end{axis}
+%%   \end{tikzpicture}
+%% \end{center}
 
 \input{4-figure-change-minimization-graph}
 
