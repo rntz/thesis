@@ -11,9 +11,9 @@ assert all(len(row) == ncols for row in data)
 
 print('\t'.join(headers))
 for row in data:
-    # ignore first column
+    # ignore first column, it's the input size
     nums = list(map(float, row[1:]))
     big = nums[-1]
+    small = nums[0]
     nums = [big/x for x in nums]
     print('\t'.join(row[:1] + list(map(str,nums))))
-

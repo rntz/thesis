@@ -1,5 +1,5 @@
 \begin{figure}
-  \centering\small\sffamily%\footnotesize
+  \centering\small\sffamily
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{axis}[
         title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
@@ -27,14 +27,6 @@
         title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
         xlabel={Number of characters},
         height=132.88pt, width=213pt, % golden
-        %% legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
-        %% legend cell align=left,
-        %% legend pos = north west,
-        %% legend style={
-        %%   font=\footnotesize,
-        %%   draw=none,
-        %%   nodes={inner sep=3pt,}
-        %% },
         xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
       ]
       \addplot [color=red,mark=square*] table [x=n,y=naive] {astar.dat};
@@ -42,42 +34,13 @@
       \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar.dat};
     \end{axis}
   \end{tikzpicture}
-  \scriptsize
-
   \vspace{\baselineskip}
 
-  %% We color rows according to corresponding lines in the graphs.
-  \colorlet{darkred}{red!65!black}
-  \colorlet{darkblue}{blue!65!black}
-
-  {\AlegreyaSansTLF\lsstyle
-  \setlength\tabcolsep{3.75pt}
-  \begin{tabu}{@{}l*{11}{r}@{}}
-    & \multicolumn{11}{c}{\scshape graph size / string length}\\
-    & 120 & 140 & 160 & 180 & 200 & 220 & 240 & 260 & 280 & 300 & 320
-    \\\midrule
-    \rowfont{\color{darkred}} \scshape regex search, \naive & 1.683 & 2.786 & 4.549 & 7.324 & 11.357 & 17.304 & 25.788 & 45.634 & 65.174 & 90.934 & 123.023
-    \\
-    \rowfont{\color{darkred}} \scshape transitive closure, \naive & 1.446 & 2.599 & 4.356 & 6.933 & 10.840 & 16.803 & 27.159 & 44.136 & 64.953 & 88.154 & 119.604
-    \\
-    \scshape regex search, semi\naive\ raw & 1.687 & 2.454 & 4.134 & 6.573 & 9.854 & 14.611 & 21.661 & 39.171 & 56.345 & 79.687 & 108.236
-    \\
-    \scshape transitive closure, semi\naive\ raw & 1.187 & 2.163 & 4.154 & 5.835 & 8.982 & 13.350 & 21.069 & 36.512 & 53.197 & 75.209 & 101.933
-    \\
-    \rowfont{\color{darkblue}} \scshape regex search, semi\naive\ optimized& 0.028 & 0.037 & 0.054 & 0.075 & 0.102 & 0.133 & 0.171 & 0.220 & 0.269 & 0.331 & 0.401
-    \\
-    \rowfont{\color{darkblue}} \scshape transitive closure, semi\naive\ optimized & 0.026 & 0.037 & 0.056 & 0.072 & 0.099 & 0.130 & 0.170 & 0.204 & 0.259 & 0.312 & 0.377
-  \end{tabu}}
-
-  \caption{\Naive\ vs semi\naive\ evaluation of transitive closure and regex matching in Datafun}
-  \label{figure-seminaive-vs-naive-graph}
-\end{figure}
-
-\begin{figure}
-  \centering\small\sffamily
+  \newlength\annoying\setlength\annoying{10pt}
+  \hspace{.25\annoying}
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{semilogyaxis}[
-        title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
+        %% title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
         xlabel={Number of nodes},
         ylabel={Speedup factor (larger is better)},
         width=213pt, height=345pt,    % golden
@@ -105,13 +68,13 @@
       \addplot [color=red,mark=square*] table [x=n,y=naive] {trans-speedup.dat};
     \end{semilogyaxis}
   \end{tikzpicture}
+  \hspace{.75\annoying}
   \hfil
+  \hspace{\annoying}
   \begin{tikzpicture}[baseline=(current bounding box.center)]
     \begin{semilogyaxis}[
-        title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
-        xlabel={Number of nodes},
+        xlabel={Number of characters},
         width=213pt, height=345pt,    % golden
-        %% legend columns=2,
         grid=major,ymajorgrids,
         log basis y=2,
         xtick={120, 160, ..., 400},
@@ -122,30 +85,231 @@
       \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar-speedup.dat};
     \end{semilogyaxis}
   \end{tikzpicture}
+  \scriptsize
 
-  %% \hfil
-  %% \begin{tikzpicture}[baseline=(current bounding box.center)]
-  %%   \begin{axis}[
-  %%       title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
-  %%       xlabel={Number of characters},
-  %%       height=132.88pt, width=213pt, % golden
-  %%       %height=140pt, width=210pt,
-  %%       legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
-  %%       legend cell align=left,
-  %%       legend pos = north west,
-  %%       legend style={
-  %%         font=\footnotesize,
-  %%         draw=none,
-  %%         nodes={inner sep=3pt,}
-  %%       },
-  %%       xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
-  %%     ]
-  %%     \addplot [color=red,mark=square*] table [x=n,y=naive] {astar.dat};
-  %%     \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar.dat};
-  %%     \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar.dat};
-  %%   \end{axis}
-  %% \end{tikzpicture}
-  
-  \caption{Effect of $\bot$ insertion on semi\naive\ evaluation}
-  \label{figure-seminaive-simplified-vs-optimized}
+  \vspace{2\baselineskip}
+
+  %% We color rows according to corresponding lines in the graphs.
+  \colorlet{darkred}{red!65!black}
+  \colorlet{darkblue}{blue!65!black}
+
+  \fixme{now}{these numbers are wrong, need seminaive simplified}
+
+  {\AlegreyaSansTLF\lsstyle
+  \setlength\tabcolsep{3.75pt}
+  \begin{tabu}{@{}l*{11}{r}@{}}
+    & \multicolumn{11}{c}{\scshape graph size / string length}\\
+    & 120 & 140 & 160 & 180 & 200 & 220 & 240 & 260 & 280 & 300 & 320
+    \\\midrule
+    \rowfont{\color{darkred}} \scshape regex search, \naive & 1.683 & 2.786 & 4.549 & 7.324 & 11.357 & 17.304 & 25.788 & 45.634 & 65.174 & 90.934 & 123.023
+    \\
+    \rowfont{\color{darkred}} \scshape transitive closure, \naive & 1.446 & 2.599 & 4.356 & 6.933 & 10.840 & 16.803 & 27.159 & 44.136 & 64.953 & 88.154 & 119.604
+    \\
+    \scshape regex search, semi\naive\ raw & 1.687 & 2.454 & 4.134 & 6.573 & 9.854 & 14.611 & 21.661 & 39.171 & 56.345 & 79.687 & 108.236
+    \\
+    \scshape transitive closure, semi\naive\ raw & 1.187 & 2.163 & 4.154 & 5.835 & 8.982 & 13.350 & 21.069 & 36.512 & 53.197 & 75.209 & 101.933
+    \\
+    \rowfont{\color{darkblue}} \scshape regex search, semi\naive\ optimized& 0.028 & 0.037 & 0.054 & 0.075 & 0.102 & 0.133 & 0.171 & 0.220 & 0.269 & 0.331 & 0.401
+    \\
+    \rowfont{\color{darkblue}} \scshape transitive closure, semi\naive\ optimized & 0.026 & 0.037 & 0.056 & 0.072 & 0.099 & 0.130 & 0.170 & 0.204 & 0.259 & 0.312 & 0.377
+  \end{tabu}}
+
+  \caption{\Naive\ vs semi\naive\ evaluation of transitive closure and regex matching in Datafun}
+  \label{figure-seminaive-vs-naive-graph}
 \end{figure}
+
+
+%% \begin{figure}
+%%   \centering\small\sffamily
+%%   \begin{tabular}{@{}l@{}l@{}}
+%%     \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%       \begin{axis}[
+%%           title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
+%%           xlabel={Number of nodes},
+%%           ylabel={Time (seconds)},
+%%           height=132.88pt, width=213pt, % golden
+%%           legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
+%%           legend cell align=left,
+%%           legend pos = north west,
+%%           legend style={
+%%             font=\footnotesize,
+%%             draw=none,
+%%             nodes={inner sep=3pt,}
+%%           },
+%%           xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
+%%         ]
+%%         \addplot [color=red,mark=square*] table [x=n,y=naive] {trans.dat};
+%%         \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {trans.dat};
+%%         \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {trans.dat};
+%%       \end{axis}
+%%     \end{tikzpicture}
+%%     &
+%%     \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%       \begin{axis}[
+%%           title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
+%%           xlabel={Number of characters},
+%%           height=132.88pt, width=213pt, % golden
+%%           xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
+%%         ]
+%%         \addplot [color=red,mark=square*] table [x=n,y=naive] {astar.dat};
+%%         \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar.dat};
+%%         \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar.dat};
+%%       \end{axis}
+%%     \end{tikzpicture}
+%%     \\
+%%     \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%       \begin{semilogyaxis}[
+%%           %% title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
+%%           xlabel={Number of nodes},
+%%           ylabel={Speedup factor (larger is better)},
+%%           width=213pt, height=345pt,    % golden
+%%           legend entries={
+%%             semi\naive\ optimized,
+%%             semi\naive\ simplified,
+%%             semi\naive\ raw,
+%%             \naive,
+%%           },
+%%           legend cell align=left,
+%%           legend pos=north east,
+%%           legend style={
+%%             font=\footnotesize,
+%%             %% draw=none,
+%%             nodes={inner sep=3pt,},
+%%             at={(0.5, 0.5)}, anchor=center,
+%%           },
+%%           grid=major,ymajorgrids,
+%%           log basis y=2,
+%%           xtick={120, 160, ..., 400},
+%%         ]
+%%         \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {trans-speedup.dat};
+%%         \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {trans-speedup.dat};
+%%         \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {trans-speedup.dat};
+%%         \addplot [color=red,mark=square*] table [x=n,y=naive] {trans-speedup.dat};
+%%       \end{semilogyaxis}
+%%     \end{tikzpicture}
+%%     &
+%%     \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%       \begin{semilogyaxis}[
+%%           %% title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
+%%           xlabel={Number of nodes},
+%%           width=213pt, height=345pt,    % golden
+%%           %% legend columns=2,
+%%           grid=major,ymajorgrids,
+%%           log basis y=2,
+%%           xtick={120, 160, ..., 400},
+%%         ]
+%%         \addplot [color=red,mark=square*] table [x=n,y=naive] {astar-speedup.dat};
+%%         \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar-speedup.dat};
+%%         \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {astar-speedup.dat};
+%%         \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar-speedup.dat};
+%%       \end{semilogyaxis}
+%%     \end{tikzpicture}
+%%   \end{tabular}
+
+%%   \scriptsize
+%%   \vspace{\baselineskip}
+
+%%   %% We color rows according to corresponding lines in the graphs.
+%%   \colorlet{darkred}{red!65!black}
+%%   \colorlet{darkblue}{blue!65!black}
+
+%%   {\AlegreyaSansTLF\lsstyle
+%%   \setlength\tabcolsep{3.75pt}
+%%   \begin{tabu}{@{}l*{11}{r}@{}}
+%%     & \multicolumn{11}{c}{\scshape graph size / string length}\\
+%%     & 120 & 140 & 160 & 180 & 200 & 220 & 240 & 260 & 280 & 300 & 320
+%%     \\\midrule
+%%     \rowfont{\color{darkred}} \scshape regex search, \naive & 1.683 & 2.786 & 4.549 & 7.324 & 11.357 & 17.304 & 25.788 & 45.634 & 65.174 & 90.934 & 123.023
+%%     \\
+%%     \rowfont{\color{darkred}} \scshape transitive closure, \naive & 1.446 & 2.599 & 4.356 & 6.933 & 10.840 & 16.803 & 27.159 & 44.136 & 64.953 & 88.154 & 119.604
+%%     \\
+%%     \scshape regex search, semi\naive\ raw & 1.687 & 2.454 & 4.134 & 6.573 & 9.854 & 14.611 & 21.661 & 39.171 & 56.345 & 79.687 & 108.236
+%%     \\
+%%     \scshape transitive closure, semi\naive\ raw & 1.187 & 2.163 & 4.154 & 5.835 & 8.982 & 13.350 & 21.069 & 36.512 & 53.197 & 75.209 & 101.933
+%%     \\
+%%     \rowfont{\color{darkblue}} \scshape regex search, semi\naive\ optimized& 0.028 & 0.037 & 0.054 & 0.075 & 0.102 & 0.133 & 0.171 & 0.220 & 0.269 & 0.331 & 0.401
+%%     \\
+%%     \rowfont{\color{darkblue}} \scshape transitive closure, semi\naive\ optimized & 0.026 & 0.037 & 0.056 & 0.072 & 0.099 & 0.130 & 0.170 & 0.204 & 0.259 & 0.312 & 0.377
+%%   \end{tabu}}
+
+%%   \caption{\Naive\ vs semi\naive\ evaluation of transitive closure and regex matching in Datafun}
+%%   \label{figure-seminaive-vs-naive-graph}
+%% \end{figure}
+
+
+%% \begin{figure}
+%%   \centering\small\sffamily
+%%   \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%     \begin{semilogyaxis}[
+%%         title={{\scshape transitive closure on a linear graph}\vphantom{\texttt{/a*/}$\texttt{a}^n$\textsuperscript{N}}},
+%%         xlabel={Number of nodes},
+%%         ylabel={Speedup factor (larger is better)},
+%%         width=213pt, height=345pt,    % golden
+%%         legend entries={
+%%           semi\naive\ optimized,
+%%           semi\naive\ simplified,
+%%           semi\naive\ raw,
+%%           \naive,
+%%         },
+%%         legend cell align=left,
+%%         legend pos=north east,
+%%         legend style={
+%%           font=\footnotesize,
+%%           %% draw=none,
+%%           nodes={inner sep=3pt,},
+%%           at={(0.5, 0.5)}, anchor=center,
+%%         },
+%%         grid=major,ymajorgrids,
+%%         log basis y=2,
+%%         xtick={120, 160, ..., 400},
+%%       ]
+%%       \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {trans-speedup.dat};
+%%       \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {trans-speedup.dat};
+%%       \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {trans-speedup.dat};
+%%       \addplot [color=red,mark=square*] table [x=n,y=naive] {trans-speedup.dat};
+%%     \end{semilogyaxis}
+%%   \end{tikzpicture}
+%%   \hfil
+%%   \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%     \begin{semilogyaxis}[
+%%         title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
+%%         xlabel={Number of nodes},
+%%         width=213pt, height=345pt,    % golden
+%%         %% legend columns=2,
+%%         grid=major,ymajorgrids,
+%%         log basis y=2,
+%%         xtick={120, 160, ..., 400},
+%%       ]
+%%       \addplot [color=red,mark=square*] table [x=n,y=naive] {astar-speedup.dat};
+%%       \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar-speedup.dat};
+%%       \addplot [color=purple,mark=o] table [x=n,y=seminaive_simple] {astar-speedup.dat};
+%%       \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar-speedup.dat};
+%%     \end{semilogyaxis}
+%%   \end{tikzpicture}
+
+%%   %% \hfil
+%%   %% \begin{tikzpicture}[baseline=(current bounding box.center)]
+%%   %%   \begin{axis}[
+%%   %%       title={{\scshape matching \texttt{/a*/} against} $\texttt{a}^{n}$},
+%%   %%       xlabel={Number of characters},
+%%   %%       height=132.88pt, width=213pt, % golden
+%%   %%       %height=140pt, width=210pt,
+%%   %%       legend entries={\naive,semi\naive\ raw,semi\naive\ optimized},
+%%   %%       legend cell align=left,
+%%   %%       legend pos = north west,
+%%   %%       legend style={
+%%   %%         font=\footnotesize,
+%%   %%         draw=none,
+%%   %%         nodes={inner sep=3pt,}
+%%   %%       },
+%%   %%       xtick = {120, 160, ..., 320}, ytick = {0, 40, ..., 150},
+%%   %%     ]
+%%   %%     \addplot [color=red,mark=square*] table [x=n,y=naive] {astar.dat};
+%%   %%     \addplot [color=black,mark=triangle*] table [x=n,y=seminaive_raw] {astar.dat};
+%%   %%     \addplot [color=blue,mark=*] table  [x=n,y=seminaive] {astar.dat};
+%%   %%   \end{axis}
+%%   %% \end{tikzpicture}
+  
+%%   \caption{Effect of $\bot$ insertion on semi\naive\ evaluation}
+%%   \label{figure-seminaive-simplified-vs-optimized}
+%% \end{figure}
