@@ -39,7 +39,6 @@ The simplest approach is to translate Datafun fairly directly into Haskell.
 %
 Many of Datafun's features have direct parallels in Haskell, including sum, product, and function types; Datafun's sets are implemented using Haskell's \texttt{Data.Set} module; Datafun's semilattice types are implemented as a Haskell typeclass; and Datafun's fixed points can be implemented by \naive\ bottom-up iteration.
 %
-\todo{forward reference where we discuss these details.}
 (We discuss these implementation details in \cref{section-runtime}.)
 
 One feature of Datafun that does not translate straightforwardly into Haskell is the discreteness comonad \(\iso\).
@@ -411,91 +410,79 @@ gains we claim, we benchmark two example Datafun programs:
   properly handles Datafun's distinctive feature: higher-order programming.
 \end{enumerate}
 
-\input{4-figure-compiled-code}
-
 \input{4-figure-seminaive-vs-naive-graph}
 
 \noindent
 We send each program through the four compiler paths described in \cref{section-compiler}: the direct/\naive\ translation (\emph{\naive}); the $\phi$ transform alone (\emph{semi\naive\ raw}); $\phi$ with $\bot$ propagation (\emph{semi\naive\ simplified}); and $\phi$ with $\bot$ insertion and propagation (\emph{semi\naive\ optimized}).
 %
-We exhibit the four translations of \name{trans} in \cref{figure-trans-naive,figure-trans-seminaive-raw,figure-trans-seminaive-simple,figure-trans-seminaive}.
+We exhibit the four translations of \name{trans} in \cref{figure-trans-naive,figure-trans-seminaive-raw,figure-trans-seminaive-simple,figure-trans-seminaive}. We graph the benchmark results in \cref{figure-seminaive-vs-naive-graph}, separately showing the running times as well as the speedup factor over \naive\ evaluation (on a logarithmic plot).
 %
-We graph the benchmark results for three of these translations (excluding \emph{semi\naive\ simplified}) in \cref{figure-seminaive-vs-naive-graph}; we compare \emph{semi\naive\ simplified} and \emph{semi\naive\ optimized} in \cref{figure-seminaive-simplified-vs-optimized}.
-%
-These results support the following conclusions:
+The results support two conclusions:
 
 \begin{enumerate}
 \item The $\phi$ transformation combined with optimizations enables asymptotic
   speedups: \emph{semi\naive\ optimized} is dramatically faster than
-  \emph{\naive,} and the speedup factor increases with the size of the input
-  \todo{use a log plot of speedups}.
+  \emph{\naive,} and the speedup factor increases with the input size.\footnotemark\
 %
   Moreover, the measured times are similar for transitive closure and regex
   search across all optimization levels, suggesting that higher-order code does
   not pose a particular problem for our optimizations.
 
-\item These asymptotic improvements depend crucially on $\bot$ propagation:
+  \footnotetext{Although faster than \naive\ evaluation,
+    \emph{semi\naive\ optimized} is still asymptotically quite slow in these benchmarks. On transitive closure, for example, doubling the graph size from $160$ to $320$ nodes yields a slowdown factor of $\frac{.407}{.054} \approx 7.54$!
+%
+    However, since there are quadratically many paths and we find all of them, the best possible runtime is $O(n^2)$.
+%
+    Moreover, our nested-loop relational joins are roughly a factor of $n$ slower than optimal, so we expect $O(n^3)$ behavior, which predicts a slowdown of $2^3 = 8$, reasonably close to $7.54$.}
+
+\item These asymptotic improvements depend on $\bot$ propagation:
   \emph{semi\naive\ raw} yields only a small constant-factor speedup over
-  \emph{\naive}, roughly 10--20\%.
+  \emph{\naive}, roughly 20\%.
 %
   However, the measured times for \emph{semi\naive\ simplified} and
   \emph{semi\naive\ optimized} are effectively identical, so $\bot$ insertion
   appears to be irrelevant, even (somewhat surprisingly) in higher-order code.
-  \XXX
 \end{enumerate}
 
-\XXX
-Core result: as we suspected, the phi transform alone doesn't do anything, but when followed by $\bot$ insertion and propagation we get our asymptotic speedup. This is because of the for-loop removal.
-
-\XXX
-$\bot$ insertion seems to be unnecessary; on our benchmarks, performance is indistinguishable from just doing $\bot$ propagation. Looking at the code, it simplifies the programs, and even removes some loops, but the loops it removes are (for (x in bottom) e) not (for (x in e) bottom).  We were expecting to see some benefit for higher-order code, because bottom insertion can recognize and simplify zero changes involving use of higher order functions, but we didn't see this. further investigation needed.
-
-\todo{Rewrite remainder of section. Discuss: four compiler paths; naive vs seminaive; why bottom insertion seems to do nothing.}
-
-\clearpage
 \noindent
-\XXX
-We compiled each program in three distinct ways: \emph{\naive{}}, without the
-$\phi$ transform (but with $\bot$-propagation); \emph{semi\naive{} raw}, with
-the $\phi$ transform but without further optimization; and \emph{semi\naive{}
-  optimized}, with the $\phi$ transform followed by all three optimizations
-listed previously. The results are shown in
-\cref{figure-seminaive-vs-naive-graph}.
+As alluded to in the previous section, these asymptotic speedups come
+from avoiding wasteful loops $(\eforin x {e_1} e_2)$ where $e_1$ grows as our input grows but $e_2$ always produces $\bot$.
 %
-The measured times are substantially similar for transitive closure and regex
-search across all three optimization levels, suggesting that higher-order code
-does not pose a particular problem for our optimizations. However, compared to
-\emph{\naive}, the $\phi$ transform alone (\emph{semi\naive\ raw}) provides only
-a small speed-up, roughly 10--20\%. Only when followed by other optimizations
-(\emph{semi\naive\ optimized}\kern.75pt) does it provide the expected asymptotic
-speedup.\footnote{We also tried following the $\phi$ transform with only
-  $\bot$-propagation, dropping the other two optimisations. This produced
-  essentially the same results as \emph{semi\naive\ optimized}, so we have
-  omitted it from \cref{figure-seminaive-vs-naive-graph}. It is unclear whether
-  inserting $\bot$ or recognizing complex zero changes are ever necessary to
-  achieve an asymptotic speed-up.
+The $\phi/\delta$ translations alone do not accomplish this: both $\phi(\eforin
+x e ...)$ and $\delta(\eforin x e ...)$ produce loops that iterate over at least
+every $\dvar x \in \phi e$.
+%
+Consulting our logical relation (\cref{figure-seminaive-logical-relation}) at
+set type, we see that $e$ and $\phi e$ compute identical sets, therefore
+the number of iterations never shrinks.
+%
+For instance, in the \emph{semi\naive\ raw} translation of \name{trans} (\cref{figure-trans-seminaive-raw}) the derivative passed to \lstinline{semifix} contains the following wasteful loop:
 
-  It's also worth addressing the asymptotic performance of
-  \emph{semi\naive\ optimized}. On regex search, for example, doubling the string
-  length from $160$ to $320$ produces a slowdown factor of $\frac{.401}{.054}
-  \approx 7.42$! However, since there are quadratically many matches and we find
-  all of them, the best possible runtime is $O(n^2)$. Moreover, our nested-loop
-  joins are roughly a factor of $n$ slower than optimal, so we expect $O(n^3)$
-  behavior or worse. This back-of-the-envelope estimation predicts a slowdown of
-  $2^3 = 8$, reasonably close to $7.42$.}
+\begin{lstlisting}
+  forIn (union p_2 dp_2) (\b_4 ->
+    let db_4 = ((), ()) in
+    if (snd a_3 == fst b_4) then set [] else
+    guard False
+    (union (set [(fst a_3, snd b_4)]) (set [])))
+\end{lstlisting}
 
-We believe this is because both $\phi(\eforin x e ...)$ and $\delta(\eforin x e
-...)$ produce loops that iterate over at least every $\dvar x \in \phi e$.
-Consulting our logical relation at set type, we see that in this case $e$ and
-$\phi e$ will be identical, and so the number of iterations never shrinks.
-However, as demonstrated in \cref{section-seminaive-trans}, if the body can be
-simplified to $\bot$, then we can eliminate the loop entirely by rewriting
-$(\eforin x e \bot)$ to $\bot$, which allows for asymptotic improvement.
+\input{4-figure-compiled-code}
 
-As in Datalog, we do not expect semi\naive\ evaluation to be useful on
-\emph{all} recursive programs. Under \naive\ evaluation, each iteration towards
-a fixed point is more expensive than the last, so as a rule of thumb,
-semi\naive\ evaluation is more valuable the more iterations required.
+\noindent
+Each branch of the \lstinline{if}-statement computes an empty set, the first branch explicitly and the else-branch via
+%
+\lstinline[language={}]{(guard False ...)}.
+%
+The $\bot$ propagation pass recognizes this and rewrites the entire loop to
+$\bot$, removing it from the \emph{simplified} and \emph{optimized} translations
+(\cref{figure-trans-seminaive-simple,figure-trans-seminaive}).
 
-%% TODO: Discuss when \& why inlining might be helpful.
-%% We speculate that \emph{function inlining} would also be a helpful optimization.
+\todomaybe{Discuss why bottom insertion is unnecessary and why this is surprising.}{ Looking at the code, seminaive optimized simplifies the programs versus seminaive simplified, and even removes some loops, but the loops it removes are $\eforin x \bot e$ not $\eforin x e \bot$.  We were expecting to see some benefit for higher-order code, because bottom insertion can recognize and simplify zero changes involving use of higher order functions, but we didn't see this. Further investigation needed.
+
+It is unclear whether inserting $\bot$ or recognizing complex zero changes are
+ever necessary to achieve an asymptotic speed-up.}
+
+%% Finally, note that, as in Datalog, we do not expect semi\naive\ evaluation to
+%% be useful on \emph{all} recursive programs. Under \naive\ evaluation, each
+%% iteration towards a fixed point is more expensive than the last, so as a rule of
+%% thumb, semi\naive\ evaluation is more valuable the more iterations required.
