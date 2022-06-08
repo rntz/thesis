@@ -153,32 +153,59 @@ This ensures each $\dx_i$ is minimal, disjoint from $x_i$ and thus all prior $\d
 \noindent
 If we examine all four options -- with and without self-loops, with and without minimizing $\dx_i$ -- and compare their slowdown factors, taking a loopless graph without change minimization as our baseline (\cref{figure-change-minimization-graph}), we find that (a) loopy graphs without change minimization are asymptotically slow; (b) on loopless graphs, minimizing changes has low constant overhead (versus not minimizing); and (c) moving from a loopless to a loopy graph causes a roughly 2x slowdown when minimizing changes, because we must remove rediscovered paths on every iteration.
 
-Two questions remain: (1) why is change minimization correct? and (2) how can we generalize it from finite sets to all semilattice types? The answer to the first question will guide the solution to the second.
+Two questions remain: (1) why is change minimization correct? and (2) how can we generalize it from finite sets to all semilattice types?
+%
+As it happens, the answer to the first question also illuminates the second.
 %
 Change minimization is correct because it preserves validity of changes: if \(\changesat{\tseteq A}{\dx} x y\), in other words \(x \cup \dx = y\), then we also have \(\changesat{\tseteq A}{\dx \setminus x} x y\), because \(x \cup (\dx \setminus x) = x \cup \dx = y\). Thus minimizing changes preserves the inductive invariant that \(\changes{\dx_i}{x_i}{f \<x_i}\) which guarantees \semifix\ finds a least fixed point.
-%
-This condition is what we need to generalize change minimization: for each lattice type $L$, we define a change minimization operator \((\setminus)_L : L \to L \to L\) such that if \(\changesat L \dx x y\) then \(\changesat L {\dx \setminus_L x} x y\):\footnotemark
 
-\footnotetext{On finite sets \(\dx \setminus x\) is monotone in \(\dx\) but not \(x\), and this pattern holds for our other semilattice types as well, but monotonicity in either argument is not required for correctness.}
+This condition tells us how to generalize our approach: for each lattice type $L$, we require a change minimization operator \((\setminus)_L : L \to L \to L\) such that if \(\changesat L \dx x y\) then \(\changesat L {\dx \setminus_L x} x y\).\footnotemark\
+%
+In our runtime library (\cref{figure-runtime-library}), we accomplish this by adding a \lstinline{diff} method to our \lstinline{Semilat} typeclass:
+
+\footnotetext{On finite sets \(\dx \setminus x\) is monotone in \(\dx\) but not \(x\), and this pattern will hold for our other semilattice types as well, but monotonicity in either argument is not required for correctness.}
+
+\begin{lstlisting}
+  class Semilat a where ...
+    diff :: a -> a -> a
+    diff dx x = x
+\end{lstlisting}
+
+\noindent
+This method admits a default implementation, $\dx \setminus_L x = \dx$, which trivially satisfies our correctness condition. Although generic, this is inefficient, for it degenerates to the original non-change-minimizing implementation of \semifix:
 
 \begin{align*}
-  \etuple{} \setminus_\tunit \etuple{} &= \etuple{}
-  &
-  \etuple{\dx, \dy} \setminus_{L \times M} \etuple{x,y}
-  &= \etuple{(\dx \setminus_L x),\, (\dy \setminus_M y)}
-  &
-  \dx \setminus_{\tseteq A} x &= \dx \setminus x
+  \dx_{i+1} &= (f' \<x_i \<\dx_i) \setminus_L x_{i+1}
+  = f' \<x_i \<\dx_i
 \end{align*}
 
 \noindent
-So much for correctness; for efficiency, our guiding intuition is that \(\dx \setminus_L x\) should be ``as small as possible'' to reduce any work downstream of change minimization.
+Instead, we want \(\dx \setminus_L x\) to be as small as possible (whatever that means for our runtime representation of $L$) to reduce the work done by any operators applied after change minimization. So we provide more practical implementations for finite sets and product types:
 
-For any semilattice \(L\) one may always safely let \(\dx \setminus_L x = \dx\), returning us to the original definition of \semifix. Indeed, for totally-ordered semilattices this is the only valid definition; for instance, take \(\N^\infty_{\textsf{min}}\), the naturals extended with positive infinity under minimum. This inability to meaningfully minimize changes is concerning for the efficiency of computations which use these semilattices (e.g.\ shortest paths); an important direction for future work would be to characterize the efficiency of semi\naive\ evaluation over different classes of semilattice.
+\begin{align*}
+  \dx \setminus_{\tseteq A} x &= \dx \setminus x
+  &
+  \etuple{\dx, \dy} \setminus_{L \times M} \etuple{x,y}
+  &= \etuple{(\dx \setminus_L x),\, (\dy \setminus_M y)}
+\end{align*}
+
+\noindent
+In our Haskell runtime this becomes:
+
+\nopagebreak[2]
+\begin{lstlisting}
+  instance Ord a => Semilat (Set a) where ...
+    diff = Set.difference
+  instance (Semilat a, Semilat b) => Semilat (a,b) where ...
+    diff (da,db) (a,b) = (diff da a, diff db b)
+\end{lstlisting}
+
+\noindent
+Unfortunately, for some semilattices (e.g.\ totally-ordered ones) the degenerate default is the \emph{only} valid change minimization operator. For instance, take \(\N^\infty_{\textsf{min}}\), the naturals extended with positive infinity under minimum, which is useful for shortest path computations. This inability to meaningfully minimize changes is concerning for the efficiency of computations which use these semilattices; an important direction for future work would be to characterize the worst-case efficiency of semi\naive\ evaluation over different classes of semilattice.
 
 %% It would be highly desirable to characterize the efficiency 
 
 
-\todo{Talk about implementation of change minimization!}
 %% \subsection{Implementing change minimization for Datafun}
 
 %% The preceding graphs were obtained by implementing this revised change-minimizing semi\naive\ evaluation strategy in our Datafun compiler and runtime.
