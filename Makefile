@@ -42,14 +42,9 @@ watch\:%: %
 	@while inotifywait -e modify,move,delete -r . $(addprefix @./,$(LATEXRUNDIRS)) >/dev/null 2>&1; do \
 		echo; \
 		make --no-print-directory -j $^; \
+		echo; \
 		make --no-print-directory -j $^; \
 	done
-
-# # DOESN'T CLEAN UP THE SUBPROCESSES ON INTERRUPTION
-# watch:
-# 	for f in $(TARGETS); do \
-# 		make watch:$$f & \
-# 	done; wait
 
 # debugging: `make print-FOO` will print the value of $(FOO)
 .PHONY: print-%
