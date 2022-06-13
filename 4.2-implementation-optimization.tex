@@ -31,7 +31,7 @@ Finally, in \cref{section-benchmarks} we perform some simple benchmarks to test 
 
 The compiler proceeds in several passes, shown as arrows in \cref{figure-compiler-passes}.
 %
-It begins with fairly standard parsing and typechecking phases. For parsing, we use OCaml's Menhir library\todo{citation and link}. The typechecker is bidirectional\todo{citation} rather than performing Hindley-Milner inference\todo{citation}, for simplicity of implementation.
+It begins with fairly standard parsing and typechecking phases. For parsing, we use OCaml's Menhir library.\footnote{\url{http://gallium.inria.fr/~fpottier/menhir/}} The typechecker is bidirectional~\citep{bidirectional} rather than performing Hindley-Milner inference\todo{citation}, for simplicity of implementation.
 %
 After these, we have a choice of paths.
 
@@ -53,18 +53,18 @@ Thus to achieve \naive\ evaluation of Datafun code, we take a straight path thro
 
 \nopagebreak[3]
 % https://q.uiver.app/?q=WzAsNSxbMCwwLCJcXHRleHR7U291cmNlfSJdLFsyLDAsIlxcdGV4dHtTeW50YXh9Il0sWzQsMCwiXFx0ZXh0e1R5cGVkIHN5bnRheH0iXSxbNiwwLCJcXHRleHR7SUx9Il0sWzgsMCwiXFx0ZXh0e0hhc2tlbGx9Il0sWzAsMSwiXFx0ZXh0e3BhcnNlfSJdLFsxLDIsIlxcdGV4dHt0eXBlY2hlY2t9Il0sWzIsMywiXFx0ZXh0e2Ryb3AgYm94ZXN9Il0sWzMsNCwiXFx0ZXh0e2VtaXQgSGFza2VsbH0iXV0=
-\[\sffamily\small
+{\small\[\sffamily
 \begin{tikzcd}[every label/.append style={font=\footnotesize\itshape}]
 	{\text{Source}} && {\text{Syntax}} && {\text{Typed syntax}} && {\text{IL}} && {\text{Haskell}}
 	\arrow["{\text{parse}}", from=1-1, to=1-3]
 	\arrow["{\text{typecheck}}", from=1-3, to=1-5]
 	\arrow["{\text{drop boxes}}", from=1-5, to=1-7]
 	\arrow["{\text{emit}}", from=1-7, to=1-9]
-\end{tikzcd}\]
+\end{tikzcd}\]}
 
 To achieve semi\naive\ evaluation, however, we must apply the \emph{$\phi$ transform} from \cref{chapter-seminaive} to the typed syntax before dropping boxes, since the transform works precisely by annotating boxed terms with their zero-changes.
 %
-As we have no further use for $\iso$, the compiler pass implementing the $\phi$ omits boxes from its output.
+As we have no further use for $\iso$, the compiler pass implementing $\phi$ omits boxes from its output.
 %
 Thus after applying the $\phi$ transform we can directly emit Haskell.
 
@@ -411,6 +411,7 @@ gains we claim, we benchmark two example Datafun programs:
 \end{enumerate}
 
 \input{4-figure-seminaive-vs-naive-graph}
+\input{4-figure-compiled-code}
 
 \noindent
 We send each program through the four compiler paths described in \cref{section-compiler}: the direct/\naive\ translation (\emph{\naive}); the $\phi$ transform alone (\emph{semi\naive\ raw}); $\phi$ with $\bot$ propagation (\emph{semi\naive\ simplified}); and $\phi$ with $\bot$ insertion and propagation (\emph{semi\naive\ optimized}).
@@ -465,8 +466,6 @@ For instance, in the \emph{semi\naive\ raw} translation of \name{trans} (\cref{f
     guard False
     (union (set [(fst a_3, snd b_4)]) (set [])))
 \end{lstlisting}
-
-\input{4-figure-compiled-code}
 
 \noindent
 Each branch of the \lstinline{if}-statement computes an empty set, the first branch explicitly and the else-branch via

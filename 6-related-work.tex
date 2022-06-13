@@ -1,4 +1,4 @@
-\chapter{Related work}
+\chapter{Related Work}
 
 \todolater{maybe include some sort of intro here?}
 
@@ -517,16 +517,16 @@ asking not merely ``did our dependencies change?'' but ``\emph{how} did our
 dependencies change?'' This insight can be formalized using the incremental
 \fn-calculus's change structures, as there is a simple generic change structure
 which captures the question ``did it change?''. Allowing ourselves to dip into
-pseudocode for a moment, consider the parameterized type $\typename{update}~A$
-defined by:
+pseudo-Haskell for a moment, consider the parameterized type
+$\typename{Update}~A$ defined by:
 
 \begin{code}
-  \kw{data}~\typename{update}~A
+  \kw{data}~\typename{Update}~A
   = \ctor{old} ~|~ \ctor{new}~A
 \end{code}
 
 \noindent
-Any type $A$ may be endowed with a basic change structure by letting $\Delta A = \typename{update}~A$ and letting $\gvalid{A}{dx} x y$ be defined by:
+Any type $A$ may be endowed with a basic change structure by letting $\Delta A = \typename{Update}~A$ and letting $\gvalid{A}{dx} x y$ be defined by:
 %
 \begin{mathpar}
   \infer*{}{\gvalid{A}{\ctor{old}} x x}
@@ -543,11 +543,11 @@ This change structure has the wonderful property of trivializing differentiation
 \end{code}
 
 \noindent
-The only complication is handling multi-argument functions: since $\typename{update}~(A \x B) \not\cong \typename{update}~A \x \typename{update}~B$, a function taking multiple arguments $g : A \to B \to C$ needs a slightly more interesting derivative:
+The only complication is handling multi-argument functions: since $\typename{Update}~(A \x B) \not\cong \typename{Update}~A \x \typename{Update}~B$, a function taking multiple arguments $g : A \to B \to C$ needs a slightly more interesting derivative:
 
 %% \begin{code}
-%%   g' \isa A \to \typename{update}~A \to B \to \typename{update}~B
-%%  \to \typename{update}~C\\
+%%   g' \isa A \to \typename{Update}~A \to B \to \typename{Update}~B
+%%  \to \typename{Update}~C\\
 %%  g' \<a \<\ctor{old} \<b \<\ctor{old} = \ctor{old}\\
 %%  g' \<\pwild \<(\ctor{new}\<a) \<b \<\ctor{old} = \ctor{new}\<(f \<a \<b)\\
 %%  g' \<a \<\ctor{old} \<\pwild \<(\ctor{new}\<b) = \ctor{new}\<(f \<a \<b)\\
@@ -556,7 +556,7 @@ The only complication is handling multi-argument functions: since $\typename{upd
 
 \begin{fleqn}[\codeoffset]
   \[\begin{array}{@{}lllllcl@{}}
-    \multicolumn{7}{@{}l@{}}{g' \isa A \to \typename{update}~A \to B \to \typename{update}~B \to \typename{update}~C}\\
+    \multicolumn{7}{@{}l@{}}{g' \isa A \to \typename{Update}~A \to B \to \typename{Update}~B \to \typename{Update}~C}\\
     g' &a &\ctor{old} &b &\ctor{old} &=& \ctor{old}\\
     g' &\pwild &(\ctor{new}\<a) &b &\ctor{old} &=& \ctor{new}\<(g \<a \<b)\\
     g' &a &\ctor{old} &\pwild &(\ctor{new}\<b) &=& \ctor{new}\<(g \<a \<b)\\
@@ -570,9 +570,9 @@ The general strategy is to rerun the original function if any of its arguments c
 %% \XXX pairing needs a new derivative (the derivatives of the projections are straightforward):
 
 %% \begin{code}
-%%   \name{pair}' \isa A \x \typename{update}~A
-%%   \to B \x \typename{update}~B
-%%   \to \typename{update}~(A \x B)
+%%   \name{pair}' \isa A \x \typename{Update}~A
+%%   \to B \x \typename{Update}~B
+%%   \to \typename{Update}~(A \x B)
 %%   \\
 %%   \name{pair}' \<(a, \ctor{old}) \<(b, \ctor{old}) = \ctor{old}
 %%   \\
@@ -678,8 +678,7 @@ Because the transformation in \citet{incremental} does not cache intermediate re
 %
 %% While, as we have seen, there are useful self-maintainable functions, it is rare for an entire program to be composed of them.
 %
-To handle non-self-maintainable behavior, follow-up work on the incremental
-\fn-lambda calculus~\citep{DBLP:conf/esop/GiarrussoRS19} extends the derivative
+To handle non-self-maintainable behavior, follow-up work by \citet{DBLP:conf/esop/GiarrussoRS19} extends the derivative
 translation to cache intermediate results.
 %
 %% \todo{what about other differencing systems? How much of their state do they remember?}
@@ -727,7 +726,7 @@ All intermediate results in this expression (for example, $x_i \relcomp dx_i$) d
 %
 We conjecture that this holds so often for the programs we have examined because these fixed point step functions are essentially unions of (possibly many-way) relational joins.
 %
-(Indeed, in Datalog this is literally baked into the syntax of the language!)
+(Indeed, in Datalog this is baked into the language syntax!)
 %
 It's not too hard to see that the derivative of a union of joins is itself a union of joins, and each component join will depend on at least one changing relation.
 %

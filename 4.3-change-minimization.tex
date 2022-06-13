@@ -2,9 +2,7 @@
 
 \label{section-change-minimization}
 
-\todo{rewrite to explain how change minimization is implemented}
-
-Before we jump to the conclusion that we have captured the essence of seminaive evaluation, let's try a small twist on our running example: let's add self-loops to every node in our linear graph, producing the graph $(V,E)$ with $V = \{1, ..., n\}$ and $E = \setfor{(i,j)}{j \in \{i,i+1\}}$.
+Before concluding that we have captured the essence of seminaive evaluation, let's try a small twist on our running example: let's add self-loops to every node in our linear graph, producing the graph $(V,E)$ with $V = \{1, ..., n\}$ and $E = \setfor{(i,j)}{j \in \{i,i+1\}}$.
 %
 This makes our reachability relation reflexive, changing the transitive closure from the less-than relation $\setfor{(i,j)}{1 \le i < j \le n}$ to the less-than-or-equal-to relation $\setfor{(i,j)}{1 \le i \le j \le n}$.
 %
@@ -163,7 +161,7 @@ This condition tells us how to generalize our approach: for each lattice type $L
 %
 In our runtime library (\cref{figure-runtime-library}), we accomplish this by adding a \lstinline{diff} method to our \lstinline{Semilat} typeclass:
 
-\footnotetext{On finite sets \(\dx \setminus x\) is monotone in \(\dx\) but not \(x\), and this pattern will hold for our other semilattice types as well, but monotonicity in either argument is not required for correctness.}
+\footnotetext{Given Datafun's monotonicity typing, the reader may wonder whether and with respect to what $(\setminus)_L$ must be monotonic. In practice, on finite sets \(\dx \setminus x\) is monotone in \(\dx\) but not \(x\), and this pattern will hold for our other semilattice types as well. However, monotonicity in either argument is not required for correctness.}
 
 \begin{lstlisting}
   class Semilat a where ...
@@ -172,7 +170,7 @@ In our runtime library (\cref{figure-runtime-library}), we accomplish this by ad
 \end{lstlisting}
 
 \noindent
-This method admits a default implementation, $\dx \setminus_L x = \dx$, which trivially satisfies our correctness condition. Although generic, this is inefficient, for it degenerates to the original non-change-minimizing implementation of \semifix:
+This method admits a default implementation, $\dx \setminus_L x = \dx$, which trivially satisfies our correctness condition. Although generic, this is inefficient, for it degenerates to the original non-minimizing implementation of \semifix:
 
 \begin{align*}
   \dx_{i+1} &= (f' \<x_i \<\dx_i) \setminus_L x_{i+1}

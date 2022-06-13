@@ -95,18 +95,18 @@
 %% ---------- todo commands ----------
 \newcommand\todocolor{\color{Orange}}
 \newcommand\warntodo[2]{%
-  \PackageWarning{todo}{#1}
+  \PackageWarning{TODO}{#1}%
   {\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \newcommand\splittodo[2]{\warntodo{#1}{#1 #2}}
 \newcommand\todo[1]{\warntodo{#1}{#1}}
-%\newcommand\XXX{\PackageWarning{notation}{XXX}\textsf{\bfseries\todocolor XXX}}
 \newcommand\XXX{\warntodo{XXX}{XXX}}
 
 \newcommand\todomaybe[2]{%
-  %% \PackageWarning{todomaybe}{#1}
+  \PackageWarning{todomaybe}{#1}%
   {\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#1}{#2}]}}}
 
 \newcommand\todolater[1]{%
+  %% \PackageWarning{TODO}{#1}% can't do this, syntax errors b/c latex content in #1
   {\color{Lavender}\ensuretext{\bfseries\sffamily[{#1}]}}}
 \newcommand\footnotelater[1]{%
   \footnote{\color{Lavender}\bfseries\sffamily{#1}}}
@@ -115,19 +115,18 @@
 \newcommand\fixmecolor{\color{Red}}
 \newcommand\fixme[2]{\PackageWarning{FIXME}{#1: #2}%
 {\fixmecolor\ensuretext{\bfseries\sffamily[{#2}]}}}
-\newcommand\fixmelater[2]{%
-{\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#2}]}}}
 
-%% %% Quieten todos, no warnings except from fixmes
-%% \renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
+%% Quieten todos, no warnings except from fixmes
+\renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
+\renewcommand\todomaybe[2]{{\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#1}{#2}]}}}
 
 %% %% Disable todos
 %% \renewcommand\todolater[1]{}
 %% \renewcommand\footnotelater[1]{}
 %% \renewcommand\todomaybe[2]{}
 %% \renewcommand\warntodo[2]{}
+
 %% \renewcommand\XXX{\PackageWarning{XXX}{XXX}{\todocolor\ensuretext{\bfseries\sffamily[{XXX}]}}}
-%% \renewcommand\fixmelater[2]{}
 
 %% \renewcommand\fixme[2]{}
 %% \renewcommand\XXX{}
