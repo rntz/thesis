@@ -152,8 +152,6 @@ Applying this definition to our change structure for finite sets, we recover the
 \noindent
 This generalization is useful because differentiable maps (that is, maps possessing a derivative in the above sense) \emph{compose;} in fact, they form a category:
 
-\newcommand\ChangePoset{\textbf{$\boldsymbol\Delta$Poset}}
-
 \begin{definition}
   The category \ChangePoset\ has as objects change structures $A,B$ and as morphisms differentiable monotone maps $f : V A \to V B$, that is, maps having at least one derivative $f' : \iso V A \to \Delta A \to \Delta B$ (also monotone). Morphism composition and the identity morphism are both as in \Poset.
 \end{definition}
@@ -754,8 +752,6 @@ We saw in \cref{section-seminaive-incremental,section-change-structures,example-
   \dx_0 &= f\<\emptyset & \dx_{i+1} &= f'\<x_i\<\dx_i
 \end{align*}
 
-\newcommand\semichange[1]{\name{Semi}\,#1}
-
 \noindent
 This takes advantage of the fact that the change to a set is another set, and we apply a change using set union/semilattice join. Following this pattern, we can endow any semilattice $L : \Poset$ with a similar change structure:
 
@@ -834,7 +830,7 @@ This requires a higher-order derivative; a coherent theory of higher-order deriv
 
 Instead, we deliberately limit the scope of our approach to avoid the need to incrementally maintain fixed points. As we've already seen\todo{bwd ref}, in Datafun \prim{fix} is not treated as a monotone operator; correspondingly the morphisms we require to interpret it are not $\morph{fix} : (L \expto L) \to L$ but rather $\morph{fix} : {\color{IsoRed} \iso}(L \expto L) \to L$. The idea here is that, just as $\iso$ in \Poset\ captures \emph{non-monotonicity} in an otherwise monotone world, in \ChangePoset\ we can use it to capture \emph{non-differentiability} or \emph{non-incrementalizability} in an otherwise differentiable world.
 
-\newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
+%\newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
 
 More concretely, since we only consider increasing changes and $\iso A$ is ordered discretely, $x \le y : \iso A \iff x = y$, the only possible ``change'' is to stay the same. We can thus extend the discreteness comonad $\iso$ on $\Poset$ to a comonad $\iso$ on $\ChangePoset$ by letting the space of changes be trivial:
 

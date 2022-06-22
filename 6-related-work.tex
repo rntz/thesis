@@ -204,8 +204,6 @@ Datalog's semi\naive\ evaluation. Instead, it uses \emph{finite differencing.}
 
 \paragraph{Finite differencing}
 
-\fixme{jeremy}{there's a lot of old work on finite differencing that I don't discuss, eg. Paige \& Koenig (1982).}
-
 Dependency tracking approaches incrementalization with a yes-or-no mindset: did
 our dependencies change?
 %
@@ -242,20 +240,36 @@ dx + \sum_i x_i = \sum_i
 \]
 
 \noindent
-In contrast to the dependency-graph strategy, which is fairly generic, finding
-efficient derivatives often requires taking advantage of such algebraic laws.
+Unliike the fairly generic dependency-graph strategy, efficient derivatives depend crucially on the structure of the modification to the input.
+%
+Foundational work by
+\citet{DBLP:journals/toplas/PaigeK82} takes this literally, differentiating set-valued expressions with respect to lines of program code modifying a depended-on variable. More recent work represents these modifications (the ``differences'' of ``finite differencing'') as values of a datatype equipped with some kind of algebraic structure.
 %
 For instance, DBToaster incrementally maintains SQL queries using
 rings~\citep{DBLP:conf/pods/Koch10,Koch:183766}; Differential Dataflow uses
 groups~\citep{DBLP:conf/cidr/McSherryMII13}; recent work on incremental Datalog
 uses monoid actions~\citep{DBLP:conf/esop/Alvarez-Picallo19}; and Datafun uses
-semilattices. \todo{Page \& Koenig 1982 uses groups.}
-%
-\todomaybe{cite older database work on view maintenance}{}
+semilattices.
+
+\todomaybe{discuss more older work on finite diffing/view maintenance}{}
+
+%% \noindent
+%% In contrast to the dependency-graph strategy, which is fairly generic, finding
+%% efficient derivatives often requires taking advantage of such algebraic laws.
+%% %
+%% For instance, foundational work on finite differencing by
+%% \citet{DBLP:journals/toplas/PaigeK82} focused on sets; DBToaster incrementally maintains SQL queries using
+%% rings~\citep{DBLP:conf/pods/Koch10,Koch:183766}; Differential Dataflow uses
+%% groups~\citep{DBLP:conf/cidr/McSherryMII13}; recent work on incremental Datalog
+%% uses monoid actions~\citep{DBLP:conf/esop/Alvarez-Picallo19}; and Datafun uses
+%% semilattices.
+%% \todo{Page \& Koenig 1982 uses groups? lists, sets and maps}
+%% %
+%% \todomaybe{cite older database work on view maintenance}{}
 
 Since finite differencing is advantageous for operations over large collections,
 but requires algebraic insight that makes it non-obvious how to apply it to
-arbitrary programs, it should be no surprise that most of the examples just
+arbitrary programs, it should be no surprise that many of the examples just
 cited come from the database research community, which often deals with
 structured operations on bulk data.
 %
