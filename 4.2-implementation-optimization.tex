@@ -31,7 +31,7 @@ Finally, in \cref{section-benchmarks} we perform some simple benchmarks to test 
 
 The compiler proceeds in several passes, shown as arrows in \cref{figure-compiler-passes}.
 %
-It begins with fairly standard parsing and typechecking phases. For parsing, we use OCaml's Menhir library.\footnote{\url{http://gallium.inria.fr/~fpottier/menhir/}} The typechecker is bidirectional~\citep{bidirectional} rather than performing Hindley-Milner inference\todo{citation}, for simplicity of implementation.
+It begins with fairly standard parsing and typechecking phases. For parsing, we use OCaml's Menhir library.\footnote{\url{http://gallium.inria.fr/~fpottier/menhir/}} The typechecker is bidirectional~\citep{bidirectional} rather than performing full inference\todo{citation}, for simplicity of implementation.
 %
 After these, we have a choice of paths.
 
@@ -45,11 +45,11 @@ One feature of Datafun that does not translate straightforwardly into Haskell is
 %
 However, its only purpose is to track (non-)monotonicity; at runtime, \(\iso A\) may as well be \(A\).
 %
-Thus before emitting Haskell we \emph{``drop boxes'',} eliminating \(\iso\) and its related term syntax by rewriting \(\ebox e \rewrites e\) and \(\eletbox x e f \rewrites \elet{x = e} f\). For the same reason, we simultaneously drop the distinction between discrete and monotone variables.
+Thus before emitting Haskell we \emph{``drop boxes'',} eliminating \(\iso\) and its related term syntax by rewriting \(\ebox e \rewrites e\) and \(\eletbox x e f \rewrites \elet{x = e} f\) and dropping the distinction between discrete and monotone variables.
 %
-This takes us to an intermediate language, unimaginatively dubbed ``IL'', supporting Datafun's computational features but lacking its modal typing subtleties, which we translate directly into Haskell.
+This takes us to an intermediate language, unimaginatively dubbed ``IL'', supporting Datafun's computational features but lacking its modal typing, which we translate directly into Haskell.
 
-Thus to achieve \naive\ evaluation of Datafun code, we take a straight path through \cref{figure-compiler-passes}:
+Thus \naive\ compilation of Datafun code takes a straight path through \cref{figure-compiler-passes}:
 
 \nopagebreak[3]
 % https://q.uiver.app/?q=WzAsNSxbMCwwLCJcXHRleHR7U291cmNlfSJdLFsyLDAsIlxcdGV4dHtTeW50YXh9Il0sWzQsMCwiXFx0ZXh0e1R5cGVkIHN5bnRheH0iXSxbNiwwLCJcXHRleHR7SUx9Il0sWzgsMCwiXFx0ZXh0e0hhc2tlbGx9Il0sWzAsMSwiXFx0ZXh0e3BhcnNlfSJdLFsxLDIsIlxcdGV4dHt0eXBlY2hlY2t9Il0sWzIsMywiXFx0ZXh0e2Ryb3AgYm94ZXN9Il0sWzMsNCwiXFx0ZXh0e2VtaXQgSGFza2VsbH0iXV0=
@@ -62,7 +62,8 @@ Thus to achieve \naive\ evaluation of Datafun code, we take a straight path thro
 	\arrow["{\text{emit}}", from=1-7, to=1-9]
 \end{tikzcd}\]}
 
-To achieve semi\naive\ evaluation, however, we must apply the \emph{$\phi$ transform} from \cref{chapter-seminaive} to the typed syntax before dropping boxes, since the transform works precisely by annotating boxed terms with their zero-changes.
+\noindent
+For semi\naive\ evaluation, however, we must apply the \emph{$\phi$ transform} from \cref{chapter-seminaive} to the typed syntax before dropping boxes, since the transform works precisely by annotating boxed terms with their zero-changes.
 %
 As we have no further use for $\iso$, the compiler pass implementing $\phi$ omits boxes from its output.
 %
@@ -327,7 +328,7 @@ This spares the Datafun compiler the work of determining at which types these pr
 
 This \lstinline{Semilat} typeclass has two core methods, \lstinline{(<:)} and \lstinline{unions}:%
 %
-\footnote{The \lstinline{diff} method on \lstinline{Semilat} and the \lstinline{semifixMinimized} function are not yet significant and will be explained in \cref{section-change-minimization}.\label{footnote-diff}}
+\footnote{The \lstinline{diff} method on \lstinline{Semilat} and the \lstinline{semifixMinimized} function that uses it will be explained in \cref{section-change-minimization}.\label{footnote-diff}}
 
 \begin{lstlisting}
   class Semilat a where

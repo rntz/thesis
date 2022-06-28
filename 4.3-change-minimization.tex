@@ -199,7 +199,7 @@ In our Haskell runtime this becomes:
 \end{lstlisting}
 
 \noindent
-Unfortunately, for some semilattices (e.g.\ totally-ordered ones) the degenerate default is the \emph{only} valid change minimization operator. For instance, take \(\N^\infty_{\textsf{min}}\), the naturals extended with positive infinity under minimum, which is useful for shortest path computations. This inability to meaningfully minimize changes is concerning for the efficiency of computations which use these semilattices; an important direction for future work would be to characterize the worst-case efficiency of semi\naive\ evaluation over different classes of semilattice.
+Unfortunately, for some semilattices the degenerate default is the \emph{only} valid change minimization operator. This includes any totally-ordered semilattice, such as \(\N^\infty_{\textsf{min}}\), the naturals extended with positive infinity under minimum, which is useful for shortest path computations. This inability to meaningfully minimize changes is concerning for the efficiency of computations which use these semilattices; an important direction for future work would be to characterize the worst-case efficiency of semi\naive\ evaluation over different classes of semilattice.
 
 %% It would be highly desirable to characterize the efficiency 
 

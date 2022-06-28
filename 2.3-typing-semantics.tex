@@ -105,7 +105,7 @@ chains, guaranteeing the recursion will terminate.
 %
 The restriction to boxed functions, treating \prim{fix} as a non-monotone
 operator, is motivated not by our semantics but by our strategy for evaluating
-Datafun efficiently. This will be explained in detail in
+Datafun efficiently.\label{fix-is-discrete} This will be explained in detail in
 \cref{why-is-fix-discrete}, but as a foreglimpse, to evaluate Datafun efficiently, we incrementalize monotone functions; incrementally maintaining \prim{fix} is difficult, so we treat it as non-monotone.
 
 

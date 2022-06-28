@@ -1,48 +1,117 @@
 \section{The \boldphi\ and \bolddelta\ transforms}
 \label{section-phi-delta}
-\label{why-is-fix-discrete}
-
-\fixme{now}{segue here connecting from previous section}
 
 \splittodo{explain syntax sugar in phi and delta}{, forward referencing the appendix}
 
-We use two static transformations, $\phi$ and $\delta$, defined in
-\cref{figure-phi,figure-delta}. Rather than dive into the gory details
-immediately, we first build some intuition.
+Our goal in this chapter is to automatically speed up computation of fixed points in Datafun using semi\naive\ evaluation, replacing $\efix f$ by $\semifix\<(f, f')$ where $f'$ is a derivative for $f$.
+%
+The previous section suggests this is possible: \ChangePoset\ appears capable of interpreting Datafun's semantics; its exponential objects consist of differentiable monotone maps; and its construction provides a recipe for calculating concrete derivatives witnessing this differentiability.
+%
+In this section, we carry out this recipe (with one significant change),
+producing two static transformations, $\phi$ and $\delta$, defined in
+\cref{figure-phi,figure-delta}.
 
-The speed-up transform $\phi$ computes fixed points semi\naive{}ly by
-replacing $\efix f$ by $\semifix\<({f,\, f'})$.
+The ``speed-up'' transform $\phi$ replaces $\efix f$ by $\semifix\<({f,\, f'})$ and decorates other expressions with the information we need to compute $f'$.
 %
-To find this derivative $f'$ we'll need a second transform, $\delta$.
+In particular, to find $f'$ we need the ``incrementalization'' transform, $\delta$, which propagates changes through a program.
 %
-Since a derivative is a zero change, can $\delta e$ simply find a zero change to
-$e$?
+For instance, the derivative of $(\efn x e)$ depends on how $e$ changes in response to changes in $\mvar x$.
 %
-Unfortunately, this is not strong enough.
+In general, $\delta e$ computes the change in $\phi e$ given changes to its free variables. 
 %
-For example, the zero change to (the derivative of) $\efn x e$ depends not on the
-\emph{zero} change to $e$, but on how $e$ changes in response to changes in $x$.
-%
-To compute derivatives, we need to solve the general problem of computing and
-propagating \emph{changes}.
-%
-So, modelled on the incremental \fn-calculus' $\Derive$ \citep{incremental},
-$\delta e$ will compute how $\phi e$ changes as its free variables change.
+The rules defining $\delta$ closely resemble both the incremental \fn-calculus' $\Derive$ operator \citep{incremental} and the derivatives given in the previous section for morphisms in \ChangePoset.
 
-In generalizing from zero changes to changes, however, we seem to have
-jettisoned our original goal: \semifix\ doesn't need the change to $f$, it needs its derivative.
+Unfortunately, when we consider terms with free variables, there is a gap between \emph{derivatives} and \emph{changes:} we cannot simply let $f' = \delta f$, because we want $f'$ to be the derivative of the function $f$, not the change to it.
 %
-Since derivatives are zero changes, function changes and derivatives coincide if
-\emph{the function cannot change}.
+One way to solve this problem, suggested by the exponential in \ChangePoset, would be to have $\phi$ decorate every function with its derivative.\todomaybe{footnote here}{ about how this requires partial derivatives by substituting zero for the free variables a la the curry rule in \ChangePoset.}
 %
-This is why the typing rule for $\efix f$ requires $f : \isofixLtoL$ to be boxed: not because \prim{fix} is non-monotone, but to prevent its argument from changing!
+However, this is overkill: we only need derivatives for functions used in fixed point computations.
+
+This leads to our \emph{significant change.}
 %
-So the key strategy of our speed-up transformation $\phi$ is to
-{\bfseries\boldmath decorate expressions of type ${\iso A}$ with their zero
-  changes.}
+%% Recall from \cref{why-is-fix-discrete} that $\prim{fix} : \isofixLtoL$ takes a boxed function; that the only change possible at a boxed type is to stay the same; and (from \cref{function-zero-changes-are-derivatives}) that a function's derivative is a zero change to it.
 %
-This makes derivatives available exactly where we need them: at \prim{fix}
-expressions.
+Recall from \cref{function-zero-changes-are-derivatives} that a zero change to a function \emph{is} a derivative: the problematic gap between derivatives and changes disappears if the function \emph{does not change}.
+%
+We ensure this by boxing the argument of \prim{fix}, giving it the type $\isofixLtoL$; as we saw in \cref{why-is-fix-discrete}, at $\iso A$ represents values which do not change.
+%
+Thus, rather than decorate every function with its derivative, the key strategy of the $\phi$ transformation is to \strong{\boldmath decorate expressions of type $\iso A$ with their zero-changes.} In this way, we hijack the $\iso$ comonad to track functions that are used inside fixed points, and make their derivatives available exactly where we need them: at \prim{fix} expressions.
+
+%% However, there is a gap here between \emph{derivatives} and \emph{changes:} to evaluate $\efix f$ semi\naive{}ly, we want the derivative of the function $f$, not the change to it. The natural way to solve this problem, suggested by the exponential in \ChangePoset, would be to have $\phi$ decorate every function with its derivative.
+
+\todomaybe{footnote about backward story}{: the construction of $\phi$/$\delta$ come from \citet{seminaive-datafun} and predate the construction of \ChangePoset. This is the reason for this significant change.}
+
+
+%% \clearpage
+
+%% Our goal in this chapter is to automatically speed up computation of fixed points in Datafun using semi\naive\ evaluation, replacing $\efix f$ by $\semifix\<(f, f')$ where $f'$ is a derivative for $f$.
+%% %
+%% The previous section suggests this is possible: \ChangePoset\ appears capable of interpreting Datafun's semantics; its exponential objects $A \expto B$ consist of differentiable monotone maps; and its construction provides a recipe for calculating concrete derivatives witnessing this differentiability.
+%% %
+%% In this section, we carry out this recipe (with one significant change),
+%% producing two static transformations, $\phi$ and $\delta$, defined in
+%% \cref{figure-phi,figure-delta}.
+
+%% The ``speed-up'' transform $\phi$ replaces $\efix f$ by $\semifix\<({f,\, f'})$, and decorates other expressions with the information we need to compute $f'$.
+%% %
+%% The natural way to do this, suggested by the exponential in \ChangePoset, would be to decorate \emph{every} function with a derivative.
+%% %
+%% However, this is overkill: we only need derivatives for functions used in fixed point computations.
+%% %
+%% This leads to our \emph{significant change:}
+%% %
+%% Recall, first, that $\prim{fix} : \isofixLtoL$ takes a boxed function, and second, that a function's derivative is a zero change to it (\cref{function-zero-changes-are-derivatives}); thus rather than decorate every function with its derivative, the key strategy of the $\phi$ transformation is to \strong{\boldmath decorate expressions of type $\iso A$ with their zero-changes.} In this way, we hijack the $\iso$ comonad to track functions that are used inside fixed points, and make their derivatives available exactly where we need them: at \prim{fix} expressions.
+
+%% For instance, to compute the derivative of the function $\efn x e$, we need to know how its body $e$ changes in response to changes in its argument $\mvar x$.
+%% %
+%% For this, we use the $\delta$ transform, which determines how an expression responds to changes in its free variables.
+%% %
+%% One may regard $\delta$ as finding the ``derivative'' of an expression, but beware: there is a gap between the derivatives of \emph{expressions} and derivatives of \emph{functions}.
+%% %
+%% In the presence of free variables, $\delta(\efn x e)$ does \emph{not} compute the derivative of the function $\efn x e$.
+
+%% However, there is a jump to made here between derivatives of \emph{expressions} and derivatives of \emph{functions}.
+%% %
+%% \clearpage
+
+
+%% %% ---------- OLD VERSION ----------
+%% We use two static transformations, $\phi$ and $\delta$, defined in
+%% \cref{figure-phi,figure-delta}. Rather than dive into the gory details
+%% immediately, we first build some intuition.
+
+%% The speed-up transform $\phi$ computes fixed points semi\naive{}ly by
+%% replacing $\efix f$ by $\semifix\<({f,\, f'})$.
+%% %
+%% To find this derivative $f'$ we'll need a second transform, $\delta$.
+%% %
+%% As we saw in \cref{function-zero-changes-are-derivatives}, a function's derivative is a zero change to it; so can $\delta e$ simply find a zero change to $e$?
+%% %
+%% Unfortunately, this is not strong enough.
+%% %
+%% For example, the zero change to (the derivative of) $\efn x e$ depends not on the
+%% \emph{zero} change to $e$, but on how $e$ changes in response to changes in $x$.
+%% %
+%% To compute derivatives, we need to solve the general problem of computing and
+%% propagating \emph{changes}.
+%% %
+%% So, modelled on the incremental \fn-calculus' $\Derive$ \citep{incremental},
+%% $\delta e$ will compute how $\phi e$ changes as its free variables change.
+
+%% In generalizing from zero changes to changes, however, we seem to have
+%% jettisoned our original goal: \semifix\ doesn't need the change to $f$, it needs its derivative.
+%% %
+%% Since derivatives are zero changes, function changes and derivatives coincide if
+%% \emph{the function cannot change}.
+%% %
+%% This is why the typing rule for $\efix f$ requires $f : \isofixLtoL$ to be boxed: not because \prim{fix} is non-monotone, but to prevent its argument from changing!
+%% %
+%% So the key strategy of our speed-up transformation $\phi$ is to
+%% {\bfseries\boldmath decorate expressions of type ${\iso A}$ with their zero
+%%   changes.}
+%% %
+%% This makes derivatives available exactly where we need them: at \prim{fix}
+%% expressions.
 
 
 \subsection{Typing \boldphi\ and \bolddelta}

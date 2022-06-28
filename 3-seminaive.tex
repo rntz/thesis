@@ -11,7 +11,9 @@ chapter we'll examine just one classic Datalog optimization,
 \emph{semi\naive\ evaluation}, which makes practical Datalog and Datafun's
 defining feature: iterative fixed points.
 
-In \cref{section-seminaive-incremental} we'll see how the direct approach to finding fixed points wastes time by recomputing already-known facts at each iteration, and how semi\naive\ evaluation fixes this by computing the differences between iterations. Our key insight (thought not original to us\todo{citation}) is to see semi\naive\ evaluation as an application of incremental computation, that is, efficiently responding to changes.
+In \cref{section-seminaive-incremental} we'll see how the direct approach to finding fixed points wastes time by rediscovering previously-known facts at each iteration, and how semi\naive\ evaluation fixes this by computing the differences or changes between iterations.
+%
+We therefore see semi\naive\ evaluation as a matter of incremental computation, that is, efficiently responding to change.
 %
 To apply this insight, in \cref{section-change-structures} we adapt prior work on the incremental lambda calculus~\citep{incremental} to construct a category of incrementalizable monotone maps capable of interpreting Datafun's semantics.
 %

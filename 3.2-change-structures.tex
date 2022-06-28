@@ -191,7 +191,7 @@ This generalization is useful because differentiable maps (that is, maps possess
 \end{proof}
 
 \noindent
-In the next section we will sketch the most important structures in \ChangePoset\ needed to support Datafun's semantics, providing a recipe for incrementalizing Datafun.  Applied correctly, this will let us automatically find derivatives for functions used by \prim{fix} expressions, allowing us to employ the semi\naive\ evaluation strategy for finding fixed points faster. \todo{is this still accurate?}
+In the next section we will sketch the most important structures in \ChangePoset\ needed to support Datafun's semantics, providing a recipe for incrementalizing Datafun.  Applied correctly, this will let us automatically find derivatives for functions used by \prim{fix} expressions, allowing us to employ the semi\naive\ evaluation strategy for finding fixed points faster.
 
 
 \section{The structure of \ChangePoset}
@@ -330,23 +330,37 @@ For instance, picking zero changes $\zero_a$, $\zero_b$ for $a,b$ respectively, 
 %
 %% For instance, $(a,b)$ has a zero change because $a$ must have a zero change $\changes{\da} a a$, likewise for $b, \db$, and \rn{product change} then tells us that $\changes{(\da,\db)}{(a,b)}{(a,b)}$.
 
-Finally, the terminal map $\fork{}$, projection $\pi_i$, and tupling $\fork{f,g}$ (given $f : A \to B$ and $g : A \to C$) are all the same as in \Poset\ (thus inheriting the necessary universal properties), with derivatives given by:
+Finally, the terminal map $\fork{}$, projection $\pi_i$, and the tupling $\fork{f,g}$ of $f : A \to B$ and $g : A \to C$ are all the same as in \Poset\ (thus inheriting the necessary universal properties), with derivatives given by:
 %
 \todo{give types of derivatives not just of morphisms?}
 
 \begin{align*}
-  \fork{} &: A \to \terminalobject
+  \fork{}' &: \iso VA \to \Delta A \to \terminalobject
   &
-  \fork{}' \<a \<\da &= \tuple{}
+  &\fork{}' \<a \<\da = \tuple{}
   \\
-  \pi_i &: A_1 \x A_2 \to A_i
+  \pi_i' &: \iso(VA_1 \x VA_2) \to \D A_1 \x \D A_2 \to \D A_i
   &
-  \pi_i' \<(x_1,x_2) \<(\dx_1,\dx_2) &= \dx_i
+  &\pi_i' \<(x_1,x_2) \<(\dx_1,\dx_2) = \dx_i
   \\
-  \fork{f,g} &: A \to B \x C
+  \fork{f,g}' &: \iso VA \to \D A \to \D B \x \D C
   &
-  \fork{f,g}' \<a \<\da &= \tuple{f'\<a\<\da, g'\<a\<\da}
+  &\fork{f,g}' \<a \<\da = \tuple{f'\<a\<\da,\, g'\<a\<\da}
 \end{align*}
+
+%% \begin{align*}
+%%   \fork{} &: A \to \terminalobject
+%%   &
+%%   \fork{}' \<a \<\da &= \tuple{}
+%%   \\
+%%   \pi_i &: A_1 \x A_2 \to A_i
+%%   &
+%%   \pi_i' \<(x_1,x_2) \<(\dx_1,\dx_2) &= \dx_i
+%%   \\
+%%   \fork{f,g} &: A \to B \x C
+%%   &
+%%   \fork{f,g}' \<a \<\da &= \tuple{f'\<a\<\da, g'\<a\<\da}
+%% \end{align*}
 
 \noindent
 The correctness of $\fork{}'$ is trivial; correctness of $\pi_i'$ follows by inversion of \rn{product change}; and $\fork{f,g}'$ is correct by \rn{product change} and correctness of $f',g'$.\footnotemark
@@ -629,10 +643,10 @@ By definition, every $f : V(A \expto B)$ is differentiable, and a derivative $f'
   &&\text{\cref{definition-derivative}}
 \end{align*}
 
-\noindent
+\noindent\label{function-zero-changes-are-derivatives}%
 This happens because we've defined function changes $\changesat{A \expto B}{\df} f g$ to tell us how function application responds to changes in both the function and its argument. If the function \emph{doesn't} change, this reduces to how the function's output changes as its argument changes: exactly what a derivative does.
 
-\footnotetext{We also promised in a footnote on \cpageref{footnote-completeness} to show that completeness was problematic at function types / exponentials. In other words, supposing $f \le g : A \expto B$, why can't we find some $\changes{\df} f g$? Well, we would need $\changesat{B}{\df\<x\<\dx}{f\<x}{g\<y}$ whenever $\changes{\dx} x y$. If we inductively suppose completeness at $B$, we could pick such a change, since by monotonicity we can show $f\<x \le g\<y$. Of course, we need $\df$ to be defined over \emph{all} $x,\dx$, not merely valid ones, but this is nothing the axiom of choice can't handle. More problematic is that we need $\df\<x\<\dx$ to be \emph{monotone} with respect to $\dx$. So merely picking changes is not enough; we have to pick them in a way that preserves monotonicity.
+\footnotetext{We also promised in a footnote on \cpageref{footnote-completeness} to show that completeness was problematic at function types. In other words, supposing $f \le g : A \expto B$, why can't we find some $\changes{\df} f g$? Well, we would need $\changesat{B}{\df\<x\<\dx}{f\<x}{g\<y}$ whenever $\changes{\dx} x y$. If we inductively suppose completeness at $B$, we could pick such a change, since by monotonicity we can show $f\<x \le g\<y$. Of course, we need $\df$ to be defined over \emph{all} $x,\dx$, not merely valid ones, but this is nothing the axiom of choice can't handle. More problematic is that we need $\df\<x\<\dx$ to be \emph{monotone} with respect to $\dx$. So merely picking changes is not enough; we have to pick them in a way that preserves monotonicity.
 
   We conjecture this can be done by strengthening change structures to include (1) monotone completeness and (2) monotone change composition. \emph{Monotone completeness} strengthens completeness by requiring an operator $y \ominus_A x$ defined for $y \ge x : VA$ such that $\changesat{A}{y \ominus_A x} x y$ and which is monotone in $y$ and anti-monotone in $x$, that is, $x' \le x \wedge y \le y' \implies y \ominus x \le y' \ominus x'$. \emph{Monotone change composition} requires a monotone operator $\ocircle_A : \D A \x \D A \to \D A$ such that if $\changes{\dx}{x}{y}$ and $\changes{\dy} y z$ then $\changes{\dy \ocircle \dx}{x}{z}$. Then we can define $g \ominus_{A \expto B} f = \fnof x \fnof{\dx} g'\<x\<\dx \ocircle_B (g\<x \ominus_B f\<x)$ and $\dg \ocircle_{A \expto B} \df = \fnof x \fnof{\dx} \dg \<x\<\dx \ocircle \df\<x\<\zero_x$.
 
@@ -828,7 +842,9 @@ This requires a higher-order derivative; a coherent theory of higher-order deriv
 
 \footnotetext{The need to recompute $\morph{fix}\<f$ could likely be solved by caching intermediate values, which we discuss further in \cref{section-caching}. Somewhat unusually, in this case we want to cache the previous output of an operation rather than its previous input.}
 
-Instead, we deliberately limit the scope of our approach to avoid the need to incrementally maintain fixed points. As we've already seen\todo{bwd ref}, in Datafun \prim{fix} is not treated as a monotone operator; correspondingly the morphisms we require to interpret it are not $\morph{fix} : (L \expto L) \to L$ but rather $\morph{fix} : {\color{IsoRed} \iso}(L \expto L) \to L$. The idea here is that, just as $\iso$ in \Poset\ captures \emph{non-monotonicity} in an otherwise monotone world, in \ChangePoset\ we can use it to capture \emph{non-differentiability} or \emph{non-incrementalizability} in an otherwise differentiable world.
+\label{why-is-fix-discrete}
+
+Instead, we deliberately limit the scope of our approach to avoid the need to incrementally maintain fixed points. As we mentioned in \cref{fix-is-discrete}, in Datafun \prim{fix} is not treated as a monotone operator; correspondingly the morphisms we require to interpret it are not $\morph{fix} : (L \expto L) \to L$ but rather $\morph{fix} : {\color{IsoRed} \iso}(L \expto L) \to L$. The idea here is that, just as $\iso$ in \Poset\ captures \emph{non-monotonicity} in an otherwise monotone world, in \ChangePoset\ we can use it to capture \emph{non-differentiability} or \emph{non-incrementalizability} in an otherwise differentiable world.
 
 %\newcommand\isotriv{\ensuremath{\iso_{\textsf{triv}}}}
 
@@ -853,7 +869,7 @@ This straightforwardly satisfies functionality, soundness, and zero changes. Mor
   \\
   \varepsilon_A &\isa \iso A \to A
   &
-  \varepsilon_A' \<x \<\tuple{} &= \zero_x
+  \varepsilon_A' \<x \<\tuple{} &= \zero_x\quad\textsf{(see footnote\footnotemark)}
   \\
   \delta_A &\isa \iso A \to \iso\iso A
   &
@@ -867,6 +883,8 @@ This straightforwardly satisfies functionality, soundness, and zero changes. Mor
   &
   {\isosum}' \<(\inj i x) \<\tuple{} &= \inj i ()
 \end{align*}
+
+\footnotetext{It is again important here that in \ChangePoset\ our morphisms are merely differentiable, not equipped with derivatives, that is, that we do not distinguish morphisms by their derivative. Otherwise naturality of $\varepsilon$ would require that $(\varepsilon \compose \iso f)' = (f \compose \varepsilon)'$, which requires $\varepsilon'\<(f\<x)\<() = f'\<x\<(\varepsilon'\<x\<())$ and thus $\zero_{(f\<x)} = f'\<x\<\zero_x$, which is difficult to guarantee without unique zero-changes.}
 
 \noindent
 Finally, observe that any monotone map $f : V\iso A \to VB$ is trivially differentiable by letting $f' \<x \<() = \zero_{(f\<x)}$, confirming our intuition that differentiable maps $\iso A \to B$ should coincide with not-necessarily-differentiable maps $A \to B$.
