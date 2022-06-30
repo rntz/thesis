@@ -120,16 +120,16 @@
 \renewcommand\warntodo[2]{{\todocolor\ensuretext{\bfseries\sffamily[{#2}]}}}
 \renewcommand\todomaybe[2]{{\color{Rhodamine}\ensuretext{\bfseries\sffamily[{#1}{#2}]}}}
 
-%% %% Disable todos
-%% \renewcommand\todolater[1]{}
-%% \renewcommand\footnotelater[1]{}
-%% \renewcommand\todomaybe[2]{}
-%% \renewcommand\warntodo[2]{}
+%% Disable todos
+\renewcommand\todolater[1]{}
+\renewcommand\footnotelater[1]{}
+\renewcommand\todomaybe[2]{}
+\renewcommand\warntodo[2]{}
 
-%% \renewcommand\XXX{\PackageWarning{XXX}{XXX}{\todocolor\ensuretext{\bfseries\sffamily[{XXX}]}}}
+\renewcommand\XXX{\PackageWarning{XXX}{XXX}{\todocolor\ensuretext{\bfseries\sffamily[{XXX}]}}}
 
-%% \renewcommand\fixme[2]{}
-%% \renewcommand\XXX{}
+\renewcommand\fixme[2]{}
+\renewcommand\XXX{}
 
 
 %% ---------- Environments ----------
@@ -519,6 +519,6 @@
 \newcommand\yone{\dvar y_{1}} \newcommand\ytwo{\dvar y_{2}}
 
 %% Versions of commands used in section headers
-\newcommand\boldfn{\texorpdfstring{\ensuremath{\lambda}}{lambda}}
-\newcommand\boldphi{\texorpdfstring{$\phi$}{phi}}
-\newcommand\bolddelta{\texorpdfstring{$\delta$}{delta}}
+\newcommand\boldfn{\texorpdfstring{\ensuremath{\boldsymbol\lambda}}{lambda}}
+\newcommand\boldphi{\texorpdfstring{$\boldsymbol\phi$}{phi}}
+\newcommand\bolddelta{\texorpdfstring{$\boldsymbol\delta$}{delta}}

@@ -1,8 +1,6 @@
 \section{The \boldphi\ and \bolddelta\ transforms}
 \label{section-phi-delta}
 
-\splittodo{explain syntax sugar in phi and delta}{, forward referencing the appendix}
-
 Our goal in this chapter is to automatically speed up computation of fixed points in Datafun using semi\naive\ evaluation, replacing $\efix f$ by $\semifix\<(f, f')$ where $f'$ is a derivative for $f$.
 %
 The previous section suggests this is possible: \ChangePoset\ appears capable of interpreting Datafun's semantics; its exponential objects consist of differentiable monotone maps; and its construction provides a recipe for calculating concrete derivatives witnessing this differentiability.
@@ -31,11 +29,11 @@ This leads to our \emph{significant change.}
 %
 %% Recall from \cref{why-is-fix-discrete} that $\prim{fix} : \isofixLtoL$ takes a boxed function; that the only change possible at a boxed type is to stay the same; and (from \cref{function-zero-changes-are-derivatives}) that a function's derivative is a zero change to it.
 %
-Recall from \cref{function-zero-changes-are-derivatives} that a zero change to a function \emph{is} a derivative: the problematic gap between derivatives and changes disappears if the function \emph{does not change}.
+Recall from \cref{function-zero-changes-are-derivatives} that a zero change to a function \emph{is} a derivative for it: the problematic gap between derivatives and changes disappears if the function does not change.
 %
-We ensure this by boxing the argument of \prim{fix}, giving it the type $\isofixLtoL$; as we saw in \cref{why-is-fix-discrete}, at $\iso A$ represents values which do not change.
+We ensure this by giving the \prim{fix} the argument type $\isofixLtoL$; as we saw in \cref{why-is-fix-discrete}, the type $\iso A$ represents values which do not change.
 %
-Thus, rather than decorate every function with its derivative, the key strategy of the $\phi$ transformation is to \strong{\boldmath decorate expressions of type $\iso A$ with their zero-changes.} In this way, we hijack the $\iso$ comonad to track functions that are used inside fixed points, and make their derivatives available exactly where we need them: at \prim{fix} expressions.
+Thus, rather than decorate every function with its derivative, the key strategy of the $\phi$ transformation is to \strong{\boldmath decorate expressions of type $\iso A$ with their zero changes.} In this way, we hijack the $\iso$ comonad to track functions that are used inside fixed points and make their derivatives available where we need them: at \prim{fix} expressions.
 
 %% However, there is a gap here between \emph{derivatives} and \emph{changes:} to evaluate $\efix f$ semi\naive{}ly, we want the derivative of the function $f$, not the change to it. The natural way to solve this problem, suggested by the exponential in \ChangePoset, would be to have $\phi$ decorate every function with its derivative.
 
