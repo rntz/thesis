@@ -1,42 +1,28 @@
-further changes 0e5a2a70efebde9650aad89df177abd0d76c3024 to 710d66d9c2b0eb5b0480c42ab84d693c7a3afb74
-
-- Section 1.3, p10: Added footnote links for Semmle's work
-
-- §3.3, p54: Added footnote explaining the definition of ε' is not natural, which is OK because we only need *a* derivative for ε and don't care what it is.
-
-- p54: Rewrote the introduction to §3.4 to connect with definition of ΔPoset in §3.3.
-
-- Chapter 4 has been considerably expanded to discuss the implementation of the compiler in more detail, including its multi-pass structure, input/output (source-code/compiled-code) examples, the optimizations performed, and the runtime library.
-
-- §5.2, p83: discussed Paige & Koenig (1982) briefly.
-
-----------
-
-up to date wrt 0e5a2a70efebde9650aad89df177abd0d76c3024
-
 I've listed page numbers for the changes; these numbers are for the current pdf (with corrections), not the original pdf (prior to corrections).
 
 Major differences from initial submission:
 
-1. The explanation of change structures in chapter 3 has been totally rewritten, giving a mathematical definition of change structures, derivatives, and the category ΔPoset they form, and explaining why these definitions were chosen over potential alternatives. (pp45-54)
+1. The explanation of change structures in chapter 3 has been totally rewritten, giving a mathematical definition of change structures, derivatives, and the category ΔPoset they form, and explaining why these definitions were chosen over potential alternatives, and how they connect to the phi/delta transforms given in section 3.4. (pp45-55)
 
-2. Chapter 4 has been expanded to cover a crucial additional optimization, change minimization, without which we can still get asymptotic slowdowns. (pp69-72)
+2. Chapter 4 has been expanded to discuss the implementation of the compiler, including its multi-pass structure, input/output (source-code/compiled-code) examples, the optimizations performed, and the runtime library. It also now covers a crucial additional optimization, change minimization, without which we can still get asymptotic slowdowns. (pp67-80)
 
-3. The proofs of termination of the operational semantics (pp32-41) and correctness of the phi/delta translation (pp87-97) have been completed and typeset.
+3. The proofs of termination of the operational semantics (pp32-41) and correctness of the phi/delta translation (pp97-107) have been completed and typeset.
 
 Minor differences:
 
-p6, 11, 69, 75, 79, 80, perhaps others: Informal language has been removed.
+Some informal language has been removed throughout.
 
 p7-10: The term "derivable" has been generally replaced with "deducible".
 
 p11: Citations and short explanations have been added for magic sets and tabling. Reference to QSQR has been removed; it is a variety of tabling.
 
+p10: Added hyperlinks for Semmle's work.
+
 p13: Clarified in what sense semilattice aggregations are monotone.
 
 p15: "square this circle" replaced with "cut this Gordian knot". Fewer exclamation points.
 
-p16: Explanation of discrete vs monotone variables expanded. Explanation added for why fixed points take semilattice type.
+p15-16: Explanation of discrete vs monotone variables expanded. Explanation added for why fixed points take semilattice type.
 
 p18: An explanation has been added for why the expansion of (if !e1 <- e2 then f1 else f2) swaps the order of f1 and f2.
 
@@ -62,7 +48,9 @@ p43-44: Revise explanation of/derivation of seminaive evaluation strategy for tr
 
 p47: Cite POPL 2020 paper, explain relation to contents of chapter.
 
-p55: Reference the figure that defines semilattice types and restate their grammar.
+p54: Added footnote explaining the definition of ε' is not natural, which is OK because we only need *a* derivative for ε and don't care what it is.
+
+p55: Reference the figure that defines equality/semilattice types and restate their grammars.
 
 p57: Moved figure containing syntax sugar used in phi/delta translations out of the appendix and into chapter 3.
 
@@ -70,14 +58,16 @@ p60: Explained that we want the output of our translation to be well-typed Dataf
 
 p65: Revise introduction to chapter 4 to reflect that it discusses two optimizations: simplifying the output of the phi translation to remove unnecessary loops, and minimizing changes in semifix to avoid accumulating junk.
 
-p65-67: Label derived equations and backward-reference them when they are used instead of saying simply "prior work".
+p66-67: Label derived equations and backward-reference them when they are used instead of saying simply "prior work".
 
-p68: Mention that the regex example is higher-order because it encodes regexes as functions and regex constructions as function combinators.
+p73: Mention that the regex example is higher-order because it encodes regexes as functions and regex constructions as function combinators.
 
-p75: "useless recomputation" -> "recomputation"
+p83: "useless recomputation" -> "recomputation"
 
-p76: Add footnote explaining why/when commutativity and associativity suffice.
+p84: Add footnote explaining why/when commutativity and associativity suffice.
 
-p77: Update comparison between Giarrusso et al's change structures and ours to accomodate changes to our definition of change structures in Chapter 3.
+p84: discussed Paige & Koenig (1982) briefly.
 
-bibliography, p99-end: ensured 'Datalog', 'Horn Logic', 'CRDTs', 'Kripke', 'Schemer', 'Mercury',  are capitalized, removed incorrect page count from Koch 2013 reference, removed 'Wolfson College' from Mario's thesis
+p85-86: Update comparison between Giarrusso et al's change structures and ours to accomodate changes to our definition of change structures in Chapter 3.
+
+bibliography, p108-end: ensured 'Datalog', 'Horn Logic', 'CRDTs', 'Kripke', 'Schemer', 'Mercury' are capitalized, removed incorrect page count from Koch 2013 reference, removed 'Wolfson College' from Mario's thesis.
