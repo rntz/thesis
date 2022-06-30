@@ -1,3 +1,19 @@
+further changes 0e5a2a70efebde9650aad89df177abd0d76c3024 to 710d66d9c2b0eb5b0480c42ab84d693c7a3afb74
+
+- Section 1.3, p10: Added footnote links for Semmle's work
+
+- ch3: gave the types of the derivatives instead of the morphisms themselves
+
+- §3.3, p54: Added footnote explaining the definition of ε' is not natural, which is OK because we only need *a* derivative for ε and don't care what it is.
+
+- p54: Rewrote the introduction to §3.4 to connect with definition of ΔPoset in §3.3.
+
+- Chapter 4 has been considerably expanded to discuss the implementation of the compiler in more detail, including its multi-pass structure, input/output (source-code/compiled-code) examples, the optimizations performed, and the runtime library.
+
+- §5.2, p83: discussed Paige & Koenig (1982) briefly.
+
+----------
+
 up to date wrt 0e5a2a70efebde9650aad89df177abd0d76c3024
 
 I've listed page numbers for the changes; these numbers are for the current pdf (with corrections), not the original pdf (prior to corrections).
