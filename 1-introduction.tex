@@ -596,7 +596,7 @@ relations\todo{haven't explained what relation means} finite:
   asserts $\name{equal}$ is reflexive), it leaves the variable $X$
   unconstrained, which would generate an infinite relation.
 
-\item Programs are \emph{constructor-free:} predicate arguments are either
+\item \label{list-of-digits} Programs are \emph{constructor-free:} predicate arguments are either
   atomic terms or variables. This prevents the introduction of new terms that
   don't already appear in the program, as this could also result in an infinite
   relation; for example, the relation containing all digit-lists (the use of a
@@ -1038,8 +1038,8 @@ Aggregations like this may or may not be monotone depending upon the order invol
 
 Datalog's \emph{constructor-freedom} prevents code that would directly
 manipulate compound data structures, like lists, trees, or even tuples. This
-restriction rules out some infinite relations, such as our ``list of digits''
-example, but it also rules out some legitimate, finite use-cases as well.
+restriction rules out some infinite relations, such as our ``lists of digits''
+example from \cpageref{list-of-digits}, but it also rules out some legitimate, finite use-cases as well.
 %
 For instance, \citet{DBLP:conf/datalog/SmaragdakisB10} added a macro system to
 their Datalog dialect to make writing context-sensitive static analyses less of

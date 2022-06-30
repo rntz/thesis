@@ -519,6 +519,10 @@ computation. In fact, it is convenient to break it into two pieces, by first
 defining the function whose fixed point we take. So we can write down the
 $\name{iter}$ function, which represents one step of the fixed point iteration.
 
+\newcommand\wubwub{%
+  \quad\cup
+  \{~\eiso{\etuple{\dvar a,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}} ~|~}
+
 \begin{code}
   \name{iter} \isa \iso \tstring \to \iso\tgrammar
   \to \tset{\tfact} \to \tset{\tfact}\\
@@ -528,16 +532,34 @@ $\name{iter}$ function, which represents one step of the fixed point iteration.
   (\dvar a,\, \ctor{concat} \<\dvar b \<\dvar c) \in \dvarlong{grammar},
   \etuple{\peqvar b, \dvar i, \dvar j} \in \mvar f,
   \etuple{\peqvar c, \peqvar j, \dvar k} \in \mvar f ~\}
-  \\\quad\cup \{~
-  \eiso{\etuple{\dvar a,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}}
-  \\\phantom{\quad\cup{}} |~
+  \\\wubwub
   (\dvar a,\, \ctor{String}\<\dvar s) \in \dvarlong{grammar},
-  \\\phantom{\quad\cup{}} \phantom{|~}
+  \\\phantom{\wubwub}
   \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvarlong{text} - \ebox{\name{length} \<\dvar s}),
-  \\\phantom{\quad\cup{}} \phantom{|~} \dvar s =
+  \\\phantom{\wubwub}
   \name{substring} \<\ebox{\dvarlong{text},\, \dvar i,\, \dvar i + \name{length}\<\dvar s}
-  ~\}
+  ~\} asdf
 \end{code}
+
+%% \begin{code}
+%%   \name{iter} \isa \iso \tstring \to \iso\tgrammar
+%%   \to \tset{\tfact} \to \tset{\tfact}\\
+%%   \name{iter} \<\pboxvarlong{text} \<\pboxvarlong{grammar} \<\mvar f =
+%%   \\\phantom{\quad\cup{}} \{~\eiso{\etuple{\dvar a,\, \dvar i,\, \dvar k}}
+%%   ~|~
+%%   (\dvar a,\, \ctor{concat} \<\dvar b \<\dvar c) \in \dvarlong{grammar},
+%%   \etuple{\peqvar b, \dvar i, \dvar j} \in \mvar f,
+%%   \etuple{\peqvar c, \peqvar j, \dvar k} \in \mvar f ~\}
+%%   \\\quad\cup \{~
+%%   \eiso{\etuple{\dvar a,\, \dvar i,\, \dvar i + \name{length}\<\dvar s}}
+%%   \\\phantom{\quad\cup{}} |~
+%%   (\dvar a,\, \ctor{String}\<\dvar s) \in \dvarlong{grammar},
+%%   \\\phantom{\quad\cup{}} \phantom{|~}
+%%   \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvarlong{text} - \ebox{\name{length} \<\dvar s}),
+%%   \\\phantom{\quad\cup{}} \phantom{|~} \dvar s =
+%%   \name{substring} \<\ebox{\dvarlong{text},\, \dvar i,\, \dvar i + \name{length}\<\dvar s}
+%%   ~\}
+%% \end{code}
 
 \noindent
 We can then use $\name{iter}$ to implement the $\name{parse}$ function:

@@ -140,9 +140,10 @@ first-order data:
 \begin{restatable}{lemma}{PhiEqualityType}\label{lemma-phi-eqt}
   $\Phi\eqt A = \eqt A$ for all equality types $\eqt A$.
 \end{restatable}
+\vspace{-\baselineskip}
 
 \begin{restatable}{proof}{PhiEqualityTypeProof}
- Induct on $\eqt A$ applying the equations in \cref{figure-DeltaPhi}.
+ Induct on $\eqt A$ applying the equations in \cref{figure-DeltaPhi}, recalling from \cref{figure-syntax} that the grammar of equality types is $\eqt A \bnfeq \tunit \bnfor \eqt A \x \eqt B \bnfor \eqt A + \eqt B \bnfor \tseteq A$.
 \end{restatable}
 
 \noindent
@@ -548,9 +549,11 @@ The derivative of case-analysis, $\delta(\emcase{e}{(\inj i \mvar x_i \caseto
 Suppose $\phi e$ evaluates to $\inj i x$ and its change $\delta e$ evaluates to
 $\inj j \dx$.
 %
-Since $\delta e$ is a change to $\phi e$, the change structure on sums tells us
-that $i = j$! (This is because sums are ordered disjointly; the value $x$ can
-increase, but the tag $\injc_i$ must remain the same.)
+Recall that sums are ordered disjointly (\cref{section-poset-bicartesian});
+the value $x$ can increase, but the tag $\injc_i$ must remain the same.
+%
+Since $\delta e$ is a change to $\phi e$, the change structure on sums
+(\cref{change-structure-for-sums}) tells us that $i = j$!
 %
 So the desired change $\delta(\emcase{e}{\dots})$ is given by $\delta f_i$ in a
 context supplying a discrete base point $\dvar x$ (the value $x$) and the change
@@ -574,7 +577,7 @@ simple function $\dummy_A : A \to \D A$ (\cref{figure-dummy}).
   the decorations that the $\phi$ translation adds to $\iso$.}
 
 We also need \dummy\ in the definition of $\phi(\esplit e)$. In effect
-$\prim{split} : \iso(A + B) \to \iso A + \iso B$. Observe that
+\prim{split} has type $\iso(A + B) \to \iso A + \iso B$. Observe that
 
 \begin{align*}
   \Phi(\iso (A + B)) &= \iso((\Phi A + \Phi B) \x (\DP A + \DP B))

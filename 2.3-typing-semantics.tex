@@ -15,11 +15,10 @@ partially ordered sets and monotone maps.
 The syntax of core Datafun is given in \cref{figure-syntax} and its typing rules
 in \cref{figure-typing}. Contexts are lists of hypotheses $H$; a
 hypothesis gives the type of either a monotone variable $\hm x A$ or a discrete
-variable $\hd x A$. The stripping operation $\stripcx\G$ drops all monotone
-hypotheses from the context $\G$, leaving only the discrete ones.
+variable $\hd x A$.
 %
 The typing judgement $\J{e}{\G}{A}$ may be read as ``assuming the variables in
-$\G$ have their given types, the term $e$ has type $A$''.
+$\G$ have their given types, the term $e$ has type $A$; moreover, $e$ is monotone with respect to the monotone variables in $\G$''.
 
 % TODO d\kern0pt var ?
 The \rn{var} and \rn{dvar} rules say that both monotone hypotheses $\hm x A$ and
@@ -36,11 +35,15 @@ only that as with \rn{lam}, the variables $\hm {x_i}{A_i}$ bound in each branch
 $f_i$ are monotone.
 
 \rn{box} says that $\ebox{e}$ has type $\iso A$ when $e$ has type $A$ in the
-stripped context $\stripcx\G$. This restricts $e$ to refer only to discrete
-variables, ensuring we don't smuggle any information we must treat monotonically
-into a discretely-ordered $\iso$ expression. The elimination rule \rn{letbox}
-for $(\eletbox x e f)$ allows us to ``cash in'' a boxed expression $e : \iso A$
-by binding its result to a discrete variable $\hd x A$ in the body $f$.
+stripped context $\stripcx\G$.
+%
+The stripping operation $\stripcx\G$ drops all monotone hypotheses from the
+context $\G$, removing them from scope in $e$ and implementing the ``variable hygiene'' discussed in \cref{variable-hygiene}.
+%
+This ensures we don't smuggle any information we must treat monotonically into
+a discretely-ordered $\iso$ expression. The elimination rule \rn{letbox} for
+$(\eletbox x e f)$ allows us to ``cash in'' a boxed expression $e : \iso A$ by
+binding its result to a discrete variable $\hd x A$ in the body $f$.
 
 At this point, our typing rules correspond to standard constructive S4 modal
 logic~\citep{jrml}. We get to Datafun by adding a handful of domain-specific
@@ -122,6 +125,7 @@ implicit. Following this convention, a morphism $f : A \to B$ is a function such
 that $x \le_A y \implies f(x) \le_B f(y)$.
 
 \subsubsection{Bicartesian structure}
+\label{section-poset-bicartesian}
 
 \todo{Give initial \& terminal objects!}
 

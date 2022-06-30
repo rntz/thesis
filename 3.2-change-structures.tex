@@ -157,7 +157,7 @@ This generalization is useful because differentiable maps (that is, maps possess
 \end{definition}
 
 \begin{proof}
-  Of course, for this to be a category we need to show that: (1) the identity map is differentiable; (2) the composition of two differentiable maps is differentiable. We also need associativity and identity of composition, but these follow from the same in \Poset. Derivatives for identity and composition can be found as follows:
+  Of course, for this to be a category we need to show that: (1) the identity map is differentiable; (2) the composition of two differentiable maps is differentiable. We also need associativity and identity of composition, but these follow from the same in \Poset. The derivative for identity is trivial, while the derivative for composition follows the pattern of the chain rule from calculus:
 
   \begin{align*}
     \id'\<x\<\dx &= \dx
@@ -166,7 +166,7 @@ This generalization is useful because differentiable maps (that is, maps possess
   \end{align*}
 
   \noindent
-  That $\id'$ is a derivative of \id\ is trivial, while for composition we need to pick maps $f',g'$ which are derivatives of $f,g$ respectively; then, applying the definition of derivatives:
+  That $\id'$ is a derivative of \id\ is straightforward, while for composition we need to pick maps $f',g'$ which are derivatives of $f,g$ respectively; then, applying the definition of derivatives:
 
   \begin{align*}
     &\changes{\dx} x y
@@ -368,7 +368,7 @@ The correctness of $\fork{}'$ is trivial; correctness of $\pi_i'$ follows by inv
 \footnotetext{Note that had we chosen to let $\Delta(A \x B) = \Delta A + \Delta B$, representing a change to a tuple by a change to only one of its components, this would not allow us to differentiate tupling $\fork{f,g}$, since a change to the input may cause both components of the output to change simultaneously.}
 
 
-\subsection{Sums}
+\subsection{Sums}\label{change-structure-for-sums}
 
 Sums and the initial object also mirror those in \Poset:
 

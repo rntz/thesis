@@ -74,7 +74,7 @@ This involves distinguishing two kinds of variable: discrete variables are in lo
 %
 Discrete variables may be used without restrictions, but monotone variables may only be used in ways that respect the ordering on their types: they must be used \emph{monotonically.}
 %
-This is enforced by removing monotone variables from scope within non-monotone expressions.
+This is enforced by a kind of variable hygiene: we remove monotone variables from scope within non-monotone expressions.\label{variable-hygiene}
 %
 For example, we cannot compare two monotone variables for equality, \(\eeq{\mvar x}{\mvar y}\), because equality comparison is non-monotone.
 %
