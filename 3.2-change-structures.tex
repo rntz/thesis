@@ -213,7 +213,7 @@ We will compare these with our approach in more detail in \cref{section-related-
 
 Our eventual destination is a static transformation on Datafun source code which implements semi\naive\ evaluation (\cref{section-phi-delta}).
 %
-This transformation, originally presented in \cite{seminaive-datafun}, predates the construction of \ChangePoset\ presented here and is independent of it.
+This transformation, originally presented by \cite{seminaive-datafun}, predates the construction of \ChangePoset\ presented here and is independent of it.
 %
 The transformation itself is quite intricate; our aim in presenting \ChangePoset\ is to break its core concepts down into small pieces, showing how this complexity arises and suggesting potential alternatives for future investigation.
 %
@@ -265,6 +265,7 @@ Recall that the structures we needed to interpret Datafun into the category \Pos
 %
 In \ChangePoset\ we will cover products, sums, exponentials, the discreteness comonad, and fixed points, as they are the most significant for understanding the broad structure of our approach.
 %
+%% XXX: explain why we don't cover the rest (they are straightforward, or similar, or unimportant)
 \todo{cover the other structures briefly}
 
 
@@ -398,12 +399,14 @@ Sums and the initial object also mirror those in \Poset:
 \noindent
 These satisfy functionality, soundness, and zero changes pretty straightforwardly using the corresponding properties at $A$ and $B$. For instance, $\inj i \zero_x$ is a zero change to $\inj i x$.
 
-The initial map $\krof{}$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2}$ (given $f_1 : A_1 \to C$, $f_2 : A_2 \to C$) are the same as in \Poset\ (inheriting its universal properties), with derivatives as follows:
+\newcommand\emptykrof{\krof{\thinspace}}
+
+The initial map $\emptykrof$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2}$ (given $f_1 : A_1 \to C$, $f_2 : A_2 \to C$) are the same as in \Poset\ (inheriting its universal properties), with derivatives as follows:
 
 \begin{align*}
-  \krof{} &: \initialobject \to A
+  \emptykrof &: \initialobject \to A
   &
-  \krof{}' &= \krof{} \quad\text{(the domain is empty)}
+  \emptykrof' &= \emptykrof \quad\text{(the domain is empty)}
   \\
   \injc_i &: A_i \to A_1 + A_2
   &
@@ -420,7 +423,7 @@ The initial map $\krof{}$, injection $\injc_i$, and case-analysis $\krof{f_1,f_2
 \end{align*}
 
 \noindent
-Correctness of $\krof{}'$ is vacuous; correctness of $\injc_i'$ follows directly from \rn{sum change}; but the definition of $\krof{f_1,f_2}'$ requires explanation.
+Correctness of $\emptykrof'$ is vacuous; correctness of $\injc_i'$ follows directly from \rn{sum change}; but the definition of $\krof{f_1,f_2}'$ requires explanation.
 %
 If we take the proposition that $\krof{f_1,f_2}'$ is a derivative of $\krof{f_1,f_2}$ and apply the definition of $R_{A_1+A_2}$ (namely \rn{sum change}), we find that it simplifies to:
 

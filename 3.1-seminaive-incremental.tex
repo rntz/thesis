@@ -33,25 +33,43 @@ relation:
 \end{datalog}
 
 \noindent
-By omission $\name{path}_0 = \emptyset$.
+When we index a relation in this way, the indexed relation at time $i$
+will contain exactly those facts deducible by applying the original rules at
+most $i$ times.
 %
-From this inductively $\name{path}_i \subseteq \name{path}_{i+1}$, because at step $i+1$ we re-deduce every fact known at step $i$.
+For instance, since the rules for \name{path} append edges one at a time, we can
+show by induction that $\name{path}_i$ contains exactly the nonempty paths of
+$i$ or fewer edges.
+%
+By omission $\name{path}_0 = \emptyset$: there are no empty nonempty paths.  Inductively assuming for some $i \ge 0$ that $\name{path}_i$ contains the nonempty paths of at most $i$ edges, note that ``a nonempty path of length at most $i+1$'' is the same as ``an edge, optionally followed by a nonempty path of length at most $i$''. The singleton edges are included by the first clause, and edges followed by paths by the second clause (applying our inductive hypothesis); so $\name{path}_{i+1}$ contains exactly the paths of length at most $i+1$ as desired.
+
+The
+first clause $\name{path}_{i+1}(X,Z) \gets \atom{edge}{X,Z}$ ensures
+$\name{path}_{i+1}$ includes all $1$-edge paths; $\name{path}_{i+1}(X,Z)
+\gets \atom{edge}{X,Y} \conj \name{path}_i(Y,Z)$ includes all paths formed by
+prepending an edge to a path from $\name{path}_i$, i.e.\ (by our inductive
+hypothesis) paths of between $2$ and $i+1$ edges. So $\name{path}_{i+1}$
+contains exactly the paths of length $1$ to $i+1$, as desired.
+
+%% \footnotetext{The general pattern here is that when we time-stratify a recursively-defined relation $P$, then $P_i$ will contain exactly those facts deducible by applying the rules defining $P$ at most $i$ times.}
+
+Unfortunately, this strategy \emph{re-deduces} each previously known fact on every subsequent iteration.
 %
 For example, suppose $\name{path}_i(j, k)$ holds. Then at step $i+1$ the second
 rule deduces $\name{path}_{i+1}({j-1}, k)$ from
 $\atom{edge}{{j-1}, j} \wedge \name{path}_i(j,k)$.
 %
-But since $\name{path}_{i+1}(j, k)$ holds, we perform the same deduction at time
-$i+2$, and again at $i+3$, $i+4$, etc.
+But since $\name{path}_{i+1}(j, k)$ holds (a path of length at most $i$ is also
+a path of length at most $i+1$), we perform the same deduction at time $i+2$,
+and again at $i+3$, $i+4$, etc.
 
-Because we append edges one at a time, $\name{path}_i$ contains all nonempty
-paths of $i$ or fewer edges.
+For our linear graph, it's easy to calculate how much work these re-deductions waste.
 %
-Therefore it takes $n$ steps until we reach our fixed point $\name{path}_{n-1} =
-\name{path}_n$.
+The longest path in a linear graph of $n$ nodes has $n-1$ edges, so we
+take $n$ steps to discover a fixed point $\name{path}_{n-1} = \name{path}_n$.
 %
-Since step $i$ involves $|\name{path}_i| \in \Theta(i^2)$ deductions, we make
-$\Theta(n^3)$ deductions in total.
+Since step $i$ involves $|\name{path}_i| = \sum_{j=1}^i n-j \in \Theta(i \cdot
+n)$ deductions, we make $\Theta(n^3)$ deductions in total.
 %
 There being only $\Theta(n^2)$ paths in the final result, this is terribly
 wasteful; hence we term this \emph{\naive\ evaluation}.
@@ -129,7 +147,7 @@ The base case is easily solved by letting $\name{dpath}_0 = \name{step}\<\emptys
 \noindent
 What must $\name{step}'$ satisfy to prove this iteration strategy correct?
 %
-We wish to show inductively that $\name{step}\<\name{path}_i = \name{path}_{i+1}$.
+We wish to show inductively that $\name{step}\<\name{path}_i = \name{path}_{i+1}$ for all $i$.
 %
 The base case is trivial. So assuming $\name{step}\<\name{path}_{i} = \name{path}_{i+1}$, let's look at what we wish to prove and simplify it:
 

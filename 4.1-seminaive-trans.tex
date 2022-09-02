@@ -21,7 +21,7 @@ In the process we'll discover that besides $\phi$ itself we need a few simple
 optimisations to actually speed up our program: most importantly, we need to
 propagate $\bot$ expressions.
 
-In our experience, performing $\phi$ and $\delta$ by hand is easiest when you work inside-out. At the core of transitive closure is a relation composition, $(\dvar e \relcomp p)$, and at the core of relation composition is a ``one-sided conditional'', $\efor{\eeq{\dvar y_1}{\dvar y_2}} \eset{\etuple{\dvar x, \dvar z}}$. Let's take a look at its $\phi$ and $\delta$ translations:
+In our experience, performing $\phi$ and $\delta$ by hand is easiest done from the inside outwards. At the core of transitive closure is a relation composition, $(\dvar e \relcomp p)$, and at the core of relation composition is a ``one-sided conditional'', $\efor{\eeq{\dvar y_1}{\dvar y_2}} \eset{\etuple{\dvar x, \dvar z}}$. Let's take a look at its $\phi$ and $\delta$ translations:
 
 %% Avoid overfull hboxes in this section
 %% \setlength\codeoffset{10pt}
@@ -155,9 +155,9 @@ This, then, is the derivative of relation composition:
 \end{equation}
 
 \noindent
-With a bit of rewriting, this is equivalent to $(\ds \relcomp t) \cup (s
-\relcomp \dt) \cup (\ds \relcomp \dt)$, which is perhaps the derivative a human
-would give.
+Distributing composition over union, this is equivalent to $(\ds \relcomp t)
+\cup (s \relcomp \dt) \cup (\ds \relcomp \dt)$, which is perhaps the derivative
+a human would give.
 
 Let's use this to figure out $\phi(\name{trans}\<\eboxvar{e})$. Working inside
 out, we start with the derivative of the loop body, $\delta(\dvar e \cup (\dvar
