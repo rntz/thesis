@@ -1,0 +1,69 @@
+%\chapter{Looking Forward, Looking Back}
+%\chapter{Lessons Learned and Yet to Be}
+%\chapter{Finished and Unfinished Work}
+\chapter{Conclusions and Future Work}
+\label{chapter-conclusion}
+
+\begingroup\todocolor Outline:
+
+\begin{enumerate}
+\item Revisit thesis statement. (``The goal of this dissertation was to...'') Did we accomplish this? To what extent?
+\item What have we learned along the way? What was surprising?
+\item What remains to be done? What perhaps should be done differently?
+\item What three main points should the reader take away?
+\end{enumerate}
+
+\endgroup
+
+\fixme{jeremy}{Lacking conclusions. What have we learned? What did you learn?
+  Did you succeed in your goal (``to design a language which improves on...'',
+  p13)? What, with the benefit of hindsight, should have been done differently?
+  What was a surprise? What remains to be done? If I have forgotten all the
+  details, what one to three main points should I remember? What is your
+  elevator pitch - indeed, what is your \emph{thesis}?
+  \url{https://www.ccs.neu.edu/home/shivers/diss-advice.html}}
+
+Thesis statements:
+
+\begin{enumerate}
+\item \emph{We can seamlessly integrate Datalog's features into a typed higher-order functional language by deconstructing them semantically.}
+
+\item \emph{The goal of this thesis is to design a language which improves on Datalog's ability to express monotone fixed point computation over semilattices by finding ways to lift Datalog's restrictions without sacrificing either its simple semantics or its practical implementation strategies.}
+  %
+  {\small\sffamily (from intro)}
+
+\end{enumerate}
+
+\noindent
+From perspective (2), we have partial success. Datafun possesses a simple
+semantics that nicely captures Datalog's ability to manipulate finite relations,
+in particular recursively defined relations and the restriction to
+monotonic/stratified recursion. However, the constructor-freedom restriction is
+trickier, as it relies on a clear distinction between relations (which can be
+defined and manipulated) and their contents (atoms, which can be tested for
+equality but not otherwise manipulated), which Datafun does not preserve.
+Instead, we assume an ascending chain condition, which requires finiteness of
+the type inside the set (FIX THIS DESCRIPTION). In practice this condition is
+hard to satisfy; thus in our examples we waive it, sacrificing the termination
+guarantee because Datafun's type system cannot capture finiteness easily.
+
+As for practical implementation strategies, we have constructed a Datafun
+implementation supporting seminaive evaluation, but this required a significant
+novel development of theory, and represents only one of many techniques
+necessary for an efficient implementation. It is plausible that these other
+techniques, in particular query planning and optimization (necessary to make
+join-like queries efficient) and demand transforms such as magic sets (which can
+make queries over large recursively defined relations practical by computing
+only a smaller relevant subset of the relation), could be lifted to Datafun, but
+this remains future work.
+
+
+\section{What have we learned?}
+
+
+\section{What remains to be done?}
+
+
+\section{Last remarks}
+
+\XXX
