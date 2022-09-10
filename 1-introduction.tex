@@ -921,6 +921,7 @@ whether for optimization or for bug-finding purposes.
 
 
 \section{What Datalog can't do}
+\label{section-what-datalog-cannot-do}
 
 In \cref{section-datalog} we discussed Datalog's semantics and the deliberate
 restrictions that make it tractable; in \cref{datalog-for-static-analysis} we saw how this made Datalog an attractive language for writing static analyses. However, Datalog's restrictions are not without their drawbacks. In this section will consider four things which Datalog does not support and their use-cases:
@@ -1086,6 +1087,8 @@ doing so raise the question of these features' semantics.
 %% \splittodo{ULTIMATE GOAL:}{move towards a language which directly expresses
 %%   the power of monotone fixed points. PROXIMATE GOAL: ease Datalog's
 %%   limitations in this area by combining it with functional programming.}
+
+\phantomsection \label{goal-of-thesis}
 
 The goal of this thesis is to design a language which improves on Datalog's
 ability to express monotone fixed point computation over semilattices by finding

@@ -1,19 +1,21 @@
-%\chapter{Looking Forward, Looking Back}
+\renewcommand\todo[1]{{\todocolor\ensuretext{\bfseries\sffamily{#1}}}}
+
 %\chapter{Lessons Learned and Yet to Be}
 %\chapter{Finished and Unfinished Work}
-\chapter{Conclusions and Future Work}
+%\chapter{Conclusions and Future Work}
+\chapter{Looking Back and Forward}
 \label{chapter-conclusion}
 
-\begingroup\todocolor Outline:
+%% Thesis statements:
 
-\begin{enumerate}
-\item Revisit thesis statement. (``The goal of this dissertation was to...'') Did we accomplish this? To what extent?
-\item What have we learned along the way? What was surprising?
-\item What remains to be done? What perhaps should be done differently?
-\item What three main points should the reader take away?
-\end{enumerate}
+%% \begin{enumerate}
+%% \item \emph{We can seamlessly integrate Datalog's features into a typed higher-order functional language by deconstructing them semantically.}
 
-\endgroup
+%% \item \emph{The goal of this thesis is to design a language which improves on Datalog's ability to express monotone fixed point computation over semilattices by finding ways to lift Datalog's restrictions without sacrificing either its simple semantics or its practical implementation strategies.}
+%%   %
+%%   {\small\sffamily (from intro)}
+
+%% \end{enumerate}
 
 \fixme{jeremy}{Lacking conclusions. What have we learned? What did you learn?
   Did you succeed in your goal (``to design a language which improves on...'',
@@ -23,47 +25,143 @@
   elevator pitch - indeed, what is your \emph{thesis}?
   \url{https://www.ccs.neu.edu/home/shivers/diss-advice.html}}
 
-Thesis statements:
+\todo{Outline:
 
 \begin{enumerate}
-\item \emph{We can seamlessly integrate Datalog's features into a typed higher-order functional language by deconstructing them semantically.}
-
-\item \emph{The goal of this thesis is to design a language which improves on Datalog's ability to express monotone fixed point computation over semilattices by finding ways to lift Datalog's restrictions without sacrificing either its simple semantics or its practical implementation strategies.}
-  %
-  {\small\sffamily (from intro)}
-
+\item Revisit thesis statement. (``The goal of this dissertation was to...'') Did we accomplish this? To what extent?
+\item What remains to be done? What perhaps should be done differently?
+\item What have we learned along the way? What was surprising?
+\item What three main points should the reader take away?
 \end{enumerate}
 
+Discuss the 4 things Datalog can't do from intro? 1. functional abstraction; 2. semilattices other than set union; 3. arithmetic, user-defined functions, and aggregation; 4. compound data? Not very flattering that we really only do (1) and (4) and lay groundwork for (2), (3). But maybe being brutal is the right choice here.
+
+}\vspace{1em}
+
 \noindent
-From perspective (2), we have partial success. Datafun possesses a simple
-semantics that nicely captures Datalog's ability to manipulate finite relations,
-in particular recursively defined relations and the restriction to
-monotonic/stratified recursion. However, the constructor-freedom restriction is
-trickier, as it relies on a clear distinction between relations (which can be
-defined and manipulated) and their contents (atoms, which can be tested for
-equality but not otherwise manipulated), which Datafun does not preserve.
-Instead, we assume an ascending chain condition, which requires finiteness of
-the type inside the set (FIX THIS DESCRIPTION). In practice this condition is
-hard to satisfy; thus in our examples we waive it, sacrificing the termination
-guarantee because Datafun's type system cannot capture finiteness easily.
+%% In this dissertation we have attempted to seamlessly integrate Datalog's
+%% features into a typed higher-order functional language by deconstructing these
+%% features semantically.
+%% %
+%% In particular,
+In our \hyperref[goal-of-thesis]{introduction}
+(\cpageref{goal-of-thesis}) we said:
 
-As for practical implementation strategies, we have constructed a Datafun
-implementation supporting seminaive evaluation, but this required a significant
-novel development of theory, and represents only one of many techniques
-necessary for an efficient implementation. It is plausible that these other
-techniques, in particular query planning and optimization (necessary to make
-join-like queries efficient) and demand transforms such as magic sets (which can
-make queries over large recursively defined relations practical by computing
-only a smaller relevant subset of the relation), could be lifted to Datafun, but
-this remains future work.
+\begin{quote}
+  The goal of this thesis is to design a language which improves on Datalog's
+  ability to express monotone fixed point computation over semilattices by
+  finding ways to lift Datalog's restrictions without sacrificing either its
+  simple semantics or its practical implementation strategies.
+\end{quote}
+
+\noindent
+We have made a start towards this goal, but much remains to be done.
+
+The examples in \cref{chapter-datafun} show Datafun can at least express
+Datalog-style queries. Moreover in \cref{section-what-datalog-cannot-do} we
+listed four things Datalog's restrictions do not permit: (1) functional
+abstraction, (2) semilattices other than set union, (3) arithmetic, user-defined
+functions, and aggregation, and (4) compound data.
+%
+Of these, Datafun's functional design makes 1 and 4 straightforward.
+%
+As for 2 and 3, arithmetic and user-defined functions are possible, but Datafun as
+presented does not include aggregations other than semilattice aggregation, nor
+semilattices other than sets (and products of sets).
+%
+However, its design lays a clear foundation for such extensions: aggregations can be added as primitive higher-order functions, and new semilattices can be added as new semilattice types. We will discuss this further in \cref{section-extensions}.
+
+Besides lifting Datalog's restrictions, we also wished to preserve two desirable
+qualities: \emph{simple semantics} and \emph{practical implementation
+strategies.} On each count, we have achieved only qualified success.
+
+\paragraph{Semantics}
+
+Datafun possesses a simple denotational semantics that captures Datalog's
+ability to manipulate finite relations. Datalog's recursively-defined relations
+become Datafun's bottom-up fixed points, and Datalog's stratification is
+enforced by Datafun's monotonicity types.
+%
+Besides monotonicity, however, least fixed points require an ascending chain condition; here Datafun has not quite captured Datalog's approach.
+%
+Datalog makes a clear distinction between relations and the terms they range over, and enforces \emph{constructor-freedom:} programs may not construct new terms not present in the source program. This ensures a finite universe of terms, and thus an ascending chain condition for relations over this universe.
+
+In Datafun relations and terms are simply types of values; this makes Datafun more flexible but requires a different way to guarantee the ascending chain condition.
+%
+In theory we \XXX.
+%
+In practice we have hand-waved this condition away for all of our useful examples \todo{cite example from ch2}.
+%
+Semantically, this is a serious flaw in the foundations of our approach.
+%
+Practically, it is almost a non-issue: \XXX
+
+\todo{Instead, we assume an ascending chain condition, which requires
+  finiteness of the type inside the set (FIX THIS DESCRIPTION).}
+
+\paragraph{Implementation}
+
+We have constructed a Datafun implementation supporting semi\naive\ evaluation,
+a central Datalog technique without which recursive relations are impractical to
+compute; but this required a significant novel development of theory, and
+represents only one of many techniques necessary for an efficient
+implementation. It is plausible, but hardly certain, that other standard
+techniques -- in particular query planning and optimization (necessary to
+replace nested loops with efficient relational joins) and demand transforms such
+as magic sets (which can make queries over large recursively defined relations
+practical by computing only a smaller relevant subset of the relation) -- could
+be extended to Datafun; this remains future work.
 
 
-\section{What have we learned?}
+\section{Directions forward}
+
+\todo{move concrete, small => abstract, big, theoretical}
+
+1. make Datafun practical: either reinvent datalog optimizations (query planning, demand transform) or compile to datalog (query normalization or defunctionalization).
+
+2. Handle termination for real programs somehow. Options: (z) stick head in sand, a popular approach with real Datalog engines; (a) capture reasoning about finiteness of sets; maybe have a way to boost a term-level set into a type; (b) directly model the constructor restriction and capture reasoning about ``non-creativity'' of functions (but this leaves aggregation in the cold); (c) accept nontermination and find a natural semantics for bottom-up fixpts in a nonterminating world (but this probably rules out some optimizations we'd like to do!).
+
+3. 
+
+4. Internal nondeterminism/concurrency -- all our motivating examples in ch1 were internally nondeterministic but externally deterministic. By implementing fixed-point finding as the limit of the iterations of a function, we've squashed this internal nondeterminism out of the process. But expressing it would allow useful concurrency or parallelism.
+
+\todo{for new semilattices, what do we need to show? Aggregations can be
+  expressed as higher-order functions; as long as attention is paid to
+  monotonicity they can be added without issue.}
+  
+Aggregations can be added to Datafun as primitive higher-order functions and pose no semantic issues so long as their types properly capture their (non-)monotonicity. For instance, consider the aggregations of counting and summation:
+
+\begin{align*}
+  \name{size} &\isa \tseteq A \to \tint
+  &
+  \name{sum} &\isa \iso \tseteq A \to (\iso \eqt A \to \tint) \to \tint
+  \\
+  \name{size} \<s &= |s|
+  &
+  \name{sum} \<s \<f &= \sum_{x \in s} f(x)
+\end{align*}
 
 
-\section{What remains to be done?}
+\section{Lessons and surprises}
+
+1. The need for change minimization surprised me. In hindsight it's obvious, but our POPL 2020 reviewers and the examiners of this dissertation all missed it. An undergraduate pointed out an instance of it after the talk at POPL 2020! (what's the big picture here?) Perhaps precision actually is a fine price to pay? Needs more investigation.
+
+2. Tradeoff between expressiveness and tractability. Datafun uses monadic-style set comprehensions to express relational algebra. But this allows nested sets, a significant increase in expressiveness. It is not obvious how to turn these into standard query plans! I was surprised when I realized I did not know how to do this.
+
+3. Incremental computation = tracking dependency + propagating change. Pure dep-tracking approaches simplify change propagation by just rerunning functions. The pure change-propagation approach of the incremental lambda-calculus doesn't work except for self-maintainable functions, you need to cache somewhere; in Datafun it seems we only need to cache in very specific places -- but is this essential or accidental? (are 2-watched literals in SAT solving an example of this?)
+
+4. Monotonicity seems deeply interrelated with many fields. (include this?)
 
 
-\section{Last remarks}
+\section{Final remarks}
+
+\noindent
+\emph{``monotonicity tames dragons.''}\\
+\emph{``datalog is about defining finite sets.''}
+
+\begin{enumerate}
+\item \strong{Types for monotonicity.}
+\item \strong{Semi\naive\ evaluation is finite differencing.} \emph{To find fixed points faster, incrementalize!}
+\end{enumerate}
 
 \XXX
