@@ -225,7 +225,7 @@ Finally, generalizing our Datalog graph reachability example in
 \cref{section-datalog}, we can define the transitive closure of a relation:
 
 \begin{code}
-  \name{trans} \isa \iso \tset{\eqt A \x \eqt A} \to \tset{\eqt A \x \eqt A}\\
+  \name{trans} \isa \iso \tset{\fint A \x \fint A} \to \tset{\fint A \x \fint A}\\
   \name{trans} \<\pboxvarlong{edge} =
   \efixis{R}{\dvarlong{edge} \vee (\dvarlong{edge} \relcomp \mvar R)}
 \end{code}
@@ -237,7 +237,7 @@ original relation $\dvarlong{edge}$ and the composition of $\dvarlong{edge}$
 with $\mvar R$.
 %
 However, a peculiar feature of this definition is that the argument
-type is $\iso \tset{\eqt A \times \eqt A}$; transitive closure takes a
+type is $\iso \tset{\fint A \times \fint A}$; transitive closure takes a
 \emph{discrete} relation.
 %
 This is because we must use the relation within the fixed point, and Datafun treats \prim{fix} as a discrete operator.
@@ -538,7 +538,7 @@ $\name{iter}$ function, which represents one step of the fixed point iteration.
   \dvar i \in \name{range} \<\ebox{0} \<(\name{length} \<\dvarlong{text} - \ebox{\name{length} \<\dvar s}),
   \\\phantom{\wubwub}
   \name{substring} \<\ebox{\dvarlong{text},\, \dvar i,\, \dvar i + \name{length}\<\dvar s}
-  ~\} asdf
+  ~\}
 \end{code}
 
 %% \begin{code}
