@@ -1,5 +1,20 @@
 \renewcommand\todo[1]{{\todocolor\ensuretext{\bfseries\sffamily{#1}}}}
 
+%% restore description list settings
+\setlist[description]{
+  leftmargin=\parindent,
+  labelsep=1.02em,
+  listparindent=\parindent, parsep=0pt, itemsep=\itemsepagain,
+  %% topsep=\baselineskip,
+}
+
+\setlist[description]{
+  topsep=\parsep,
+  font={\mdseries\itshape},
+  leftmargin=\parindent, %labelsep=1.02em,
+  listparindent=\parindent, parsep=0pt, itemsep=\itemsepagain,
+}
+
 %\chapter{Lessons Learned and Yet to Be}
 %\chapter{Finished and Unfinished Work}
 %\chapter{Conclusions and Future Work}
@@ -37,14 +52,17 @@
 
 %% \vspace{1em}
 
+%% This dissertation has attempted to bridge the gap between logic programming and
+%% functional programming by treating both as expressions of the same denotational semantics.
+
 \noindent
-%% In this dissertation we have attempted to seamlessly integrate Datalog's
-%% features into a typed higher-order functional language by deconstructing these
-%% features semantically.
-%% %
-%% In particular,
-In our \hyperref[goal-of-thesis]{introduction}
-(\cpageref{goal-of-thesis}) we said:
+To the extent that we have had in this dissertation a thesis, a singular statement
+we have aimed to demonstrate, it is that we can seamlessly integrate Datalog's
+features into a typed higher-order functional language by deconstructing them
+semantically.
+%
+Or, as we said in the \hyperref[goal-of-thesis]{introduction}
+(\cpageref{goal-of-thesis}):
 
 \begin{quote}
   The goal of this thesis is to design a language which improves on Datalog's
@@ -54,7 +72,8 @@ In our \hyperref[goal-of-thesis]{introduction}
 \end{quote}
 
 \noindent
-We have made a start towards this goal, but much remains to be done.
+Unfortunately, we cannot claim to have unambiguously proven our thesis: we have
+made a start towards this goal, but much remains to be done.
 
 The examples in \cref{chapter-datafun} show Datafun can at least express
 Datalog-style queries. Moreover in \cref{section-what-datalog-cannot-do} we
@@ -67,24 +86,28 @@ Of these, Datafun makes \emph{functional abstraction}, \emph{arithmetic}, \emph{
 It does not include \emph{semilattices other than sets} (and products of sets),
 nor \emph{aggregations} other than semilattice aggregation (\kw{for}-loops).
 %
-However, its design lays a clear foundation for such extensions: new semilattices can be added as semilattice types, and aggregations can be added as primitive higher-order functions. We will discuss this further in \cref{section-extensions}.
+However, its design lays a clear foundation for such extensions: new
+semilattices can be added as semilattice types, and aggregations can be added as
+primitive higher-order functions.
+%
+%We will discuss this further in \cref{section-extensions}.
 
-Besides lifting Datalog's restrictions, we also wished to preserve two desirable
-qualities: \emph{simple semantics} and \emph{practical implementation
+In addition to lifting Datalog's restrictions, we also wished to preserve two
+desirable qualities: \emph{simple semantics} and \emph{practical implementation
 strategies.} On each count, we have achieved only qualified success.
 
-\paragraph{Semantics}
-
 Datafun possesses a simple denotational semantics that captures Datalog's
-ability to manipulate finite relations. Datalog's recursively-defined relations
+ability to manipulate finite relations: Datalog's recursively-defined relations
 become Datafun's bottom-up fixed points, and Datalog's stratification is
 enforced by Datafun's monotonicity types.
 %
-Besides monotonicity, however, least fixed points require an ascending chain condition; here Datafun has not quite captured Datalog's approach.
+However, least fixed points also require an ascending chain
+condition; here Datafun and Datalog diverge.
 %
 Datalog makes a clear distinction between relations and the terms they range over, and enforces \emph{constructor-freedom:} programs may not construct new terms not present in the source program. This ensures a finite universe of terms, and thus an ascending chain condition for relations over this universe.
 
-In Datafun relations and terms are simply types of values; this makes Datafun more flexible but requires a different way to guarantee the ascending chain condition.
+By contrast, in Datafun relations and terms are simply types of values; this
+adds flexibility but requires a different way to guarantee the ascending chain condition.
 %
 In theory we require the \emph{type} at which we take a fixed point to satisfy the ACC; for set types, this requires the element type be finite.
 %
@@ -98,18 +121,19 @@ Semantically, this is a serious flaw in the foundations of our approach.
 %
 Practically, it is on par with existing approaches: real Datalog engines routinely permit constructors or arithmetic, putting the onus on the programmer to avoid infinite relations and non-termination.
 
-\paragraph{Implementation}
+%% \paragraph{Implementation}
 
-We have constructed a Datafun implementation supporting semi\naive\ evaluation,
-a central Datalog technique without which recursive relations are impractical to
-compute; but this required a significant novel development of theory, and
-represents only one of many techniques necessary for an efficient
-implementation. It is plausible, but hardly certain, that other standard
-techniques -- in particular query planning and optimization (necessary to
-replace nested \kw{for}-loops with efficient relational joins) and demand
-transforms such as magic sets (which make queries over large recursively
-defined relations practical by computing only a smaller relevant subset of the
-relation) -- could be extended to Datafun; this remains future work.
+As for \emph{practical implementation strategies,} we have constructed a Datafun
+implementation supporting semi\naive\ evaluation, a central Datalog technique
+without which recursive relations are impractical to compute; but this required
+a significant novel development of theory, and represents only one of many
+techniques necessary for an efficient implementation. It is plausible, but
+hardly certain, that other standard techniques -- in particular query planning
+and optimization (necessary to replace nested \kw{for}-loops with efficient
+relational joins) and demand transforms such as magic sets (which make queries
+over large recursively defined relations practical by computing only a smaller
+relevant subset of the relation) -- could be extended to Datafun; this remains
+future work.
 
 
 \section{Directions forward}
@@ -122,7 +146,7 @@ In this section we sketch some directions for future work on Datafun, beginning 
 
 As we have discussed, Datafun's semantics for \kw{fix} require ACC; our motivating examples satisfy this in principle, but Datafun's simple type system cannot capture this. For instance, we might represent the nodes of a graph as integers; but while the graph may be finite, the integers are infinite. To remedy this, we must either (a) accept nontermination and adjust our semantics or (b) reject nontermination and adjust our language.
 
-Accepting nontermination is simpler and more in line with typical functional-language semantics; but from the logic programming and database perspectives, it complicates optimization by invalidating many program equalities, for instance \emph{loop interchange:}
+Accepting nontermination is simpler, but it removes potential optimizations by invalidating many program equalities, for instance \emph{loop interchange:}
 
 \begin{equation*}
   \efor{\dvar x \in e_1,\, \dvar y \in e_2}{e_3}
@@ -140,14 +164,21 @@ Accepting nontermination is simpler and more in line with typical functional-lan
 %% \end{datalog}
 
 \noindent
-This equation fails if $e_1$ is nonterminating but $e_2 = \emptyset$ or vice-versa. Perhaps some adjustment to how Datafun expresses queries like this, such as ditching monadic set-comprehensions in favor of applicative ones (see \emph{query planning and optimization} below), might resolve this.
+This equation fails if $e_1$ is nonterminating but $e_2 = \emptyset$ or
+vice-versa. Perhaps some adjustment to how Datafun expresses queries like this, such as ditching monadic set-comprehensions in favor of applicative ones (see \emph{query planning and optimization} below), might resolve this.
 
-Rejecting nontermination requires creatively re-thinking how we guarantee ACC. We might, for instance, capture reasoning about the finiteness of sets at the type level, mechanizing our hand-waving about taking a fixed point over finite sets of \emph{nodes} rather than of \emph{integers}. Or, we might try to capture the spirit of Datalog's no-constructor restriction by singling out a class of ``uncreative'' functions that do not create new data; perhaps by using a type-and-effect system that treats ``creating data'' as an effect,\footnotemark{} or perhaps by exploiting parametricity to guarantee all data in our output came from our input.
+Rejecting nontermination requires creatively re-thinking how we guarantee ACC.
+We might, for instance, capture reasoning about the finiteness of sets at the
+type level, mechanizing our hand-waving about taking a fixed point over finite
+sets of \emph{nodes} rather than of \emph{integers}. Or, we might try to capture
+the spirit of Datalog's no-constructor restriction by singling out a class of
+``uncreative'' functions that do not create new data; perhaps by treating
+``creating data'' as an effectful operation,\footnotemark{} or perhaps by exploiting parametricity to guarantee all data in our output came from our input.
 
 \newcommand\bless{\name{Bless}}
 \newcommand\holy{\name{Holy}}
 
-\footnotetext{Here is a simple system along these lines: introduce a monad $\bless$ and type constructor $\holy$ with the following methods:
+\footnotetext{Here is a simple system along these lines: introduce a monad $\bless$ and type constructor $\holy$ with the methods:
 
   \begin{align*}
     \name{anoint} &\isa A \to \bless\<(\holy\<A)
@@ -169,9 +200,43 @@ Rejecting nontermination requires creatively re-thinking how we guarantee ACC. W
 
 \paragraph{Query planning and optimization}
 
-\fixme{me}{THIS NEXT}
+To implement Datafun efficiently, we need to be able to identify relational
+joins. Identifying joins is also a necessary first step if we wish to apply
+standard query planning and optimization techniques. Datafun expresses joins as
+nested loops; for instance, relational composition (a simple equijoin):
 
-\todo{either reinvent datalog optimizations (query planning, demand transform) or compile to datalog (query normalization or defunctionalization).}
+\begin{code}
+  \pwild \relcomp \pwild \isa
+  \tset{\eqt A \x \eqt B}
+  \to \tset{\eqt B \x \eqt C}
+  \to \tset{\eqt A \x \eqt C}\\
+  \mvar s \relcomp \mvar t =
+  \eforin{\ptuple{\dvar a, \dvar b}}{\mvar s}
+  \eforin{\ptuple{\peq{\dvar b}, \dvar c}}{\mvar t}
+  \eset{\etuple{\dvar a, \dvar c}}
+\end{code}
+
+\noindent
+Implementing this as it is written, using a nested loop, has time-complexity
+$O(|S| \cdot |T|)$. An on-the-fly hash-join, building an index on the $\eqt B$
+column of either $S$ or $T$, takes $O(|S| + |T|)$.
+%
+Unfortunately, nested \kw{for}-loop expressions are in general not reducible to
+joins, because the inner loop can loop over a function of the outer loop
+variable: $(\eforvar x {\mvar s} \eforvar y {f(x)} \dots)$.
+%
+This does not happen in Datalog and makes query planning significantly harder: in
+database parlance, we've expressed joins (easy) as subqueries (hard).
+%
+We could address this in the compiler by heuristically identifying nested loops
+which can be implemented as joins; or, we could force our comprehensions to be
+applicative rather than monadic, banning the problematic nesting entirely.
+
+Moreover, there remains the question of what to do once we have identified
+joins. We could again attempt to lift standard database techniques to apply to a
+higher-order setting; or, we could attempt to sidestep this work by compiling
+Datafun into an existing Datalog dialect by using some variety of
+defunctionalisation.
 
 \paragraph{Custom semilattices}
 
@@ -250,9 +315,15 @@ The need for change minimization surprised me. In hindsight it's obvious, but ou
 
 \paragraph{Expressiveness versus tractability}
 
-There is a deep tradeoff in programming language design between \emph{expressiveness} and \emph{tractability:} the more powerful the language, the harder it is to reason about programs in that language.
+There is a deep tradeoff in programming language design between
+\emph{expressiveness} and \emph{tractability:} the more powerful the language,
+the more complex it becomes to reason about programs in that language.
 %
-Datalog's power comes from its limitations: it restricts logic programming to the bare minimum -- finite relations -- and in return gains a rich theory of implementation and optimisation techniques. Datafun is an attempt to loosen Datalog's restrictions; in hindsight, it's obvious we might run into issues of tractability.
+Datalog's power comes from its limitations: it restricts logic programming to
+the bare minimum -- finite relations -- and in return gains a rich theory of
+implementation and optimisation techniques. Datafun is an attempt to loosen
+Datalog's restrictions; in hindsight it's clear we might run into issues of
+tractability, but it was not obvious in foresight.
 
 \todo{Tradeoff between expressiveness and tractability. Datafun uses monadic-style set comprehensions to express relational algebra. But this allows nested sets, a significant increase in expressiveness. It is not obvious how to turn these into standard query plans! I was surprised when I realized I did not know how to do this.}
 
@@ -278,15 +349,11 @@ Pure dependency-tracking approaches simplify change propagation by just rerunnin
 
 \section{Successes summarized}
 
-To the extent this dissertation has a singular \emph{thesis}, a statement it aims to demonstrate, it is this: \emph{we can seamlessly integrate Datalog's features into a typed higher-order functional language by deconstructing them semantically.}
-%
-This chapter so far has largely explored how this effort falls short or could be improved on in future work.
+So far in this chapter we have largely explored how this effort falls short or could be improved on in future work.
 %
 However, \cref{chapter-datafun,chapter-seminaive} respectively represent
 significant successes for this semantic-deconstruction approach; if we were to
 distill this dissertation into their key ideas, it would be these:
-
-\todo{And more generally that by focusing on denotational semantics we can bridge the gap between logic programming and functional programming}
 
 %% \noindent
 %% \emph{``monotonicity tames dragons.''}\\
@@ -304,9 +371,22 @@ distill this dissertation into their key ideas, it would be these:
   %
   %% Monotonicity in general is subtle -- functions may be monotone for non-obvious reasons -- but for Datalog, purely compositional reasoning about monotonicity suffices.
   %
-  The only subtlety is the interaction of monotone and non-monotone functions;
-  this can be modelled with the discreteness comonad $\iso$, and given syntax
-  with a simple modal type system.
+  The main difficulty is the interaction of monotone and non-monotone functions;
+  this arises from the discreteness comonad $\iso$, and can be handled with
+  a simple modal type system.
 
-\item[{To find fixed points faster, incrementalize!}] \emph{Semi\naive\ evaluation via change structures.}
+\item[{To find fixed points faster, incrementalize!}] Finding a fixed point by
+  iteration involves repeatedly changing a function's input to match its
+  changing output. Doing this \naive{}ly is asymptotically inefficient; to do it
+  efficiently, we must efficiently propagate \emph{changes.}
+%
+  This is not only the essence of semi\naive\ evaluation in Datalog, but an
+  instance of a greater problem of automatic incremental computation.
+%
+  Prior work on the incremental $\lambda$-calculus shows that incremental
+  computation can be achieved in higher-order languages; we have extended it to
+  Datafun and shown that by modifying it to consider only \emph{increasing}
+  changes, it gives rise to semi\naive\ evaluation.
+
+  %\emph{Semi\naive\ evaluation via change structures.}
 \end{description}
