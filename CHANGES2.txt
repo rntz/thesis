@@ -1,0 +1,27 @@
+I've listed page numbers for the changes; these numbers are for the current pdf (with second-round corrections), not any prior pdf.
+
+Major difference from previous submission: added Chapter 6, "Looking Back and Forward", containing conclusions and future work.
+
+Minor differences:
+
+p20: The type of trans has been adjusted to use A_{fin}, that is, a finite equality type, rather than A_{eq}, merely an equality type. Otherwise it is technically ill-typed; the issue is explained in a footnote on p21, so without this change the problem occurs before it is explained.
+
+p23: A typo ("asdf") has been removed from the end of the definition of the iter function.
+
+p42-43: The explanation of why path_i contains exactly the paths of length i or fewer (and therefore path_{i+1} subsumes path_i) has been rewritten.
+
+p43: The big-theta bounds on the size of path_i have been corrected. Previously I claimed |path_i| \in \Theta(i^2); the correct bound is \Theta(i n).
+
+p44: "for all i" added after "We wish to show inductively that step path_i = path_{i+1}".
+
+p47: "presented in Arntzenius and Krishnaswami" -> "presented by Arntzenius and Krishnaswami"
+
+p47: Explained that the other structures which we don't cover are straightforward, except for collect(f); added a forward-reference for that case.
+
+p48: Added a small space between empty square brackets.
+
+p65: "easiest when you work inside out" --> "easiest done from the inside outwards"
+
+p67: "With a bit of rewriting" -> "Distributing composition over union".
+
+p67: Diaresis added to "seminaive" at start of section 4.2.
