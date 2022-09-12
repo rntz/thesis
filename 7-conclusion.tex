@@ -72,7 +72,7 @@ Or, as we said in the \hyperref[goal-of-thesis]{introduction}
 \end{quote}
 
 \noindent
-Unfortunately, we cannot claim to have unambiguously proven our thesis: we have
+Unfortunately, we cannot claim to have definitively proven our thesis: we have
 made a start towards this goal, but much remains to be done.
 
 The examples in \cref{chapter-datafun} show Datafun can at least express
@@ -140,7 +140,8 @@ future work.
 
 \label{section-extensions}
 
-In this section we sketch some directions for future work on Datafun, beginning with the shortcomings identified in the previous section, then moving outward to more speculative possibilities.
+In this section we sketch some directions for future work on Datafun to address
+the shortcomings identified in the previous section.
 
 \paragraph{The ascending chain condition}
 
@@ -219,7 +220,7 @@ nested loops; for instance, relational composition (a simple equijoin):
 \noindent
 Implementing this as it is written, using a nested loop, has time-complexity
 $O(|S| \cdot |T|)$. An on-the-fly hash-join, building an index on the $\eqt B$
-column of either $S$ or $T$, takes $O(|S| + |T|)$.
+column of either $S$ or $T$, takes $O(|S| + |T| + |S \relcomp T|)$.
 %
 Unfortunately, nested \kw{for}-loop expressions are in general not reducible to
 joins, because the inner loop can loop over a function of the outer loop
@@ -238,11 +239,7 @@ higher-order setting; or, we could attempt to sidestep this work by compiling
 Datafun into an existing Datalog dialect by using some variety of
 defunctionalisation.
 
-\paragraph{Custom semilattices}
-
-\todo{for new semilattices, what do we need to show? Aggregations can be
-  expressed as higher-order functions; as long as attention is paid to
-  monotonicity they can be added without issue.}
+%% \paragraph{Custom semilattices} \todo{for new semilattices, what do we need to show?}
 
 \paragraph{Aggregations and the Boom hierarchy}
   
@@ -278,44 +275,64 @@ Our semantics for Datafun is built over an adjunction between \cat{Set} and \cat
 
 \XXX
 
+
 %% \paragraph{Mixed functional-relational programming} \XXX
 
-\paragraph{Concurrency and (non-)determinism}
+%% \paragraph{Concurrency and (non-)determinism}
 
-The opening of \cref{chapter-introduction} used three examples to illustrate
-a common pattern: \emph{finding the least fixed point of a monotone map on a
-semilattice satisfying the ascending chain condition}. But these examples -- graph reachability, shortest paths, reaching definitions -- have something else in common: nondeterministic choice. Our procedure to find reachable nodes in a graph, for instance, is to repeatedly pick a node -- \emph{any} node -- and mark it if any of its neighbors is marked. No matter which order we pick nodes in, once we reach a fixed point, it is always the same one.\footnotemark{} This confluence is intuitive for graph reachability, but why does it generalize to our other examples, and how generally does it hold?
+%% The opening of \cref{chapter-introduction} used three examples to illustrate
+%% a common pattern: \emph{finding the least fixed point of a monotone map on a
+%% semilattice satisfying the ascending chain condition}. But these examples -- graph reachability, shortest paths, reaching definitions -- have something else in common: nondeterministic choice. Our procedure to find reachable nodes in a graph, for instance, is to repeatedly pick a node -- \emph{any} node -- and mark it if any of its neighbors is marked. No matter which order we pick nodes in, once we reach a fixed point, it is always the same one.\footnotemark{} This confluence is intuitive for graph reachability, but why does it generalize to our other examples, and how generally does it hold?
 
-\footnotetext{Moreover, as long as our sequence of nodes is chosen fairly, we will reach a fixed point if one exists. ``Fairly'' is usually formalized by making the choice-sequence infinite and requiring every node to occur infinitely often -- a strange condition, since, if fulfilled, we pick only a \emph{finite} number of nodes before a fixed point is reached!}
+%% \footnotetext{Moreover, as long as our sequence of nodes is chosen fairly, we will reach a fixed point if one exists. ``Fairly'' is usually formalized by making the choice-sequence infinite and requiring every node to occur infinitely often -- a strange condition, since, if fulfilled, we pick only a \emph{finite} number of nodes before a fixed point is reached!}
 
-%% We cannot answer these questions by considering fixed points merely as the limit of a sequence of iterations of a deterministic function $f$. We can, however, make sense of it if we observe that, in our examples, $f$ is defined over a product space. In graph reachability, if our graph is $G = (V,E)$ and our start note is $v_{\name{start}}$, then we are finding the fixed point of $f : 2^V \to 2^V$ defined by $f(S) = \{v_{\name{start}}\} \cup \setfor{y}{x \in S, (x,y) \in \name{edge}}$. But we can just as easily see this \XXX
+%% %% We cannot answer these questions by considering fixed points merely as the limit of a sequence of iterations of a deterministic function $f$. We can, however, make sense of it if we observe that, in our examples, $f$ is defined over a product space. In graph reachability, if our graph is $G = (V,E)$ and our start note is $v_{\name{start}}$, then we are finding the fixed point of $f : 2^V \to 2^V$ defined by $f(S) = \{v_{\name{start}}\} \cup \setfor{y}{x \in S, (x,y) \in \name{edge}}$. But we can just as easily see this \XXX
 
-This pattern of a nondeterministic procedure with deterministic results is closely connected with monotonicity across several domains. \XXX
+%% This pattern of a nondeterministic procedure with deterministic results is closely connected with monotonicity across several domains. \XXX
 
-\todo{- useful concurrency or parallelism (what's the connection?)
+%% \todo{- useful concurrency or parallelism (what's the connection?)
   
-- fixed points on product spaces
+%% - fixed points on product spaces
 
-- chaotic iteration
+%% - chaotic iteration
 
-- CALM theorem}
+%% - CALM theorem}
 
 
 \section{Lessons and surprises}
 
-Beyond the 
-
-some unexpected insights learned in the course of research and writing.
-
-\XXX
+Research is a process of discovery; sometimes you find what you expected,
+sometimes you do not; sometimes you find more questions. This section presents
+some insights gained in the course of writing this dissertation which, while not
+entirely novel, at least surprised this author.
 
 \paragraph{Change minimization and precise differences}
 
-The need for change minimization surprised me. In hindsight it's obvious, but our POPL 2020 reviewers and the examiners of this dissertation all missed it. An undergraduate pointed out an instance of it after the talk at POPL 2020! (what's the big picture here?) Perhaps precision actually is a fine price to pay? Needs more investigation.
+The need to minimize changes to avoid junk piling up during semi\naive\ fixed
+point iteration and eliminating any asymptotic speed-up is obvious in hindsight
+(see \cref{section-change-minimization}), but was overlooked by
+\cite{seminaive-datafun}, their reviewers, and the examiners of the initial
+version of this dissertation. The author only realized it when an undergraduate
+student pointed out an instance of it in the Q~\&~A for a talk given at POPL
+2020.
+
+The root of this oversight is an early decision, when applying the incremental
+\fn-calculus to Datafun, to \emph{not} compute precise changes -- in particular,
+to let $\delta(e \cup f) = \delta e \cup \delta f$ instead of the more precise
+$(\delta e \setminus f) \cup (\delta f \setminus e)$, because the former,
+simpler expression does less work and avoids recomputing $e$ and $f$. In light
+of the need for change minimization, this decision is questionable. But because
+our efforts in \cref{chapter-seminaive} focused almost entirely on proving
+correctness, and because our initial benchmark in \cref{chapter-implementation}
+(a linear graph) has at most one path between two nodes and thus fails to
+trigger this issue, we failed to notice this inefficiency.
+%
+Change minimization addresses this issue, but the question remains: might it be
+better to just compute precise changes in the first place?
 
 \paragraph{Expressiveness versus tractability}
 
-There is a deep tradeoff in programming language design between
+There is a tradeoff in programming language design between
 \emph{expressiveness} and \emph{tractability:} the more powerful the language,
 the more complex it becomes to reason about programs in that language.
 %
@@ -323,18 +340,31 @@ Datalog's power comes from its limitations: it restricts logic programming to
 the bare minimum -- finite relations -- and in return gains a rich theory of
 implementation and optimisation techniques. Datafun is an attempt to loosen
 Datalog's restrictions; in hindsight it's clear we might run into issues of
-tractability, but it was not obvious in foresight.
+tractability.
 
-\todo{Tradeoff between expressiveness and tractability. Datafun uses monadic-style set comprehensions to express relational algebra. But this allows nested sets, a significant increase in expressiveness. It is not obvious how to turn these into standard query plans! I was surprised when I realized I did not know how to do this.}
+For instance, we have already seen that by allowing monadic set-comprehensions, a natural choice from a functional programming standpoint and one made without careful consideration on the part of this author, we complicated the task of query planning, ignoring hard-won wisdom from the field of databases incorporated implicitly into the design of Datalog.
 
 More generally, by deeply integrating functional and logic programming, Datafun
 extends Datalog's expressivity -- but is it worth the price? There are more
 conservative ways to address Datalog's shortcomings which may require less
-reinvention of existing techniques; for instance, using code generation or staged programming to allow modular code re-use; or the approach taken by \textsc{Flix}, \XXX.
+reinvention of existing techniques; for instance, using code generation or
+staged programming to allow modular code re-use; or the approach taken by
+\textsc{Flix}: two interlocking but separate logic and functional languages.
+%
+The only examples we have given that deeply intertwine the functional and logic
+features of Datafun are the regular expression combinators from
+\crefrange{section-regex-combinators}{regex-combinators-take-two}, which
+represent regular expressions as functions producing relations and regular
+expression constructions as higher-order functions (combinators).
+%
+This is cute, but as justifications for a dissertation's worth of work go it is
+fairly thin.
+%
+Higher-order programming sometimes unlocks unusually powerful or concise
+solutions to existing problems; can we find other motivating examples that take
+advantage of Datafun's unique feature set?
 
-\todo{Or maybe just having two languages that communicate is enough, \`a la \textsc{Flix}. The best example we have of deep integration is regexes; need more examples justifying this!}
-
-\paragraph{The unity and disunity of incremental computation}
+\paragraph{The unity and diversity of incremental computation}
 
 \todo{two core techniques; endless variations on the details}
 
@@ -383,7 +413,7 @@ distill this dissertation into their key ideas, it would be these:
   This is not only the essence of semi\naive\ evaluation in Datalog, but an
   instance of a greater problem of automatic incremental computation.
 %
-  Prior work on the incremental $\lambda$-calculus shows that incremental
+  Prior work on the incremental \fn-calculus shows that incremental
   computation can be achieved in higher-order languages; we have extended it to
   Datafun and shown that by modifying it to consider only \emph{increasing}
   changes, it gives rise to semi\naive\ evaluation.
