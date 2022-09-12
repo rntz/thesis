@@ -266,14 +266,28 @@ Many aggregations arise from free functors into categories of algebraic structur
 \end{align*}
 
 \noindent
-Our
+Modulo monotonicity, \name{sum} arises from \name{bagsum} by letting $M =
+(\mathbb{Z}, +, 0)$.
+%
+Many common aggregations and some of the most common data structures used in
+programming arise in a similar way from three free functors in particular: lists
+as the free monoid, bags as the free commutative monoid, and finite sets as the
+free idempotent commutative monoid (equivalent to a semilattice). These are
+three layers of the ``Boom
+hierarchy''~\citep{DBLP:conf/ifip2-1/BackhouseH93}.\footnotemark{} Each free
+functor forms half of an adjunction between \Set\ and the respective category of
+algebraic structures (\cat{Mon}, \cat{CMon}, and \cat{Semilat}).
+%
+Our semantics for Datafun is built over the adjunctions between \cat{Set},
+\cat{Poset}, and \cat{Semilat}; can we extend this to cover the other
+adjunctions of the Boom hierarchy, and uncover a language for expressing queries
+over these three data structures and their corresponding varieties of
+aggregation?
 
-\XXX\
-Our semantics for Datafun is built over an adjunction between \cat{Set} and \cat{Poset}; can we extend this to cover the adjunctions which form the ``rungs'' of the Boom hierarchy ``ladder''?
-
-%% lists form the free monoid; bags form the free commutative monoid; and finite sets form the free idempotent commutative monoid (or semilattice). These form the ``Boom hierarchy'' \fixme{me}{cite}
-
-\XXX
+\footnotetext{The other layer of the Boom hierarchy is \emph{trees,}
+  specifically binary trees with data only at the leaves: the free magma. Few
+  useful aggregations form magmas, and although trees are ubiquitous in
+  computing, few are of this particular form.}
 
 
 %% \paragraph{Mixed functional-relational programming} \XXX
@@ -301,7 +315,7 @@ Our semantics for Datafun is built over an adjunction between \cat{Set} and \cat
 
 \section{Lessons and surprises}
 
-Research is a process of discovery; sometimes you find what you expected,
+Research is a process of discovery: sometimes you find what you expected,
 sometimes you do not; sometimes you find more questions. This section presents
 some insights gained in the course of writing this dissertation which, while not
 entirely novel, at least surprised this author.
@@ -309,7 +323,7 @@ entirely novel, at least surprised this author.
 \paragraph{Change minimization and precise differences}
 
 The need to minimize changes to avoid junk piling up during semi\naive\ fixed
-point iteration and eliminating any asymptotic speed-up is obvious in hindsight
+point iteration and eliminating any asymptotic speed-up is obvious in retrospect
 (see \cref{section-change-minimization}), but was overlooked by
 \cite{seminaive-datafun}, their reviewers, and the examiners of the initial
 version of this dissertation. The author only realized it when an undergraduate
@@ -364,13 +378,41 @@ Higher-order programming sometimes unlocks unusually powerful or concise
 solutions to existing problems; can we find other motivating examples that take
 advantage of Datafun's unique feature set?
 
-\paragraph{The unity and diversity of incremental computation}
+\paragraph{The diversity and unity of incremental computation}
 
-\todo{two core techniques; endless variations on the details}
+The problem of semi\naive\ evaluation is an instance of incremental computation
+-- one instance among many.
+%
+As we explored in \cref{section-related-work-incremental-computation}, there
+appear to be as many approaches to incremental computation as there are
+applications of it, including a zoo of incremental build systems, several
+varieties of self-adjusting computation, and multiple approaches to incremental
+maintenance in database systems.
+%
+Even user interfaces involve incremental computation: for performance reasons,
+web UI libraries like React avoid re-rendering UI components whose state has not
+changed.\footnotemark\
 
-In \cref{section-related-work-incremental-computation} we observed that there are two fundamental techniques in incremental computation: \emph{dependency tracking} and \emph{finite differencing}. \XXX
+\footnotetext{\url{https://web.archive.org/web/20220223155533/https://reactjs.org/}; see also
+  \url{https://web.archive.org/web/20220907152744/https://blog.janestreet.com/incrementality-and-the-web/} for a discussion
+of incrementality in web UI libraries.}
 
-Pure dependency-tracking approaches simplify change propagation by just rerunning functions; they propagate change in an all-or-nothing fashion.\footnotemark\ The pure change-propagation approach of the incremental lambda-calculus doesn't work except for self-maintainable functions, you need to cache somewhere; in Datafun it seems we only need to cache in very specific places -- but is this essential or accidental? (are 2-watched literals in SAT solving an example of this?)
+These diverse systems nonetheless share a small set of core techniques: tracking
+dependencies so we know what needs to be updated, caching intermediate values to
+re-use them when they don't change, and propagating changes -- perhaps as
+all-or-nothing updates, perhaps as diffs. This latter apparent difference
+(between what we called \emph{dependency tracking} and \emph{finite
+differencing} approaches) can, however, be resolved by seeing all-or-nothing
+updates as a degenerate kind of diff, as we showed in
+\cref{dependency-tracking-as-a-change-structure}. The theory of change
+structures -- originated by \citet{incremental} and further developed by
+\cite{DBLP:phd/dnb/Giarrusso20}, \cite{mario-thesis}, and in the present work --
+hints at the beginnings of a unified theory of incremental computation. However,
+all these works use slightly but crucially differing notions of \emph{change
+structure;} perhaps incremental computation is destined never to be unified at
+all.
+
+%% Pure dependency-tracking approaches simplify change propagation by just rerunning functions; they propagate change in an all-or-nothing fashion.\footnotemark\ The pure change-propagation approach of the incremental lambda-calculus doesn't work except for self-maintainable functions, you need to cache somewhere; in Datafun it seems we only need to cache in very specific places -- but is this essential or accidental? (are 2-watched literals in SAT solving an example of this?)
 
 %% \footnotetext{See \cref{section-related-work-incremental-computation}, \cpageref{dependency-tracking-as-a-change-structure}, ``Dependency tracking as a change structure''.}
 
